@@ -1,0 +1,271 @@
+<aetgt:getResponse xmlns:aetgt="http://schemas.active-endpoints.com/appmodules/repository/2010/10/avrepository.xsd"
+                   xmlns:types1="http://schemas.active-endpoints.com/appmodules/repository/2010/10/avrepository.xsd">
+   <types1:Item>
+      <types1:EntryId>1Q99WvbeGoQwg74-gt-13115047-2024-02-07T11:26:09.785Z::svc.xml</types1:EntryId>
+      <types1:Name>sc_TableauExtractRefresh-1</types1:Name>
+      <types1:MimeType>application/xml+businesssconnector</types1:MimeType>
+      <types1:Description/>
+      <types1:AppliesTo/>
+      <types1:Tags/>
+      <types1:VersionLabel>1.0</types1:VersionLabel>
+      <types1:State>CURRENT</types1:State>
+      <types1:ProcessGroup/>
+      <types1:CreatedBy>akumar@andovercos.com</types1:CreatedBy>
+      <types1:CreationDate>2024-02-07T11:26:10Z</types1:CreationDate>
+      <types1:ModifiedBy/>
+      <types1:PublicationStatus>published</types1:PublicationStatus>
+      <types1:PublishedBy>akumar@andovercos.com</types1:PublishedBy>
+      <types1:PublicationDate>2024-02-07T11:31:41Z</types1:PublicationDate>
+      <types1:PublishedContributionId>project:/rt.connector/sc_TableauExtractRefresh_1/sc_TableauExtractRefresh_1_svcDef.xml</types1:PublishedContributionId>
+      <types1:AutosaveExists>false</types1:AutosaveExists>
+      <types1:Entry>
+         <businessConnector xmlns="http://schemas.informatica.com/socrates/data-services/2014/05/business-connector-model.xsd"
+                            agentOnly="true"
+                            debug="false"
+                            displayName="sc_TableauExtractRefresh"
+                            label=""
+                            name="sc_TableauExtractRefresh-1"
+                            uuid="75d08994-062a-4203-b038-a715c1f7bc82">
+            <description/>
+            <tags/>
+            <connectionAttributes xmlns="http://schemas.informatica.com/appmodules/screenflow/2014/04/avosConnectors.xsd">
+               <connectionAttribute description=""
+                                    label="TokenName"
+                                    masked="true"
+                                    name="TokenName"
+                                    required="true"
+                                    testWith=""
+                                    type="string"/>
+               <connectionAttribute description=""
+                                    label="TokenSecret"
+                                    masked="true"
+                                    name="TokenSecret"
+                                    required="true"
+                                    testWith=""
+                                    type="string"/>
+            </connectionAttributes>
+            <actions>
+               <action category=""
+                       failOnError="true"
+                       forSearch="false"
+                       label="GetAuthToken"
+                       maxRedirects="100"
+                       name="GetAuthToken"
+                       preemptiveAuth="true"
+                       responseEncoding="">
+                  <description/>
+                  <input>
+                     <parameter description=""
+                                label=""
+                                name="ServerURL"
+                                required="false"
+                                testWith=""
+                                type="string"/>
+                  </input>
+                  <binding>
+                     <restSimpleBinding multiUsing="semicolonSeparated"
+                                        url="{fn:concat('https://', $ServerURL,'/api/3.19/auth/signin')}"
+                                        verb="POST">
+                        <mutualAuth enabled="false">
+                           <keyStore mode="file"/>
+                           <keyStorePassword/>
+                        </mutualAuth>
+                        <httpHeaders>
+                           <header name="Accept">application/json</header>
+                           <header name="Content-Type">application/json</header>
+                        </httpHeaders>
+                        <body>{fn:concat(
+'{ 
+"credentials": {
+     "personalAccessTokenName":"', $TokenName ,'",
+      "personalAccessTokenSecret": "', $TokenSecret ,'",
+	  "site": {
+			"contentUrl": ""
+		}
+	}
+}')}</body>
+                     </restSimpleBinding>
+                  </binding>
+                  <output>
+                     <field description="" name="token" property="token" type="string"/>
+                  </output>
+               </action>
+               <action category=""
+                       failOnError="true"
+                       forSearch="false"
+                       label="GetSiteID"
+                       maxRedirects="100"
+                       name="GetSiteID"
+                       preemptiveAuth="true"
+                       responseEncoding="">
+                  <description/>
+                  <input>
+                     <parameter description=""
+                                label=""
+                                name="Token"
+                                required="false"
+                                testWith=""
+                                type="string"/>
+                     <parameter description=""
+                                label=""
+                                name="ServerURL"
+                                required="false"
+                                testWith=""
+                                type="string"/>
+                     <parameter description=""
+                                label=""
+                                name="SiteName"
+                                required="false"
+                                testWith=""
+                                type="string"/>
+                  </input>
+                  <binding>
+                     <restSimpleBinding multiUsing="semicolonSeparated"
+                                        url="{fn:concat('https://', $ServerURL,'/api/3.19/sites/', fn:replace($SiteName , ' ', '%20'),'?key=name' )}"
+                                        verb="GET">
+                        <mutualAuth enabled="false">
+                           <keyStore mode="file"/>
+                           <keyStorePassword/>
+                        </mutualAuth>
+                        <httpHeaders>
+                           <header name="Accept">application/json</header>
+                           <header name="Content-Type">application/json</header>
+                           <header name="X-Tableau-Auth">{$Token}</header>
+                        </httpHeaders>
+                     </restSimpleBinding>
+                  </binding>
+                  <output>
+                     <field description="" name="SiteID" property="id" type="string"/>
+                  </output>
+               </action>
+               <action category=""
+                       failOnError="true"
+                       forSearch="false"
+                       label="GetDataSourceID"
+                       maxRedirects="100"
+                       name="GetDataSourceID"
+                       preemptiveAuth="true"
+                       responseEncoding="">
+                  <description/>
+                  <input>
+                     <parameter description=""
+                                label=""
+                                name="Token"
+                                required="false"
+                                testWith=""
+                                type="string"/>
+                     <parameter description=""
+                                label=""
+                                name="ServerURL"
+                                required="false"
+                                testWith=""
+                                type="string"/>
+                     <parameter description=""
+                                label=""
+                                name="SiteID"
+                                required="false"
+                                testWith=""
+                                type="string"/>
+                     <parameter description=""
+                                label=""
+                                name="DataSourceName"
+                                required="false"
+                                testWith=""
+                                type="string"/>
+                  </input>
+                  <binding>
+                     <restSimpleBinding multiUsing="semicolonSeparated"
+                                        url="{fn:concat('https://', $ServerURL,'/api/3.19/sites/',$SiteID,'/datasources?filter=name:eq:',fn:replace( $DataSourceName , ' ', '%20') )}"
+                                        verb="GET">
+                        <mutualAuth enabled="false">
+                           <keyStore mode="file"/>
+                           <keyStorePassword/>
+                        </mutualAuth>
+                        <httpHeaders>
+                           <header name="Accept">application/json</header>
+                           <header name="Content-Type">application/json</header>
+                           <header name="X-Tableau-Auth">{$Token}</header>
+                        </httpHeaders>
+                     </restSimpleBinding>
+                  </binding>
+                  <output>
+                     <field description=""
+                            entireResponse="true"
+                            name="EntireXMlResponse"
+                            type="xml"/>
+                     <field description="" name="DataSourceID" type="string">
+                        <xquery>{fn:data( $EntireXMlResponse//datasources/datasource/id )}</xquery>
+                     </field>
+                  </output>
+               </action>
+               <action category=""
+                       failOnError="true"
+                       forSearch="false"
+                       label="RefreshExtracts"
+                       maxRedirects="100"
+                       name="RefreshExtracts"
+                       preemptiveAuth="true"
+                       responseEncoding="">
+                  <description/>
+                  <input>
+                     <parameter description=""
+                                label=""
+                                name="Token"
+                                required="false"
+                                testWith=""
+                                type="string"/>
+                     <parameter description=""
+                                label=""
+                                name="ServerURL"
+                                required="false"
+                                testWith=""
+                                type="string"/>
+                     <parameter description=""
+                                label=""
+                                name="SiteID"
+                                required="false"
+                                testWith=""
+                                type="string"/>
+                     <parameter description=""
+                                label=""
+                                name="DataSourceID"
+                                required="false"
+                                testWith=""
+                                type="string"/>
+                  </input>
+                  <binding>
+                     <restSimpleBinding multiUsing="semicolonSeparated"
+                                        url="{fn:concat('https://', $ServerURL ,'/api/3.19/sites/', $SiteID,'/datasources/', $DataSourceID,'/refresh')}"
+                                        verb="POST">
+                        <mutualAuth enabled="false">
+                           <keyStore mode="file"/>
+                           <keyStorePassword/>
+                        </mutualAuth>
+                        <httpHeaders>
+                           <header name="Accept">application/json</header>
+                           <header name="Content-Type">application/xml-dtd</header>
+                           <header name="X-Tableau-Auth">{$Token}</header>
+                        </httpHeaders>
+                        <body>&lt;tsRequest&gt;
+&lt;/tsRequest&gt;</body>
+                     </restSimpleBinding>
+                  </binding>
+                  <output>
+                     <field description=""
+                            entireResponse="true"
+                            name="EntireRefreshResponse"
+                            type="xml"/>
+                     <field description="" name="ExtractRefreshJobID" type="string">
+                        <xquery>{fn:data( $EntireRefreshResponse//job/id )}</xquery>
+                     </field>
+                  </output>
+               </action>
+            </actions>
+            <objects/>
+         </businessConnector>
+      </types1:Entry>
+      <types1:GUID>aUW5PhcB3nLf4WyVNYFrSK</types1:GUID>
+      <types1:DisplayName>sc_TableauExtractRefresh</types1:DisplayName>
+   </types1:Item>
+   <types1:CurrentServerDateTime>2024-02-12T17:54:51.121Z</types1:CurrentServerDateTime>
+</aetgt:getResponse>
