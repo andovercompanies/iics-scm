@@ -1,0 +1,129 @@
+<aetgt:getResponse xmlns:aetgt="http://schemas.active-endpoints.com/appmodules/repository/2010/10/avrepository.xsd"
+                   xmlns:types1="http://schemas.active-endpoints.com/appmodules/repository/2010/10/avrepository.xsd">
+   <types1:Item>
+      <types1:EntryId>769eE1KoJBUhtyc-gt-27134634-2024-01-17T11:33:33.948Z::tf.xml</types1:EntryId>
+      <types1:Name>wf_GetLastFridayDate</types1:Name>
+      <types1:MimeType>application/xml+taskflow</types1:MimeType>
+      <types1:Description/>
+      <types1:AppliesTo/>
+      <types1:Tags/>
+      <types1:VersionLabel>1.0</types1:VersionLabel>
+      <types1:State>CURRENT</types1:State>
+      <types1:ProcessGroup/>
+      <types1:CreatedBy>akumar@andovercos.com</types1:CreatedBy>
+      <types1:CreationDate>2024-01-17T11:33:34Z</types1:CreationDate>
+      <types1:ModifiedBy>akumar@andovercos.com</types1:ModifiedBy>
+      <types1:ModificationDate>2024-01-17T16:43:15Z</types1:ModificationDate>
+      <types1:PublicationStatus>published</types1:PublicationStatus>
+      <types1:PublishedBy>akumar@andovercos.com</types1:PublishedBy>
+      <types1:PublicationDate>2024-01-17T16:46:03Z</types1:PublicationDate>
+      <types1:PublishedContributionId>project:/tf.wf_GetLastFridayDate/wf_GetLastFridayDate.tf.xml</types1:PublishedContributionId>
+      <types1:AutosaveExists>false</types1:AutosaveExists>
+      <types1:Entry>
+         <taskflow xmlns="http://schemas.active-endpoints.com/appmodules/screenflow/2010/10/avosScreenflow.xsd"
+                   xmlns:tfm="http://schemas.active-endpoints.com/appmodules/screenflow/2021/04/taskflowModel.xsd"
+                   xmlns:list="urn:activevos:spi:list:functions"
+                   displayName="wf_GetLastFridayDate"
+                   name="wf_GetLastFridayDate"
+                   overrideAPIName="true">
+            <parameterSet xmlns="http://schemas.active-endpoints.com/appmodules/screenflow/2021/04/taskflowModel.xsd"/>
+            <appliesTo/>
+            <description/>
+            <tags/>
+            <generator>Informatica Process Designer 11</generator>
+            <output>
+               <field description="" name="out_Date" type="string">
+                  <options>
+                     <option name="required">false</option>
+                  </options>
+               </field>
+            </output>
+            <tempFields>
+               <field description="" name="v_Count" type="int">
+                  <options>
+                     <option name="required">false</option>
+                  </options>
+               </field>
+               <field description="" name="Date" type="string">
+                  <options>
+                     <option name="required">false</option>
+                  </options>
+               </field>
+               <field description="" name="Day" type="string">
+                  <options>
+                     <option name="required">false</option>
+                  </options>
+               </field>
+            </tempFields>
+            <notes/>
+            <deployment skipIfRunning="false" suspendOnFault="false" tracingLevel="verbose">
+               <rest>
+                  <allowedGroups>
+                     <group>Informatica-SQL</group>
+                  </allowedGroups>
+               </rest>
+            </deployment>
+            <flow id="a">
+               <start id="b">
+                  <link id="lrhpgip4" targetId="lrhpgip3"/>
+               </start>
+               <assignment id="lrhpgip3">
+                  <title>Assgn_V_Count</title>
+                  <operation source="formula" to="temp.v_Count">
+                     <expression language="XQuery">-7</expression>
+                  </operation>
+                  <link id="lrhpgip5" targetId="lrhpakal"/>
+               </assignment>
+               <assignment id="lrhpakal">
+                  <title>assgn_Date</title>
+                  <operation source="formula" to="temp.Date">
+                     <expression language="XQuery">date:addToDate(xs:dateTime(fn:current-date()), 'DD', $temp.v_Count )</expression>
+                  </operation>
+                  <operation source="formula" to="temp.Day">
+                     <expression language="XQuery">xs:integer(date:toChar(xs:dateTime($temp.Date), 'DAY') = 'Friday')</expression>
+                  </operation>
+                  <link id="lrhpgirm" targetId="lrhpgink"/>
+               </assignment>
+               <container id="lrhpgink" type="exclusive">
+                  <title>Decision 1</title>
+                  <flow id="lrhpgino">
+                     <assignment id="lrhpgis3">
+                        <title>assgn_Out</title>
+                        <operation source="formula" to="output.out_Date">
+                           <expression language="XQuery">util:format($temp.Date, "yyyy-MM-dd" )</expression>
+                        </operation>
+                     </assignment>
+                     <link id="lrhpginp" targetId="lrhpgink" type="containerLink"/>
+                  </flow>
+                  <flow id="lrhpginr">
+                     <assignment id="lrhpgioj">
+                        <title>assgn_V_Count_Add</title>
+                        <operation source="formula" to="temp.v_Count">
+                           <expression language="XQuery">$temp.v_Count - 1</expression>
+                        </operation>
+                        <link id="lrhpgipj" targetId="lrhpgiph"/>
+                     </assignment>
+                     <jumpTo id="lrhpgiph">
+                        <link id="lrhpgipi" targetId="lrhpakal"/>
+                     </jumpTo>
+                  </flow>
+                  <link id="lrhpginn" targetId="lrhpgino" type="containerLink">
+                     <condition source="formula">
+                        <function name="string-equals">
+                           <arg name="left">{$temp.Day}</arg>
+                           <arg name="right">1</arg>
+                        </function>
+                     </condition>
+                  </link>
+                  <link id="lrhpginq" targetId="lrhpginr" type="containerLink"/>
+                  <link id="lrhpginm" targetId="c"/>
+               </container>
+               <end id="c"/>
+            </flow>
+         </taskflow>
+      </types1:Entry>
+      <types1:GUID>5Sp5ouDAd5ak7VsohpMj6L</types1:GUID>
+      <types1:DisplayName>wf_GetLastFridayDate</types1:DisplayName>
+   </types1:Item>
+   <types1:CurrentServerDateTime>2024-02-12T17:54:50.389Z</types1:CurrentServerDateTime>
+</aetgt:getResponse>
