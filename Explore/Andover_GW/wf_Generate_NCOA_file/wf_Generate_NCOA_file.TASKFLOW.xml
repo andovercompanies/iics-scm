@@ -12,13 +12,12 @@
       <types1:ProcessGroup/>
       <types1:CreatedBy>bfirtin@andovercos.com</types1:CreatedBy>
       <types1:CreationDate>2023-11-13T22:03:28Z</types1:CreationDate>
-      <types1:ModifiedBy>canand@andovercos.com</types1:ModifiedBy>
-      <types1:ModificationDate>2024-03-15T16:13:41Z</types1:ModificationDate>
+      <types1:ModifiedBy>akumar@andovercos.com</types1:ModifiedBy>
+      <types1:ModificationDate>2024-04-10T11:24:12Z</types1:ModificationDate>
       <types1:PublicationStatus>published</types1:PublicationStatus>
-      <types1:PublishedBy>canand@andovercos.com</types1:PublishedBy>
-      <types1:PublicationDate>2024-03-15T16:13:44Z</types1:PublicationDate>
+      <types1:PublishedBy>akumar@andovercos.com</types1:PublishedBy>
+      <types1:PublicationDate>2024-04-10T11:24:15Z</types1:PublicationDate>
       <types1:PublishedContributionId>project:/tf.wf_Generate_NCOA_file/wf_Generate_NCOA_file.tf.xml</types1:PublishedContributionId>
-      <types1:AutosaveExists>false</types1:AutosaveExists>
       <types1:Entry>
          <taskflow xmlns="http://schemas.active-endpoints.com/appmodules/screenflow/2010/10/avosScreenflow.xsd"
                    xmlns:tfm="http://schemas.active-endpoints.com/appmodules/screenflow/2021/04/taskflowModel.xsd"
@@ -52,7 +51,7 @@
                   <options>
                      <option name="failOnNotRun">true</option>
                      <option name="failOnFault">true</option>
-                     <option name="referenceTo">$po:s-m-Generate-NCOA-file</option>
+                     <option name="referenceTo">$po:s-m-Generate-NCOA-file-kuDYnztV4mTcsiF9bR3Nmb</option>
                      <option name="required">false</option>
                      <option name="isCopy">true</option>
                   </options>
@@ -102,11 +101,6 @@
                   <options>
                      <option name="required">false</option>
                      <option name="initialvalue">util:getUserName()</option>
-                  </options>
-               </field>
-               <field description="" name="PMRootDir" type="string">
-                  <options>
-                     <option name="required">false</option>
                   </options>
                </field>
                <field description="" name="PMSessionLogDir" type="string">
@@ -173,6 +167,28 @@
                      <option name="initialvalue">util:getInstanceStartTime()</option>
                   </options>
                </field>
+               <field description="" name="cmd_unx2dos_in_out" type="reference">
+                  <options>
+                     <option name="referenceTo">$po:INFA-commandTask</option>
+                     <option name="failOnNotRun">false</option>
+                     <option name="failOnFault">false</option>
+                  </options>
+               </field>
+               <field description="" name="FileName" type="string">
+                  <options>
+                     <option name="required">false</option>
+                  </options>
+               </field>
+               <field description="" name="S3_Bucket" type="string">
+                  <options>
+                     <option name="required">false</option>
+                  </options>
+               </field>
+               <field description="" name="S3_Path" type="string">
+                  <options>
+                     <option name="required">false</option>
+                  </options>
+               </field>
             </tempFields>
             <notes/>
             <deployment skipIfRunning="false" suspendOnFault="true" tracingLevel="verbose">
@@ -197,10 +213,10 @@
                         <parameter name="Wait for Task to Complete" source="constant" updatable="true">true</parameter>
                         <parameter name="Max Wait" source="constant" updatable="true">604800</parameter>
                         <parameter name="GUID" source="constant" updatable="true">kuDYnztV4mTcsiF9bR3Nmb</parameter>
-                        <parameter name="Has Inout Parameters" source="constant" updatable="true">false</parameter>
+                        <parameter name="Has Inout Parameters" source="constant" updatable="true">true</parameter>
                         <parameter name="Task Type" source="constant" updatable="true">MCT</parameter>
                         <parameter name="taskField" source="nested">
-                           <operation source="field" to="s-m-Generate-NCOA-file">temp.s_m_Generate_NCOA_file</operation>
+                           <operation source="field" to="s-m-Generate-NCOA-file-kuDYnztV4mTcsiF9bR3Nmb">temp.s_m_Generate_NCOA_file</operation>
                         </parameter>
                      </serviceInput>
                      <serviceOutput>
@@ -222,9 +238,13 @@
                         <operation source="field" to="temp.s_m_Generate_NCOA_file/output/Error_Message">Error Message</operation>
                         <operation source="field" to="temp.s_m_Generate_NCOA_file/output/TotalTransErrors">Total Transformation Errors</operation>
                         <operation source="field" to="temp.s_m_Generate_NCOA_file/output/FirstErrorCode">First Error Code</operation>
+                        <operation source="field" to="temp.s_m_Generate_NCOA_file/inout/filename">filename</operation>
+                        <operation source="field" to="temp.s_m_Generate_NCOA_file/inout/UNX_DIR">UNX_DIR</operation>
+                        <operation source="field" to="temp.s_m_Generate_NCOA_file/inout/S3_BUCKET">S3_BUCKET</operation>
+                        <operation source="field" to="temp.s_m_Generate_NCOA_file/inout/S3_FILE_PATH">S3_FILE_PATH</operation>
                      </serviceOutput>
                   </service>
-                  <link id="lpwohnh6" targetId="c"/>
+                  <link id="lusjgbo8" targetId="lusjgbo7"/>
                   <events>
                      <catch faultField="temp.s_m_Generate_NCOA_file/fault"
                             id="lowy5pbh"
@@ -236,18 +256,91 @@
                             name="warning"/>
                   </events>
                </eventContainer>
+               <assignment id="lusjgbo7">
+                  <title>post_success_assignment</title>
+                  <operation source="constant" to="temp.FileName">{$temp.s_m_Generate_NCOA_file[1]/inout[1]/filename}</operation>
+                  <operation source="constant" to="temp.S3_Bucket">{$temp.s_m_Generate_NCOA_file[1]/inout[1]/S3_BUCKET}</operation>
+                  <operation source="constant" to="temp.S3_Path">{$temp.s_m_Generate_NCOA_file[1]/inout[1]/S3_FILE_PATH}</operation>
+                  <link id="lusjgbo9" targetId="lu9putbr"/>
+               </assignment>
+               <container id="lu9putbr" type="exclusive">
+                  <title>decs_s_m_Generate_NCOA_file</title>
+                  <flow id="lu9putbv">
+                     <eventContainer id="lu9putdd">
+                        <service id="lu9putcg">
+                           <title>cmd_unx2dos_in_out</title>
+                           <serviceName>ICSExecuteCommandTask</serviceName>
+                           <serviceGUID/>
+                           <serviceInput>
+                              <parameter name="Task Name" source="constant">cmd_unx2dos_in_out</parameter>
+                              <parameter name="Wait for Task to Complete" source="constant">true</parameter>
+                              <parameter name="Runtime Environment" source="constant">01COEW25000000000005:sag_aws_linux</parameter>
+                              <parameter name="Max Wait" source="constant">86400</parameter>
+                              <parameter name="Script Name" source="constant"/>
+                              <parameter name="Input Arguments" source="constant"/>
+                              <parameter name="Work Directory" source="constant"/>
+                              <parameter name="RuntimeEnvGUID" source="constant">3pADNCV9u0PcgrXjM7rx0t</parameter>
+                              <parameter name="FailTaskIfAnyScriptFails" source="constant">false</parameter>
+                              <parameter name="taskField" source="nested">
+                                 <operation source="field" to="INFA-commandTask">temp.cmd_unx2dos_in_out</operation>
+                                 <operation source="constant" to="INFA-commandTask/input[1]/script-1/name">Script1</operation>
+                                 <operation source="constant" to="INFA-commandTask/input[1]/script-1/scriptName">$PMSourceFileDir/Scripts/NCOAunx2dos_in_out.sh</operation>
+                                 <operation source="constant"
+                                            to="INFA-commandTask/input[1]/script-1/inputArguments">"{$temp.FileName}","$PMSourceFileDir/Tgtfiles","{$temp.S3_Bucket}" ,"{$temp.S3_Path}","internal/NCOA"</operation>
+                                 <operation source="constant" to="INFA-commandTask/input[1]/script-1/workDir"/>
+                              </parameter>
+                           </serviceInput>
+                           <serviceOutput>
+                              <operation source="field" to="temp.cmd_unx2dos_in_out/output/Run_Id">Run Id</operation>
+                              <operation source="field" to="temp.cmd_unx2dos_in_out/output/Start_Time">Start Time</operation>
+                              <operation source="field" to="temp.cmd_unx2dos_in_out/output/End_Time">End Time</operation>
+                              <operation source="field" to="temp.cmd_unx2dos_in_out/output/Exit_Code">Exit Code</operation>
+                              <operation source="field" to="temp.cmd_unx2dos_in_out/output/Execution_Status">Execution Status</operation>
+                              <operation source="field" to="temp.cmd_unx2dos_in_out/output/Std_Error">Std Error</operation>
+                           </serviceOutput>
+                        </service>
+                        <events>
+                           <catch faultField="temp.cmd_unx2dos_in_out/fault"
+                                  id="lu9putdc"
+                                  interrupting="true"
+                                  name="error">
+                              <suspend/>
+                           </catch>
+                        </events>
+                     </eventContainer>
+                     <link id="lu9putbw" targetId="lu9putbr" type="containerLink"/>
+                  </flow>
+                  <flow id="lu9putby">
+                     <link id="lu9putbz" targetId="lu9putbr" type="containerLink"/>
+                  </flow>
+                  <link id="lu9putbu" targetId="lu9putbv" type="containerLink">
+                     <condition source="formula">
+                        <function name="starts-with-any-of">
+                           <arg name="left">{$temp.s_m_Generate_NCOA_file[1]/output[1]/Task_Status}</arg>
+                           <arg name="right">1,2</arg>
+                        </function>
+                     </condition>
+                  </link>
+                  <link id="lu9putbx" targetId="lu9putby" type="containerLink"/>
+                  <link id="lu9putbt" targetId="c"/>
+               </container>
                <end id="c"/>
             </flow>
             <dependencies>
                <processObject xmlns="http://schemas.active-endpoints.com/appmodules/screenflow/2011/06/avosHostEnvironment.xsd"
-                              displayName="s-m-Generate-NCOA-file"
+                              displayName="s-m-Generate-NCOA-file-kuDYnztV4mTcsiF9bR3Nmb"
                               isByCopy="true"
-                              name="s-m-Generate-NCOA-file">
+                              name="s-m-Generate-NCOA-file-kuDYnztV4mTcsiF9bR3Nmb">
                   <description/>
                   <tags/>
                   <detail>
                      <field label="Input Parameters"
                             name="input"
+                            nullable="true"
+                            required="false"
+                            type="reference"/>
+                     <field label="InOut Parameters"
+                            name="inout"
                             nullable="true"
                             required="false"
                             type="reference"/>
@@ -273,11 +366,30 @@
                             type="int"/>
                   </detail>
                </processObject>
+               <processObject xmlns="http://schemas.active-endpoints.com/appmodules/screenflow/2011/06/avosHostEnvironment.xsd"
+                              displayName="INFA-commandTask"
+                              isByCopy="true"
+                              name="INFA-commandTask">
+                  <description>This process object represents a taskflow specific command task output field details.</description>
+                  <tags/>
+                  <detail>
+                     <field label="Output Parameters"
+                            name="output"
+                            nullable="true"
+                            required="false"
+                            type="reference"/>
+                     <field label="Fault"
+                            name="fault"
+                            nullable="true"
+                            required="false"
+                            type="reference"/>
+                  </detail>
+               </processObject>
             </dependencies>
          </taskflow>
       </types1:Entry>
       <types1:GUID>2FSsKBiRIQychUOcNwUTkJ</types1:GUID>
       <types1:DisplayName>wf_Generate_NCOA_file</types1:DisplayName>
    </types1:Item>
-   <types1:CurrentServerDateTime>2024-03-15T16:14:28.974Z</types1:CurrentServerDateTime>
+   <types1:CurrentServerDateTime>2024-04-11T11:15:48.732Z</types1:CurrentServerDateTime>
 </aetgt:getResponse>
