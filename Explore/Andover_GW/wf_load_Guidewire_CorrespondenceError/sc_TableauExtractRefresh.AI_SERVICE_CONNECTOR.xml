@@ -14,10 +14,10 @@
       <types1:CreatedBy>RDoucette@andovercos.com.SAML2</types1:CreatedBy>
       <types1:CreationDate>2024-06-11T19:35:27Z</types1:CreationDate>
       <types1:ModifiedBy>DGrimes@andovercos.com.SAML2</types1:ModifiedBy>
-      <types1:ModificationDate>2024-07-16T20:04:05Z</types1:ModificationDate>
+      <types1:ModificationDate>2024-09-10T19:00:26Z</types1:ModificationDate>
       <types1:PublicationStatus>published</types1:PublicationStatus>
       <types1:PublishedBy>DGrimes@andovercos.com.SAML2</types1:PublishedBy>
-      <types1:PublicationDate>2024-07-16T20:04:33Z</types1:PublicationDate>
+      <types1:PublicationDate>2024-09-10T19:00:30Z</types1:PublicationDate>
       <types1:PublishedContributionId>project:/rt.connector/sc_TableauExtractRefresh_1/sc_TableauExtractRefresh_1_svcDef.xml</types1:PublishedContributionId>
       <types1:Entry>
          <businessConnector xmlns="http://schemas.informatica.com/socrates/data-services/2014/05/business-connector-model.xsd"
@@ -212,9 +212,7 @@
                             entireResponse="true"
                             name="EntireXMlResponse"
                             type="xml"/>
-                     <field description="" name="DataSourceID" type="string">
-                        <xquery>{fn:data( $EntireXMlResponse//datasources/datasource/id )}</xquery>
-                     </field>
+                     <field description="" name="DataSourceID" property="id" type="string"/>
                   </output>
                </action>
                <action category=""
@@ -285,6 +283,86 @@
                      </field>
                   </output>
                </action>
+               <action category=""
+                       failOnError="true"
+                       forSearch="false"
+                       label="CheckJobStatus"
+                       maxRedirects="100"
+                       name="CheckJobStatus"
+                       preemptiveAuth="true"
+                       responseEncoding="">
+                  <description/>
+                  <input>
+                     <parameter description=""
+                                label=""
+                                name="ServerURL"
+                                required="false"
+                                testWith=""
+                                type="string"/>
+                     <parameter description=""
+                                label=""
+                                name="SiteID"
+                                required="false"
+                                testWith=""
+                                type="string"/>
+                     <parameter description=""
+                                label=""
+                                name="JobID"
+                                required="false"
+                                testWith=""
+                                type="string"/>
+                     <parameter description=""
+                                label=""
+                                name="TabVersion"
+                                required="false"
+                                testWith=""
+                                type="string"/>
+                     <parameter description=""
+                                label=""
+                                name="Token"
+                                required="false"
+                                testWith=""
+                                type="string"/>
+                  </input>
+                  <binding>
+                     <restSimpleBinding multiUsing="semicolonSeparated"
+                                        url="{fn:concat('https://',$ServerURL ,'/api/',$TabVersion,'/sites/',$SiteID,'/jobs/',$JobID)}"
+                                        verb="GET">
+                        <mutualAuth enabled="false">
+                           <keyStore mode="file"/>
+                           <keyStorePassword/>
+                        </mutualAuth>
+                        <httpHeaders>
+                           <header name="Accept">application/json</header>
+                           <header name="Content-Type">application/json</header>
+                           <header name="X-Tableau-Auth">{$Token}</header>
+                        </httpHeaders>
+                     </restSimpleBinding>
+                  </binding>
+                  <output>
+                     <field description=""
+                            entireResponse="true"
+                            name="EntireStatusResponse"
+                            type="xml"/>
+                     <field description=""
+                            name="Progress"
+                            property="progress"
+                            type="string"/>
+                     <field description=""
+                            name="StatusCode"
+                            property="finishCode"
+                            type="string"/>
+                     <field description="" name="Notes" property="notes" type="string"/>
+                     <field description=""
+                            name="StartedAt"
+                            property="startedAt"
+                            type="string"/>
+                     <field description=""
+                            name="CompletedAt"
+                            property="completedAt"
+                            type="string"/>
+                  </output>
+               </action>
             </actions>
             <objects/>
          </businessConnector>
@@ -292,5 +370,5 @@
       <types1:GUID>c0O0EOCDO6TkB6vGEXsLsW</types1:GUID>
       <types1:DisplayName>sc_TableauExtractRefresh</types1:DisplayName>
    </types1:Item>
-   <types1:CurrentServerDateTime>2024-07-30T18:49:25.808Z</types1:CurrentServerDateTime>
+   <types1:CurrentServerDateTime>2024-09-11T00:17:21.821Z</types1:CurrentServerDateTime>
 </aetgt:getResponse>
