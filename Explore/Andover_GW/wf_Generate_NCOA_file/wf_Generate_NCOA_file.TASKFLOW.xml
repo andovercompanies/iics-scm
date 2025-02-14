@@ -13,10 +13,10 @@
       <types1:CreatedBy>bfirtin@andovercos.com</types1:CreatedBy>
       <types1:CreationDate>2023-11-13T22:03:28Z</types1:CreationDate>
       <types1:ModifiedBy>sreddy@andovercos.com</types1:ModifiedBy>
-      <types1:ModificationDate>2024-08-30T15:09:57Z</types1:ModificationDate>
+      <types1:ModificationDate>2025-02-06T17:09:31Z</types1:ModificationDate>
       <types1:PublicationStatus>published</types1:PublicationStatus>
       <types1:PublishedBy>sreddy@andovercos.com</types1:PublishedBy>
-      <types1:PublicationDate>2024-08-30T15:10:02Z</types1:PublicationDate>
+      <types1:PublicationDate>2025-02-06T17:09:36Z</types1:PublicationDate>
       <types1:PublishedContributionId>project:/tf.wf_Generate_NCOA_file/wf_Generate_NCOA_file.tf.xml</types1:PublishedContributionId>
       <types1:Entry>
          <taskflow xmlns="http://schemas.active-endpoints.com/appmodules/screenflow/2010/10/avosScreenflow.xsd"
@@ -189,6 +189,11 @@
                      <option name="required">false</option>
                   </options>
                </field>
+               <field description="" name="frep_ncoa" type="reference">
+                  <options>
+                     <option name="referenceTo">$po:frep-ncoa-isql0T9XzSuiF6xbwNisGo</option>
+                  </options>
+               </field>
             </tempFields>
             <notes/>
             <deployment skipIfRunning="false" suspendOnFault="true" tracingLevel="verbose">
@@ -198,6 +203,10 @@
                   </allowedGroups>
                </rest>
             </deployment>
+            <extData>
+               <nvpair name="treatEmptyStringAsNotNull">false</nvpair>
+               <nvpair name="treatEmptyObjectListAsArray">false</nvpair>
+            </extData>
             <flow id="a">
                <start id="b">
                   <title>Start</title>
@@ -254,6 +263,49 @@
                             id="lowy5pbi"
                             interrupting="true"
                             name="warning"/>
+                  </events>
+               </eventContainer>
+               <eventContainer id="m6qfvgib">
+                  <service id="m6qfvgi1">
+                     <title>frep_ncoa</title>
+                     <serviceName>DIExecuteServiceTaskIngestionTaskImpl</serviceName>
+                     <serviceGUID/>
+                     <serviceInput>
+                        <parameter name="Wait for Task to Complete" source="constant" updatable="true">true</parameter>
+                        <parameter name="Max Wait" source="constant" updatable="true">604800</parameter>
+                        <parameter name="Task Name" source="constant" updatable="true">frep_ncoa</parameter>
+                        <parameter name="GUID" source="constant" updatable="true">isql0T9XzSuiF6xbwNisGo</parameter>
+                        <parameter name="Task Type" source="constant" updatable="true">MI_TASK</parameter>
+                        <parameter name="serviceProviderId" source="constant" updatable="true">filelistener</parameter>
+                        <parameter name="serviceProviderContextPath"
+                                   source="constant"
+                                   updatable="true">mitask/</parameter>
+                        <parameter name="taskField" source="nested">
+                           <operation source="field" to="frep-ncoa-isql0T9XzSuiF6xbwNisGo">temp.Ingestion Task 1</operation>
+                           <operation source="constant"
+                                      to="frep-ncoa-isql0T9XzSuiF6xbwNisGo/input[1]/CATEGORYGeneral[1]/sourceConnectionType">AmazonS3V2</operation>
+                           <operation source="constant"
+                                      to="frep-ncoa-isql0T9XzSuiF6xbwNisGo/input[1]/CATEGORYGeneral[1]/targetConnectionType">AdvancedSFTPV2</operation>
+                           <operation source="constant"
+                                      to="frep-ncoa-isql0T9XzSuiF6xbwNisGo/input[1]/CATEGORYGeneral[1]/maxFileLimit">0</operation>
+                           <operation source="constant"
+                                      to="frep-ncoa-isql0T9XzSuiF6xbwNisGo/input[1]/CATEGORYSource[1]/s3SourceLocation">{$temp.s_m_Generate_NCOA_file[1]/inout[1]/S3_BUCKET}/internal/NCOA</operation>
+                        </parameter>
+                     </serviceInput>
+                     <serviceOutput>
+                        <operation source="field" to="temp.frep_ncoa/output/successFiles">successFiles</operation>
+                        <operation source="field" to="temp.frep_ncoa/output/failedFiles">failedFiles</operation>
+                        <operation source="field" to="temp.frep_ncoa/output/fileDetails">fileDetails</operation>
+                     </serviceOutput>
+                  </service>
+                  <link id="m6qfvgi3" targetId="c"/>
+                  <events>
+                     <catch faultField="temp.frep_ncoa/fault"
+                            id="m6qfvgia"
+                            interrupting="true"
+                            name="error">
+                        <suspend/>
+                     </catch>
                   </events>
                </eventContainer>
                <assignment id="lusjgbo7">
@@ -322,7 +374,7 @@
                      </condition>
                   </link>
                   <link id="lu9putbx" targetId="lu9putby" type="containerLink"/>
-                  <link id="lu9putbt" targetId="c"/>
+                  <link id="m6qfvgi2" targetId="m6qfvgib"/>
                </container>
                <end id="c"/>
             </flow>
@@ -385,11 +437,35 @@
                             type="reference"/>
                   </detail>
                </processObject>
+               <processObject xmlns="http://schemas.active-endpoints.com/appmodules/screenflow/2011/06/avosHostEnvironment.xsd"
+                              displayName="frep-ncoa-isql0T9XzSuiF6xbwNisGo"
+                              isByCopy="true"
+                              name="frep-ncoa-isql0T9XzSuiF6xbwNisGo">
+                  <description/>
+                  <tags/>
+                  <detail>
+                     <field label="Fault"
+                            name="fault"
+                            nullable="true"
+                            required="false"
+                            type="reference"/>
+                     <field label="Input Parameters"
+                            name="input"
+                            nullable="true"
+                            required="false"
+                            type="reference"/>
+                     <field label="Output Parameters"
+                            name="output"
+                            nullable="true"
+                            required="false"
+                            type="reference"/>
+                  </detail>
+               </processObject>
             </dependencies>
          </taskflow>
       </types1:Entry>
       <types1:GUID>2FSsKBiRIQychUOcNwUTkJ</types1:GUID>
       <types1:DisplayName>wf_Generate_NCOA_file</types1:DisplayName>
    </types1:Item>
-   <types1:CurrentServerDateTime>2024-08-30T15:11:53.32Z</types1:CurrentServerDateTime>
+   <types1:CurrentServerDateTime>2025-02-06T17:25:20.562Z</types1:CurrentServerDateTime>
 </aetgt:getResponse>
