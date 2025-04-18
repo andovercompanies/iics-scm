@@ -12,11 +12,11 @@
       <types1:ProcessGroup/>
       <types1:CreatedBy>CKelley@andovercos.com</types1:CreatedBy>
       <types1:CreationDate>2025-02-13T12:55:20Z</types1:CreationDate>
-      <types1:ModifiedBy>CKelley@andovercos.com</types1:ModifiedBy>
-      <types1:ModificationDate>2025-04-08T12:39:02Z</types1:ModificationDate>
+      <types1:ModifiedBy>KKorukanti@andovercos.com.SAML</types1:ModifiedBy>
+      <types1:ModificationDate>2025-04-18T10:40:17Z</types1:ModificationDate>
       <types1:PublicationStatus>published</types1:PublicationStatus>
-      <types1:PublishedBy>CKelley@andovercos.com</types1:PublishedBy>
-      <types1:PublicationDate>2025-04-08T12:39:51Z</types1:PublicationDate>
+      <types1:PublishedBy>KKorukanti@andovercos.com.SAML</types1:PublishedBy>
+      <types1:PublicationDate>2025-04-18T11:08:26Z</types1:PublicationDate>
       <types1:PublishedContributionId>project:/tf.cdi_tkf_flow_uw_catastrophe_cost/cdi_tkf_flow_uw_catastrophe_cost.tf.xml</types1:PublishedContributionId>
       <types1:Entry>
          <taskflow xmlns="http://schemas.active-endpoints.com/appmodules/screenflow/2010/10/avosScreenflow.xsd"
@@ -89,6 +89,11 @@
                   </options>
                </field>
                <field description="" name="DupFileName" type="string">
+                  <options>
+                     <option name="required">false</option>
+                  </options>
+               </field>
+               <field description="" name="dups_count" type="int">
                   <options>
                      <option name="required">false</option>
                   </options>
@@ -254,7 +259,7 @@
                                          to="temp.cdi_tsk_map_uw_cat_cost_bronze_catastrophe_costs_stg_ld/inout/FileName">FileName</operation>
                            </serviceOutput>
                         </service>
-                        <link id="m8q79om3" targetId="m8q79om2"/>
+                        <link id="m9mlx9d4" targetId="m9mlx9d3"/>
                         <events>
                            <catch faultField="temp.cdi_tsk_map_uw_cat_cost_bronze_catastrophe_costs_stg_ld/fault"
                                   id="loornymn"
@@ -266,6 +271,11 @@
                                   name="warning"/>
                         </events>
                      </eventContainer>
+                     <assignment id="m9mlx9d3">
+                        <title>Assignment 1</title>
+                        <operation source="constant" to="temp.dups_count">{$temp.cdi_tsk_map_uw_cat_cost_bronze_catastrophe_costs_stg_ld[1]/inout[1]/dups_target_count}</operation>
+                        <link id="m9mnoeuj" targetId="m8q79om2"/>
+                     </assignment>
                      <container id="m8q79om2" type="exclusive">
                         <title>Decision Environment Email</title>
                         <flow id="m8q79om6">
@@ -435,7 +445,40 @@
                               </function>
                            </condition>
                         </link>
+                        <link id="m9mnoev5" targetId="m9mnoev4"/>
                         <link id="loornynh" targetId="loornynf" type="containerLink"/>
+                     </container>
+                     <container id="m9mnoev4" type="exclusive">
+                        <title>Decision 1</title>
+                        <flow id="m9mnoev7">
+                           <service id="m9mnoewk">
+                              <title>Notification Task 1</title>
+                              <serviceName>emailNotificationService</serviceName>
+                              <serviceGUID/>
+                              <serviceInput>
+                                 <parameter name="Email To" source="constant">KKorukanti@andovercos.com</parameter>
+                                 <parameter name="Email Cc" source="constant"/>
+                                 <parameter name="Email Bcc" source="constant"/>
+                                 <parameter name="Email Subject" source="constant">found dups</parameter>
+                                 <parameter name="Email Content Type" source="constant">text</parameter>
+                                 <parameter name="Email Body" source="constant"> &lt;p&gt;check s3&lt;/p&gt; </parameter>
+                              </serviceInput>
+                              <serviceOutput/>
+                           </service>
+                           <link id="m9mnoev8" targetId="m9mnoev4" type="containerLink"/>
+                        </flow>
+                        <flow id="m9mnoeva">
+                           <link id="m9mnoevb" targetId="m9mnoev4" type="containerLink"/>
+                        </flow>
+                        <link id="m9mnoev6" targetId="m9mnoev7" type="containerLink">
+                           <condition source="formula">
+                              <function name="greater-than">
+                                 <arg name="left">{$temp.dups_count}</arg>
+                                 <arg name="right">{0}</arg>
+                              </function>
+                           </condition>
+                        </link>
+                        <link id="m9mnoev9" targetId="m9mnoeva" type="containerLink"/>
                      </container>
                      <link id="loornyn3" targetId="loornyn2" type="containerLink"/>
                   </flow>
@@ -451,7 +494,7 @@
                      </condition>
                   </link>
                   <link id="loornyn8" targetId="loornyn6" type="containerLink"/>
-                  <link id="loornynk" targetId="c"/>
+                  <link id="m9mlx9i8" targetId="c"/>
                </container>
                <end id="c"/>
             </flow>
@@ -730,5 +773,5 @@
       <types1:GUID>7h5YVfNaBiql74L8cwQ7W9</types1:GUID>
       <types1:DisplayName>cdi_tkf_flow_uw_catastrophe_cost</types1:DisplayName>
    </types1:Item>
-   <types1:CurrentServerDateTime>2025-04-11T14:27:13.237Z</types1:CurrentServerDateTime>
+   <types1:CurrentServerDateTime>2025-04-18T11:13:02.921Z</types1:CurrentServerDateTime>
 </aetgt:getResponse>
