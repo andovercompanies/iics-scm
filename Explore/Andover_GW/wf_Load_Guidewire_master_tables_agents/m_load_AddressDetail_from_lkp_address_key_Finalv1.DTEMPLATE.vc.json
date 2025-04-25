@@ -9,10 +9,6 @@
         "link" : "Src_Lkp_Address_Key -> Exp_Trim"
       },
       {
-        "link" : "Fil_Flag -> Verifier_Address_Validation",
-        "groupLink" : "DefaultGroup -> Input group:"
-      },
-      {
         "link" : "Exp_AddRow_Cleanse -> Tgt_Address_Detail"
       },
       {
@@ -20,13 +16,14 @@
         "groupLink" : "MappletOutputTx_Output -> DefaultGroup"
       },
       {
-        "link" : "Fil_Flag -> Exp_AddRow_Cleanse"
-      },
-      {
-        "link" : "Exp_Address -> Fil_Flag"
-      },
-      {
         "link" : "Exp_Trim -> Exp_Address"
+      },
+      {
+        "link" : "Exp_Address -> Verifier_Address_Validation",
+        "groupLink" : "DefaultGroup -> Input group:"
+      },
+      {
+        "link" : "Exp_Address -> Exp_AddRow_Cleanse"
       }
     ],
     "parameters" : [
@@ -374,7 +371,7 @@
               },
               {
                 "name" : "Temporary Credential Duration",
-                "value" : "10800"
+                "value" : "43200"
               },
               {
                 "name" : "Treat NULL Value as NULL",
@@ -418,20 +415,6 @@
               {
                 "bulkRename" : "false",
                 "include" : "true"
-              },
-              {
-                "bulkRename" : "false",
-                "include" : "true",
-                "names" : [
-                  {
-                    "inputName" : "fil_o_Address_Line",
-                    "outputName" : "o_Address_Line"
-                  },
-                  {
-                    "inputName" : "fil_address_key",
-                    "outputName" : "address_key"
-                  }
-                ]
               }
             ]
           }
@@ -440,9 +423,7 @@
         "fieldMappingMode" : "MANUAL",
         "inputSorted" : "false",
         "schemaProviderType" : "SELECTED_OBJECT",
-        "updateColumns" : [
-          "addresskey"
-        ],
+        "updateColumns" : null,
         "useLabels" : "false",
         "useSequenceFields" : "false",
         "fields" : [
@@ -1185,7 +1166,7 @@
               },
               {
                 "name" : "Temporary Credential Duration",
-                "value" : "10800"
+                "value" : "43200"
               },
               {
                 "name" : "S3 Server Side Encryption",
@@ -1205,7 +1186,7 @@
               },
               {
                 "name" : "Treat Source Rows As",
-                "value" : "UPSERT"
+                "value" : "INSERT"
               },
               {
                 "name" : "Transfer Manager Thread Pool Size",
@@ -1231,11 +1212,10 @@
             "handleDecimalRoundOff" : "false",
             "handleSpecialChars" : "false",
             "operations" : [
-              "Rowbased"
+              "Insert"
             ],
             "setFieldsToNull" : "false",
             "truncate" : "false",
-            "updateStrategyExpression" : "Upsert_update_strategy",
             "useErrorFile" : "false",
             "useExactSrcNames" : "false",
             "useSuccessFile" : "false"
@@ -1459,11 +1439,11 @@
             "precision" : 1,
             "scale" : 0,
             "expFieldType" : "OUTPUT",
-            "expression" : "'I'\n--IIF(ISNULL(AddressKey), 'I',IIF(Address_Line = SourceAddrComplete, 'X', 'U'))"
+            "expression" : "'I'"
           },
           {
             "defaultValue" : "ERROR('transformation error')",
-            "name" : "Country",
+            "name" : "o_Country",
             "platformType" : {
               "name" : "string"
             },
@@ -1480,33 +1460,6 @@
           "startOffset" : 0,
           "partitionKeys" : null
         }
-      },
-      {
-        "createTime" : "2023-10-24T13:42:40.386Z",
-        "name" : "Fil_Flag",
-        "groups" : [
-          {
-            "input" : "true",
-            "name" : "DefaultGroup",
-            "output" : "true",
-            "rules" : [
-              {
-                "bulkRename" : "false",
-                "include" : "true"
-              },
-              {
-                "bulkRename" : "false",
-                "include" : "false",
-                "names" : [
-                  {
-                    "inputName" : "insert_dt"
-                  }
-                ]
-              }
-            ]
-          }
-        ],
-        "advancedFilterCondition" : "IN(o_Flag, 'I', 'U')\t"
       },
       {
         "createTime" : "2023-10-24T13:44:06.446Z",
@@ -1573,14 +1526,6 @@
             "fieldMapping" : {
               "fields" : [
                 {
-                  "name" : "Country",
-                  "precision" : 0,
-                  "scale" : 0,
-                  "txField" : {
-                    "name" : "Country"
-                  }
-                },
-                {
                   "name" : "zip_code",
                   "precision" : 0,
                   "scale" : 0,
@@ -1634,6 +1579,14 @@
                   "scale" : 0,
                   "txField" : {
                     "name" : "Address_Lines_4"
+                  }
+                },
+                {
+                  "name" : "o_Country",
+                  "precision" : 0,
+                  "scale" : 0,
+                  "txField" : {
+                    "name" : "Country"
                   }
                 }
               ]
@@ -2157,6 +2110,138 @@
               {
                 "bulkRename" : "false",
                 "include" : "true"
+              },
+              {
+                "bulkRename" : "false",
+                "include" : "false",
+                "names" : [
+                  {
+                    "inputName" : "address_line1"
+                  },
+                  {
+                    "inputName" : "address_line2"
+                  },
+                  {
+                    "inputName" : "address_line3"
+                  },
+                  {
+                    "inputName" : "address_line4"
+                  },
+                  {
+                    "inputName" : "Address_Lines_1"
+                  },
+                  {
+                    "inputName" : "Address_Lines_2"
+                  },
+                  {
+                    "inputName" : "Address_Lines_3"
+                  },
+                  {
+                    "inputName" : "Address_Lines_4"
+                  },
+                  {
+                    "inputName" : "Address_Lines_5"
+                  },
+                  {
+                    "inputName" : "Address_Lines_6"
+                  },
+                  {
+                    "inputName" : "Arrival_Point_Accuracy_Code"
+                  },
+                  {
+                    "inputName" : "Arrival_Point_Coordinates"
+                  },
+                  {
+                    "inputName" : "Arrival_Point_Latitude"
+                  },
+                  {
+                    "inputName" : "Arrival_Point_Longitude"
+                  },
+                  {
+                    "inputName" : "city"
+                  },
+                  {
+                    "inputName" : "Country_Name_1"
+                  },
+                  {
+                    "inputName" : "Formatted_Address_Lines_5"
+                  },
+                  {
+                    "inputName" : "Formatted_Address_Lines_6"
+                  },
+                  {
+                    "inputName" : "House_Number_1"
+                  },
+                  {
+                    "inputName" : "Locality_Center_Accuracy_Code"
+                  },
+                  {
+                    "inputName" : "Locality_Center_Coordinates"
+                  },
+                  {
+                    "inputName" : "Locality_Center_Latitude"
+                  },
+                  {
+                    "inputName" : "Locality_Center_Longitude"
+                  },
+                  {
+                    "inputName" : "o_Addr_Line2"
+                  },
+                  {
+                    "inputName" : "O_Address"
+                  },
+                  {
+                    "inputName" : "o_Country"
+                  },
+                  {
+                    "inputName" : "o_Flag"
+                  },
+                  {
+                    "inputName" : "Postal_Code_Center_Coordinates"
+                  },
+                  {
+                    "inputName" : "Rooftop_Accuracy_Code"
+                  },
+                  {
+                    "inputName" : "Rooftop_Coordinates"
+                  },
+                  {
+                    "inputName" : "Rooftop_Latitude"
+                  },
+                  {
+                    "inputName" : "Rooftop_Longitude"
+                  },
+                  {
+                    "inputName" : "state"
+                  },
+                  {
+                    "inputName" : "Street_1"
+                  },
+                  {
+                    "inputName" : "Street_2"
+                  },
+                  {
+                    "inputName" : "Street_Center_Accuracy_Code"
+                  },
+                  {
+                    "inputName" : "Street_Center_Coordinates"
+                  },
+                  {
+                    "inputName" : "Street_Center_Latitude"
+                  },
+                  {
+                    "inputName" : "Street_Center_Longitude"
+                  },
+                  {
+                    "inputName" : "Sub_Building_1"
+                  },
+                  {
+                    "inputName" : "Sub_Building_2"
+                  },
+                  {
+                    "inputName" : "zip_code"
+                  }
+                ]
               }
             ]
           }
@@ -2250,17 +2335,6 @@
             "scale" : 0,
             "expFieldType" : "OUTPUT",
             "expression" : "Formatted_Address_Lines_1"
-          },
-          {
-            "defaultValue" : "ERROR('transformation error')",
-            "name" : "Upsert_update_strategy",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 100,
-            "scale" : 0,
-            "expFieldType" : "OUTPUT",
-            "expression" : "IIF(o_Flag = 'I', DD_INSERT, DD_UPDATE)"
           }
         ],
         "windowSpec" : {
@@ -2291,7 +2365,7 @@
         "fields" : [
           {
             "defaultValue" : "ERROR('transformation error')",
-            "name" : "Addr_Line2",
+            "name" : "o_Addr_Line2",
             "platformType" : {
               "name" : "string"
             },
@@ -2322,5 +2396,5 @@
       }
     ]
   },
-  "vcsExportTime" : "2025-04-09 15:09:58 EDT"
+  "vcsExportTime" : "2025-04-24 08:54:36 EDT"
 }
