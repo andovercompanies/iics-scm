@@ -1,13 +1,12 @@
 {
   "content" : {
     "allowMaxFieldLength" : "false",
-    "name" : "cdi_map_read_duplicate_file",
+    "bigIntConvertType" : "ONLY_BIGINT",
+    "documentType" : "MAPPING",
+    "name" : "m_update_duplicate_file",
     "links" : [
       {
-        "link" : "Expression -> tgt_dummy"
-      },
-      {
-        "link" : "duplicate_file -> Expression"
+        "link" : "src_dummy -> tgt_rm_src"
       }
     ],
     "parameters" : [
@@ -18,16 +17,12 @@
         "scale" : 0,
         "allowRuntimeOverride" : "false",
         "expressionVariable" : "false",
-        "name" : "S3_Staging_Bucket"
-      },
-      {
-        "input" : "true",
-        "output" : "false",
-        "precision" : 0,
-        "scale" : 0,
-        "allowRuntimeOverride" : "false",
-        "expressionVariable" : "false",
-        "name" : "DummyFile"
+        "name" : "DBConnection_SRC",
+        "anonymousType" : {
+          "subType" : "TOOLKIT_CCI",
+          "typeSystem" : "TOOLKIT",
+          "connectionType" : "Amazon Redshift v2"
+        }
       },
       {
         "input" : "true",
@@ -48,15 +43,15 @@
         "output" : "false",
         "precision" : 0,
         "scale" : 0,
-        "allowRuntimeOverride" : "false",
+        "allowRuntimeOverride" : "true",
         "expressionVariable" : "false",
-        "name" : "SrcFile"
+        "name" : "FileName"
       }
     ],
     "transformations" : [
       {
-        "createTime" : "2025-03-18T18:28:42.617Z",
-        "name" : "duplicate_file",
+        "createTime" : "2023-11-20T16:45:21.560Z",
+        "name" : "src_dummy",
         "advancedProperties" : [
           {
             "name" : "Tracing Level",
@@ -77,72 +72,46 @@
         "generateFilenamePort" : "false",
         "useLabels" : "false",
         "useSequenceFields" : "false",
+        "fields" : [
+          {
+            "adapterField" : {
+              "name" : "operator"
+            },
+            "name" : "operator",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          }
+        ],
         "dataAdapter" : {
           "connectionId$" : {
-            "name" : "FF_Conn"
+            "name" : "DBConnection_SRC"
           },
           "excludeDynamicFileNameField" : "false",
-          "object$" : {
-            "name" : "SrcFile"
-          },
-          "objectType" : "PARAMETERIZED",
+          "objectType" : "QUERY",
           "typeSystem" : "TOOLKIT",
           "useDynamicFileName" : "false",
-          "dataFormat" : {
-            "formatId" : "Flat",
-            "validateHSchema" : "false",
-            "attributes" : [
+          "object" : {
+            "customQuery" : "select operator from dbo.Policydetail limit 1",
+            "retainMetadata" : "false",
+            "fields" : [
               {
-                "name" : "delimiter",
-                "value" : ","
-              },
-              {
-                "name" : "escapeChar",
-                "value" : "\\"
-              },
-              {
-                "name" : "qualifier",
-                "value" : "\""
-              },
-              {
-                "name" : "qualifierMode",
-                "value" : "MINIMAL"
-              },
-              {
-                "name" : "disableEscapeChar",
-                "value" : "true"
-              },
-              {
-                "name" : "codePage",
-                "value" : "UTF-8"
-              },
-              {
-                "name" : "headerLineNumber",
-                "value" : "1"
-              },
-              {
-                "name" : "firstDataRow",
-                "value" : "2"
-              },
-              {
-                "name" : "targetHeader",
-                "value" : "With Header"
-              },
-              {
-                "name" : "importColumnFromFirstLine",
-                "value" : "true"
-              },
-              {
-                "name" : "generateHeader",
-                "value" : "true"
-              },
-              {
-                "name" : "fixedWidthMode",
-                "value" : "false"
-              },
-              {
-                "name" : "maxRowsToPreview",
-                "value" : "0"
+                "name" : "operator",
+                "fieldType" : "CONNECTOR",
+                "label" : "operator",
+                "nativeName" : "operator",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
               }
             ]
           },
@@ -156,23 +125,23 @@
           "runtimeAttributes" : {
             "attributes" : [
               {
-                "name" : "Source Type",
-                "value" : "File"
+                "name" : "Read Mode",
+                "value" : "Direct"
               },
               {
-                "name" : "Folder Path",
-                "value" : "/duplicates/cdi_tkf_flow_uw_catastrophe_cost"
+                "name" : "Fetch Size",
+                "value" : "10000"
               },
               {
-                "name" : "Allow Wildcard Characters",
-                "value" : "NO"
+                "name" : "Enable Compression",
+                "value" : "YES"
               },
               {
-                "name" : "Enable Recursive Read",
-                "value" : "NO"
+                "name" : "Temporary Credential Duration",
+                "value" : "900"
               },
               {
-                "name" : "Incremental File Load",
+                "name" : "Treat NULL Value as NULL",
                 "value" : "NO"
               },
               {
@@ -180,28 +149,24 @@
                 "value" : "None"
               },
               {
-                "name" : "Compression Format",
-                "value" : "None"
+                "name" : "Download S3 Files In Multiple Parts",
+                "value" : "NO"
               },
               {
-                "name" : "Download Part Size",
+                "name" : "Multipart Download Threshold Size",
                 "value" : "5242880"
               },
               {
-                "name" : "Multipart Download Threshold",
-                "value" : "10485760"
-              },
-              {
-                "name" : "Temporary Credential Duration",
-                "value" : "43200"
+                "name" : "Select Distinct",
+                "value" : "NO"
               }
             ]
           }
         }
       },
       {
-        "createTime" : "2025-03-24T18:31:03.119Z",
-        "name" : "tgt_dummy",
+        "createTime" : "2023-11-20T16:45:21.562Z",
+        "name" : "tgt_rm_src",
         "advancedProperties" : [
           {
             "name" : "Forward Rejected Rows",
@@ -234,7 +199,7 @@
           },
           "excludeDynamicFileNameField" : "false",
           "object$" : {
-            "name" : "DummyFile"
+            "name" : "FileName"
           },
           "objectType" : "PARAMETERIZED",
           "typeSystem" : "TOOLKIT",
@@ -297,46 +262,6 @@
               }
             ]
           },
-          "runtimeAttributes" : {
-            "attributes" : [
-              {
-                "name" : "Overwrite File If Exists",
-                "value" : "YES"
-              },
-              {
-                "name" : "Folder Path",
-                "value" : "/duplicates/cdi_tkf_flow_uw_catastrophe_cost"
-              },
-              {
-                "name" : "Encryption Type",
-                "value" : "None"
-              },
-              {
-                "name" : "File Merge",
-                "value" : "YES"
-              },
-              {
-                "name" : "Compression Format",
-                "value" : "None"
-              },
-              {
-                "name" : "TransferManager Thread Pool Size",
-                "value" : "10"
-              },
-              {
-                "name" : "Part Size",
-                "value" : "5242880"
-              },
-              {
-                "name" : "Merge Partition Files",
-                "value" : "NO"
-              },
-              {
-                "name" : "Temporary Credential Duration",
-                "value" : "43200"
-              }
-            ]
-          },
           "writeOptions" : {
             "batchSize" : 0,
             "bulkApi" : "false",
@@ -349,39 +274,8 @@
             "truncate" : "false",
             "useErrorFile" : "false",
             "useExactSrcNames" : "false",
-            "useSuccessFile" : "false",
-            "tgtObjectAttributes" : [
-              {
-                "name" : "parent",
-                "value" : "/duplicates/cdi_tkf_flow_uw_catastrophe_cost"
-              }
-            ]
+            "useSuccessFile" : "false"
           }
-        }
-      },
-      {
-        "createTime" : "2025-04-20T05:18:51.253Z",
-        "name" : "Expression",
-        "groups" : [
-          {
-            "input" : "true",
-            "name" : "DefaultGroup",
-            "output" : "true",
-            "rules" : [
-              {
-                "bulkRename" : "false",
-                "include" : "true"
-              }
-            ]
-          }
-        ],
-        "windowConfigurationEnabled" : "false",
-        "windowSpec" : {
-          "allRowsFollowing" : "false",
-          "allRowsPreceding" : "false",
-          "endOffset" : 0,
-          "startOffset" : 0,
-          "partitionKeys" : null
         }
       }
     ]
