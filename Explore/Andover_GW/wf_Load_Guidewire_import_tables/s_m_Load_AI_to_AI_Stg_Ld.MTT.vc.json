@@ -1,27 +1,28 @@
 {
-  "name" : "s_m_load_AddressDetail_from_lkp_address_key_Finalv1",
+  "name" : "s_m_Load_AI_to_AI_Stg_Ld",
+  "description" : "Session pushed from PC to ICS : s_m_Load_AI_to_AI_Stg_Ld",
   "runtimeEnvironmentId" : "@3pADNCV9u0PcgrXjM7rx0t",
   "runtimeEnvironmentName" : "sag_aws_linux",
   "maxLogs" : 10,
   "parameters" : [
     {
-      "name" : "$Src_Lkp_Address_Key$",
+      "name" : "$Src_ai$",
       "type" : "SOURCE",
-      "label" : "DBConnection_SRC",
+      "label" : "DBConnection_SRCM",
       "uiProperties" : {
-        "cnxtype" : "Amazon Redshift v2",
+        "cnxtype" : "MySQL",
         "connectionParameterized" : "true",
-        "paramName" : "DBConnection_SRC",
+        "paramName" : "DBConnection_SRCM",
         "paramType-mapping" : "Connection",
-        "logcnx" : "DBConnection_SRC",
+        "logcnx" : "DBConnection_SRCM",
         "isSelectDistinct" : "false",
         "objectParameterized" : "false",
         "visible" : "false",
-        "originalPath" : "Src_Lkp_Address_Key"
+        "originalPath" : "Src_ai"
       },
-      "sourceConnectionId" : "@aYZ4ekzHgIPeKpiaoqDLKP",
-      "connectionName" : "redshift_nonprod_andover_dw_dev",
-      "sourceObject" : "DUMMY_Src_Lkp_Address_Key",
+      "sourceConnectionId" : "@jPo49nVatmzbSnPefVZwCV",
+      "connectionName" : "conn_mysql_prod_insurance_now_gw-legacy",
+      "sourceObject" : "DUMMY_Src_ai",
       "newFlatFile" : false,
       "newObject" : false,
       "showBusinessNames" : true,
@@ -29,7 +30,7 @@
       "truncateTarget" : false,
       "bulkApiDBTarget" : false,
       "customFuncCfg" : { },
-      "customQuery" : "SELECT address_key,address_line,\n    SPLIT_PART(address_line, ',', 1) AS Address_Line1,\n    SPLIT_PART(address_line, ',', 2) AS Address_Line2,\n    SPLIT_PART(address_line, ',', 3) AS Address_Line3,\n    SPLIT_PART(address_line, ',', 4) AS Address_Line4,\n    SPLIT_PART(address_line, ',', 5) AS CITY,\n    SPLIT_PART(address_line, ',', 6) AS STATE,\n    SPLIT_PART(address_line, ',', 7) AS ZIP_CODE\nFROM dbo.lkp_address_key where address_key in (select address_Key from (SELECT address_key, LENGTH(address_line) - LENGTH(REPLACE(address_line, ',', '')) AS comma_count\n                      from dbo.lkp_address_key\n  where comma_count=6)) and Address_key not in (select AddressKey AS LKP_Address_key from dbo.addressdetail) ;",
+      "customQuery" : "SELECT distinct ai.SystemId, \n\tai.ParentId, \n\tai.CMMContainer, \n\tai.Id, \n\tai.SequenceNumber, \n\tai.InterestCd, \n\tai.InterestTypeCd, \n\tai.AccountNumber, \n\tai.InterestFormCd, \n\tai.InterestName, \n\tai.Comments, \n\tai.AdditionalComments, \n\tai.Status, \n\tai.PreferredDeliveryMethod, \n\tai.EscrowInd, ai.FutureStatusCd, \n\tai.EquipmentDescription, \n\tai.UnderLyingPolicyIdRef, \n\tai.UnderLyingAIIdRef, \n\tai.InterestDesc, \n\tai.AutomaticInd, \n\tai.rowid,\n\tai.billmortgrnwlind \nFROM\n ai   where ai.CMMContainer='Policy' and ai.SystemId in (select SystemId from advrxxchangedbeans where CMMContainer='Policy' AND \nconcat(adddt,addtm)>='$$m_strtdt' and concat(adddt,addtm) <='$$m_Enddt' )",
       "commandType" : 0,
       "handleSpecialChars" : false,
       "handleDecimalRoundOff" : false,
@@ -38,12 +39,13 @@
       "excludeDynamicFileNameField" : false,
       "currentlyProcessedFileName" : false,
       "retainFieldMetadata" : false,
-      "objectName" : "DUMMY_Src_Lkp_Address_Key",
+      "objectName" : "DUMMY_Src_ai",
       "useExactSrcNames" : false,
       "userUpdated" : true,
       "unspecified" : false,
+      "fetchMode" : "ORIGINAL",
       "runtimeParameterData" : {
-        "connectionParameterName" : "DBConnection_SRC",
+        "connectionParameterName" : "DBConnection_SRCM",
         "connectionRuntimeParameter" : true,
         "objectRuntimeParameter" : false
       },
@@ -51,7 +53,7 @@
       "fileList" : false
     },
     {
-      "name" : "$Tgt_Address_Detail$",
+      "name" : "$Tgt_Additional_Interest_Stg$",
       "type" : "TARGET",
       "label" : "DBConnection_TGT",
       "uiProperties" : {
@@ -60,16 +62,16 @@
         "paramName" : "DBConnection_TGT",
         "paramType-mapping" : "Connection",
         "logcnx" : "DBConnection_TGT",
-        "default" : "dbo/addressdetail",
+        "default" : "dbo/additional_interest_stg",
         "objectParameterized" : "false",
         "visible" : "false",
         "supportApplyDDLChanges" : "false",
-        "originalPath" : "Tgt_Address_Detail"
+        "originalPath" : "Tgt_Additional_Interest_Stg"
       },
       "targetConnectionId" : "@aYZ4ekzHgIPeKpiaoqDLKP",
       "connectionName" : "redshift_nonprod_andover_dw_dev",
-      "targetObject" : "dbo/addressdetail",
-      "targetObjectLabel" : "addressdetail",
+      "targetObject" : "dbo/additional_interest_stg",
+      "targetObjectLabel" : "dbo/additional_interest_stg",
       "newFlatFile" : false,
       "newObject" : false,
       "showBusinessNames" : true,
@@ -81,12 +83,6 @@
       "extendedObject" : {
         "singleMode" : true
       },
-      "runtimeAttrs" : {
-        "Temporary Credential Duration" : "43200"
-      },
-      "oprRuntimeAttrs" : {
-        "temporaryCredentialDuration" : "43200"
-      },
       "commandType" : 0,
       "handleSpecialChars" : false,
       "handleDecimalRoundOff" : false,
@@ -95,11 +91,12 @@
       "excludeDynamicFileNameField" : false,
       "currentlyProcessedFileName" : false,
       "retainFieldMetadata" : false,
-      "objectName" : "dbo/addressdetail",
-      "objectLabel" : "addressdetail",
+      "objectName" : "dbo/additional_interest_stg",
+      "objectLabel" : "dbo/additional_interest_stg",
       "useExactSrcNames" : false,
       "userUpdated" : true,
       "unspecified" : false,
+      "fetchMode" : "ORIGINAL",
       "runtimeParameterData" : {
         "connectionParameterName" : "DBConnection_TGT",
         "connectionRuntimeParameter" : true,
@@ -110,9 +107,9 @@
     }
   ],
   "verbose" : false,
-  "lastRunTime" : 1745441139000,
-  "mappingId" : "@2qo0OWZXrGobZ0GIwTQbEf",
-  "mappingTemplateName" : "m_load_AddressDetail_from_lkp_address_key_Finalv1",
+  "lastRunTime" : 1745935971000,
+  "mappingId" : "@6bM5jrAiCtokkN5rluOuae",
+  "mappingTemplateName" : "m_Load_AI_to_AI_Stg_Ld",
   "sessionPropertiesList" : [
     {
       "name" : "Allow Temporary Sequence for Pushdown",
@@ -121,6 +118,14 @@
     {
       "name" : "Allow Temporary View for Pushdown",
       "value" : "NO"
+    },
+    {
+      "name" : "Data Column Delimiter",
+      "value" : "|"
+    },
+    {
+      "name" : "Error Log File Name",
+      "value" : "PMError.log"
     },
     {
       "name" : "Pushdown Optimization",
@@ -133,6 +138,28 @@
     {
       "name" : "Pushdown Optimization Fallback Option",
       "value" : "Partial PDO"
+    },
+    {
+      "name" : "Session Log File Name",
+      "value" : "s_m_Load_AI_to_AI_Stg_Ld.log"
+    }
+  ],
+  "inOutParameters" : [
+    {
+      "name" : "m_strtdt",
+      "datatype" : "STRING",
+      "precision" : "120",
+      "scale" : "0",
+      "retentionPolicy" : "NEVER",
+      "aggregationType" : "MAX"
+    },
+    {
+      "name" : "m_Enddt",
+      "datatype" : "STRING",
+      "precision" : "120",
+      "scale" : "0",
+      "retentionPolicy" : "NEVER",
+      "aggregationType" : "MAX"
     }
   ],
   "hidden" : false,
@@ -145,9 +172,8 @@
   "paramFileType" : "PARAM_FILE_LOCAL",
   "schemaMode" : "async",
   "valid" : true,
-  "parameterFileEncoding" : "UTF-8",
   "optimizationPlan" : "NONE",
   "allowMaxFieldLength" : false,
   "midstreamPreview" : false,
-  "vcsExportTime" : "2025-04-24 08:54:36 EDT"
+  "vcsExportTime" : "2025-04-29 10:48:11 EDT"
 }

@@ -1,11 +1,11 @@
 {
-  "name" : "s_m_load_AddressDetail_from_lkp_address_key_Finalv1",
+  "name" : "s_m_update_duplicate_file",
   "runtimeEnvironmentId" : "@3pADNCV9u0PcgrXjM7rx0t",
   "runtimeEnvironmentName" : "sag_aws_linux",
   "maxLogs" : 10,
   "parameters" : [
     {
-      "name" : "$Src_Lkp_Address_Key$",
+      "name" : "$src_dummy$",
       "type" : "SOURCE",
       "label" : "DBConnection_SRC",
       "uiProperties" : {
@@ -17,11 +17,11 @@
         "isSelectDistinct" : "false",
         "objectParameterized" : "false",
         "visible" : "false",
-        "originalPath" : "Src_Lkp_Address_Key"
+        "originalPath" : "src_dummy"
       },
       "sourceConnectionId" : "@aYZ4ekzHgIPeKpiaoqDLKP",
       "connectionName" : "redshift_nonprod_andover_dw_dev",
-      "sourceObject" : "DUMMY_Src_Lkp_Address_Key",
+      "sourceObject" : "DUMMY_src_dummy",
       "newFlatFile" : false,
       "newObject" : false,
       "showBusinessNames" : true,
@@ -29,7 +29,7 @@
       "truncateTarget" : false,
       "bulkApiDBTarget" : false,
       "customFuncCfg" : { },
-      "customQuery" : "SELECT address_key,address_line,\n    SPLIT_PART(address_line, ',', 1) AS Address_Line1,\n    SPLIT_PART(address_line, ',', 2) AS Address_Line2,\n    SPLIT_PART(address_line, ',', 3) AS Address_Line3,\n    SPLIT_PART(address_line, ',', 4) AS Address_Line4,\n    SPLIT_PART(address_line, ',', 5) AS CITY,\n    SPLIT_PART(address_line, ',', 6) AS STATE,\n    SPLIT_PART(address_line, ',', 7) AS ZIP_CODE\nFROM dbo.lkp_address_key where address_key in (select address_Key from (SELECT address_key, LENGTH(address_line) - LENGTH(REPLACE(address_line, ',', '')) AS comma_count\n                      from dbo.lkp_address_key\n  where comma_count=6)) and Address_key not in (select AddressKey AS LKP_Address_key from dbo.addressdetail) ;",
+      "customQuery" : "select operator from dbo.Policydetail limit 1",
       "commandType" : 0,
       "handleSpecialChars" : false,
       "handleDecimalRoundOff" : false,
@@ -38,42 +38,45 @@
       "excludeDynamicFileNameField" : false,
       "currentlyProcessedFileName" : false,
       "retainFieldMetadata" : false,
-      "objectName" : "DUMMY_Src_Lkp_Address_Key",
+      "objectName" : "DUMMY_src_dummy",
       "useExactSrcNames" : false,
       "userUpdated" : true,
       "unspecified" : false,
+      "fetchMode" : "ORIGINAL",
       "runtimeParameterData" : {
         "connectionParameterName" : "DBConnection_SRC",
-        "connectionRuntimeParameter" : true,
+        "connectionRuntimeParameter" : false,
         "objectRuntimeParameter" : false
       },
       "restmodernSource" : true,
       "fileList" : false
     },
     {
-      "name" : "$Tgt_Address_Detail$",
+      "name" : "$tgt_rm_src$",
       "type" : "TARGET",
-      "label" : "DBConnection_TGT",
+      "label" : "FF_Conn",
       "uiProperties" : {
-        "cnxtype" : "Amazon Redshift v2",
+        "cnxtype" : "Amazon S3 v2",
         "connectionParameterized" : "true",
-        "paramName" : "DBConnection_TGT",
+        "paramName" : "FF_Conn",
         "paramType-mapping" : "Connection",
-        "logcnx" : "DBConnection_TGT",
-        "default" : "dbo/addressdetail",
-        "objectParameterized" : "false",
-        "visible" : "false",
-        "supportApplyDDLChanges" : "false",
-        "originalPath" : "Tgt_Address_Detail"
+        "logcnx" : "FF_Conn",
+        "objlabel" : "FileName",
+        "objectParameterized" : "true",
+        "objectParamName" : "FileName",
+        "objectParamType-mapping" : "DataObject",
+        "supportApplyDDLChanges" : "true",
+        "originalPath" : "tgt_rm_src"
       },
-      "targetConnectionId" : "@aYZ4ekzHgIPeKpiaoqDLKP",
-      "connectionName" : "redshift_nonprod_andover_dw_dev",
-      "targetObject" : "dbo/addressdetail",
-      "targetObjectLabel" : "addressdetail",
+      "targetConnectionId" : "@4PR5UG8LgQbgjcPh0nvIgA",
+      "connectionName" : "conn_s3v2_advr_inbound_data",
+      "targetObject" : "Duplicates_CAT_Costs_20230401.csv",
+      "targetObjectLabel" : "Duplicates_CAT_Costs_20230401.csv",
       "newFlatFile" : false,
-      "newObject" : false,
+      "newObject" : true,
       "showBusinessNames" : true,
       "naturalOrder" : true,
+      "newObjectName" : "Duplicates_CAT_Costs_20230401.csv",
       "truncateTarget" : false,
       "bulkApiDBTarget" : false,
       "operationType" : "Insert",
@@ -82,10 +85,10 @@
         "singleMode" : true
       },
       "runtimeAttrs" : {
-        "Temporary Credential Duration" : "43200"
+        "Folder Path" : "/duplicates/cdi_tkf_flow_uw_catastrophe_cost"
       },
       "oprRuntimeAttrs" : {
-        "temporaryCredentialDuration" : "43200"
+        "S3FolderPath" : "/duplicates/cdi_tkf_flow_uw_catastrophe_cost"
       },
       "commandType" : 0,
       "handleSpecialChars" : false,
@@ -95,33 +98,51 @@
       "excludeDynamicFileNameField" : false,
       "currentlyProcessedFileName" : false,
       "retainFieldMetadata" : false,
-      "objectName" : "dbo/addressdetail",
-      "objectLabel" : "addressdetail",
+      "objectName" : "Duplicates_CAT_Costs_20230401.csv",
+      "objectLabel" : "Duplicates_CAT_Costs_20230401.csv",
       "useExactSrcNames" : false,
       "userUpdated" : true,
       "unspecified" : false,
-      "runtimeParameterData" : {
-        "connectionParameterName" : "DBConnection_TGT",
-        "connectionRuntimeParameter" : true,
-        "objectRuntimeParameter" : false
+      "fetchMode" : "ORIGINAL",
+      "tgtObjectAttributes" : {
+        "parent" : "/duplicates/cdi_tkf_flow_uw_catastrophe_cost"
       },
+      "targetSchemaMode" : "DONT_APPLY_CHANGES",
+      "dataFormat" : {
+        "formatId" : "Flat",
+        "dataFormatAttributes" : {
+          "escapeChar" : "\\",
+          "importColumnFromFirstLine" : "true",
+          "headerLineNumber" : "1",
+          "maxRowsToPreview" : "0",
+          "qualifierMode" : "MINIMAL",
+          "firstDataRow" : "2",
+          "generateHeader" : "true",
+          "delimiter" : ",",
+          "qualifier" : "\"",
+          "targetHeader" : "With Header",
+          "disableEscapeChar" : "true",
+          "codePage" : "UTF-8",
+          "fixedWidthMode" : "false"
+        }
+      },
+      "runtimeParameterData" : {
+        "connectionParameterName" : "FF_Conn",
+        "objectParameterName" : "FileName",
+        "objectDefaultValue" : "Duplicates_CAT_Costs_20230401.csv",
+        "connectionRuntimeParameter" : false,
+        "objectRuntimeParameter" : true
+      },
+      "targetSchemaProviderType" : "SELECTED_OBJECT",
       "restmodernSource" : true,
       "fileList" : false
     }
   ],
   "verbose" : false,
-  "lastRunTime" : 1745441139000,
-  "mappingId" : "@2qo0OWZXrGobZ0GIwTQbEf",
-  "mappingTemplateName" : "m_load_AddressDetail_from_lkp_address_key_Finalv1",
+  "lastRunTime" : 1746024665000,
+  "mappingId" : "@3Y1NfoQgeC6gBXBfJW2hE9",
+  "mappingTemplateName" : "m_update_duplicate_file",
   "sessionPropertiesList" : [
-    {
-      "name" : "Allow Temporary Sequence for Pushdown",
-      "value" : "NO"
-    },
-    {
-      "name" : "Allow Temporary View for Pushdown",
-      "value" : "NO"
-    },
     {
       "name" : "Pushdown Optimization",
       "value" : "None"
@@ -136,18 +157,17 @@
     }
   ],
   "hidden" : false,
-  "enableCrossSchemaPushdown" : false,
+  "enableCrossSchemaPushdown" : true,
   "enableParallelRun" : false,
   "autoTunedApplied" : false,
   "autoTunedAppliedType" : "NONE",
-  "parameterFileName" : "Andover_Param_GW.param",
+  "parameterFileName" : "Andover_Parm_Feed.txt",
   "parameterFileDir" : "$PMRootDir/andover/parameters",
   "paramFileType" : "PARAM_FILE_LOCAL",
   "schemaMode" : "async",
   "valid" : true,
-  "parameterFileEncoding" : "UTF-8",
   "optimizationPlan" : "NONE",
   "allowMaxFieldLength" : false,
   "midstreamPreview" : false,
-  "vcsExportTime" : "2025-04-24 08:54:36 EDT"
+  "vcsExportTime" : "2025-04-30 07:54:55 PDT"
 }

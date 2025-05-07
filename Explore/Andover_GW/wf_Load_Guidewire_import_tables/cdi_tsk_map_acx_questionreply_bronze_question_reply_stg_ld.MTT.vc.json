@@ -1,27 +1,27 @@
 {
-  "name" : "s_m_load_AddressDetail_from_lkp_address_key_Finalv1",
+  "name" : "cdi_tsk_map_acx_questionreply_bronze_question_reply_stg_ld",
   "runtimeEnvironmentId" : "@3pADNCV9u0PcgrXjM7rx0t",
   "runtimeEnvironmentName" : "sag_aws_linux",
   "maxLogs" : 10,
   "parameters" : [
     {
-      "name" : "$Src_Lkp_Address_Key$",
+      "name" : "$src_ACX_questionreply$",
       "type" : "SOURCE",
-      "label" : "DBConnection_SRC",
+      "label" : "DBConnection_SRCM",
       "uiProperties" : {
-        "cnxtype" : "Amazon Redshift v2",
+        "cnxtype" : "MySQL",
         "connectionParameterized" : "true",
-        "paramName" : "DBConnection_SRC",
+        "paramName" : "DBConnection_SRCM",
         "paramType-mapping" : "Connection",
-        "logcnx" : "DBConnection_SRC",
+        "logcnx" : "DBConnection_SRCM",
         "isSelectDistinct" : "false",
         "objectParameterized" : "false",
         "visible" : "false",
-        "originalPath" : "Src_Lkp_Address_Key"
+        "originalPath" : "src_ACX_questionreply"
       },
-      "sourceConnectionId" : "@aYZ4ekzHgIPeKpiaoqDLKP",
-      "connectionName" : "redshift_nonprod_andover_dw_dev",
-      "sourceObject" : "DUMMY_Src_Lkp_Address_Key",
+      "sourceConnectionId" : "@1MPwv79N5kdekz7fZXQSas",
+      "connectionName" : "conn_mysql_model_insurance_now_gw",
+      "sourceObject" : "DUMMY_src_ACX_questionreply",
       "newFlatFile" : false,
       "newObject" : false,
       "showBusinessNames" : true,
@@ -29,7 +29,7 @@
       "truncateTarget" : false,
       "bulkApiDBTarget" : false,
       "customFuncCfg" : { },
-      "customQuery" : "SELECT address_key,address_line,\n    SPLIT_PART(address_line, ',', 1) AS Address_Line1,\n    SPLIT_PART(address_line, ',', 2) AS Address_Line2,\n    SPLIT_PART(address_line, ',', 3) AS Address_Line3,\n    SPLIT_PART(address_line, ',', 4) AS Address_Line4,\n    SPLIT_PART(address_line, ',', 5) AS CITY,\n    SPLIT_PART(address_line, ',', 6) AS STATE,\n    SPLIT_PART(address_line, ',', 7) AS ZIP_CODE\nFROM dbo.lkp_address_key where address_key in (select address_Key from (SELECT address_key, LENGTH(address_line) - LENGTH(REPLACE(address_line, ',', '')) AS comma_count\n                      from dbo.lkp_address_key\n  where comma_count=6)) and Address_key not in (select AddressKey AS LKP_Address_key from dbo.addressdetail) ;",
+      "customQuery" : "SELECT q.CMMContainer as cmm_container,\n DisplayDesc as display_desc,\n Id as id,\n Name as name,\n ParentId as parent_id,\n RowId as row_id,\n q.SystemId as system_id,\n Text as text,\n Value as value,\n VisibleInd as visible_ind\n FROM questionreply q\njoin advrxxchangedbeans a \non q.CMMContainer = a.CMMContainer \nand q.SystemId = a.SystemId \nwhere q.Name in ( \n  'PrevKnown', 'DogsCare', 'BreedDescription', \n  'UnderwritingGuidelines', 'CancelledRecently', \n  'DateAndReason', 'PrevDiscussed', 'UnderwriterDetails', \n '03PreviousCarrierPropertyLimitsPremium','RelationshipDescription'\n) OR \nq.Name like '%PriorCarrier%'\nAND concat(a.adddt,a.addtm)>='$$m_strtdt' and concat(a.adddt,a.addtm) <='$$m_Enddt'",
       "commandType" : 0,
       "handleSpecialChars" : false,
       "handleDecimalRoundOff" : false,
@@ -38,12 +38,12 @@
       "excludeDynamicFileNameField" : false,
       "currentlyProcessedFileName" : false,
       "retainFieldMetadata" : false,
-      "objectName" : "DUMMY_Src_Lkp_Address_Key",
+      "objectName" : "DUMMY_src_ACX_questionreply",
       "useExactSrcNames" : false,
       "userUpdated" : true,
       "unspecified" : false,
       "runtimeParameterData" : {
-        "connectionParameterName" : "DBConnection_SRC",
+        "connectionParameterName" : "DBConnection_SRCM",
         "connectionRuntimeParameter" : true,
         "objectRuntimeParameter" : false
       },
@@ -51,7 +51,7 @@
       "fileList" : false
     },
     {
-      "name" : "$Tgt_Address_Detail$",
+      "name" : "$tgt_DW_question_reply_stg$",
       "type" : "TARGET",
       "label" : "DBConnection_TGT",
       "uiProperties" : {
@@ -60,16 +60,16 @@
         "paramName" : "DBConnection_TGT",
         "paramType-mapping" : "Connection",
         "logcnx" : "DBConnection_TGT",
-        "default" : "dbo/addressdetail",
+        "default" : "dbo/underwriting_dashboard_question_reply_stg",
         "objectParameterized" : "false",
         "visible" : "false",
         "supportApplyDDLChanges" : "false",
-        "originalPath" : "Tgt_Address_Detail"
+        "originalPath" : "tgt_DW_question_reply_stg"
       },
       "targetConnectionId" : "@aYZ4ekzHgIPeKpiaoqDLKP",
       "connectionName" : "redshift_nonprod_andover_dw_dev",
-      "targetObject" : "dbo/addressdetail",
-      "targetObjectLabel" : "addressdetail",
+      "targetObject" : "dbo/underwriting_dashboard_question_reply_stg",
+      "targetObjectLabel" : "dbo/underwriting_dashboard_question_reply_stg",
       "newFlatFile" : false,
       "newObject" : false,
       "showBusinessNames" : true,
@@ -81,12 +81,6 @@
       "extendedObject" : {
         "singleMode" : true
       },
-      "runtimeAttrs" : {
-        "Temporary Credential Duration" : "43200"
-      },
-      "oprRuntimeAttrs" : {
-        "temporaryCredentialDuration" : "43200"
-      },
       "commandType" : 0,
       "handleSpecialChars" : false,
       "handleDecimalRoundOff" : false,
@@ -95,8 +89,8 @@
       "excludeDynamicFileNameField" : false,
       "currentlyProcessedFileName" : false,
       "retainFieldMetadata" : false,
-      "objectName" : "dbo/addressdetail",
-      "objectLabel" : "addressdetail",
+      "objectName" : "dbo/underwriting_dashboard_question_reply_stg",
+      "objectLabel" : "dbo/underwriting_dashboard_question_reply_stg",
       "useExactSrcNames" : false,
       "userUpdated" : true,
       "unspecified" : false,
@@ -110,18 +104,10 @@
     }
   ],
   "verbose" : false,
-  "lastRunTime" : 1745441139000,
-  "mappingId" : "@2qo0OWZXrGobZ0GIwTQbEf",
-  "mappingTemplateName" : "m_load_AddressDetail_from_lkp_address_key_Finalv1",
+  "lastRunTime" : 1746040871000,
+  "mappingId" : "@5C1XoRLmcCIenRu9i1v3ir",
+  "mappingTemplateName" : "cdi_map_acx_questionreply_bronze_question_reply_stg_ld",
   "sessionPropertiesList" : [
-    {
-      "name" : "Allow Temporary Sequence for Pushdown",
-      "value" : "NO"
-    },
-    {
-      "name" : "Allow Temporary View for Pushdown",
-      "value" : "NO"
-    },
     {
       "name" : "Pushdown Optimization",
       "value" : "None"
@@ -135,8 +121,26 @@
       "value" : "Partial PDO"
     }
   ],
+  "inOutParameters" : [
+    {
+      "name" : "m_strtdt",
+      "datatype" : "STRING",
+      "precision" : "120",
+      "scale" : "0",
+      "retentionPolicy" : "NEVER",
+      "aggregationType" : "MAX"
+    },
+    {
+      "name" : "m_Enddt",
+      "datatype" : "STRING",
+      "precision" : "120",
+      "scale" : "0",
+      "retentionPolicy" : "NEVER",
+      "aggregationType" : "MAX"
+    }
+  ],
   "hidden" : false,
-  "enableCrossSchemaPushdown" : false,
+  "enableCrossSchemaPushdown" : true,
   "enableParallelRun" : false,
   "autoTunedApplied" : false,
   "autoTunedAppliedType" : "NONE",
@@ -145,9 +149,8 @@
   "paramFileType" : "PARAM_FILE_LOCAL",
   "schemaMode" : "async",
   "valid" : true,
-  "parameterFileEncoding" : "UTF-8",
   "optimizationPlan" : "NONE",
   "allowMaxFieldLength" : false,
   "midstreamPreview" : false,
-  "vcsExportTime" : "2025-04-24 08:54:36 EDT"
+  "vcsExportTime" : "2025-05-01 10:25:11 EDT"
 }

@@ -1,17 +1,13 @@
 {
   "content" : {
     "allowMaxFieldLength" : "false",
-    "name" : "cdi_mps_map_uw_cat_cost_bronze_catastrophe_costs_ld",
+    "name" : "cdi_map_uw_cat_cost_bronze_catastrophe_costs_stg_ld",
     "links" : [
       {
         "link" : "cnn_cdl_CAT_Costs_metal -> srt_by_Risk_Id"
       },
       {
         "link" : "srt_by_Risk_Id -> agg_by_Risk_Id"
-      },
-      {
-        "link" : "agg_by_Risk_Id -> rtr_for_duplicate_Risk_Id",
-        "groupLink" : "DefaultGroup -> INPUT"
       },
       {
         "link" : "rtr_for_duplicate_Risk_Id -> exp_format",
@@ -21,11 +17,26 @@
         "link" : "cnn_cdl_CAT_Costs_metal -> tgt_archive"
       },
       {
-        "link" : "rtr_for_duplicate_Risk_Id -> tgt_duplicates",
-        "groupLink" : "Duplicate_Risk_Id -> DefaultGroup"
+        "link" : "exp_format -> catastrophe_costs_cnn_uw_cat_cost_bronze_ins"
       },
       {
-        "link" : "exp_format -> catastrophe_costs_cnn_uw_cat_cost_bronze_ins"
+        "link" : "agg_by_Risk_Id -> duplicates_joiner",
+        "groupLink" : "DefaultGroup -> Detail"
+      },
+      {
+        "link" : "srt_by_Risk_Id -> duplicates_joiner",
+        "groupLink" : "DefaultGroup -> Master"
+      },
+      {
+        "link" : "duplicates_joiner -> rtr_for_duplicate_Risk_Id",
+        "groupLink" : "OutputGroup -> INPUT"
+      },
+      {
+        "link" : "rtr_for_duplicate_Risk_Id -> exp_duplicates",
+        "groupLink" : "DEFAULT1 -> DefaultGroup"
+      },
+      {
+        "link" : "exp_duplicates -> tgt_duplicates"
       }
     ],
     "parameters" : [
@@ -466,26 +477,6 @@
         ],
         "fields" : [
           {
-            "name" : "v_counter",
-            "platformType" : {
-              "name" : "integer"
-            },
-            "precision" : 10,
-            "scale" : 0,
-            "expFieldType" : "VARIABLE",
-            "expression" : "IIF (Risk_ID = v_Risk_Id, v_counter + 1, 1)"
-          },
-          {
-            "name" : "v_Risk_Id",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 256,
-            "scale" : 0,
-            "expFieldType" : "VARIABLE",
-            "expression" : "Risk_ID"
-          },
-          {
             "name" : "o_counter",
             "platformType" : {
               "name" : "integer"
@@ -493,7 +484,7 @@
             "precision" : 10,
             "scale" : 0,
             "expFieldType" : "OUTPUT",
-            "expression" : "v_counter"
+            "expression" : "COUNT(Risk_ID)"
           }
         ],
         "groupByFieldsList" : {
@@ -552,35 +543,12 @@
             "input" : "false",
             "name" : "Non_Duplicate_Risk_ID",
             "output" : "true"
-          },
-          {
-            "input" : "false",
-            "name" : "Duplicate_Risk_Id",
-            "output" : "true"
           }
         ],
         "groupFilterConditions" : [
           {
-            "advancedFilterCondition" : "o_counter=1",
-            "name" : "Non_Duplicate_Risk_ID",
-            "simpleFilterConditions" : [
-              {
-                "fieldName" : "o_counter",
-                "filterValue" : "1",
-                "operator" : "="
-              }
-            ]
-          },
-          {
-            "advancedFilterCondition" : "o_counter>1",
-            "name" : "Duplicate_Risk_Id",
-            "simpleFilterConditions" : [
-              {
-                "fieldName" : "o_counter",
-                "filterValue" : "1",
-                "operator" : ">"
-              }
-            ]
+            "advancedFilterCondition" : "agg_o_counter=1",
+            "name" : "Non_Duplicate_Risk_ID"
           }
         ]
       },
@@ -2572,6 +2540,355 @@
             "useSuccessFile" : "false"
           }
         }
+      },
+      {
+        "createTime" : "2025-04-17T14:44:53.801Z",
+        "name" : "duplicates_joiner",
+        "advancedProperties" : [
+          {
+            "name" : "Tracing Level",
+            "value" : "Normal"
+          },
+          {
+            "name" : "Cache Directory",
+            "value" : "$PMCacheDir"
+          },
+          {
+            "name" : "Null ordering in master",
+            "value" : "Null is Highest Value"
+          },
+          {
+            "name" : "Null ordering in detail",
+            "value" : "Null is Higest Value"
+          },
+          {
+            "name" : "Joiner Data Cache Size",
+            "value" : "AUTO"
+          },
+          {
+            "name" : "Joiner Index Cache Size",
+            "value" : "AUTO"
+          },
+          {
+            "name" : "Sorted Input",
+            "value" : "true"
+          },
+          {
+            "name" : "Master Sort Order",
+            "value" : "AUTO"
+          },
+          {
+            "name" : "Transformation Scope",
+            "value" : "All Input"
+          },
+          {
+            "name" : "Optional",
+            "value" : "true"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "Master",
+            "output" : "false",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          },
+          {
+            "input" : "true",
+            "name" : "Detail",
+            "output" : "false",
+            "conflictResolutions" : [
+              {
+                "precedingGroupName" : "DefaultGroup",
+                "precedingTxName" : "agg_by_Risk_Id",
+                "rule" : {
+                  "bulkRename" : "true",
+                  "include" : "true",
+                  "bulkRenameOption" : {
+                    "literal" : "agg_",
+                    "suffix" : "false"
+                  }
+                }
+              }
+            ],
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          },
+          {
+            "input" : "false",
+            "name" : "OutputGroup",
+            "output" : "true"
+          }
+        ],
+        "joinType" : "Detail Outer Join",
+        "joinConditions" : [
+          {
+            "leftOperand" : "Risk_ID",
+            "operator" : "=",
+            "rightOperand" : "agg_Risk_ID"
+          }
+        ]
+      },
+      {
+        "createTime" : "2025-04-17T14:50:18.814Z",
+        "name" : "exp_duplicates",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true",
+                "names" : [
+                  {
+                    "inputName" : "_Modeled_Cov_A"
+                  },
+                  {
+                    "inputName" : "_Modeled_Cov_B"
+                  },
+                  {
+                    "inputName" : "_Modeled_Cov_C"
+                  },
+                  {
+                    "inputName" : "_Modeled_Cov_D"
+                  },
+                  {
+                    "inputName" : "AIR_Con_Code"
+                  },
+                  {
+                    "inputName" : "AIR_Occ_Code"
+                  },
+                  {
+                    "inputName" : "AllPerils_GR_AAL"
+                  },
+                  {
+                    "inputName" : "AllPerils_GU_AAL"
+                  },
+                  {
+                    "inputName" : "AllPerils_NT_AAL"
+                  },
+                  {
+                    "inputName" : "Appurtenant_Structures"
+                  },
+                  {
+                    "inputName" : "Attached_Structures"
+                  },
+                  {
+                    "inputName" : "Bldg_Num"
+                  },
+                  {
+                    "inputName" : "CAT_Spend"
+                  },
+                  {
+                    "inputName" : "Ceded_Aal_Layer1"
+                  },
+                  {
+                    "inputName" : "Ceded_Aal_Layer2"
+                  },
+                  {
+                    "inputName" : "Ceded_Aal_Layer3"
+                  },
+                  {
+                    "inputName" : "Ceded_Aal_Layer4"
+                  },
+                  {
+                    "inputName" : "Ceded_Aal_Layer5"
+                  },
+                  {
+                    "inputName" : "Ceded_Aal_Layer6"
+                  },
+                  {
+                    "inputName" : "Ceded_Aal_Layer7"
+                  },
+                  {
+                    "inputName" : "Con_Descrption"
+                  },
+                  {
+                    "inputName" : "Data_Source"
+                  },
+                  {
+                    "inputName" : "DTC_f_Andover"
+                  },
+                  {
+                    "inputName" : "EffectiveDistanceToCoast"
+                  },
+                  {
+                    "inputName" : "EQ_GR_AAL"
+                  },
+                  {
+                    "inputName" : "EQ_GU_AAL"
+                  },
+                  {
+                    "inputName" : "EQ_NT_AAL"
+                  },
+                  {
+                    "inputName" : "Glass_Type"
+                  },
+                  {
+                    "inputName" : "LOB"
+                  },
+                  {
+                    "inputName" : "LTHUwDSxSS_GR_AAL"
+                  },
+                  {
+                    "inputName" : "LTHUwDSxSS_GU_AAL"
+                  },
+                  {
+                    "inputName" : "LTHUwDSxSS_NT_AAL"
+                  },
+                  {
+                    "inputName" : "Marginal_RML"
+                  },
+                  {
+                    "inputName" : "Modeled_Base_Deductible"
+                  },
+                  {
+                    "inputName" : "Modeled_Loc_Inforce_Premium"
+                  },
+                  {
+                    "inputName" : "Modeled_TIV"
+                  },
+                  {
+                    "inputName" : "Modeled_Wind_Hurricane_Deductible"
+                  },
+                  {
+                    "inputName" : "Net_Retained_GRAAL__HU_"
+                  },
+                  {
+                    "inputName" : "Occ_Description"
+                  },
+                  {
+                    "inputName" : "Percentile_LC"
+                  },
+                  {
+                    "inputName" : "Policy_Effective_Date"
+                  },
+                  {
+                    "inputName" : "Policy_Expiration_Date"
+                  },
+                  {
+                    "inputName" : "Policy_Form"
+                  },
+                  {
+                    "inputName" : "Policy_Number"
+                  },
+                  {
+                    "inputName" : "Population"
+                  },
+                  {
+                    "inputName" : "ProgramEndDt"
+                  },
+                  {
+                    "inputName" : "ProgramStartDt"
+                  },
+                  {
+                    "inputName" : "Rank_LC"
+                  },
+                  {
+                    "inputName" : "Reins_Prem_Layer1"
+                  },
+                  {
+                    "inputName" : "Reins_Prem_Layer2"
+                  },
+                  {
+                    "inputName" : "Reins_Prem_Layer3"
+                  },
+                  {
+                    "inputName" : "Reins_Prem_Layer4"
+                  },
+                  {
+                    "inputName" : "Reins_Prem_Layer5"
+                  },
+                  {
+                    "inputName" : "Reins_Prem_Layer6"
+                  },
+                  {
+                    "inputName" : "Reins_Prem_Layer7"
+                  },
+                  {
+                    "inputName" : "Risk_ID"
+                  },
+                  {
+                    "inputName" : "RML_150_200"
+                  },
+                  {
+                    "inputName" : "RML_LC"
+                  },
+                  {
+                    "inputName" : "Roof_Anchorage"
+                  },
+                  {
+                    "inputName" : "Roof_Attached_Structures"
+                  },
+                  {
+                    "inputName" : "Roof_Cover"
+                  },
+                  {
+                    "inputName" : "Roof_Deck_Attach"
+                  },
+                  {
+                    "inputName" : "Roof_Geometry"
+                  },
+                  {
+                    "inputName" : "Roof_Year_Built"
+                  },
+                  {
+                    "inputName" : "SCS_GR_AAL"
+                  },
+                  {
+                    "inputName" : "SCS_GU_AAL"
+                  },
+                  {
+                    "inputName" : "SCS_NT_AAL"
+                  },
+                  {
+                    "inputName" : "SIR_CoastBand_f_Andover"
+                  },
+                  {
+                    "inputName" : "TCActualDistanceToCoast"
+                  },
+                  {
+                    "inputName" : "Total_Ceded_AAL"
+                  },
+                  {
+                    "inputName" : "Tree_Exposure"
+                  },
+                  {
+                    "inputName" : "Window_Prot"
+                  },
+                  {
+                    "inputName" : "WintStm_GR_AAL"
+                  },
+                  {
+                    "inputName" : "WintStm_GU_AAL"
+                  },
+                  {
+                    "inputName" : "WintStm_NT_AAL"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "windowConfigurationEnabled" : "false",
+        "windowSpec" : {
+          "allRowsFollowing" : "false",
+          "allRowsPreceding" : "false",
+          "endOffset" : 0,
+          "startOffset" : 0,
+          "partitionKeys" : null
+        }
       }
     ],
     "variables" : [
@@ -2588,5 +2905,5 @@
       }
     ]
   },
-  "vcsExportTime" : "2025-04-11 10:27:12 EDT"
+  "vcsExportTime" : "2025-04-30 07:54:55 PDT"
 }
