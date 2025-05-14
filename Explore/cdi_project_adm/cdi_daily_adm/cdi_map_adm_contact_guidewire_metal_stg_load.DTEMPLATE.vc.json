@@ -1,32 +1,19 @@
 {
   "content" : {
+    "description" : "This job reads data from MariaDB and loads it into the Metal staging tables. It follows a one-to-one mapping with no transformations.",
     "allowMaxFieldLength" : "false",
     "bigIntConvertType" : "ONLY_BIGINT",
     "documentType" : "MAPPING",
-    "name" : "cdi_map_adm_agency_email_metal_stg_load",
+    "name" : "cdi_map_adm_contact_guidewire_metal_stg_load",
     "links" : [
       {
-        "link" : "exp_values -> tgt_redshift_agency_email"
+        "link" : "exp_read_all_fields -> tgt_adm_contactguidewire"
       },
       {
-        "link" : "src_maria_db_agencyemail -> exp_values"
+        "link" : "src_contactguidewire -> exp_read_all_fields"
       }
     ],
     "parameters" : [
-      {
-        "input" : "true",
-        "output" : "false",
-        "precision" : 0,
-        "scale" : 0,
-        "allowRuntimeOverride" : "false",
-        "expressionVariable" : "false",
-        "name" : "DBConnection_UDM_TGT",
-        "anonymousType" : {
-          "subType" : "TOOLKIT_CCI",
-          "typeSystem" : "TOOLKIT",
-          "connectionType" : "Amazon Redshift v2"
-        }
-      },
       {
         "input" : "true",
         "output" : "false",
@@ -48,12 +35,39 @@
           "typeSystem" : "MySQL",
           "connectionType" : "MySQL"
         }
+      },
+      {
+        "input" : "true",
+        "output" : "false",
+        "precision" : 0,
+        "scale" : 0,
+        "allowRuntimeOverride" : "false",
+        "expressionVariable" : "false",
+        "name" : "DBConnection_UDM_TGT",
+        "anonymousType" : {
+          "subType" : "TOOLKIT_CCI",
+          "typeSystem" : "TOOLKIT",
+          "connectionType" : "Amazon Redshift v2"
+        }
+      },
+      {
+        "input" : "true",
+        "output" : "false",
+        "precision" : 0,
+        "scale" : 0,
+        "allowRuntimeOverride" : "false",
+        "expressionVariable" : "false",
+        "name" : "dayinterval",
+        "defaultValue" : {
+          "valueLiteral" : "sysdate()-interval 1 day"
+        }
       }
     ],
     "transformations" : [
       {
-        "createTime" : "2025-05-07T19:58:41.343Z",
-        "name" : "src_maria_db_agencyemail",
+        "description" : "this source to get 'daily' data from Maria DB.",
+        "createTime" : "2025-04-29T16:54:45.081Z",
+        "name" : "src_contactguidewire",
         "advancedProperties" : [
           {
             "name" : "Tracing Level",
@@ -88,17 +102,6 @@
           },
           {
             "adapterField" : {
-              "name" : "group_nup"
-            },
-            "name" : "group_nup",
-            "platformType" : {
-              "name" : "integer"
-            },
-            "precision" : 10,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
               "name" : "agency_nup"
             },
             "name" : "agency_nup",
@@ -110,20 +113,9 @@
           },
           {
             "adapterField" : {
-              "name" : "email_type"
+              "name" : "contact_firstname"
             },
-            "name" : "email_type",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 1,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "email_address"
-            },
-            "name" : "email_address",
+            "name" : "contact_firstname",
             "platformType" : {
               "name" : "string"
             },
@@ -132,9 +124,42 @@
           },
           {
             "adapterField" : {
-              "name" : "create_date"
+              "name" : "contact_lastname"
             },
-            "name" : "create_date",
+            "name" : "contact_lastname",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 50,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "contact_title"
+            },
+            "name" : "contact_title",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 40,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "contact_email"
+            },
+            "name" : "contact_email",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 50,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "created"
+            },
+            "name" : "created",
             "platformType" : {
               "name" : "date/time"
             },
@@ -143,9 +168,9 @@
           },
           {
             "adapterField" : {
-              "name" : "modified_date"
+              "name" : "modified"
             },
-            "name" : "modified_date",
+            "name" : "modified",
             "platformType" : {
               "name" : "date/time"
             },
@@ -161,66 +186,8 @@
           "objectType" : "QUERY",
           "typeSystem" : "MySQL",
           "useDynamicFileName" : "false",
-          "dataFormat" : {
-            "formatId" : "Flat",
-            "validateHSchema" : "false",
-            "attributes" : [
-              {
-                "name" : "delimiter",
-                "value" : ","
-              },
-              {
-                "name" : "escapeChar",
-                "value" : "\\"
-              },
-              {
-                "name" : "qualifier",
-                "value" : "\""
-              },
-              {
-                "name" : "qualifierMode",
-                "value" : "MINIMAL"
-              },
-              {
-                "name" : "disableEscapeChar",
-                "value" : "true"
-              },
-              {
-                "name" : "codePage",
-                "value" : "UTF-8"
-              },
-              {
-                "name" : "headerLineNumber",
-                "value" : "1"
-              },
-              {
-                "name" : "firstDataRow",
-                "value" : "2"
-              },
-              {
-                "name" : "targetHeader",
-                "value" : "With Header"
-              },
-              {
-                "name" : "importColumnFromFirstLine",
-                "value" : "true"
-              },
-              {
-                "name" : "generateHeader",
-                "value" : "true"
-              },
-              {
-                "name" : "fixedWidthMode",
-                "value" : "false"
-              },
-              {
-                "name" : "maxRowsToPreview",
-                "value" : "0"
-              }
-            ]
-          },
           "object" : {
-            "customQuery" : "SELECT *  \nFROM agencymanagement.agencyemail\nWHERE modified_date >='$$LastSuccessfulRun'\nORDER BY modified_date DESC;",
+            "customQuery" : "SELECT *  \nFROM agencymanagement.contactguidewire\nwhere modified >='$$LastSuccessfulRun'\nORDER BY modified DESC",
             "retainMetadata" : "false",
             "fields" : [
               {
@@ -235,23 +202,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "agencyemail"
-                  }
-                ]
-              },
-              {
-                "name" : "group_nup",
-                "fieldType" : "CONNECTOR",
-                "label" : "group_nup",
-                "nativeName" : "group_nup",
-                "nativeType" : "integer",
-                "original" : "false",
-                "precision" : 10,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "agencyemail"
+                    "value" : "contactguidewire"
                   }
                 ]
               },
@@ -267,31 +218,15 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "agencyemail"
+                    "value" : "contactguidewire"
                   }
                 ]
               },
               {
-                "name" : "email_type",
+                "name" : "contact_firstname",
                 "fieldType" : "CONNECTOR",
-                "label" : "email_type",
-                "nativeName" : "email_type",
-                "nativeType" : "char",
-                "original" : "false",
-                "precision" : 1,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "agencyemail"
-                  }
-                ]
-              },
-              {
-                "name" : "email_address",
-                "fieldType" : "CONNECTOR",
-                "label" : "email_address",
-                "nativeName" : "email_address",
+                "label" : "contact_firstname",
+                "nativeName" : "contact_firstname",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 50,
@@ -299,15 +234,63 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "agencyemail"
+                    "value" : "contactguidewire"
                   }
                 ]
               },
               {
-                "name" : "create_date",
+                "name" : "contact_lastname",
                 "fieldType" : "CONNECTOR",
-                "label" : "create_date",
-                "nativeName" : "create_date",
+                "label" : "contact_lastname",
+                "nativeName" : "contact_lastname",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 50,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "contactguidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "contact_title",
+                "fieldType" : "CONNECTOR",
+                "label" : "contact_title",
+                "nativeName" : "contact_title",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 40,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "contactguidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "contact_email",
+                "fieldType" : "CONNECTOR",
+                "label" : "contact_email",
+                "nativeName" : "contact_email",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 50,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "contactguidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "created",
+                "fieldType" : "CONNECTOR",
+                "label" : "created",
+                "nativeName" : "created",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 23,
@@ -315,15 +298,15 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "agencyemail"
+                    "value" : "contactguidewire"
                   }
                 ]
               },
               {
-                "name" : "modified_date",
+                "name" : "modified",
                 "fieldType" : "CONNECTOR",
-                "label" : "modified_date",
-                "nativeName" : "modified_date",
+                "label" : "modified",
+                "nativeName" : "modified",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 23,
@@ -331,7 +314,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "agencyemail"
+                    "value" : "contactguidewire"
                   }
                 ]
               }
@@ -347,8 +330,9 @@
         }
       },
       {
-        "createTime" : "2025-05-07T19:58:41.343Z",
-        "name" : "tgt_redshift_agency_email",
+        "description" : "Redshift UDM staging table.",
+        "createTime" : "2025-04-29T16:54:45.081Z",
+        "name" : "tgt_adm_contactguidewire",
         "advancedProperties" : [
           {
             "name" : "Forward Rejected Rows",
@@ -411,20 +395,9 @@
           },
           {
             "adapterField" : {
-              "name" : "create_date"
+              "name" : "contact_email"
             },
-            "name" : "create_date",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 31,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "email_address"
-            },
-            "name" : "email_address",
+            "name" : "contact_email",
             "platformType" : {
               "name" : "string"
             },
@@ -433,24 +406,46 @@
           },
           {
             "adapterField" : {
-              "name" : "email_type"
+              "name" : "contact_firstname"
             },
-            "name" : "email_type",
+            "name" : "contact_firstname",
             "platformType" : {
               "name" : "string"
             },
-            "precision" : 7,
+            "precision" : 63,
             "scale" : 0
           },
           {
             "adapterField" : {
-              "name" : "group_nup"
+              "name" : "contact_lastname"
             },
-            "name" : "group_nup",
+            "name" : "contact_lastname",
             "platformType" : {
               "name" : "string"
             },
-            "precision" : 15,
+            "precision" : 63,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "contact_title"
+            },
+            "name" : "contact_title",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "created"
+            },
+            "name" : "created",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 31,
             "scale" : 0
           },
           {
@@ -466,9 +461,9 @@
           },
           {
             "adapterField" : {
-              "name" : "modified_date"
+              "name" : "modified"
             },
-            "name" : "modified_date",
+            "name" : "modified",
             "platformType" : {
               "name" : "string"
             },
@@ -485,11 +480,11 @@
           "typeSystem" : "TOOLKIT",
           "useDynamicFileName" : "false",
           "object" : {
-            "name" : "metal/adm_agency_email",
-            "label" : "metal/adm_agency_email",
-            "objectName" : "adm_agency_email",
+            "name" : "metal/adm_contact_guidewire",
+            "label" : "metal/adm_contact_guidewire",
+            "objectName" : "adm_contact_guidewire",
             "objectType" : "amazonredshift",
-            "path" : "metal/adm_agency_email",
+            "path" : "metal/adm_contact_guidewire",
             "retainMetadata" : "false",
             "fields" : [
               {
@@ -504,7 +499,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_agency_email"
+                    "value" : "adm_contact_guidewire"
                   }
                 ]
               },
@@ -520,7 +515,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_agency_email"
+                    "value" : "adm_contact_guidewire"
                   }
                 ]
               },
@@ -536,31 +531,15 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_agency_email"
+                    "value" : "adm_contact_guidewire"
                   }
                 ]
               },
               {
-                "name" : "create_date",
+                "name" : "contact_email",
                 "fieldType" : "CONNECTOR",
-                "label" : "create_date",
-                "nativeName" : "create_date",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 31,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_agency_email"
-                  }
-                ]
-              },
-              {
-                "name" : "email_address",
-                "fieldType" : "CONNECTOR",
-                "label" : "email_address",
-                "nativeName" : "email_address",
+                "label" : "contact_email",
+                "nativeName" : "contact_email",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 63,
@@ -568,39 +547,71 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_agency_email"
+                    "value" : "adm_contact_guidewire"
                   }
                 ]
               },
               {
-                "name" : "email_type",
+                "name" : "contact_firstname",
                 "fieldType" : "CONNECTOR",
-                "label" : "email_type",
-                "nativeName" : "email_type",
+                "label" : "contact_firstname",
+                "nativeName" : "contact_firstname",
                 "nativeType" : "varchar",
                 "original" : "false",
-                "precision" : 7,
+                "precision" : 63,
                 "scale" : 0,
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_agency_email"
+                    "value" : "adm_contact_guidewire"
                   }
                 ]
               },
               {
-                "name" : "group_nup",
+                "name" : "contact_lastname",
                 "fieldType" : "CONNECTOR",
-                "label" : "group_nup",
-                "nativeName" : "group_nup",
+                "label" : "contact_lastname",
+                "nativeName" : "contact_lastname",
                 "nativeType" : "varchar",
                 "original" : "false",
-                "precision" : 15,
+                "precision" : 63,
                 "scale" : 0,
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_agency_email"
+                    "value" : "adm_contact_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "contact_title",
+                "fieldType" : "CONNECTOR",
+                "label" : "contact_title",
+                "nativeName" : "contact_title",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_contact_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "created",
+                "fieldType" : "CONNECTOR",
+                "label" : "created",
+                "nativeName" : "created",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 31,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_contact_guidewire"
                   }
                 ]
               },
@@ -616,15 +627,15 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_agency_email"
+                    "value" : "adm_contact_guidewire"
                   }
                 ]
               },
               {
-                "name" : "modified_date",
+                "name" : "modified",
                 "fieldType" : "CONNECTOR",
-                "label" : "modified_date",
-                "nativeName" : "modified_date",
+                "label" : "modified",
+                "nativeName" : "modified",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 31,
@@ -632,7 +643,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_agency_email"
+                    "value" : "adm_contact_guidewire"
                   }
                 ]
               }
@@ -730,16 +741,16 @@
         "manualMappings" : {
           "mappingList" : [
             {
-              "fromFieldName" : "load_type",
+              "fromFieldName" : "o_source_name",
               "toField" : {
-                "name" : "load_type"
+                "name" : "source_name"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "source_name",
+              "fromFieldName" : "o_load_type",
               "toField" : {
-                "name" : "source_name"
+                "name" : "load_type"
               },
               "fromFieldNames" : null
             },
@@ -751,23 +762,30 @@
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "email_address",
+              "fromFieldName" : "contact_email",
               "toField" : {
-                "name" : "email_address"
+                "name" : "contact_email"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "email_type",
+              "fromFieldName" : "contact_firstname",
               "toField" : {
-                "name" : "email_type"
+                "name" : "contact_firstname"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "group_nup",
+              "fromFieldName" : "contact_lastname",
               "toField" : {
-                "name" : "group_nup"
+                "name" : "contact_lastname"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "contact_title",
+              "toField" : {
+                "name" : "contact_title"
               },
               "fromFieldNames" : null
             },
@@ -779,16 +797,16 @@
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "o_created_date",
+              "fromFieldName" : "o_created",
               "toField" : {
-                "name" : "create_date"
+                "name" : "created"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "o_modified_date",
+              "fromFieldName" : "o_modified",
               "toField" : {
-                "name" : "modified_date"
+                "name" : "modified"
               },
               "fromFieldNames" : null
             }
@@ -796,8 +814,9 @@
         }
       },
       {
-        "createTime" : "2025-05-07T20:00:22.521Z",
-        "name" : "exp_values",
+        "description" : "straight pass through, no transformation required ",
+        "createTime" : "2025-05-01T12:40:58.640Z",
+        "name" : "exp_read_all_fields",
         "groups" : [
           {
             "input" : "true",
@@ -815,47 +834,47 @@
         "fields" : [
           {
             "defaultValue" : "ERROR('transformation error')",
-            "name" : "load_type",
+            "name" : "o_source_name",
             "platformType" : {
               "name" : "string"
             },
-            "precision" : 50,
+            "precision" : 20,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "'contactguidewire'"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_load_type",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 10,
             "scale" : 0,
             "expFieldType" : "OUTPUT",
             "expression" : "'Daily'"
           },
           {
             "defaultValue" : "ERROR('transformation error')",
-            "name" : "source_name",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 50,
-            "scale" : 0,
-            "expFieldType" : "OUTPUT",
-            "expression" : "'agencyemail'"
-          },
-          {
-            "defaultValue" : "ERROR('transformation error')",
-            "name" : "o_created_date",
+            "name" : "o_created",
             "platformType" : {
               "name" : "string"
             },
             "precision" : 100,
             "scale" : 0,
             "expFieldType" : "OUTPUT",
-            "expression" : "IIF(IsNull(create_date),NULL,TO_CHAR(create_date,'YYYY-MM-DD HH24:MI:SS'))"
+            "expression" : "TO_CHAR(created,'YYYY-MM-DD HH24:MI:SS')"
           },
           {
             "defaultValue" : "ERROR('transformation error')",
-            "name" : "o_modified_date",
+            "name" : "o_modified",
             "platformType" : {
               "name" : "string"
             },
             "precision" : 100,
             "scale" : 0,
             "expFieldType" : "OUTPUT",
-            "expression" : "IIF(IsNull(modified_date),NULL,TO_CHAR(modified_date,'YYYY-MM-DD HH24:MI:SS'))"
+            "expression" : "to_char(modified,'YYYY-MM-DD HH24:MI:SS')"
           }
         ],
         "windowSpec" : {
@@ -868,5 +887,5 @@
       }
     ]
   },
-  "vcsExportTime" : "2025-05-13 13:55:15 PDT"
+  "vcsExportTime" : "2025-05-13 15:27:50 EDT"
 }
