@@ -1,5 +1,5 @@
 {
-  "name" : "cdi_tsk_map_uw_silver_prior_carrier_and_prior_loss_ld",
+  "name" : "cdi_tsk_map_acx_silver_policy_risk_key_reference_ld",
   "runtimeEnvironmentId" : "@3pADNCV9u0PcgrXjM7rx0t",
   "runtimeEnvironmentName" : "sag_aws_linux",
   "maxLogs" : 10,
@@ -29,7 +29,7 @@
       "truncateTarget" : false,
       "bulkApiDBTarget" : false,
       "customFuncCfg" : { },
-      "customQuery" : "select\n\tdistinct \n    prkr.policy_system_id as policy_system_id,\n\tprkr.policy_number as policy_number,\n\tprkr.policy_module_number as policy_module_number,\n\tprkr.policy_key as policy_key,\n\tprkr.policy_key_code as policy_key_code,\n\tprkr.risk_system_id as risk_system_id,\n\tprkr.risk_id as risk_id,\n\tl.system_id as loss_history_system_id,\n\tl.id as loss_history_id,\n\tl.cmm_container as loss_history_record_type,\n\tl.risk_id_ref as risk_id_reference_number,\n\tl.loss_cause_cd as prior_carrier_loss_cause,\n\tl.loss_dt as prior_carrier_loss_date,\n\tl.claim_number as prior_carrier_claim_number,\n\tl.carrier_name as prior_carrier_name_sourced_from_loss_history,\n\tl.policy_type_cd as prior_carrier_policy_type,\n\tl.source_cd as prior_carrier_source,\n\tl.paid_amt as prior_carrier_paid_indemnity_amount,\n\tl.expense_amount as prior_carrier_paid_expense_amount,\n\tl.reserve_amount as prior_carrier_reserve_amount,\n\tl.subrogation_amount as prior_carrier_subrogation_amount,\n\tl.claim_status_cd as prior_carrier_claim_status,\n\tl.loss_desc as prior_carrier_loss_description,\n\tl.\"comment\" as prior_carrier_comment,\n\tl.claim_type_display as prior_carrier_claim_type ,\n\tl.reported_by as loss_history_reported_by,\n\tb.homeautocreditdescription as companion_auto_carrier_and_policy_number,\n\ta.systemid as application_system_id,\n\ta.applicationnumber as application_number,\n\tt.prior_carrier_and_prior_loss_row_id as prior_carrier_and_prior_loss_row_id,\n\tt.prior_carrier_and_prior_loss_md5_hash_value\nfrom\n\tdbo.loss_history_stg l\nleft join dbo.building_stg b\non\n\tl.system_id = b.systemid\n\tand l.cmm_container = b.cmmcontainer\n\tand l.risk_id_ref = b.parentid\nleft join dbo.basicpolicy_stg bs \non\n\tl.system_id = bs.systemid\n\tand l.cmm_container = bs.cmmcontainer\nleft join dbo.policy_risk_key_reference prkr\non\n\tl.system_id = prkr.policy_system_id\n\tand l.cmm_container = prkr.policy_cmm_container\n\tand l.risk_id_ref = prkr.risk_id\nleft join dbo.application_stg a\non\n\tbs.originalapplicationref = a.systemid\nleft join dbo.prior_carrier_and_prior_loss t\non\n\tt.loss_history_id = l.id\n\tand t.loss_history_system_id = l.system_id\n\tand t.loss_history_record_type = l.cmm_container\n\tand t.risk_id = l.risk_id_ref\n\tand t.prior_carrier_and_prior_loss_row_effective_end_datetime = '9999-12-31'\nwhere\n\tprkr.policy_risk_key_reference_row_effective_end_date = '9999-12-31'\n\tand l.cmm_container = 'Policy'\nunion\nselect\n\tdistinct \nprkr.policy_system_id as policy_system_id,\n\tprkr.policy_number as policy_number,\n\tprkr.policy_module_number as policy_module_number,\n\tprkr.policy_key as policy_key,\n\tprkr.policy_key_code as policy_key_code,\n\tprkr.risk_system_id as risk_system_id,\n\tprkr.risk_id as risk_id,\n\tl.system_id as loss_history_system_id,\n\tl.id as loss_history_id,\n\tl.cmm_container as loss_history_record_type,\n\tl.risk_id_ref as risk_id_reference_number,\n\tl.loss_cause_cd as prior_carrier_loss_cause,\n\tl.loss_dt as prior_carrier_loss_date,\n\tl.claim_number as prior_carrier_claim_number,\n\tl.carrier_name as prior_carrier_name_sourced_from_loss_history,\n\tl.policy_type_cd as prior_carrier_policy_type,\n\tl.source_cd as prior_carrier_source,\n\tl.paid_amt as prior_carrier_paid_indemnity_amount,\n\tl.expense_amount as prior_carrier_paid_expense_amount,\n\tl.reserve_amount as prior_carrier_reserve_amount,\n\tl.subrogation_amount as prior_carrier_subrogation_amount,\n\tl.claim_status_cd as prior_carrier_claim_status,\n\tl.loss_desc as prior_carrier_loss_description,\n\tl.\"comment\" as prior_carrier_comment,\n\tl.claim_type_display as prior_carrier_claim_type ,\n\tl.reported_by as loss_history_reported_by,\n\tb.building_application_home_auto_credit_description as companion_auto_carrier_and_policy_number,\n\ta.systemid as application_system_id,\n\ta.applicationnumber as application_number,\n\tt.prior_carrier_and_prior_loss_row_id as prior_carrier_and_prior_loss_row_id,\n\tt.prior_carrier_and_prior_loss_md5_hash_value\nfrom\n\tdbo.loss_history_stg l\nleft join dbo.building_application_stg b\non\n\tl.system_id = b.building_application_system_id\n\tand l.cmm_container = b.building_application_cmm_container\n\tand l.risk_id_ref = b.building_application_parent_id\nleft join dbo.policy_risk_key_reference prkr\non\n\tl.system_id = prkr.policy_system_id\n\tand l.cmm_container = prkr.policy_cmm_container\n\tand l.risk_id_ref = prkr.risk_id\nleft join dbo.application_stg a\non\n\tl.system_id = a.systemid\n\tand l.cmm_container = a.cmmcontainer\nleft join dbo.prior_carrier_and_prior_loss t\non\n\tt.loss_history_id = l.id\n\tand t.loss_history_system_id = l.system_id\n\tand t.loss_history_record_type = l.cmm_container\n\tand t.risk_id = l.risk_id_ref\n\tand t.prior_carrier_and_prior_loss_row_effective_end_datetime = '9999-12-31'\nwhere\n\tprkr.policy_risk_key_reference_row_effective_end_date = '9999-12-31'\n\tand l.cmm_container = 'Application'",
+      "customQuery" : "SELECT DISTINCT \nbp.systemid as policy_system_id,\nbp.cmmcontainer as policy_cmm_container,\nbp.id as policy_reference_id,\nbp.shellpolicyind,\nbp.carriercd as policy_carriercd,\ncs.carriercd as claimstat_carriercd,\nps.carriercd as policystat_carriercd,\nbp.policynumber,\nbp.policyversion,\nr.systemid as risk_system_id,\nr.id as risk_reference_id,\nl.systemid as line_system_id,\nl.id as line_reference_id,\nl.linecd,\nprkr.policy_risk_key_reference_row_id,\nprkr.policy_risk_key_reference_md5_hash_value \nFROM dbo.risk_stg r\nLEFT JOIN dbo.basicpolicy_stg bp\nON r.systemid = bp.systemid\nAND r.cmmcontainer = bp.cmmcontainer\nLEFT JOIN \n(select \npolicyref, \ncarriercd,\nrank() over (partition by policyref order by statsequence desc) as rnk\nfrom dbo.claimstats_stg) cs \nON bp.systemid = cs.policyref\nand cs.rnk = 1\nLEFT JOIN \n(select \npolicyref, \ncarriercd,\nrank() over (partition by policyref order by statsequence desc) as rnk\nfrom dbo.policystats_stg) ps\nON ps.policyref = bp.systemid\nand ps.rnk = 1\nLEFT JOIN dbo.line_stg l\nON bp.systemid = l.systemid\nAND bp.cmmcontainer = l.cmmcontainer\nleft join dbo.policy_risk_key_reference prkr \non prkr.policy_system_id = bp.systemid \nand prkr.policy_reference_id = bp.id \nand prkr.policy_cmm_container = bp.cmmcontainer \nand prkr.risk_system_id = r.systemid \nand prkr.risk_id = r.id\nand prkr.policy_risk_key_reference_row_effective_end_date = '9999-12-31'\nUNION\nSELECT distinct\nbp.systemid as policy_system_id,\nbp.cmmcontainer as policy_cmm_container,\nbp.id as policy_reference_id,\nbp.shellpolicyind,\nbp.carriercd as policy_carriercd,\nnull as claimstat_carriercd,\nnull as policystat_carriercd,\nbp.policynumber,\nbp.policyversion,\nr.risk_application_system_id as risk_system_id,\nr.risk_application_id as risk_reference_id,\nl.systemid as line_system_id,\nl.id as line_reference_id,\nl.linecd,\nprkr.policy_risk_key_reference_row_id,\nprkr.policy_risk_key_reference_md5_hash_value \nFROM dbo.risk_application_stg r\nLEFT JOIN dbo.basicpolicyapp_stg bp\nON r.risk_application_system_id = bp.systemid\nAND r.risk_application_cmm_container = bp.cmmcontainer\nLEFT JOIN dbo.line_stg l\nON bp.systemid = l.systemid\nAND bp.cmmcontainer = l.cmmcontainer\nleft join dbo.policy_risk_key_reference prkr \non prkr.policy_system_id = bp.systemid \nand prkr.policy_reference_id = bp.id \nand prkr.policy_cmm_container = bp.cmmcontainer \nand prkr.risk_system_id = r.risk_application_system_id\nand prkr.risk_id = r.risk_application_id\nand prkr.policy_risk_key_reference_row_effective_end_date = '9999-12-31'",
       "commandType" : 0,
       "handleSpecialChars" : false,
       "handleDecimalRoundOff" : false,
@@ -51,7 +51,7 @@
       "fileList" : false
     },
     {
-      "name" : "$tgt_prior_carrier_and_prior_loss_close$",
+      "name" : "$tgt_policy_risk_key_reference_close$",
       "type" : "TARGET",
       "label" : "DBConnection_TGT",
       "uiProperties" : {
@@ -60,17 +60,17 @@
         "paramName" : "DBConnection_TGT",
         "paramType-mapping" : "Connection",
         "logcnx" : "DBConnection_TGT",
-        "default" : "dbo/prior_carrier_and_prior_loss",
+        "default" : "dbo/policy_risk_key_reference",
         "objectParameterized" : "false",
         "visible" : "false",
-        "defaultTargetUpdateColumns" : "prior_carrier_and_prior_loss_row_id",
+        "defaultTargetUpdateColumns" : "policy_risk_key_reference_row_id",
         "supportApplyDDLChanges" : "false",
-        "originalPath" : "tgt_prior_carrier_and_prior_loss_close"
+        "originalPath" : "tgt_policy_risk_key_reference_close"
       },
       "targetConnectionId" : "@aYZ4ekzHgIPeKpiaoqDLKP",
       "connectionName" : "redshift_nonprod_andover_dw_dev",
-      "targetObject" : "dbo/prior_carrier_and_prior_loss",
-      "targetObjectLabel" : "dbo/prior_carrier_and_prior_loss",
+      "targetObject" : "dbo/policy_risk_key_reference",
+      "targetObjectLabel" : "dbo/policy_risk_key_reference",
       "newFlatFile" : false,
       "newObject" : false,
       "showBusinessNames" : true,
@@ -80,7 +80,7 @@
       "operationType" : "Update",
       "customFuncCfg" : { },
       "targetUpdateColumns" : [
-        "prior_carrier_and_prior_loss_row_id"
+        "policy_risk_key_reference_row_id"
       ],
       "extendedObject" : {
         "singleMode" : true
@@ -93,8 +93,8 @@
       "excludeDynamicFileNameField" : false,
       "currentlyProcessedFileName" : false,
       "retainFieldMetadata" : false,
-      "objectName" : "dbo/prior_carrier_and_prior_loss",
-      "objectLabel" : "dbo/prior_carrier_and_prior_loss",
+      "objectName" : "dbo/policy_risk_key_reference",
+      "objectLabel" : "dbo/policy_risk_key_reference",
       "useExactSrcNames" : false,
       "userUpdated" : true,
       "unspecified" : false,
@@ -107,7 +107,7 @@
       "fileList" : false
     },
     {
-      "name" : "$tgt_prior_carrier_and_prior_loss_insert$",
+      "name" : "$tgt_policy_risk_key_reference_insert$",
       "type" : "TARGET",
       "label" : "DBConnection_TGT",
       "uiProperties" : {
@@ -116,16 +116,16 @@
         "paramName" : "DBConnection_TGT",
         "paramType-mapping" : "Connection",
         "logcnx" : "DBConnection_TGT",
-        "default" : "dbo/prior_carrier_and_prior_loss",
+        "default" : "dbo/policy_risk_key_reference",
         "objectParameterized" : "false",
         "visible" : "false",
         "supportApplyDDLChanges" : "false",
-        "originalPath" : "tgt_prior_carrier_and_prior_loss_insert"
+        "originalPath" : "tgt_policy_risk_key_reference_insert"
       },
       "targetConnectionId" : "@aYZ4ekzHgIPeKpiaoqDLKP",
       "connectionName" : "redshift_nonprod_andover_dw_dev",
-      "targetObject" : "dbo/prior_carrier_and_prior_loss",
-      "targetObjectLabel" : "dbo/prior_carrier_and_prior_loss",
+      "targetObject" : "dbo/policy_risk_key_reference",
+      "targetObjectLabel" : "dbo/policy_risk_key_reference",
       "newFlatFile" : false,
       "newObject" : false,
       "showBusinessNames" : true,
@@ -145,8 +145,8 @@
       "excludeDynamicFileNameField" : false,
       "currentlyProcessedFileName" : false,
       "retainFieldMetadata" : false,
-      "objectName" : "dbo/prior_carrier_and_prior_loss",
-      "objectLabel" : "dbo/prior_carrier_and_prior_loss",
+      "objectName" : "dbo/policy_risk_key_reference",
+      "objectLabel" : "dbo/policy_risk_key_reference",
       "useExactSrcNames" : false,
       "userUpdated" : true,
       "unspecified" : false,
@@ -159,7 +159,7 @@
       "fileList" : false
     },
     {
-      "name" : "$tgt_prior_carrier_and_prior_loss_update$",
+      "name" : "$tgt_policy_risk_key_reference_update$",
       "type" : "TARGET",
       "label" : "DBConnection_TGT",
       "uiProperties" : {
@@ -168,16 +168,16 @@
         "paramName" : "DBConnection_TGT",
         "paramType-mapping" : "Connection",
         "logcnx" : "DBConnection_TGT",
-        "default" : "dbo/prior_carrier_and_prior_loss",
+        "default" : "dbo/policy_risk_key_reference",
         "objectParameterized" : "false",
         "visible" : "false",
         "supportApplyDDLChanges" : "false",
-        "originalPath" : "tgt_prior_carrier_and_prior_loss_update"
+        "originalPath" : "tgt_policy_risk_key_reference_update"
       },
       "targetConnectionId" : "@aYZ4ekzHgIPeKpiaoqDLKP",
       "connectionName" : "redshift_nonprod_andover_dw_dev",
-      "targetObject" : "dbo/prior_carrier_and_prior_loss",
-      "targetObjectLabel" : "dbo/prior_carrier_and_prior_loss",
+      "targetObject" : "dbo/policy_risk_key_reference",
+      "targetObjectLabel" : "dbo/policy_risk_key_reference",
       "newFlatFile" : false,
       "newObject" : false,
       "showBusinessNames" : true,
@@ -197,8 +197,8 @@
       "excludeDynamicFileNameField" : false,
       "currentlyProcessedFileName" : false,
       "retainFieldMetadata" : false,
-      "objectName" : "dbo/prior_carrier_and_prior_loss",
-      "objectLabel" : "dbo/prior_carrier_and_prior_loss",
+      "objectName" : "dbo/policy_risk_key_reference",
+      "objectLabel" : "dbo/policy_risk_key_reference",
       "useExactSrcNames" : false,
       "userUpdated" : true,
       "unspecified" : false,
@@ -212,9 +212,9 @@
     }
   ],
   "verbose" : false,
-  "lastRunTime" : 1747138831000,
-  "mappingId" : "@eMt2S5OTesygZ9uhyuDno6",
-  "mappingTemplateName" : "cdi_map_uw_silver_prior_carrier_and_prior_loss_ld",
+  "lastRunTime" : 1747055434000,
+  "mappingId" : "@bgvHCVtd5ANhpg9rjhc2wN",
+  "mappingTemplateName" : "cdi_map_acx_silver_policy_risk_key_reference_ld",
   "sessionPropertiesList" : [
     {
       "name" : "Pushdown Optimization",
@@ -242,5 +242,5 @@
   "optimizationPlan" : "NONE",
   "allowMaxFieldLength" : false,
   "midstreamPreview" : false,
-  "vcsExportTime" : "2025-05-13 08:29:12 EDT"
+  "vcsExportTime" : "2025-05-12 09:19:52 EDT"
 }
