@@ -485,7 +485,7 @@
           "typeSystem" : "TOOLKIT",
           "useDynamicFileName" : "false",
           "object" : {
-            "customQuery" : "select * from (\nselect  source_system_code, MAX(recent_b_query.batch_id) as latest_batch,\nrecent_b_query.target_table_name, recent_b_query.recent_b_status\nfrom (\nselect batch_id, target_table_name, batch_status,source_system_code, \nlast_value(batch_status) over(partition by batch_id, target_table_name \norder by batch_status asc rows between unbounded preceding and unbounded following) as recent_b_status\nfrom (select * from metal.batch_load_summary\nwhere source_system_code = '$$sourcesystemcode' and batch_status in ('Success', 'Failure', 'Inprogress') \nand  batch_id !=0\n)\norder by batch_id) recent_b_query\ngroup by batch_id,target_table_name, recent_b_status, source_system_code\norder by batch_id desc ,target_table_name, recent_b_status\n)\nwhere latest_batch = (SELECT COALESCE(MAX(batch_id), 0) AS batch_id\n  FROM metal.batch_load_summary)",
+            "customQuery" : "select * from (\nselect  source_system_code, MAX(recent_b_query.batch_id) as latest_batch,\nrecent_b_query.target_table_name, recent_b_query.recent_b_status\nfrom (\nselect batch_id, target_table_name, batch_status,source_system_code, \nlast_value(batch_status) over(partition by batch_id, target_table_name \norder by batch_status asc rows between unbounded preceding and unbounded following) as recent_b_status\nfrom (select * from metal.batch_load_summary\nwhere source_system_code = 'ADM' and batch_status in ('Success', 'Failure', 'Inprogress') \nand  batch_id !=0\n)\norder by batch_id) recent_b_query\ngroup by batch_id,target_table_name, recent_b_status, source_system_code\norder by batch_id desc ,target_table_name, recent_b_status\n)\nwhere latest_batch = (SELECT COALESCE(MAX(batch_id), 0) AS batch_id\n  FROM metal.batch_load_summary)",
             "retainMetadata" : "false",
             "fields" : [
               {
@@ -2261,7 +2261,7 @@
           "typeSystem" : "TOOLKIT",
           "useDynamicFileName" : "false",
           "object" : {
-            "customQuery" : "SELECT MAX(batch_id) AS batch_id, source_system_code\nfrom\nmetal.batch_load_summary\nWHERE\nsource_system_code = '$$sourcesystemcode'\ngroup by source_system_code",
+            "customQuery" : "SELECT MAX(batch_id) AS batch_id, source_system_code\nfrom\nmetal.batch_load_summary\nWHERE\nsource_system_code = 'ADM'\ngroup by source_system_code",
             "retainMetadata" : "false",
             "fields" : [
               {
@@ -3093,7 +3093,7 @@
           "typeSystem" : "TOOLKIT",
           "useDynamicFileName" : "false",
           "object" : {
-            "customQuery" : "select source_system_code, batch_id, max(batch_start_datetime) as prev_batch_start_datetime from metal.batch_load_summary\nwhere source_system_code = '$$sourcesystemcode'\ngroup by source_system_code, batch_id \norder by source_system_code, batch_id  desc",
+            "customQuery" : "select source_system_code, batch_id, max(batch_start_datetime) as prev_batch_start_datetime from metal.batch_load_summary\nwhere source_system_code = 'ADM'\ngroup by source_system_code, batch_id \norder by source_system_code, batch_id  desc",
             "retainMetadata" : "false",
             "fields" : [
               {
@@ -3305,5 +3305,5 @@
       }
     ]
   },
-  "vcsExportTime" : "2025-06-04 10:43:51 PDT"
+  "vcsExportTime" : "2025-06-04 11:34:31 PDT"
 }
