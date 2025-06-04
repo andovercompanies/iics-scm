@@ -143,15 +143,14 @@
           }
         ],
         "dataAdapter" : {
-          "connectionId$" : {
-            "name" : "DBConnection_UDM_SRC"
-          },
+          "connectionId" : "saas:@aYZ4ekzHgIPeKpiaoqDLKP",
+          "connectionName" : "redshift_nonprod_andover_dw_dev",
           "excludeDynamicFileNameField" : "false",
           "objectType" : "QUERY",
           "typeSystem" : "TOOLKIT",
           "useDynamicFileName" : "false",
           "object" : {
-            "customQuery" : "select count(*) as pilot_batch_count, source_system_code from metal.batch_load_summary\nwhere source_system_code = '$$sourcesystemcode'  and batch_id =0\ngroup by source_system_code",
+            "customQuery" : "select count(*) as pilot_batch_count, source_system_code from metal.batch_load_summary\nwhere source_system_code = 'ADM'  and batch_id =0\ngroup by source_system_code",
             "retainMetadata" : "false",
             "fields" : [
               {
@@ -308,7 +307,7 @@
             "precision" : 60,
             "scale" : 0,
             "expFieldType" : "OUTPUT",
-            "expression" : "--$$target_table_name\n'adm_t_agency'"
+            "expression" : "$$target_table_name"
           }
         ],
         "windowSpec" : {
@@ -1250,20 +1249,19 @@
             "platformType" : {
               "name" : "string"
             },
-            "precision" : 65535,
+            "precision" : 3,
             "scale" : 0
           }
         ],
         "dataAdapter" : {
-          "connectionId$" : {
-            "name" : "DBConnection_UDM_SRC"
-          },
+          "connectionId" : "saas:@aYZ4ekzHgIPeKpiaoqDLKP",
+          "connectionName" : "redshift_nonprod_andover_dw_dev",
           "excludeDynamicFileNameField" : "false",
           "objectType" : "QUERY",
           "typeSystem" : "TOOLKIT",
           "useDynamicFileName" : "false",
           "object" : {
-            "customQuery" : "select  count(*) as recent_batch_count, '$$sourcesystemcode' as source_system_id from (\nselect  source_system_code, MAX(recent_b_query.batch_id) as latest_batch, recent_b_query.target_table_name, recent_b_query.recent_b_status\nfrom (\nselect batch_id, target_table_name, batch_status,source_system_code, last_value(batch_status) over(partition by batch_id, target_table_name \norder by batch_status asc rows between unbounded preceding and unbounded following) as recent_b_status\nfrom (select * from metal.batch_load_summary\nwhere source_system_code = '$$sourcesystemcode' and batch_status in ('Success', 'Failure', 'Inprogress') \nand  batch_id !=0)\norder by batch_id) recent_b_query\ngroup by batch_id,target_table_name, recent_b_status, source_system_code\norder by batch_id desc ,target_table_name, recent_b_status\n)\nwhere latest_batch = (SELECT COALESCE(MAX(batch_id), 1) AS batch_id\n  FROM metal.batch_load_summary)",
+            "customQuery" : "select  count(*) as recent_batch_count, 'ADM' as source_system_id from (\nselect  source_system_code, MAX(recent_b_query.batch_id) as latest_batch, recent_b_query.target_table_name, recent_b_query.recent_b_status\nfrom (\nselect batch_id, target_table_name, batch_status,source_system_code, last_value(batch_status) over(partition by batch_id, target_table_name \norder by batch_status asc rows between unbounded preceding and unbounded following) as recent_b_status\nfrom (select * from metal.batch_load_summary\nwhere source_system_code = 'ADM' and batch_status in ('Success', 'Failure', 'Inprogress') \nand  batch_id !=0)\norder by batch_id) recent_b_query\ngroup by batch_id,target_table_name, recent_b_status, source_system_code\norder by batch_id desc ,target_table_name, recent_b_status\n)\nwhere latest_batch = (SELECT COALESCE(MAX(batch_id), 1) AS batch_id\n  FROM metal.batch_load_summary)",
             "retainMetadata" : "false",
             "fields" : [
               {
@@ -1289,7 +1287,7 @@
                 "nativeName" : "source_system_id",
                 "nativeType" : "varchar",
                 "original" : "false",
-                "precision" : 65535,
+                "precision" : 3,
                 "scale" : 0,
                 "properties" : [
                   {
@@ -3305,5 +3303,5 @@
       }
     ]
   },
-  "vcsExportTime" : "2025-06-04 09:32:10 PDT"
+  "vcsExportTime" : "2025-06-04 10:37:04 PDT"
 }

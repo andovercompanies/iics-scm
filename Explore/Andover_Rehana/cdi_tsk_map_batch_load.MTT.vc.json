@@ -7,13 +7,9 @@
     {
       "name" : "$src_batch_baseline_count$",
       "type" : "SOURCE",
-      "label" : "DBConnection_UDM_SRC",
+      "label" : "src_batch_baseline_count",
       "uiProperties" : {
-        "cnxtype" : "Amazon Redshift v2",
-        "connectionParameterized" : "true",
-        "paramName" : "DBConnection_UDM_SRC",
-        "paramType-mapping" : "Connection",
-        "logcnx" : "DBConnection_UDM_SRC",
+        "connectionParameterized" : "false",
         "isSelectDistinct" : "false",
         "objectParameterized" : "false",
         "visible" : "false",
@@ -24,12 +20,12 @@
       "sourceObject" : "DUMMY_src_batch_baseline_count",
       "newFlatFile" : false,
       "newObject" : false,
-      "showBusinessNames" : true,
+      "showBusinessNames" : false,
       "naturalOrder" : true,
       "truncateTarget" : false,
       "bulkApiDBTarget" : false,
       "customFuncCfg" : { },
-      "customQuery" : "select count(*) as pilot_batch_count, source_system_code from metal.batch_load_summary\nwhere source_system_code = '$$sourcesystemcode'  and batch_id =0\ngroup by source_system_code",
+      "customQuery" : "select count(*) as pilot_batch_count, source_system_code from metal.batch_load_summary\nwhere source_system_code = 'ADM'  and batch_id =0\ngroup by source_system_code",
       "commandType" : 0,
       "handleSpecialChars" : false,
       "handleDecimalRoundOff" : false,
@@ -44,7 +40,6 @@
       "unspecified" : false,
       "fetchMode" : "ORIGINAL",
       "runtimeParameterData" : {
-        "connectionParameterName" : "DBConnection_UDM_SRC",
         "connectionRuntimeParameter" : false,
         "objectRuntimeParameter" : false
       },
@@ -54,13 +49,9 @@
     {
       "name" : "$src_batch_latest$",
       "type" : "SOURCE",
-      "label" : "DBConnection_UDM_SRC",
+      "label" : "src_batch_latest",
       "uiProperties" : {
-        "cnxtype" : "Amazon Redshift v2",
-        "connectionParameterized" : "true",
-        "paramName" : "DBConnection_UDM_SRC",
-        "paramType-mapping" : "Connection",
-        "logcnx" : "DBConnection_UDM_SRC",
+        "connectionParameterized" : "false",
         "isSelectDistinct" : "false",
         "objectParameterized" : "false",
         "visible" : "false",
@@ -71,12 +62,12 @@
       "sourceObject" : "DUMMY_src_batch_latest",
       "newFlatFile" : false,
       "newObject" : false,
-      "showBusinessNames" : true,
+      "showBusinessNames" : false,
       "naturalOrder" : true,
       "truncateTarget" : false,
       "bulkApiDBTarget" : false,
       "customFuncCfg" : { },
-      "customQuery" : "select  count(*) as recent_batch_count, '$$sourcesystemcode' as source_system_id from (\nselect  source_system_code, MAX(recent_b_query.batch_id) as latest_batch, recent_b_query.target_table_name, recent_b_query.recent_b_status\nfrom (\nselect batch_id, target_table_name, batch_status,source_system_code, last_value(batch_status) over(partition by batch_id, target_table_name \norder by batch_status asc rows between unbounded preceding and unbounded following) as recent_b_status\nfrom (select * from metal.batch_load_summary\nwhere source_system_code = '$$sourcesystemcode' and batch_status in ('Success', 'Failure', 'Inprogress') \nand  batch_id !=0)\norder by batch_id) recent_b_query\ngroup by batch_id,target_table_name, recent_b_status, source_system_code\norder by batch_id desc ,target_table_name, recent_b_status\n)\nwhere latest_batch = (SELECT COALESCE(MAX(batch_id), 1) AS batch_id\n  FROM metal.batch_load_summary)",
+      "customQuery" : "select  count(*) as recent_batch_count, 'ADM' as source_system_id from (\nselect  source_system_code, MAX(recent_b_query.batch_id) as latest_batch, recent_b_query.target_table_name, recent_b_query.recent_b_status\nfrom (\nselect batch_id, target_table_name, batch_status,source_system_code, last_value(batch_status) over(partition by batch_id, target_table_name \norder by batch_status asc rows between unbounded preceding and unbounded following) as recent_b_status\nfrom (select * from metal.batch_load_summary\nwhere source_system_code = 'ADM' and batch_status in ('Success', 'Failure', 'Inprogress') \nand  batch_id !=0)\norder by batch_id) recent_b_query\ngroup by batch_id,target_table_name, recent_b_status, source_system_code\norder by batch_id desc ,target_table_name, recent_b_status\n)\nwhere latest_batch = (SELECT COALESCE(MAX(batch_id), 1) AS batch_id\n  FROM metal.batch_load_summary)",
       "commandType" : 0,
       "handleSpecialChars" : false,
       "handleDecimalRoundOff" : false,
@@ -91,7 +82,6 @@
       "unspecified" : false,
       "fetchMode" : "ORIGINAL",
       "runtimeParameterData" : {
-        "connectionParameterName" : "DBConnection_UDM_SRC",
         "connectionRuntimeParameter" : false,
         "objectRuntimeParameter" : false
       },
@@ -463,7 +453,7 @@
     }
   ],
   "verbose" : false,
-  "lastRunTime" : 1749054009000,
+  "lastRunTime" : 1749058488000,
   "mappingId" : "@5QkczdxvZAGfWHDnTOtIE0",
   "mappingTemplateName" : "cdi_map_batch_load",
   "sessionPropertiesList" : [
@@ -515,7 +505,7 @@
       "scale" : "0",
       "retentionPolicy" : "ON_SUCCESS_OR_WARNING",
       "aggregationType" : "MAX",
-      "currentValue" : "Inprogresss"
+      "currentValue" : "Inprogress"
     },
     {
       "name" : "sourcesystemcode",
@@ -540,5 +530,5 @@
   "optimizationPlan" : "NONE",
   "allowMaxFieldLength" : false,
   "midstreamPreview" : false,
-  "vcsExportTime" : "2025-06-04 09:32:11 PDT"
+  "vcsExportTime" : "2025-06-04 10:37:05 PDT"
 }
