@@ -25,7 +25,7 @@
       "truncateTarget" : false,
       "bulkApiDBTarget" : false,
       "customFuncCfg" : { },
-      "customQuery" : "SELECT MAX(batch_id) AS batch_id,\ntarget_table_name from metal.batch_load_summary_poc\nWHERE \nsource_system_code = 'ADM' AND \nbatch_status = 'Inprogress' AND\n target_table_name = '$$target_table_name'\n  GROUP BY target_table_name",
+      "customQuery" : "SELECT MAX(batch_id) AS batch_id,\ntarget_table_name from metal.batch_load_summary\nWHERE \nsource_system_code = '$$sourcesystemcode' AND \nbatch_status = 'Inprogress' AND\n target_table_name = '$$target_table_name'\n  GROUP BY target_table_name",
       "commandType" : 0,
       "handleSpecialChars" : false,
       "handleDecimalRoundOff" : false,
@@ -49,9 +49,15 @@
     {
       "name" : "$tgt_batch_table_load$",
       "type" : "TARGET",
-      "label" : "tgt_batch_table_load",
+      "label" : "DBConnection_UDM_TGT",
+      "description" : "this connection is to connect to redshift UDM database",
       "uiProperties" : {
-        "connectionParameterized" : "false",
+        "cnxtype" : "Amazon Redshift v2",
+        "connectionParameterized" : "true",
+        "paramName" : "DBConnection_UDM_TGT",
+        "paramType-mapping" : "Connection",
+        "logcnx" : "DBConnection_UDM_TGT",
+        "default" : "metal/batch_load_summary",
         "objectParameterized" : "false",
         "visible" : "false",
         "defaultTargetUpdateColumns" : "batch_id,target_table_name",
@@ -60,11 +66,11 @@
       },
       "targetConnectionId" : "@aYZ4ekzHgIPeKpiaoqDLKP",
       "connectionName" : "redshift_nonprod_andover_dw_dev",
-      "targetObject" : "metal/batch_load_summary_poc",
-      "targetObjectLabel" : "metal/batch_load_summary_poc",
+      "targetObject" : "metal/batch_load_summary",
+      "targetObjectLabel" : "metal/batch_load_summary",
       "newFlatFile" : false,
       "newObject" : false,
-      "showBusinessNames" : false,
+      "showBusinessNames" : true,
       "naturalOrder" : true,
       "truncateTarget" : false,
       "bulkApiDBTarget" : false,
@@ -85,14 +91,15 @@
       "excludeDynamicFileNameField" : false,
       "currentlyProcessedFileName" : false,
       "retainFieldMetadata" : false,
-      "objectName" : "metal/batch_load_summary_poc",
-      "objectLabel" : "metal/batch_load_summary_poc",
+      "objectName" : "metal/batch_load_summary",
+      "objectLabel" : "metal/batch_load_summary",
       "useExactSrcNames" : false,
       "userUpdated" : true,
       "unspecified" : false,
       "fetchMode" : "ORIGINAL",
       "runtimeParameterData" : {
-        "connectionRuntimeParameter" : false,
+        "connectionParameterName" : "DBConnection_UDM_TGT",
+        "connectionRuntimeParameter" : true,
         "objectRuntimeParameter" : false
       },
       "targetSchemaProviderType" : "SELECTED_OBJECT",
@@ -102,9 +109,14 @@
     {
       "name" : "$lkp_last_sucessful_run_time$",
       "type" : "LOOKUP",
-      "label" : "lkp_last_sucessful_run_time",
+      "label" : "DBConnection_UDM_SRC",
+      "description" : "this is to connect to UDM redshift",
       "uiProperties" : {
-        "connectionParameterized" : "false",
+        "cnxtype" : "Amazon Redshift v2",
+        "connectionParameterized" : "true",
+        "paramName" : "DBConnection_UDM_SRC",
+        "paramType-mapping" : "Connection",
+        "logcnx" : "DBConnection_UDM_SRC",
         "isCachedLookup" : "true",
         "multipleMatchPolicy" : "Use Any Value",
         "objectParameterized" : "false",
@@ -116,7 +128,7 @@
       "lookupObject" : "DUMMY_lkp_last_sucessful_run_time",
       "newFlatFile" : false,
       "newObject" : false,
-      "showBusinessNames" : false,
+      "showBusinessNames" : true,
       "naturalOrder" : true,
       "truncateTarget" : false,
       "bulkApiDBTarget" : false,
@@ -140,7 +152,7 @@
         "Pre-build lookup cache" : "AUTO",
         "Include Only Required Fields" : "false"
       },
-      "customQuery" : "select batch_id, target_table_name, source_system_code , batch_status, row_created_datetime\nfrom  metal.batch_load_summary_poc\nWHERE\nsource_system_code = 'ADM' AND batch_status = 'Success' AND  target_table_name = '$$target_table_name'\nand batch_id =\n(\nSELECT MAX(batch_id) AS batch_id\nfrom\nmetal.batch_load_summary_poc\nWHERE\nsource_system_code = 'ADM' AND batch_status = 'Success' AND  target_table_name = '$$target_table_name'\n\nGROUP BY target_table_name\n)",
+      "customQuery" : "select batch_id, target_table_name, source_system_code , batch_status, row_created_datetime\nfrom  metal.batch_load_summary\nWHERE\nsource_system_code = '$$sourcesystemcode' AND batch_status = 'Success' AND  target_table_name = '$$target_table_name'\nand batch_id =\n(\nSELECT MAX(batch_id) AS batch_id\nfrom\nmetal.batch_load_summary\nWHERE\nsource_system_code = '$$sourcesystemcode' AND batch_status = 'Success' AND  target_table_name = '$$target_table_name'\n\nGROUP BY target_table_name\n)",
       "commandType" : 0,
       "handleSpecialChars" : false,
       "handleDecimalRoundOff" : false,
@@ -155,7 +167,8 @@
       "unspecified" : false,
       "fetchMode" : "ORIGINAL",
       "runtimeParameterData" : {
-        "connectionRuntimeParameter" : false,
+        "connectionParameterName" : "DBConnection_UDM_SRC",
+        "connectionRuntimeParameter" : true,
         "objectRuntimeParameter" : false
       },
       "restmodernSource" : true,
@@ -163,7 +176,7 @@
     }
   ],
   "verbose" : false,
-  "lastRunTime" : 1749008796000,
+  "lastRunTime" : 1749054083000,
   "mappingId" : "@33UFXhP4slcjGtRuOAkjsU",
   "mappingTemplateName" : "cdi_map_batch_load_status_update_success",
   "sessionPropertiesList" : [
@@ -195,8 +208,47 @@
       "precision" : "100",
       "scale" : "0",
       "retentionPolicy" : "ON_SUCCESS_OR_WARNING",
-      "aggregationType" : "MAX",
-      "currentValue" : "adm_t_agency"
+      "aggregationType" : "MAX"
+    },
+    {
+      "name" : "sourcesystemcode",
+      "datatype" : "STRING",
+      "precision" : "100",
+      "scale" : "0",
+      "retentionPolicy" : "ON_SUCCESS_OR_WARNING",
+      "aggregationType" : "MAX"
+    },
+    {
+      "name" : "batch_status_inprogress",
+      "datatype" : "STRING",
+      "precision" : "100",
+      "scale" : "0",
+      "retentionPolicy" : "ON_SUCCESS_OR_WARNING",
+      "aggregationType" : "MAX"
+    },
+    {
+      "name" : "batch_status_success",
+      "datatype" : "STRING",
+      "precision" : "100",
+      "scale" : "0",
+      "retentionPolicy" : "ON_SUCCESS_OR_WARNING",
+      "aggregationType" : "MAX"
+    },
+    {
+      "name" : "batch_run_type",
+      "datatype" : "STRING",
+      "precision" : "100",
+      "scale" : "0",
+      "retentionPolicy" : "ON_SUCCESS_OR_WARNING",
+      "aggregationType" : "MAX"
+    },
+    {
+      "name" : "row_created_by",
+      "datatype" : "STRING",
+      "precision" : "100",
+      "scale" : "0",
+      "retentionPolicy" : "ON_SUCCESS_OR_WARNING",
+      "aggregationType" : "MAX"
     }
   ],
   "hidden" : false,
@@ -212,5 +264,5 @@
   "optimizationPlan" : "NONE",
   "allowMaxFieldLength" : false,
   "midstreamPreview" : false,
-  "vcsExportTime" : "2025-06-03 21:41:47 PDT"
+  "vcsExportTime" : "2025-06-04 09:32:11 PDT"
 }

@@ -41,7 +41,7 @@
         "link" : "Lkp_max_batchid -> Exp_null_handling"
       },
       {
-        "link" : "Exp_config_setups2 -> tgt_batch_summary_insert_same_batchid1"
+        "link" : "Exp_config_setups2 -> tgt_batch_summary_insert_isnull_batchid"
       },
       {
         "link" : "Rtr_insert_new_same_batch -> Exp_config_setups2",
@@ -72,7 +72,26 @@
         "scale" : 0,
         "allowRuntimeOverride" : "false",
         "expressionVariable" : "false",
-        "name" : "sourcesystemcode"
+        "name" : "DBConnection_UDM_SRC",
+        "anonymousType" : {
+          "subType" : "TOOLKIT_CCI",
+          "typeSystem" : "TOOLKIT",
+          "connectionType" : "Amazon Redshift v2"
+        }
+      },
+      {
+        "input" : "true",
+        "output" : "false",
+        "precision" : 0,
+        "scale" : 0,
+        "allowRuntimeOverride" : "false",
+        "expressionVariable" : "false",
+        "name" : "DBConnection_UDM_TGT",
+        "anonymousType" : {
+          "subType" : "TOOLKIT_CCI",
+          "typeSystem" : "TOOLKIT",
+          "connectionType" : "Amazon Redshift v2"
+        }
       }
     ],
     "transformations" : [
@@ -124,14 +143,15 @@
           }
         ],
         "dataAdapter" : {
-          "connectionId" : "saas:@aYZ4ekzHgIPeKpiaoqDLKP",
-          "connectionName" : "redshift_nonprod_andover_dw_dev",
+          "connectionId$" : {
+            "name" : "DBConnection_UDM_SRC"
+          },
           "excludeDynamicFileNameField" : "false",
           "objectType" : "QUERY",
           "typeSystem" : "TOOLKIT",
           "useDynamicFileName" : "false",
           "object" : {
-            "customQuery" : "select count(*) as pilot_batch_count, source_system_code from metal.batch_load_summary_poc\nwhere source_system_code = 'ADM'  and batch_id =0\ngroup by source_system_code",
+            "customQuery" : "select count(*) as pilot_batch_count, source_system_code from metal.batch_load_summary\nwhere source_system_code = '$$sourcesystemcode'  and batch_id =0\ngroup by source_system_code",
             "retainMetadata" : "false",
             "fields" : [
               {
@@ -288,7 +308,7 @@
             "precision" : 60,
             "scale" : 0,
             "expFieldType" : "OUTPUT",
-            "expression" : "$$target_table_name"
+            "expression" : "--$$target_table_name\n'adm_t_agency'"
           }
         ],
         "windowSpec" : {
@@ -457,14 +477,15 @@
           }
         ],
         "dataAdapter" : {
-          "connectionId" : "saas:@aYZ4ekzHgIPeKpiaoqDLKP",
-          "connectionName" : "redshift_nonprod_andover_dw_dev",
+          "connectionId$" : {
+            "name" : "DBConnection_UDM_SRC"
+          },
           "excludeDynamicFileNameField" : "false",
           "objectType" : "QUERY",
           "typeSystem" : "TOOLKIT",
           "useDynamicFileName" : "false",
           "object" : {
-            "customQuery" : "select * from (\nselect  source_system_code, MAX(recent_b_query.batch_id) as latest_batch,\nrecent_b_query.target_table_name, recent_b_query.recent_b_status\nfrom (\nselect batch_id, target_table_name, batch_status,source_system_code, \nlast_value(batch_status) over(partition by batch_id, target_table_name \norder by batch_status asc rows between unbounded preceding and unbounded following) as recent_b_status\nfrom (select * from metal.batch_load_summary_poc\nwhere source_system_code = 'ADM' and batch_status in ('Success', 'Failure', 'Inprogress') \nand  batch_id !=0\n)\norder by batch_id) recent_b_query\ngroup by batch_id,target_table_name, recent_b_status, source_system_code\norder by batch_id desc ,target_table_name, recent_b_status\n)\nwhere latest_batch = (SELECT COALESCE(MAX(batch_id), 0) AS batch_id\n  FROM metal.batch_load_summary_poc)",
+            "customQuery" : "select * from (\nselect  source_system_code, MAX(recent_b_query.batch_id) as latest_batch,\nrecent_b_query.target_table_name, recent_b_query.recent_b_status\nfrom (\nselect batch_id, target_table_name, batch_status,source_system_code, \nlast_value(batch_status) over(partition by batch_id, target_table_name \norder by batch_status asc rows between unbounded preceding and unbounded following) as recent_b_status\nfrom (select * from metal.batch_load_summary\nwhere source_system_code = '$$sourcesystemcode' and batch_status in ('Success', 'Failure', 'Inprogress') \nand  batch_id !=0\n)\norder by batch_id) recent_b_query\ngroup by batch_id,target_table_name, recent_b_status, source_system_code\norder by batch_id desc ,target_table_name, recent_b_status\n)\nwhere latest_batch = (SELECT COALESCE(MAX(batch_id), 0) AS batch_id\n  FROM metal.batch_load_summary)",
             "retainMetadata" : "false",
             "fields" : [
               {
@@ -827,18 +848,19 @@
           }
         ],
         "dataAdapter" : {
-          "connectionId" : "saas:@aYZ4ekzHgIPeKpiaoqDLKP",
-          "connectionName" : "redshift_nonprod_andover_dw_dev",
+          "connectionId$" : {
+            "name" : "DBConnection_UDM_TGT"
+          },
           "excludeDynamicFileNameField" : "false",
           "objectType" : "SINGLE",
           "typeSystem" : "TOOLKIT",
           "useDynamicFileName" : "false",
           "object" : {
-            "name" : "metal/batch_load_summary_poc",
-            "label" : "metal/batch_load_summary_poc",
-            "objectName" : "batch_load_summary_poc",
+            "name" : "metal/batch_load_summary",
+            "label" : "metal/batch_load_summary",
+            "objectName" : "batch_load_summary",
             "objectType" : "amazonredshift",
-            "path" : "metal/batch_load_summary_poc",
+            "path" : "metal/batch_load_summary",
             "retainMetadata" : "false",
             "fields" : [
               {
@@ -853,7 +875,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "batch_load_summary_poc"
+                    "value" : "batch_load_summary"
                   }
                 ]
               },
@@ -869,7 +891,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "batch_load_summary_poc"
+                    "value" : "batch_load_summary"
                   }
                 ]
               },
@@ -885,7 +907,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "batch_load_summary_poc"
+                    "value" : "batch_load_summary"
                   }
                 ]
               },
@@ -901,7 +923,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "batch_load_summary_poc"
+                    "value" : "batch_load_summary"
                   }
                 ]
               },
@@ -917,7 +939,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "batch_load_summary_poc"
+                    "value" : "batch_load_summary"
                   }
                 ]
               },
@@ -933,7 +955,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "batch_load_summary_poc"
+                    "value" : "batch_load_summary"
                   }
                 ]
               },
@@ -949,7 +971,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "batch_load_summary_poc"
+                    "value" : "batch_load_summary"
                   }
                 ]
               },
@@ -965,7 +987,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "batch_load_summary_poc"
+                    "value" : "batch_load_summary"
                   }
                 ]
               },
@@ -981,7 +1003,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "batch_load_summary_poc"
+                    "value" : "batch_load_summary"
                   }
                 ]
               },
@@ -997,7 +1019,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "batch_load_summary_poc"
+                    "value" : "batch_load_summary"
                   }
                 ]
               },
@@ -1013,7 +1035,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "batch_load_summary_poc"
+                    "value" : "batch_load_summary"
                   }
                 ]
               },
@@ -1029,7 +1051,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "batch_load_summary_poc"
+                    "value" : "batch_load_summary"
                   }
                 ]
               }
@@ -1134,34 +1156,6 @@
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "O_BATCH_STATUS",
-              "toField" : {
-                "name" : "batch_status"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "O_batch_run_type",
-              "toField" : {
-                "name" : "batch_run_type"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "O_row_created_by",
-              "toField" : {
-                "name" : "row_created_by"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "O_row_created",
-              "toField" : {
-                "name" : "row_created_datetime"
-              },
-              "fromFieldNames" : null
-            },
-            {
               "fromFieldName" : "o_target",
               "toField" : {
                 "name" : "target_table_name"
@@ -1176,9 +1170,37 @@
               "fromFieldNames" : null
             },
             {
+              "fromFieldName" : "O_BATCH_STATUS",
+              "toField" : {
+                "name" : "batch_status"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "O_batch_run_type",
+              "toField" : {
+                "name" : "batch_run_type"
+              },
+              "fromFieldNames" : null
+            },
+            {
               "fromFieldName" : "o_batch_start_datetime_new",
               "toField" : {
                 "name" : "batch_start_datetime"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "O_row_created_by",
+              "toField" : {
+                "name" : "row_created_by"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "O_row_created",
+              "toField" : {
+                "name" : "row_created_datetime"
               },
               "fromFieldNames" : null
             }
@@ -1228,19 +1250,20 @@
             "platformType" : {
               "name" : "string"
             },
-            "precision" : 3,
+            "precision" : 65535,
             "scale" : 0
           }
         ],
         "dataAdapter" : {
-          "connectionId" : "saas:@aYZ4ekzHgIPeKpiaoqDLKP",
-          "connectionName" : "redshift_nonprod_andover_dw_dev",
+          "connectionId$" : {
+            "name" : "DBConnection_UDM_SRC"
+          },
           "excludeDynamicFileNameField" : "false",
           "objectType" : "QUERY",
           "typeSystem" : "TOOLKIT",
           "useDynamicFileName" : "false",
           "object" : {
-            "customQuery" : "select  count(*) as recent_batch_count, 'ADM' as source_system_id from (\nselect  source_system_code, MAX(recent_b_query.batch_id) as latest_batch, recent_b_query.target_table_name, recent_b_query.recent_b_status\nfrom (\nselect batch_id, target_table_name, batch_status,source_system_code, last_value(batch_status) over(partition by batch_id, target_table_name \norder by batch_status asc rows between unbounded preceding and unbounded following) as recent_b_status\nfrom (select * from metal.batch_load_summary_poc\nwhere source_system_code = 'ADM' and batch_status in ('Success', 'Failure', 'Inprogress') \nand  batch_id !=0)\norder by batch_id) recent_b_query\ngroup by batch_id,target_table_name, recent_b_status, source_system_code\norder by batch_id desc ,target_table_name, recent_b_status\n)\nwhere latest_batch = (SELECT COALESCE(MAX(batch_id), 1) AS batch_id\n  FROM metal.batch_load_summary_poc)",
+            "customQuery" : "select  count(*) as recent_batch_count, '$$sourcesystemcode' as source_system_id from (\nselect  source_system_code, MAX(recent_b_query.batch_id) as latest_batch, recent_b_query.target_table_name, recent_b_query.recent_b_status\nfrom (\nselect batch_id, target_table_name, batch_status,source_system_code, last_value(batch_status) over(partition by batch_id, target_table_name \norder by batch_status asc rows between unbounded preceding and unbounded following) as recent_b_status\nfrom (select * from metal.batch_load_summary\nwhere source_system_code = '$$sourcesystemcode' and batch_status in ('Success', 'Failure', 'Inprogress') \nand  batch_id !=0)\norder by batch_id) recent_b_query\ngroup by batch_id,target_table_name, recent_b_status, source_system_code\norder by batch_id desc ,target_table_name, recent_b_status\n)\nwhere latest_batch = (SELECT COALESCE(MAX(batch_id), 1) AS batch_id\n  FROM metal.batch_load_summary)",
             "retainMetadata" : "false",
             "fields" : [
               {
@@ -1266,7 +1289,7 @@
                 "nativeName" : "source_system_id",
                 "nativeType" : "varchar",
                 "original" : "false",
-                "precision" : 3,
+                "precision" : 65535,
                 "scale" : 0,
                 "properties" : [
                   {
@@ -1627,8 +1650,9 @@
           }
         ],
         "dataAdapter" : {
-          "connectionId" : "saas:@aYZ4ekzHgIPeKpiaoqDLKP",
-          "connectionName" : "redshift_nonprod_andover_dw_dev",
+          "connectionId$" : {
+            "name" : "DBConnection_UDM_TGT"
+          },
           "excludeDynamicFileNameField" : "false",
           "objectType" : "SINGLE",
           "typeSystem" : "TOOLKIT",
@@ -1645,11 +1669,11 @@
             "useBulkApiV2" : "false"
           },
           "object" : {
-            "name" : "metal/batch_load_summary_poc",
-            "label" : "metal/batch_load_summary_poc",
-            "objectName" : "batch_load_summary_poc",
+            "name" : "metal/batch_load_summary",
+            "label" : "metal/batch_load_summary",
+            "objectName" : "batch_load_summary",
             "objectType" : "amazonredshift",
-            "path" : "metal/batch_load_summary_poc",
+            "path" : "metal/batch_load_summary",
             "retainMetadata" : "false",
             "fields" : [
               {
@@ -1664,7 +1688,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "batch_load_summary_poc"
+                    "value" : "batch_load_summary"
                   }
                 ]
               },
@@ -1680,7 +1704,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "batch_load_summary_poc"
+                    "value" : "batch_load_summary"
                   }
                 ]
               },
@@ -1696,7 +1720,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "batch_load_summary_poc"
+                    "value" : "batch_load_summary"
                   }
                 ]
               },
@@ -1712,7 +1736,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "batch_load_summary_poc"
+                    "value" : "batch_load_summary"
                   }
                 ]
               },
@@ -1728,7 +1752,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "batch_load_summary_poc"
+                    "value" : "batch_load_summary"
                   }
                 ]
               },
@@ -1744,7 +1768,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "batch_load_summary_poc"
+                    "value" : "batch_load_summary"
                   }
                 ]
               },
@@ -1760,7 +1784,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "batch_load_summary_poc"
+                    "value" : "batch_load_summary"
                   }
                 ]
               },
@@ -1776,7 +1800,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "batch_load_summary_poc"
+                    "value" : "batch_load_summary"
                   }
                 ]
               },
@@ -1792,7 +1816,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "batch_load_summary_poc"
+                    "value" : "batch_load_summary"
                   }
                 ]
               },
@@ -1808,7 +1832,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "batch_load_summary_poc"
+                    "value" : "batch_load_summary"
                   }
                 ]
               },
@@ -1824,7 +1848,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "batch_load_summary_poc"
+                    "value" : "batch_load_summary"
                   }
                 ]
               },
@@ -1840,7 +1864,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "batch_load_summary_poc"
+                    "value" : "batch_load_summary"
                   }
                 ]
               }
@@ -1938,6 +1962,20 @@
         "manualMappings" : {
           "mappingList" : [
             {
+              "fromFieldName" : "o_BATCH_ID",
+              "toField" : {
+                "name" : "batch_id"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "target_table_name",
+              "toField" : {
+                "name" : "target_table_name"
+              },
+              "fromFieldNames" : null
+            },
+            {
               "fromFieldName" : "source_system_code",
               "toField" : {
                 "name" : "source_system_code"
@@ -1959,6 +1997,13 @@
               "fromFieldNames" : null
             },
             {
+              "fromFieldName" : "o_batch_start_datetime_existing",
+              "toField" : {
+                "name" : "batch_start_datetime"
+              },
+              "fromFieldNames" : null
+            },
+            {
               "fromFieldName" : "O_row_created_by",
               "toField" : {
                 "name" : "row_created_by"
@@ -1969,27 +2014,6 @@
               "fromFieldName" : "O_row_created",
               "toField" : {
                 "name" : "row_created_datetime"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "o_BATCH_ID",
-              "toField" : {
-                "name" : "batch_id"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "target_table_name",
-              "toField" : {
-                "name" : "target_table_name"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "o_batch_start_datetime_existing",
-              "toField" : {
-                "name" : "batch_start_datetime"
               },
               "fromFieldNames" : null
             }
@@ -2229,14 +2253,15 @@
           }
         ],
         "dataAdapter" : {
-          "connectionId" : "saas:@aYZ4ekzHgIPeKpiaoqDLKP",
-          "connectionName" : "redshift_nonprod_andover_dw_dev",
+          "connectionId$" : {
+            "name" : "DBConnection_UDM_SRC"
+          },
           "excludeDynamicFileNameField" : "false",
           "objectType" : "QUERY",
           "typeSystem" : "TOOLKIT",
           "useDynamicFileName" : "false",
           "object" : {
-            "customQuery" : "SELECT MAX(batch_id) AS batch_id, source_system_code\n  from\n  metal.batch_load_summary_poc\n  WHERE\n  source_system_code = 'ADM'\ngroup by source_system_code",
+            "customQuery" : "SELECT MAX(batch_id) AS batch_id, source_system_code\nfrom\nmetal.batch_load_summary\nWHERE\nsource_system_code = '$$sourcesystemcode'\ngroup by source_system_code",
             "retainMetadata" : "false",
             "fields" : [
               {
@@ -2399,7 +2424,7 @@
       },
       {
         "createTime" : "2025-05-29T18:04:38.126Z",
-        "name" : "tgt_batch_summary_insert_same_batchid1",
+        "name" : "tgt_batch_summary_insert_isnull_batchid",
         "advancedProperties" : [
           {
             "name" : "Forward Rejected Rows",
@@ -2561,8 +2586,9 @@
           }
         ],
         "dataAdapter" : {
-          "connectionId" : "saas:@aYZ4ekzHgIPeKpiaoqDLKP",
-          "connectionName" : "redshift_nonprod_andover_dw_dev",
+          "connectionId$" : {
+            "name" : "DBConnection_UDM_TGT"
+          },
           "excludeDynamicFileNameField" : "false",
           "objectType" : "SINGLE",
           "typeSystem" : "TOOLKIT",
@@ -2579,11 +2605,11 @@
             "useBulkApiV2" : "false"
           },
           "object" : {
-            "name" : "metal/batch_load_summary_poc",
-            "label" : "metal/batch_load_summary_poc",
-            "objectName" : "batch_load_summary_poc",
+            "name" : "metal/batch_load_summary",
+            "label" : "metal/batch_load_summary",
+            "objectName" : "batch_load_summary",
             "objectType" : "amazonredshift",
-            "path" : "metal/batch_load_summary_poc",
+            "path" : "metal/batch_load_summary",
             "retainMetadata" : "false",
             "fields" : [
               {
@@ -2598,7 +2624,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "batch_load_summary_poc"
+                    "value" : "batch_load_summary"
                   }
                 ]
               },
@@ -2614,7 +2640,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "batch_load_summary_poc"
+                    "value" : "batch_load_summary"
                   }
                 ]
               },
@@ -2630,7 +2656,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "batch_load_summary_poc"
+                    "value" : "batch_load_summary"
                   }
                 ]
               },
@@ -2646,7 +2672,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "batch_load_summary_poc"
+                    "value" : "batch_load_summary"
                   }
                 ]
               },
@@ -2662,7 +2688,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "batch_load_summary_poc"
+                    "value" : "batch_load_summary"
                   }
                 ]
               },
@@ -2678,7 +2704,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "batch_load_summary_poc"
+                    "value" : "batch_load_summary"
                   }
                 ]
               },
@@ -2694,7 +2720,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "batch_load_summary_poc"
+                    "value" : "batch_load_summary"
                   }
                 ]
               },
@@ -2710,7 +2736,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "batch_load_summary_poc"
+                    "value" : "batch_load_summary"
                   }
                 ]
               },
@@ -2726,7 +2752,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "batch_load_summary_poc"
+                    "value" : "batch_load_summary"
                   }
                 ]
               },
@@ -2742,7 +2768,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "batch_load_summary_poc"
+                    "value" : "batch_load_summary"
                   }
                 ]
               },
@@ -2758,7 +2784,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "batch_load_summary_poc"
+                    "value" : "batch_load_summary"
                   }
                 ]
               },
@@ -2774,7 +2800,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "batch_load_summary_poc"
+                    "value" : "batch_load_summary"
                   }
                 ]
               }
@@ -2872,6 +2898,27 @@
         "manualMappings" : {
           "mappingList" : [
             {
+              "fromFieldName" : "o_BATCH_ID",
+              "toField" : {
+                "name" : "batch_id"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "param_exp_target_table_name",
+              "toField" : {
+                "name" : "target_table_name"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "param_source_system_code",
+              "toField" : {
+                "name" : "source_system_code"
+              },
+              "fromFieldNames" : null
+            },
+            {
               "fromFieldName" : "O_BATCH_STATUS",
               "toField" : {
                 "name" : "batch_status"
@@ -2900,28 +2947,7 @@
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "o_BATCH_ID",
-              "toField" : {
-                "name" : "batch_id"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "param_exp_target_table_name",
-              "toField" : {
-                "name" : "target_table_name"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "param_source_system_code",
-              "toField" : {
-                "name" : "source_system_code"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "o_batch_start_datetime_existing",
+              "fromFieldName" : "o_batch_start_datetime_new",
               "toField" : {
                 "name" : "batch_start_datetime"
               },
@@ -3059,14 +3085,15 @@
           }
         ],
         "dataAdapter" : {
-          "connectionId" : "saas:@aYZ4ekzHgIPeKpiaoqDLKP",
-          "connectionName" : "redshift_nonprod_andover_dw_dev",
+          "connectionId$" : {
+            "name" : "DBConnection_UDM_SRC"
+          },
           "excludeDynamicFileNameField" : "false",
           "objectType" : "QUERY",
           "typeSystem" : "TOOLKIT",
           "useDynamicFileName" : "false",
           "object" : {
-            "customQuery" : "select source_system_code, batch_id, max(batch_start_datetime) as prev_batch_start_datetime from metal.batch_load_summary_poc\nwhere source_system_code = 'ADM'\ngroup by source_system_code, batch_id \norder by source_system_code, batch_id  desc",
+            "customQuery" : "select source_system_code, batch_id, max(batch_start_datetime) as prev_batch_start_datetime from metal.batch_load_summary\nwhere source_system_code = '$$sourcesystemcode'\ngroup by source_system_code, batch_id \norder by source_system_code, batch_id  desc",
             "retainMetadata" : "false",
             "fields" : [
               {
@@ -3198,7 +3225,7 @@
             "precision" : 29,
             "scale" : 9,
             "expFieldType" : "VARIABLE",
-            "expression" : ":LKP.unlkp_existing_batch_start_datetime('ADM', o_BATCH_ID)"
+            "expression" : ":LKP.unlkp_existing_batch_start_datetime($$sourcesystemcode, o_BATCH_ID)"
           },
           {
             "name" : "o_batch_start_datetime_existing",
@@ -3264,8 +3291,19 @@
         "precision" : 100,
         "retentionPolicy" : "ON_SUCCESS_OR_WARNING",
         "scale" : 0
+      },
+      {
+        "aggregationType" : "MAX",
+        "expressionVariable" : "false",
+        "name" : "sourcesystemcode",
+        "platformType" : {
+          "name" : "string"
+        },
+        "precision" : 100,
+        "retentionPolicy" : "ON_SUCCESS_OR_WARNING",
+        "scale" : 0
       }
     ]
   },
-  "vcsExportTime" : "2025-06-03 21:41:47 PDT"
+  "vcsExportTime" : "2025-06-04 09:32:10 PDT"
 }
