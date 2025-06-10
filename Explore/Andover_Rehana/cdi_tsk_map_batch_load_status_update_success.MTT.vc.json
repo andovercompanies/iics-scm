@@ -30,7 +30,7 @@
       "truncateTarget" : false,
       "bulkApiDBTarget" : false,
       "customFuncCfg" : { },
-      "customQuery" : "SELECT MAX(batch_id) AS batch_id,\ntarget_table_name from metal.batch_load_summary\nWHERE \nsource_system_code = 'ADM' AND \nbatch_status = 'Inprogress' AND\n target_table_name = '$$target_table_name'\n  GROUP BY target_table_name",
+      "customQuery" : "select batch_load_summary_row_id,target_table_name,batch_id  from metal.batch_load_summary\nwhere batch_id \nin \n(\nSELECT MAX(batch_id) AS batch_id  from metal.batch_load_summary\nWHERE \nsource_system_code = 'ADM' AND \nbatch_status = 'Inprogress' AND\n target_table_name = '$$target_table_name' AND batch_end_Datetime IS NULL\n  GROUP BY target_table_name\n  )\nand batch_end_Datetime IS NULL",
       "commandType" : 0,
       "handleSpecialChars" : false,
       "handleDecimalRoundOff" : false,
@@ -66,7 +66,7 @@
         "default" : "metal/batch_load_summary",
         "objectParameterized" : "false",
         "visible" : "false",
-        "defaultTargetUpdateColumns" : "batch_id,target_table_name",
+        "defaultTargetUpdateColumns" : "batch_id,target_table_name,batch_load_summary_row_id",
         "supportApplyDDLChanges" : "false",
         "originalPath" : "tgt_batch_table_load"
       },
@@ -84,7 +84,8 @@
       "customFuncCfg" : { },
       "targetUpdateColumns" : [
         "batch_id",
-        "target_table_name"
+        "target_table_name",
+        "batch_load_summary_row_id"
       ],
       "extendedObject" : {
         "singleMode" : true
@@ -182,7 +183,7 @@
     }
   ],
   "verbose" : false,
-  "lastRunTime" : 1749058562000,
+  "lastRunTime" : 1749062012000,
   "mappingId" : "@33UFXhP4slcjGtRuOAkjsU",
   "mappingTemplateName" : "cdi_map_batch_load_status_update_success",
   "sessionPropertiesList" : [
@@ -215,7 +216,7 @@
       "scale" : "0",
       "retentionPolicy" : "ON_SUCCESS_OR_WARNING",
       "aggregationType" : "MAX",
-      "currentValue" : "adm_t_agency"
+      "currentValue" : "adm_agencyguidewire"
     },
     {
       "name" : "sourcesystemcode",
@@ -276,5 +277,5 @@
   "optimizationPlan" : "NONE",
   "allowMaxFieldLength" : false,
   "midstreamPreview" : false,
-  "vcsExportTime" : "2025-06-04 10:42:33 PDT"
+  "vcsExportTime" : "2025-06-09 13:38:03 PDT"
 }
