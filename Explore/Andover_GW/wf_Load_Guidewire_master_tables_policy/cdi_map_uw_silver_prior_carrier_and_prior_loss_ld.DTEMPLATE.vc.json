@@ -31,8 +31,11 @@
         "groupLink" : "Update -> DefaultGroup"
       },
       {
-        "link" : "Exp_core_prior_carrier_and_prior_loss -> rtr_insert_update_path",
+        "link" : "exp_md5_has_value -> rtr_insert_update_path",
         "groupLink" : "DefaultGroup -> INPUT"
+      },
+      {
+        "link" : "Exp_core_prior_carrier_and_prior_loss -> exp_md5_has_value"
       }
     ],
     "parameters" : [
@@ -962,11 +965,15 @@
             "attributes" : [
               {
                 "name" : "Read Mode",
-                "value" : "Direct"
+                "value" : "Staging"
               },
               {
                 "name" : "Fetch Size",
                 "value" : "10000"
+              },
+              {
+                "name" : "S3 Bucket Name",
+                "value" : "$$S3_Staging_Bucket"
               },
               {
                 "name" : "Enable Compression",
@@ -1001,8 +1008,283 @@
         }
       },
       {
+        "createTime" : "2025-03-10T15:46:05.352Z",
+        "name" : "Exp_core_prior_carrier_and_prior_loss",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "windowConfigurationEnabled" : "false",
+        "fields" : [
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_prior_carrier_paid_expense_amount",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 32,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "REG_REPLACE(prior_carrier_paid_expense_amount, '[$,]', '')"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_prior_carrier_reserve_amount",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 32,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "REG_REPLACE(prior_carrier_reserve_amount, '[$,]', '')"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_prior_carrier_subrogation_amount",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 32,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "REG_REPLACE(prior_carrier_subrogation_amount, '[$,]', '')"
+          }
+        ],
+        "windowSpec" : {
+          "allRowsFollowing" : "false",
+          "allRowsPreceding" : "false",
+          "endOffset" : 0,
+          "startOffset" : 0,
+          "partitionKeys" : null
+        }
+      },
+      {
+        "createTime" : "2025-06-10T12:55:00.171Z",
+        "name" : "exp_md5_has_value",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true",
+                "names" : [
+                  {
+                    "inputName" : "application_number"
+                  },
+                  {
+                    "inputName" : "application_system_id"
+                  },
+                  {
+                    "inputName" : "companion_auto_carrier_and_policy_number"
+                  },
+                  {
+                    "inputName" : "loss_history_id"
+                  },
+                  {
+                    "inputName" : "loss_history_record_type"
+                  },
+                  {
+                    "inputName" : "loss_history_reported_by"
+                  },
+                  {
+                    "inputName" : "loss_history_system_id"
+                  },
+                  {
+                    "inputName" : "o_prior_carrier_paid_expense_amount"
+                  },
+                  {
+                    "inputName" : "o_prior_carrier_reserve_amount"
+                  },
+                  {
+                    "inputName" : "o_prior_carrier_subrogation_amount"
+                  },
+                  {
+                    "inputName" : "policy_key"
+                  },
+                  {
+                    "inputName" : "policy_key_code"
+                  },
+                  {
+                    "inputName" : "policy_module_number"
+                  },
+                  {
+                    "inputName" : "policy_number"
+                  },
+                  {
+                    "inputName" : "policy_system_id"
+                  },
+                  {
+                    "inputName" : "prior_carrier_and_prior_loss_md5_hash_value"
+                  },
+                  {
+                    "inputName" : "prior_carrier_and_prior_loss_row_id"
+                  },
+                  {
+                    "inputName" : "prior_carrier_claim_number"
+                  },
+                  {
+                    "inputName" : "prior_carrier_claim_status"
+                  },
+                  {
+                    "inputName" : "prior_carrier_claim_type"
+                  },
+                  {
+                    "inputName" : "prior_carrier_comment"
+                  },
+                  {
+                    "inputName" : "prior_carrier_loss_cause"
+                  },
+                  {
+                    "inputName" : "prior_carrier_loss_date"
+                  },
+                  {
+                    "inputName" : "prior_carrier_loss_description"
+                  },
+                  {
+                    "inputName" : "prior_carrier_name_sourced_from_loss_history"
+                  },
+                  {
+                    "inputName" : "prior_carrier_paid_indemnity_amount"
+                  },
+                  {
+                    "inputName" : "prior_carrier_policy_type"
+                  },
+                  {
+                    "inputName" : "prior_carrier_source"
+                  },
+                  {
+                    "inputName" : "risk_id"
+                  },
+                  {
+                    "inputName" : "risk_id_reference_number"
+                  },
+                  {
+                    "inputName" : "risk_system_id"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "windowConfigurationEnabled" : "false",
+        "fields" : [
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "md5_hash_value",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 1000,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "MD5('policy_system_id' || to_char(policy_system_id) || \n'policy_number' ||policy_number|| \n'policy_module_number' || policy_module_number || \n'policy_key' || policy_key || \n'policy_key_code' || policy_key_code || \n'risk_system_id' || to_char(risk_system_id) || \n'risk_id' || risk_id|| \n'loss_history_system_id' || loss_history_system_id \n|| 'loss_history_id' || loss_history_id \n|| 'loss_history_record_type' || loss_history_record_type \n|| 'risk_id_reference_number' || risk_id_reference_number \n|| 'prior_carrier_loss_cause' || prior_carrier_loss_cause\n|| 'prior_carrier_loss_date' || prior_carrier_loss_date\n|| 'prior_carrier_claim_number' || prior_carrier_claim_number\n|| 'prior_carrier_name_sourced_from_loss_history' || prior_carrier_name_sourced_from_loss_history\n|| 'prior_carrier_policy_type' || prior_carrier_policy_type\n|| 'prior_carrier_source' || prior_carrier_source\n|| 'o_prior_carrier_subrogation_amount' || o_prior_carrier_subrogation_amount\n|| 'o_prior_carrier_paid_expense_amount' || o_prior_carrier_paid_expense_amount\n|| 'o_prior_carrier_reserve_amount' || o_prior_carrier_reserve_amount\n|| 'prior_carrier_paid_indemnity_amount' || prior_carrier_paid_indemnity_amount\n|| 'prior_carrier_claim_status' || prior_carrier_claim_status\n|| 'prior_carrier_loss_description' || prior_carrier_loss_description\n|| 'prior_carrier_comment' || prior_carrier_comment\n|| 'prior_carrier_claim_type' || prior_carrier_claim_type\n|| 'loss_history_reported_by' || loss_history_reported_by\n|| 'companion_auto_carrier_and_policy_number' || companion_auto_carrier_and_policy_number\n|| 'application_system_id' || application_system_id|| 'application_number' || application_number)"
+          }
+        ],
+        "windowSpec" : {
+          "allRowsFollowing" : "false",
+          "allRowsPreceding" : "false",
+          "endOffset" : 0,
+          "startOffset" : 0,
+          "partitionKeys" : null
+        }
+      },
+      {
+        "description" : "This router will determine whether to insert or update a record based on comparison to the target lookup",
+        "createTime" : "2025-03-10T16:43:40.593Z",
+        "name" : "rtr_insert_update_path",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "INPUT",
+            "output" : "false",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          },
+          {
+            "input" : "false",
+            "name" : "DEFAULT1",
+            "output" : "true"
+          },
+          {
+            "input" : "false",
+            "name" : "Insert",
+            "output" : "true"
+          },
+          {
+            "input" : "false",
+            "name" : "Update",
+            "output" : "true"
+          }
+        ],
+        "groupFilterConditions" : [
+          {
+            "advancedFilterCondition" : "ISNULL(prior_carrier_and_prior_loss_row_id)",
+            "name" : "Insert"
+          },
+          {
+            "advancedFilterCondition" : "NOT ISNULL(prior_carrier_and_prior_loss_row_id) AND prior_carrier_and_prior_loss_md5_hash_value<> md5_hash_value",
+            "name" : "Update"
+          }
+        ]
+      },
+      {
+        "description" : "This expression will set audit fields to close existing records that have been updated",
+        "createTime" : "2025-03-10T16:48:27.727Z",
+        "name" : "exp_set_closing_fields",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "windowConfigurationEnabled" : "false",
+        "fields" : [
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "prior_carrier_and_prior_loss_row_effective_end_datetime",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9,
+            "expFieldType" : "OUTPUT",
+            "expression" : "SYSDATE"
+          }
+        ],
+        "windowSpec" : {
+          "allRowsFollowing" : "false",
+          "allRowsPreceding" : "false",
+          "endOffset" : 0,
+          "startOffset" : 0,
+          "partitionKeys" : null
+        }
+      },
+      {
         "createTime" : "2025-03-10T15:27:42.030Z",
-        "name" : "tgt_prior_carrier_and_prior_loss_insert",
+        "name" : "tgt_prior_carrier_and_prior_loss_close",
         "advancedProperties" : [
           {
             "name" : "Forward Rejected Rows",
@@ -1026,7 +1308,9 @@
         "fieldMappingMode" : "MANUAL",
         "inputSorted" : "false",
         "schemaProviderType" : "SELECTED_OBJECT",
-        "updateColumns" : null,
+        "updateColumns" : [
+          "prior_carrier_and_prior_loss_row_id"
+        ],
         "useLabels" : "false",
         "useSequenceFields" : "false",
         "fields" : [
@@ -1413,6 +1697,17 @@
           "objectType" : "SINGLE",
           "typeSystem" : "TOOLKIT",
           "useDynamicFileName" : "false",
+          "bulkOptions" : {
+            "hardDelete" : "false",
+            "maxRowsPerRequest" : 0,
+            "monitorBulk" : "false",
+            "monitorBulkV2" : "false",
+            "pkChunkingEnabled" : "false",
+            "pkChunkingSize" : 0,
+            "serialMode" : "false",
+            "useBulkApi" : "false",
+            "useBulkApiV2" : "false"
+          },
           "object" : {
             "name" : "dbo/prior_carrier_and_prior_loss",
             "label" : "dbo/prior_carrier_and_prior_loss",
@@ -2047,7 +2342,7 @@
             "handleDecimalRoundOff" : "false",
             "handleSpecialChars" : "false",
             "operations" : [
-              "Insert"
+              "Update"
             ],
             "setFieldsToNull" : "false",
             "truncate" : "false",
@@ -2059,226 +2354,9 @@
         "manualMappings" : {
           "mappingList" : [
             {
-              "fromFieldName" : "md5_hash_value",
+              "fromFieldName" : "prior_carrier_and_prior_loss_row_id",
               "toField" : {
-                "name" : "prior_carrier_and_prior_loss_md5_hash_value"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "policy_system_id",
-              "toField" : {
-                "name" : "policy_system_id"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "policy_number",
-              "toField" : {
-                "name" : "policy_number"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "policy_module_number",
-              "toField" : {
-                "name" : "policy_module_number"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "policy_key",
-              "toField" : {
-                "name" : "policy_key"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "policy_key_code",
-              "toField" : {
-                "name" : "policy_key_code"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "risk_system_id",
-              "toField" : {
-                "name" : "risk_system_id"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "risk_id",
-              "toField" : {
-                "name" : "risk_id"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "loss_history_system_id",
-              "toField" : {
-                "name" : "loss_history_system_id"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "loss_history_id",
-              "toField" : {
-                "name" : "loss_history_id"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "loss_history_record_type",
-              "toField" : {
-                "name" : "loss_history_record_type"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "risk_id_reference_number",
-              "toField" : {
-                "name" : "risk_id_reference_number"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "prior_carrier_loss_cause",
-              "toField" : {
-                "name" : "prior_carrier_loss_cause"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "prior_carrier_loss_date",
-              "toField" : {
-                "name" : "prior_carrier_loss_date"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "prior_carrier_claim_number",
-              "toField" : {
-                "name" : "prior_carrier_claim_number"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "prior_carrier_name_sourced_from_loss_history",
-              "toField" : {
-                "name" : "prior_carrier_name_sourced_from_loss_history"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "prior_carrier_policy_type",
-              "toField" : {
-                "name" : "prior_carrier_policy_type"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "prior_carrier_source",
-              "toField" : {
-                "name" : "prior_carrier_source"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "prior_carrier_paid_indemnity_amount",
-              "toField" : {
-                "name" : "prior_carrier_paid_indemnity_amount"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "o_prior_carrier_paid_expense_amount",
-              "toField" : {
-                "name" : "prior_carrier_paid_expense_amount"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "o_prior_carrier_reserve_amount",
-              "toField" : {
-                "name" : "prior_carrier_reserve_amount"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "o_prior_carrier_subrogation_amount",
-              "toField" : {
-                "name" : "prior_carrier_subrogation_amount"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "prior_carrier_claim_status",
-              "toField" : {
-                "name" : "prior_carrier_claim_status"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "prior_carrier_loss_description",
-              "toField" : {
-                "name" : "prior_carrier_loss_description"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "prior_carrier_comment",
-              "toField" : {
-                "name" : "prior_carrier_comment"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "prior_carrier_claim_type",
-              "toField" : {
-                "name" : "prior_carrier_claim_type"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "loss_history_reported_by",
-              "toField" : {
-                "name" : "loss_history_reported_by"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "companion_auto_carrier_and_policy_number",
-              "toField" : {
-                "name" : "companion_auto_carrier_and_policy_number"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "application_system_id",
-              "toField" : {
-                "name" : "application_system_id"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "application_number",
-              "toField" : {
-                "name" : "application_number"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "prior_carrier_and_prior_loss_last_update_datetime",
-              "toField" : {
-                "name" : "prior_carrier_and_prior_loss_last_update_datetime"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "prior_carrier_and_prior_loss_row_effective_start_datetime",
-              "toField" : {
-                "name" : "prior_carrier_and_prior_loss_row_effective_start_datetime"
+                "name" : "prior_carrier_and_prior_loss_row_id"
               },
               "fromFieldNames" : null
             },
@@ -2293,123 +2371,9 @@
         }
       },
       {
-        "createTime" : "2025-03-10T15:46:05.352Z",
-        "name" : "Exp_core_prior_carrier_and_prior_loss",
-        "groups" : [
-          {
-            "input" : "true",
-            "name" : "DefaultGroup",
-            "output" : "true",
-            "rules" : [
-              {
-                "bulkRename" : "false",
-                "include" : "true"
-              }
-            ]
-          }
-        ],
-        "windowConfigurationEnabled" : "false",
-        "fields" : [
-          {
-            "defaultValue" : "ERROR('transformation error')",
-            "name" : "md5_hash_value",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 1023,
-            "scale" : 0,
-            "expFieldType" : "OUTPUT",
-            "expression" : "MD5('policy_system_id' || policy_system_id || \n'policy_number' ||policy_number|| \n'policy_module_number' || policy_module_number || \n'policy_key' || policy_key || \n'policy_key_code' || policy_key_code || \n'risk_system_id' || risk_system_id || \n'risk_id' || risk_id|| \n'loss_history_system_id' || loss_history_system_id \n|| 'loss_history_id' || loss_history_id \n|| 'loss_history_record_type' || loss_history_record_type \n|| 'risk_id_reference_number' || risk_id_reference_number \n|| 'prior_carrier_loss_cause' || prior_carrier_loss_cause\n|| 'prior_carrier_loss_date' || prior_carrier_loss_date\n|| 'prior_carrier_claim_number' || prior_carrier_claim_number\n|| 'prior_carrier_name_sourced_from_loss_history' || prior_carrier_name_sourced_from_loss_history\n|| 'prior_carrier_policy_type' || prior_carrier_policy_type\n|| 'prior_carrier_source' || prior_carrier_source\n|| 'prior_carrier_subrogation_amount' || prior_carrier_subrogation_amount\n|| 'prior_carrier_paid_expense_amount' || prior_carrier_paid_expense_amount\n|| 'prior_carrier_reserve_amount' || prior_carrier_reserve_amount\n|| 'prior_carrier_paid_indemnity_amount' || prior_carrier_paid_indemnity_amount\n|| 'prior_carrier_claim_status' || prior_carrier_claim_status\n|| 'prior_carrier_loss_description' || prior_carrier_loss_description\n|| 'prior_carrier_comment' || prior_carrier_comment\n|| 'prior_carrier_claim_type' || prior_carrier_claim_type\n|| 'loss_history_reported_by' || loss_history_reported_by\n|| 'companion_auto_carrier_and_policy_number' || companion_auto_carrier_and_policy_number\n|| 'application_system_id' || application_system_id|| 'application_number' || application_number)"
-          },
-          {
-            "defaultValue" : "ERROR('transformation error')",
-            "name" : "o_prior_carrier_subrogation_amount",
-            "platformType" : {
-              "name" : "decimal"
-            },
-            "precision" : 28,
-            "scale" : 6,
-            "expFieldType" : "OUTPUT",
-            "expression" : "IIF( REG_MATCH(prior_carrier_subrogation_amount, '^[0-9]+$'), TO_INTEGER(prior_carrier_subrogation_amount), NULL )"
-          },
-          {
-            "defaultValue" : "ERROR('transformation error')",
-            "name" : "o_prior_carrier_paid_expense_amount",
-            "platformType" : {
-              "name" : "decimal"
-            },
-            "precision" : 28,
-            "scale" : 6,
-            "expFieldType" : "OUTPUT",
-            "expression" : "IIF( REG_MATCH(prior_carrier_paid_expense_amount, '^[0-9]+$'), TO_INTEGER(prior_carrier_paid_expense_amount), NULL )"
-          },
-          {
-            "defaultValue" : "ERROR('transformation error')",
-            "name" : "o_prior_carrier_reserve_amount",
-            "platformType" : {
-              "name" : "decimal"
-            },
-            "precision" : 28,
-            "scale" : 6,
-            "expFieldType" : "OUTPUT",
-            "expression" : "IIF( REG_MATCH(prior_carrier_reserve_amount, '^[0-9]+$'), TO_INTEGER(prior_carrier_reserve_amount), NULL )"
-          }
-        ],
-        "windowSpec" : {
-          "allRowsFollowing" : "false",
-          "allRowsPreceding" : "false",
-          "endOffset" : 0,
-          "startOffset" : 0,
-          "partitionKeys" : null
-        }
-      },
-      {
-        "description" : "This router will determine whether to insert or update a record based on comparison to the target lookup",
-        "createTime" : "2025-03-10T16:43:40.593Z",
-        "name" : "rtr_insert_update_path",
-        "groups" : [
-          {
-            "input" : "true",
-            "name" : "INPUT",
-            "output" : "false",
-            "rules" : [
-              {
-                "bulkRename" : "false",
-                "include" : "true"
-              }
-            ]
-          },
-          {
-            "input" : "false",
-            "name" : "DEFAULT1",
-            "output" : "true"
-          },
-          {
-            "input" : "false",
-            "name" : "Insert",
-            "output" : "true"
-          },
-          {
-            "input" : "false",
-            "name" : "Update",
-            "output" : "true"
-          }
-        ],
-        "groupFilterConditions" : [
-          {
-            "advancedFilterCondition" : "ISNULL(prior_carrier_and_prior_loss_row_id)",
-            "name" : "Insert"
-          },
-          {
-            "advancedFilterCondition" : "NOT ISNULL(prior_carrier_and_prior_loss_row_id) AND prior_carrier_and_prior_loss_md5_hash_value<> md5_hash_value",
-            "name" : "Update"
-          }
-        ]
-      },
-      {
-        "description" : "This expression will set the audit fields needed for inserting new records",
+        "description" : "This expression will set audit fields for updating existing records as an insert",
         "createTime" : "2025-03-10T16:48:27.727Z",
-        "name" : "exp_set_insert_fields",
+        "name" : "exp_set_update_fields",
         "groups" : [
           {
             "input" : "true",
@@ -2456,7 +2420,7 @@
             "precision" : 29,
             "scale" : 9,
             "expFieldType" : "OUTPUT",
-            "expression" : "To_Date('9999-12-31', 'YYYY-MM-DD')"
+            "expression" : "to_date('9999-12-31', 'YYYY-MM-DD')"
           }
         ],
         "windowSpec" : {
@@ -3760,9 +3724,9 @@
         }
       },
       {
-        "description" : "This expression will set audit fields for updating existing records as an insert",
+        "description" : "This expression will set the audit fields needed for inserting new records",
         "createTime" : "2025-03-10T16:48:27.727Z",
-        "name" : "exp_set_update_fields",
+        "name" : "exp_set_insert_fields",
         "groups" : [
           {
             "input" : "true",
@@ -3809,46 +3773,7 @@
             "precision" : 29,
             "scale" : 9,
             "expFieldType" : "OUTPUT",
-            "expression" : "to_date('9999-12-31', 'YYYY-MM-DD')"
-          }
-        ],
-        "windowSpec" : {
-          "allRowsFollowing" : "false",
-          "allRowsPreceding" : "false",
-          "endOffset" : 0,
-          "startOffset" : 0,
-          "partitionKeys" : null
-        }
-      },
-      {
-        "description" : "This expression will set audit fields to close existing records that have been updated",
-        "createTime" : "2025-03-10T16:48:27.727Z",
-        "name" : "exp_set_closing_fields",
-        "groups" : [
-          {
-            "input" : "true",
-            "name" : "DefaultGroup",
-            "output" : "true",
-            "rules" : [
-              {
-                "bulkRename" : "false",
-                "include" : "true"
-              }
-            ]
-          }
-        ],
-        "windowConfigurationEnabled" : "false",
-        "fields" : [
-          {
-            "defaultValue" : "ERROR('transformation error')",
-            "name" : "prior_carrier_and_prior_loss_row_effective_end_datetime",
-            "platformType" : {
-              "name" : "date/time"
-            },
-            "precision" : 29,
-            "scale" : 9,
-            "expFieldType" : "OUTPUT",
-            "expression" : "SYSDATE"
+            "expression" : "To_Date('9999-12-31', 'YYYY-MM-DD')"
           }
         ],
         "windowSpec" : {
@@ -3861,7 +3786,7 @@
       },
       {
         "createTime" : "2025-03-10T15:27:42.030Z",
-        "name" : "tgt_prior_carrier_and_prior_loss_close",
+        "name" : "tgt_prior_carrier_and_prior_loss_insert",
         "advancedProperties" : [
           {
             "name" : "Forward Rejected Rows",
@@ -3885,9 +3810,7 @@
         "fieldMappingMode" : "MANUAL",
         "inputSorted" : "false",
         "schemaProviderType" : "SELECTED_OBJECT",
-        "updateColumns" : [
-          "prior_carrier_and_prior_loss_row_id"
-        ],
+        "updateColumns" : null,
         "useLabels" : "false",
         "useSequenceFields" : "false",
         "fields" : [
@@ -4274,17 +4197,6 @@
           "objectType" : "SINGLE",
           "typeSystem" : "TOOLKIT",
           "useDynamicFileName" : "false",
-          "bulkOptions" : {
-            "hardDelete" : "false",
-            "maxRowsPerRequest" : 0,
-            "monitorBulk" : "false",
-            "monitorBulkV2" : "false",
-            "pkChunkingEnabled" : "false",
-            "pkChunkingSize" : 0,
-            "serialMode" : "false",
-            "useBulkApi" : "false",
-            "useBulkApiV2" : "false"
-          },
           "object" : {
             "name" : "dbo/prior_carrier_and_prior_loss",
             "label" : "dbo/prior_carrier_and_prior_loss",
@@ -4893,7 +4805,7 @@
               },
               {
                 "name" : "Treat Source Rows As",
-                "value" : "UPDATE"
+                "value" : "INSERT"
               },
               {
                 "name" : "Transfer Manager Thread Pool Size",
@@ -4919,7 +4831,7 @@
             "handleDecimalRoundOff" : "false",
             "handleSpecialChars" : "false",
             "operations" : [
-              "Update"
+              "Insert"
             ],
             "setFieldsToNull" : "false",
             "truncate" : "false",
@@ -4931,9 +4843,226 @@
         "manualMappings" : {
           "mappingList" : [
             {
-              "fromFieldName" : "prior_carrier_and_prior_loss_row_id",
+              "fromFieldName" : "md5_hash_value",
               "toField" : {
-                "name" : "prior_carrier_and_prior_loss_row_id"
+                "name" : "prior_carrier_and_prior_loss_md5_hash_value"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "policy_system_id",
+              "toField" : {
+                "name" : "policy_system_id"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "policy_number",
+              "toField" : {
+                "name" : "policy_number"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "policy_module_number",
+              "toField" : {
+                "name" : "policy_module_number"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "policy_key",
+              "toField" : {
+                "name" : "policy_key"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "policy_key_code",
+              "toField" : {
+                "name" : "policy_key_code"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "risk_system_id",
+              "toField" : {
+                "name" : "risk_system_id"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "risk_id",
+              "toField" : {
+                "name" : "risk_id"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "loss_history_system_id",
+              "toField" : {
+                "name" : "loss_history_system_id"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "loss_history_id",
+              "toField" : {
+                "name" : "loss_history_id"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "loss_history_record_type",
+              "toField" : {
+                "name" : "loss_history_record_type"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "risk_id_reference_number",
+              "toField" : {
+                "name" : "risk_id_reference_number"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "prior_carrier_loss_cause",
+              "toField" : {
+                "name" : "prior_carrier_loss_cause"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "prior_carrier_loss_date",
+              "toField" : {
+                "name" : "prior_carrier_loss_date"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "prior_carrier_claim_number",
+              "toField" : {
+                "name" : "prior_carrier_claim_number"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "prior_carrier_name_sourced_from_loss_history",
+              "toField" : {
+                "name" : "prior_carrier_name_sourced_from_loss_history"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "prior_carrier_policy_type",
+              "toField" : {
+                "name" : "prior_carrier_policy_type"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "prior_carrier_source",
+              "toField" : {
+                "name" : "prior_carrier_source"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "prior_carrier_paid_indemnity_amount",
+              "toField" : {
+                "name" : "prior_carrier_paid_indemnity_amount"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_prior_carrier_paid_expense_amount",
+              "toField" : {
+                "name" : "prior_carrier_paid_expense_amount"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_prior_carrier_reserve_amount",
+              "toField" : {
+                "name" : "prior_carrier_reserve_amount"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_prior_carrier_subrogation_amount",
+              "toField" : {
+                "name" : "prior_carrier_subrogation_amount"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "prior_carrier_claim_status",
+              "toField" : {
+                "name" : "prior_carrier_claim_status"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "prior_carrier_loss_description",
+              "toField" : {
+                "name" : "prior_carrier_loss_description"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "prior_carrier_comment",
+              "toField" : {
+                "name" : "prior_carrier_comment"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "prior_carrier_claim_type",
+              "toField" : {
+                "name" : "prior_carrier_claim_type"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "loss_history_reported_by",
+              "toField" : {
+                "name" : "loss_history_reported_by"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "companion_auto_carrier_and_policy_number",
+              "toField" : {
+                "name" : "companion_auto_carrier_and_policy_number"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "application_system_id",
+              "toField" : {
+                "name" : "application_system_id"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "application_number",
+              "toField" : {
+                "name" : "application_number"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "prior_carrier_and_prior_loss_last_update_datetime",
+              "toField" : {
+                "name" : "prior_carrier_and_prior_loss_last_update_datetime"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "prior_carrier_and_prior_loss_row_effective_start_datetime",
+              "toField" : {
+                "name" : "prior_carrier_and_prior_loss_row_effective_start_datetime"
               },
               "fromFieldNames" : null
             },
@@ -4949,5 +5078,5 @@
       }
     ]
   },
-  "vcsExportTime" : "2025-05-13 08:29:11 EDT"
+  "vcsExportTime" : "2025-06-11 16:34:15 EDT"
 }
