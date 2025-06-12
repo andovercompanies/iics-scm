@@ -742,17 +742,6 @@
         "fields" : [
           {
             "adapterField" : {
-              "name" : "batch_id"
-            },
-            "name" : "batch_id",
-            "platformType" : {
-              "name" : "bigint"
-            },
-            "precision" : 19,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
               "name" : "batch_load_summary_row_id"
             },
             "name" : "batch_load_summary_row_id",
@@ -772,35 +761,31 @@
             },
             "precision" : 63,
             "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "batch_id"
+            },
+            "name" : "batch_id",
+            "platformType" : {
+              "name" : "bigint"
+            },
+            "precision" : 19,
+            "scale" : 0
           }
         ],
         "dataAdapter" : {
-          "connectionId" : "saas:@aYZ4ekzHgIPeKpiaoqDLKP",
-          "connectionName" : "redshift_nonprod_andover_dw_dev",
+          "connectionId$" : {
+            "name" : "DBConnection_UDM_SRC"
+          },
           "excludeDynamicFileNameField" : "false",
           "objectType" : "QUERY",
           "typeSystem" : "TOOLKIT",
           "useDynamicFileName" : "false",
           "object" : {
-            "customQuery" : "SELECT \n    MAX(bls.batch_id) AS batch_id,\n    bls.batch_load_summary_row_id ,\n    bls.target_table_name\nFROM \"metal\".batch_load_summary bls\nWHERE bls.source_system_code = 'Guidewire'\n  AND bls.batch_status = 'Inprogress'\n  AND bls.target_table_name = '$$target_table_name'\nGROUP BY bls.batch_load_summary_row_id, bls.target_table_name;",
+            "customQuery" : "select batch_load_summary_row_id,target_table_name,batch_id  from metal.batch_load_summary\nwhere batch_id \nin \n(\nSELECT MAX(batch_id) AS batch_id  from metal.batch_load_summary\nWHERE \nsource_system_code = 'ADM' AND \nbatch_status = 'Inprogress' AND\n target_table_name = '$$target_table_name' AND batch_end_Datetime IS NULL\n  GROUP BY target_table_name\n  )\nand batch_end_Datetime IS NULL and target_table_name = '$$target_table_name';",
             "retainMetadata" : "false",
             "fields" : [
-              {
-                "name" : "batch_id",
-                "fieldType" : "CONNECTOR",
-                "label" : "batch_id",
-                "nativeName" : "batch_id",
-                "nativeType" : "int8",
-                "original" : "false",
-                "precision" : 19,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "INFARS_CUSTOM_SCHEMA"
-                  }
-                ]
-              },
               {
                 "name" : "batch_load_summary_row_id",
                 "fieldType" : "CONNECTOR",
@@ -825,6 +810,22 @@
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "batch_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "batch_id",
+                "nativeName" : "batch_id",
+                "nativeType" : "int8",
+                "original" : "false",
+                "precision" : 19,
                 "scale" : 0,
                 "properties" : [
                   {
@@ -989,5 +990,5 @@
       }
     ]
   },
-  "vcsExportTime" : "2025-05-28 09:24:14 PDT"
+  "vcsExportTime" : "2025-06-11 21:29:12 PDT"
 }
