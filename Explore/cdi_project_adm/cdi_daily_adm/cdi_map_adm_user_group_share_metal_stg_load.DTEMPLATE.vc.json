@@ -1,16 +1,16 @@
 {
   "content" : {
-    "description" : "this job will read data from Maria DB and load to metal staging tables. This is one to one mapping without any changes.",
+    "description" : "Mapping to perform Step 3 of the ADM UDM process for agency address guidewire data ingestion into Redshift table",
     "allowMaxFieldLength" : "false",
     "bigIntConvertType" : "ONLY_BIGINT",
     "documentType" : "MAPPING",
-    "name" : "cdi_map_adm_subproducer_guidewire_metal_stg_load",
+    "name" : "cdi_map_adm_user_group_share_metal_stg_load",
     "links" : [
       {
-        "link" : "exp_read_all_fields -> tgt_adm_subproducer_guidewire"
+        "link" : "exp_read_all_fields -> tgt_metal_user_group_share"
       },
       {
-        "link" : "src_subproducerguidewire -> exp_read_all_fields"
+        "link" : "src_adm_usergrpshare -> exp_read_all_fields"
       }
     ],
     "parameters" : [
@@ -53,9 +53,8 @@
     ],
     "transformations" : [
       {
-        "description" : "this source to capture the daily data from Maria DB.",
-        "createTime" : "2025-04-29T16:54:45.081Z",
-        "name" : "src_subproducerguidewire",
+        "createTime" : "2025-05-28T14:44:48.397Z",
+        "name" : "src_adm_usergrpshare",
         "advancedProperties" : [
           {
             "name" : "Tracing Level",
@@ -101,47 +100,14 @@
           },
           {
             "adapterField" : {
-              "name" : "sub_code"
+              "name" : "sharedAgency"
             },
-            "name" : "sub_code",
+            "name" : "sharedAgency",
             "platformType" : {
-              "name" : "string"
+              "name" : "integer"
             },
-            "precision" : 7,
+            "precision" : 10,
             "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "subproducer_name"
-            },
-            "name" : "subproducer_name",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 40,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "subproducer_start_date"
-            },
-            "name" : "subproducer_start_date",
-            "platformType" : {
-              "name" : "date/time"
-            },
-            "precision" : 29,
-            "scale" : 9
-          },
-          {
-            "adapterField" : {
-              "name" : "subproducer_cancelled_date"
-            },
-            "name" : "subproducer_cancelled_date",
-            "platformType" : {
-              "name" : "date/time"
-            },
-            "precision" : 29,
-            "scale" : 9
           },
           {
             "adapterField" : {
@@ -164,17 +130,6 @@
             },
             "precision" : 29,
             "scale" : 9
-          },
-          {
-            "adapterField" : {
-              "name" : "status"
-            },
-            "name" : "status",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 1,
-            "scale" : 0
           }
         ],
         "dataAdapter" : {
@@ -186,7 +141,7 @@
           "typeSystem" : "MySQL",
           "useDynamicFileName" : "false",
           "object" : {
-            "customQuery" : "SELECT id, agency_nup, sub_code, subproducer_name, subproducer_start_date, subproducer_cancelled_date, created, modified, status\nFROM agencymanagement.subproducerguidewire\nWHERE modified >=$LASTRUNTIME\nORDER BY modified DESC;",
+            "customQuery" : "select\n\tid,\n\tagency_nup,\n\tsharedAgency ,\n\tcreated,\n\tmodified\nfrom\n\tagencymanagement.usergrpshare\nwhere\n\tmodified >= $LASTRUNTIME\norder by\n\tmodified desc",
             "retainMetadata" : "false",
             "fields" : [
               {
@@ -201,7 +156,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "subproducerguidewire"
+                    "value" : "usergrpshare"
                   }
                 ]
               },
@@ -217,71 +172,23 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "subproducerguidewire"
+                    "value" : "usergrpshare"
                   }
                 ]
               },
               {
-                "name" : "sub_code",
+                "name" : "sharedAgency",
                 "fieldType" : "CONNECTOR",
-                "label" : "sub_code",
-                "nativeName" : "sub_code",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 7,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "subproducerguidewire"
-                  }
-                ]
-              },
-              {
-                "name" : "subproducer_name",
-                "fieldType" : "CONNECTOR",
-                "label" : "subproducer_name",
-                "nativeName" : "subproducer_name",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 40,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "subproducerguidewire"
-                  }
-                ]
-              },
-              {
-                "name" : "subproducer_start_date",
-                "fieldType" : "CONNECTOR",
-                "label" : "subproducer_start_date",
-                "nativeName" : "subproducer_start_date",
-                "nativeType" : "date",
+                "label" : "sharedAgency",
+                "nativeName" : "sharedAgency",
+                "nativeType" : "integer",
                 "original" : "false",
                 "precision" : 10,
                 "scale" : 0,
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "subproducerguidewire"
-                  }
-                ]
-              },
-              {
-                "name" : "subproducer_cancelled_date",
-                "fieldType" : "CONNECTOR",
-                "label" : "subproducer_cancelled_date",
-                "nativeName" : "subproducer_cancelled_date",
-                "nativeType" : "date",
-                "original" : "false",
-                "precision" : 10,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "subproducerguidewire"
+                    "value" : "usergrpshare"
                   }
                 ]
               },
@@ -297,7 +204,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "subproducerguidewire"
+                    "value" : "usergrpshare"
                   }
                 ]
               },
@@ -313,23 +220,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "subproducerguidewire"
-                  }
-                ]
-              },
-              {
-                "name" : "status",
-                "fieldType" : "CONNECTOR",
-                "label" : "status",
-                "nativeName" : "status",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 1,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "subproducerguidewire"
+                    "value" : "usergrpshare"
                   }
                 ]
               }
@@ -345,9 +236,8 @@
         }
       },
       {
-        "description" : "this is redshift UDM staging table.",
-        "createTime" : "2025-04-29T16:54:45.081Z",
-        "name" : "tgt_adm_subproducer_guidewire",
+        "createTime" : "2025-05-28T14:44:48.398Z",
+        "name" : "tgt_metal_user_group_share",
         "advancedProperties" : [
           {
             "name" : "Forward Rejected Rows",
@@ -399,9 +289,31 @@
           },
           {
             "adapterField" : {
+              "name" : "id"
+            },
+            "name" : "id",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 15,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
               "name" : "agency_nup"
             },
             "name" : "agency_nup",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 15,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "sharedagency"
+            },
+            "name" : "sharedagency",
             "platformType" : {
               "name" : "string"
             },
@@ -421,75 +333,9 @@
           },
           {
             "adapterField" : {
-              "name" : "id"
-            },
-            "name" : "id",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 15,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
               "name" : "modified"
             },
             "name" : "modified",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 31,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "status"
-            },
-            "name" : "status",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 7,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "sub_code"
-            },
-            "name" : "sub_code",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 7,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "subproducer_cancelled_date"
-            },
-            "name" : "subproducer_cancelled_date",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 31,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "subproducer_name"
-            },
-            "name" : "subproducer_name",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 63,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "subproducer_start_date"
-            },
-            "name" : "subproducer_start_date",
             "platformType" : {
               "name" : "string"
             },
@@ -506,11 +352,11 @@
           "typeSystem" : "TOOLKIT",
           "useDynamicFileName" : "false",
           "object" : {
-            "name" : "metal/adm_subproducer_guidewire",
-            "label" : "metal/adm_subproducer_guidewire",
-            "objectName" : "adm_subproducer_guidewire",
+            "name" : "metal/adm_user_group_share",
+            "label" : "metal/adm_user_group_share",
+            "objectName" : "adm_user_group_share",
             "objectType" : "amazonredshift",
-            "path" : "metal/adm_subproducer_guidewire",
+            "path" : "metal/adm_user_group_share",
             "retainMetadata" : "false",
             "fields" : [
               {
@@ -525,7 +371,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_subproducer_guidewire"
+                    "value" : "adm_user_group_share"
                   }
                 ]
               },
@@ -541,39 +387,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_subproducer_guidewire"
-                  }
-                ]
-              },
-              {
-                "name" : "agency_nup",
-                "fieldType" : "CONNECTOR",
-                "label" : "agency_nup",
-                "nativeName" : "agency_nup",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 15,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_subproducer_guidewire"
-                  }
-                ]
-              },
-              {
-                "name" : "created",
-                "fieldType" : "CONNECTOR",
-                "label" : "created",
-                "nativeName" : "created",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 31,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_subproducer_guidewire"
+                    "value" : "adm_user_group_share"
                   }
                 ]
               },
@@ -589,7 +403,55 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_subproducer_guidewire"
+                    "value" : "adm_user_group_share"
+                  }
+                ]
+              },
+              {
+                "name" : "agency_nup",
+                "fieldType" : "CONNECTOR",
+                "label" : "agency_nup",
+                "nativeName" : "agency_nup",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 15,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_user_group_share"
+                  }
+                ]
+              },
+              {
+                "name" : "sharedagency",
+                "fieldType" : "CONNECTOR",
+                "label" : "sharedagency",
+                "nativeName" : "sharedagency",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 15,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_user_group_share"
+                  }
+                ]
+              },
+              {
+                "name" : "created",
+                "fieldType" : "CONNECTOR",
+                "label" : "created",
+                "nativeName" : "created",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 31,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_user_group_share"
                   }
                 ]
               },
@@ -605,87 +467,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_subproducer_guidewire"
-                  }
-                ]
-              },
-              {
-                "name" : "status",
-                "fieldType" : "CONNECTOR",
-                "label" : "status",
-                "nativeName" : "status",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 7,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_subproducer_guidewire"
-                  }
-                ]
-              },
-              {
-                "name" : "sub_code",
-                "fieldType" : "CONNECTOR",
-                "label" : "sub_code",
-                "nativeName" : "sub_code",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 7,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_subproducer_guidewire"
-                  }
-                ]
-              },
-              {
-                "name" : "subproducer_cancelled_date",
-                "fieldType" : "CONNECTOR",
-                "label" : "subproducer_cancelled_date",
-                "nativeName" : "subproducer_cancelled_date",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 31,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_subproducer_guidewire"
-                  }
-                ]
-              },
-              {
-                "name" : "subproducer_name",
-                "fieldType" : "CONNECTOR",
-                "label" : "subproducer_name",
-                "nativeName" : "subproducer_name",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 63,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_subproducer_guidewire"
-                  }
-                ]
-              },
-              {
-                "name" : "subproducer_start_date",
-                "fieldType" : "CONNECTOR",
-                "label" : "subproducer_start_date",
-                "nativeName" : "subproducer_start_date",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 31,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_subproducer_guidewire"
+                    "value" : "adm_user_group_share"
                   }
                 ]
               }
@@ -797,6 +579,13 @@
               "fromFieldNames" : null
             },
             {
+              "fromFieldName" : "id",
+              "toField" : {
+                "name" : "id"
+              },
+              "fromFieldNames" : null
+            },
+            {
               "fromFieldName" : "agency_nup",
               "toField" : {
                 "name" : "agency_nup"
@@ -804,16 +593,16 @@
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "o_create",
+              "fromFieldName" : "sharedAgency",
               "toField" : {
-                "name" : "created"
+                "name" : "sharedagency"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "id",
+              "fromFieldName" : "o_created",
               "toField" : {
-                "name" : "id"
+                "name" : "created"
               },
               "fromFieldNames" : null
             },
@@ -823,48 +612,12 @@
                 "name" : "modified"
               },
               "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "status",
-              "toField" : {
-                "name" : "status"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "sub_code",
-              "toField" : {
-                "name" : "sub_code"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "o_subproducer_cancelled_date",
-              "toField" : {
-                "name" : "subproducer_cancelled_date"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "subproducer_name",
-              "toField" : {
-                "name" : "subproducer_name"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "o_subproducer_start_date",
-              "toField" : {
-                "name" : "subproducer_start_date"
-              },
-              "fromFieldNames" : null
             }
           ]
         }
       },
       {
-        "description" : "straight pass through, no transformation required ",
-        "createTime" : "2025-05-01T12:40:58.640Z",
+        "createTime" : "2025-05-28T15:00:34.945Z",
         "name" : "exp_read_all_fields",
         "groups" : [
           {
@@ -890,7 +643,7 @@
             "precision" : 20,
             "scale" : 0,
             "expFieldType" : "OUTPUT",
-            "expression" : "'subproducerguidewire'"
+            "expression" : "'usergrpshare'"
           },
           {
             "defaultValue" : "ERROR('transformation error')",
@@ -905,14 +658,14 @@
           },
           {
             "defaultValue" : "ERROR('transformation error')",
-            "name" : "o_create",
+            "name" : "o_created",
             "platformType" : {
               "name" : "string"
             },
-            "precision" : 30,
+            "precision" : 100,
             "scale" : 0,
             "expFieldType" : "OUTPUT",
-            "expression" : "TO_CHAR(created,'YYYY-MM-DD HH24:MI:SS')"
+            "expression" : "IIF(ISNULL(created),NULL,TO_CHAR(created,'YYYY-MM-DD HH24:MI:SS'))"
           },
           {
             "defaultValue" : "ERROR('transformation error')",
@@ -920,32 +673,10 @@
             "platformType" : {
               "name" : "string"
             },
-            "precision" : 30,
+            "precision" : 100,
             "scale" : 0,
             "expFieldType" : "OUTPUT",
-            "expression" : "TO_CHAR(modified,'YYYY-MM-DD HH24:MI:SS')"
-          },
-          {
-            "defaultValue" : "ERROR('transformation error')",
-            "name" : "o_subproducer_cancelled_date",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 15,
-            "scale" : 0,
-            "expFieldType" : "OUTPUT",
-            "expression" : "TO_CHAR(subproducer_cancelled_date,'YYYY-MM-DD')"
-          },
-          {
-            "defaultValue" : "ERROR('transformation error')",
-            "name" : "o_subproducer_start_date",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 15,
-            "scale" : 0,
-            "expFieldType" : "OUTPUT",
-            "expression" : "TO_CHAR(subproducer_start_date,'YYYY-MM-DD')"
+            "expression" : "IIF(ISNULL(modified),NULL,TO_CHAR(modified,'YYYY-MM-DD HH24:MI:SS'))"
           }
         ],
         "windowSpec" : {
@@ -958,5 +689,5 @@
       }
     ]
   },
-  "vcsExportTime" : "2025-06-23 11:01:59 EDT"
+  "vcsExportTime" : "2025-06-20 13:19:15 PDT"
 }

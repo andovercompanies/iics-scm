@@ -1,11 +1,11 @@
 {
-  "name" : "cdi_tsk_map_adm_commission_plans_bronze_load",
+  "name" : "cdi_tsk_map_adm_user_group_share_bronze_load",
   "runtimeEnvironmentId" : "@3pADNCV9u0PcgrXjM7rx0t",
   "runtimeEnvironmentName" : "sag_aws_linux",
   "maxLogs" : 10,
   "parameters" : [
     {
-      "name" : "$src_delta_changes_commission_plans$",
+      "name" : "$src_metal_user_group_share$",
       "type" : "SOURCE",
       "label" : "DBConnection_UDM_SRC",
       "uiProperties" : {
@@ -17,11 +17,11 @@
         "isSelectDistinct" : "false",
         "objectParameterized" : "false",
         "visible" : "false",
-        "originalPath" : "src_delta_changes_commission_plans"
+        "originalPath" : "src_metal_user_group_share"
       },
       "sourceConnectionId" : "@aYZ4ekzHgIPeKpiaoqDLKP",
       "connectionName" : "redshift_nonprod_andover_dw_dev",
-      "sourceObject" : "DUMMY_src_delta_changes_commission_plans",
+      "sourceObject" : "DUMMY_src_metal_user_group_share",
       "newFlatFile" : false,
       "newObject" : false,
       "showBusinessNames" : true,
@@ -29,7 +29,7 @@
       "truncateTarget" : false,
       "bulkApiDBTarget" : false,
       "customFuncCfg" : { },
-      "customQuery" : "WITH current_batch AS (\n    SELECT \n        bls.batch_id,\n        bls.source_start_cutoff_datetime,\n        bls.source_end_cutoff_datetime\n    FROM metal.batch_load_summary bls\n    WHERE bls.source_system_code = 'ADM'\n      AND bls.batch_status = 'Inprogress'\n      AND bls.batch_id = (\n          SELECT MAX(batch_id)\n          FROM metal.batch_load_summary\n          WHERE source_system_code = 'ADM'\n            AND batch_status = 'Inprogress'\n      )\n)\nSELECT DISTINCT \nmetal_acp.source_name, \nmetal_acp.load_type, \nmetal_acp.agency_nup, \nmetal_acp.bs_appoint_dt, \nmetal_acp.bs_cancel_dt, \nmetal_acp.ca_appoint_dt, \nmetal_acp.ca_cancel_dt, \nmetal_acp.create_user_nup, \nmetal_acp.created, \nmetal_acp.id, \nmetal_acp.mk_appoint_dt, \nmetal_acp.mk_cancel_dt, \nmetal_acp.modified, modify_user_nup, \nmetal_acp.state,\ncurrent_batch.batch_id\nFROM metal.adm_commission_plans metal_acp\nCROSS JOIN current_batch\nORDER BY \nmetal_acp.id,\nmetal_acp.created,\nmetal_acp.modified",
+      "customQuery" : "WITH current_batch AS (\n    SELECT \n        bls.batch_id,\n        bls.source_start_cutoff_datetime,\n        bls.source_end_cutoff_datetime\n    FROM metal.batch_load_summary bls\n    WHERE bls.source_system_code = 'ADM'\n      AND bls.batch_status = 'Inprogress'\n      AND bls.batch_id = (\n          SELECT MAX(batch_id)\n          FROM metal.batch_load_summary\n          WHERE source_system_code = 'ADM'\n            AND batch_status = 'Inprogress'\n      )\n)\nSELECT DISTINCT  \n\t\tmetal_ugs.source_name, \n\t\tmetal_ugs.load_type, \n\t\tmetal_ugs.id, \n\t\tmetal_ugs.agency_nup, \n\t\tmetal_ugs.sharedagency, \n\t\tmetal_ugs.created, \n\t\tmetal_ugs.modified, \n\t\tcurrent_batch.batch_id\nFROM metal.adm_user_group_share metal_ugs\nCROSS JOIN current_batch\nORDER BY \n    metal_ugs.id,\n    metal_ugs.created,\n    metal_ugs.modified;",
       "commandType" : 0,
       "handleSpecialChars" : false,
       "handleDecimalRoundOff" : false,
@@ -38,7 +38,7 @@
       "excludeDynamicFileNameField" : false,
       "currentlyProcessedFileName" : false,
       "retainFieldMetadata" : false,
-      "objectName" : "DUMMY_src_delta_changes_commission_plans",
+      "objectName" : "DUMMY_src_metal_user_group_share",
       "useExactSrcNames" : false,
       "userUpdated" : true,
       "unspecified" : false,
@@ -51,7 +51,7 @@
       "fileList" : false
     },
     {
-      "name" : "$src_tgt_bronze_adm_commission_plans_query$",
+      "name" : "$src_tgt_query$",
       "type" : "SOURCE",
       "label" : "DBConnection_UDM_SRC",
       "uiProperties" : {
@@ -63,11 +63,11 @@
         "isSelectDistinct" : "false",
         "objectParameterized" : "false",
         "visible" : "false",
-        "originalPath" : "src_tgt_bronze_adm_commission_plans_query"
+        "originalPath" : "src_tgt_query"
       },
       "sourceConnectionId" : "@aYZ4ekzHgIPeKpiaoqDLKP",
       "connectionName" : "redshift_nonprod_andover_dw_dev",
-      "sourceObject" : "DUMMY_src_tgt_bronze_adm_commission_plans_query",
+      "sourceObject" : "DUMMY_src_tgt_query",
       "newFlatFile" : false,
       "newObject" : false,
       "showBusinessNames" : true,
@@ -75,7 +75,7 @@
       "truncateTarget" : false,
       "bulkApiDBTarget" : false,
       "customFuncCfg" : { },
-      "customQuery" : "SELECT \n\tcommission_plans_row_id, \n\tcommission_plans_batch_id, \n\tagency_id,\n\tcommission_plan_id,\n\tcommission_plans_md5checksum, \n\tcommission_plans_datetime_modified, \n\tcommission_plans_row_effective_end_datetime\nFROM bronze.adm_commission_plans\nWHERE commission_plans_row_effective_end_datetime = '9999-12-31 00:00:00.000'",
+      "customQuery" : "SELECT \n        user_group_share_row_id, \n        user_group_share_row_md5checksum, \n        user_group_share_id,  \n  user_group_share_datetime_modified,\n  user_group_share_row_effective_end_datetime\t\n    FROM bronze.adm_user_group_share\n    where  user_group_share_row_effective_end_datetime\t= '9999-12-31 00:00:00.000'",
       "commandType" : 0,
       "handleSpecialChars" : false,
       "handleDecimalRoundOff" : false,
@@ -84,7 +84,7 @@
       "excludeDynamicFileNameField" : false,
       "currentlyProcessedFileName" : false,
       "retainFieldMetadata" : false,
-      "objectName" : "DUMMY_src_tgt_bronze_adm_commission_plans_query",
+      "objectName" : "DUMMY_src_tgt_query",
       "useExactSrcNames" : false,
       "userUpdated" : true,
       "unspecified" : false,
@@ -97,7 +97,7 @@
       "fileList" : false
     },
     {
-      "name" : "$tgt_bronze_adm_commision_plans_upd$",
+      "name" : "$tgt_insert_records$",
       "type" : "TARGET",
       "label" : "DBConnection_UDM_TGT",
       "uiProperties" : {
@@ -106,16 +106,16 @@
         "paramName" : "DBConnection_UDM_TGT",
         "paramType-mapping" : "Connection",
         "logcnx" : "DBConnection_UDM_TGT",
-        "default" : "bronze/adm_commission_plans",
+        "default" : "bronze/adm_user_group_share",
         "objectParameterized" : "false",
         "visible" : "false",
         "supportApplyDDLChanges" : "false",
-        "originalPath" : "tgt_bronze_adm_commision_plans_upd"
+        "originalPath" : "tgt_insert_records"
       },
       "targetConnectionId" : "@aYZ4ekzHgIPeKpiaoqDLKP",
       "connectionName" : "redshift_nonprod_andover_dw_dev",
-      "targetObject" : "bronze/adm_commission_plans",
-      "targetObjectLabel" : "bronze/adm_commission_plans",
+      "targetObject" : "bronze/adm_user_group_share",
+      "targetObjectLabel" : "bronze/adm_user_group_share",
       "newFlatFile" : false,
       "newObject" : false,
       "showBusinessNames" : true,
@@ -135,8 +135,8 @@
       "excludeDynamicFileNameField" : false,
       "currentlyProcessedFileName" : false,
       "retainFieldMetadata" : false,
-      "objectName" : "bronze/adm_commission_plans",
-      "objectLabel" : "bronze/adm_commission_plans",
+      "objectName" : "bronze/adm_user_group_share",
+      "objectLabel" : "bronze/adm_user_group_share",
       "useExactSrcNames" : false,
       "userUpdated" : true,
       "unspecified" : false,
@@ -149,7 +149,7 @@
       "fileList" : false
     },
     {
-      "name" : "$tgt_bronze_adm_commision_plans_upd_enddate$",
+      "name" : "$tgt_update_closeout$",
       "type" : "TARGET",
       "label" : "DBConnection_UDM_TGT",
       "uiProperties" : {
@@ -158,17 +158,17 @@
         "paramName" : "DBConnection_UDM_TGT",
         "paramType-mapping" : "Connection",
         "logcnx" : "DBConnection_UDM_TGT",
-        "default" : "bronze/adm_commission_plans",
+        "default" : "bronze/adm_user_group_share",
         "objectParameterized" : "false",
         "visible" : "false",
-        "defaultTargetUpdateColumns" : "commission_plans_row_id",
+        "defaultTargetUpdateColumns" : "user_group_share_row_id",
         "supportApplyDDLChanges" : "false",
-        "originalPath" : "tgt_bronze_adm_commision_plans_upd_enddate"
+        "originalPath" : "tgt_update_closeout"
       },
       "targetConnectionId" : "@aYZ4ekzHgIPeKpiaoqDLKP",
       "connectionName" : "redshift_nonprod_andover_dw_dev",
-      "targetObject" : "bronze/adm_commission_plans",
-      "targetObjectLabel" : "bronze/adm_commission_plans",
+      "targetObject" : "bronze/adm_user_group_share",
+      "targetObjectLabel" : "bronze/adm_user_group_share",
       "newFlatFile" : false,
       "newObject" : false,
       "showBusinessNames" : true,
@@ -178,7 +178,7 @@
       "operationType" : "Update",
       "customFuncCfg" : { },
       "targetUpdateColumns" : [
-        "commission_plans_row_id"
+        "user_group_share_row_id"
       ],
       "extendedObject" : {
         "singleMode" : true
@@ -191,8 +191,8 @@
       "excludeDynamicFileNameField" : false,
       "currentlyProcessedFileName" : false,
       "retainFieldMetadata" : false,
-      "objectName" : "bronze/adm_commission_plans",
-      "objectLabel" : "bronze/adm_commission_plans",
+      "objectName" : "bronze/adm_user_group_share",
+      "objectLabel" : "bronze/adm_user_group_share",
       "useExactSrcNames" : false,
       "userUpdated" : true,
       "unspecified" : false,
@@ -205,7 +205,7 @@
       "fileList" : false
     },
     {
-      "name" : "$tgt_bronze_adm_commission_plans_ins$",
+      "name" : "$tgt_update_records$",
       "type" : "TARGET",
       "label" : "DBConnection_UDM_TGT",
       "uiProperties" : {
@@ -214,16 +214,16 @@
         "paramName" : "DBConnection_UDM_TGT",
         "paramType-mapping" : "Connection",
         "logcnx" : "DBConnection_UDM_TGT",
-        "default" : "bronze/adm_commission_plans",
+        "default" : "bronze/adm_user_group_share",
         "objectParameterized" : "false",
         "visible" : "false",
         "supportApplyDDLChanges" : "false",
-        "originalPath" : "tgt_bronze_adm_commission_plans_ins"
+        "originalPath" : "tgt_update_records"
       },
       "targetConnectionId" : "@aYZ4ekzHgIPeKpiaoqDLKP",
       "connectionName" : "redshift_nonprod_andover_dw_dev",
-      "targetObject" : "bronze/adm_commission_plans",
-      "targetObjectLabel" : "bronze/adm_commission_plans",
+      "targetObject" : "bronze/adm_user_group_share",
+      "targetObjectLabel" : "bronze/adm_user_group_share",
       "newFlatFile" : false,
       "newObject" : false,
       "showBusinessNames" : true,
@@ -243,8 +243,8 @@
       "excludeDynamicFileNameField" : false,
       "currentlyProcessedFileName" : false,
       "retainFieldMetadata" : false,
-      "objectName" : "bronze/adm_commission_plans",
-      "objectLabel" : "bronze/adm_commission_plans",
+      "objectName" : "bronze/adm_user_group_share",
+      "objectLabel" : "bronze/adm_user_group_share",
       "useExactSrcNames" : false,
       "userUpdated" : true,
       "unspecified" : false,
@@ -258,9 +258,8 @@
     }
   ],
   "verbose" : false,
-  "lastRunTime" : 1750361636000,
-  "mappingId" : "@51T985hgL5WepbEcsMYeSF",
-  "mappingTemplateName" : "cdi_map_adm_commission_plans_bronze_load",
+  "mappingId" : "@1UKDfiNRSnJjclsh7lJqce",
+  "mappingTemplateName" : "cdi_map_adm_user_group_share_bronze_load",
   "sessionPropertiesList" : [
     {
       "name" : "Pushdown Optimization",
@@ -288,5 +287,5 @@
   "optimizationPlan" : "NONE",
   "allowMaxFieldLength" : false,
   "midstreamPreview" : false,
-  "vcsExportTime" : "2025-06-19 15:36:34 EDT"
+  "vcsExportTime" : "2025-06-20 13:44:24 PDT"
 }

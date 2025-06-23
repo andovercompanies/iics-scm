@@ -1,28 +1,19 @@
 {
   "content" : {
-    "description" : "this job will read data from Maria DB and load to metal staging tables. This is one to one mapping without any changes.",
+    "description" : "Mapping to load the terminationguidewire table from the ADM database to the corresponding table in the metal layer in Redshift database",
     "allowMaxFieldLength" : "false",
     "bigIntConvertType" : "ONLY_BIGINT",
     "documentType" : "MAPPING",
-    "name" : "cdi_map_adm_subproducer_guidewire_metal_stg_load",
+    "name" : "cdi_map_adm_termination_guidewire_metal_stg_load",
     "links" : [
       {
-        "link" : "exp_read_all_fields -> tgt_adm_subproducer_guidewire"
+        "link" : "exp_calc_fields -> tgt_adm_terminationguidewire"
       },
       {
-        "link" : "src_subproducerguidewire -> exp_read_all_fields"
+        "link" : "src_adm_terminationguidewire -> exp_calc_fields"
       }
     ],
     "parameters" : [
-      {
-        "input" : "true",
-        "output" : "false",
-        "precision" : 0,
-        "scale" : 0,
-        "allowRuntimeOverride" : "false",
-        "expressionVariable" : "false",
-        "name" : "S3_Staging_Bucket"
-      },
       {
         "input" : "true",
         "output" : "false",
@@ -49,13 +40,21 @@
           "typeSystem" : "TOOLKIT",
           "connectionType" : "Amazon Redshift v2"
         }
+      },
+      {
+        "input" : "true",
+        "output" : "false",
+        "precision" : 0,
+        "scale" : 0,
+        "allowRuntimeOverride" : "false",
+        "expressionVariable" : "false",
+        "name" : "S3_Staging_Bucket"
       }
     ],
     "transformations" : [
       {
-        "description" : "this source to capture the daily data from Maria DB.",
-        "createTime" : "2025-04-29T16:54:45.081Z",
-        "name" : "src_subproducerguidewire",
+        "createTime" : "2025-06-20T13:58:57.298Z",
+        "name" : "src_adm_terminationguidewire",
         "advancedProperties" : [
           {
             "name" : "Tracing Level",
@@ -101,6 +100,83 @@
           },
           {
             "adapterField" : {
+              "name" : "type"
+            },
+            "name" : "type",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 1,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "noticeto_agent"
+            },
+            "name" : "noticeto_agent",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 1,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "new_date"
+            },
+            "name" : "new_date",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "renewal_date"
+            },
+            "name" : "renewal_date",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "lob"
+            },
+            "name" : "lob",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 50,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "replaced_by"
+            },
+            "name" : "replaced_by",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 9,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "effective_date"
+            },
+            "name" : "effective_date",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
               "name" : "sub_code"
             },
             "name" : "sub_code",
@@ -112,36 +188,25 @@
           },
           {
             "adapterField" : {
-              "name" : "subproducer_name"
+              "name" : "gw_producer_id"
             },
-            "name" : "subproducer_name",
+            "name" : "gw_producer_id",
             "platformType" : {
               "name" : "string"
             },
-            "precision" : 40,
+            "precision" : 9,
             "scale" : 0
           },
           {
             "adapterField" : {
-              "name" : "subproducer_start_date"
+              "name" : "state"
             },
-            "name" : "subproducer_start_date",
+            "name" : "state",
             "platformType" : {
-              "name" : "date/time"
+              "name" : "string"
             },
-            "precision" : 29,
-            "scale" : 9
-          },
-          {
-            "adapterField" : {
-              "name" : "subproducer_cancelled_date"
-            },
-            "name" : "subproducer_cancelled_date",
-            "platformType" : {
-              "name" : "date/time"
-            },
-            "precision" : 29,
-            "scale" : 9
+            "precision" : 2,
+            "scale" : 0
           },
           {
             "adapterField" : {
@@ -164,17 +229,6 @@
             },
             "precision" : 29,
             "scale" : 9
-          },
-          {
-            "adapterField" : {
-              "name" : "status"
-            },
-            "name" : "status",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 1,
-            "scale" : 0
           }
         ],
         "dataAdapter" : {
@@ -186,7 +240,7 @@
           "typeSystem" : "MySQL",
           "useDynamicFileName" : "false",
           "object" : {
-            "customQuery" : "SELECT id, agency_nup, sub_code, subproducer_name, subproducer_start_date, subproducer_cancelled_date, created, modified, status\nFROM agencymanagement.subproducerguidewire\nWHERE modified >=$LASTRUNTIME\nORDER BY modified DESC;",
+            "customQuery" : "SELECT \nid,\nagency_nup,\ntype,\nnoticeto_agent,\nnew_date,\nrenewal_date,\nlob,\nreplaced_by,\neffective_date,\nsub_code,\ngw_producer_id,\nstate,\ncreated,\nmodified\nFROM agencymanagement.terminationguidewire\nWHERE modified >= $LastRunTime \nORDER BY modified DESC",
             "retainMetadata" : "false",
             "fields" : [
               {
@@ -201,7 +255,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "subproducerguidewire"
+                    "value" : "terminationguidewire"
                   }
                 ]
               },
@@ -217,7 +271,119 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "subproducerguidewire"
+                    "value" : "terminationguidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "type",
+                "fieldType" : "CONNECTOR",
+                "label" : "type",
+                "nativeName" : "type",
+                "nativeType" : "char",
+                "original" : "false",
+                "precision" : 1,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "terminationguidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "noticeto_agent",
+                "fieldType" : "CONNECTOR",
+                "label" : "noticeto_agent",
+                "nativeName" : "noticeto_agent",
+                "nativeType" : "char",
+                "original" : "false",
+                "precision" : 1,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "terminationguidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "new_date",
+                "fieldType" : "CONNECTOR",
+                "label" : "new_date",
+                "nativeName" : "new_date",
+                "nativeType" : "date",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "terminationguidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "renewal_date",
+                "fieldType" : "CONNECTOR",
+                "label" : "renewal_date",
+                "nativeName" : "renewal_date",
+                "nativeType" : "date",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "terminationguidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "lob",
+                "fieldType" : "CONNECTOR",
+                "label" : "lob",
+                "nativeName" : "lob",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 50,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "terminationguidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "replaced_by",
+                "fieldType" : "CONNECTOR",
+                "label" : "replaced_by",
+                "nativeName" : "replaced_by",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 9,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "terminationguidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "effective_date",
+                "fieldType" : "CONNECTOR",
+                "label" : "effective_date",
+                "nativeName" : "effective_date",
+                "nativeType" : "date",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "terminationguidewire"
                   }
                 ]
               },
@@ -233,55 +399,39 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "subproducerguidewire"
+                    "value" : "terminationguidewire"
                   }
                 ]
               },
               {
-                "name" : "subproducer_name",
+                "name" : "gw_producer_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "subproducer_name",
-                "nativeName" : "subproducer_name",
-                "nativeType" : "varchar",
+                "label" : "gw_producer_id",
+                "nativeName" : "gw_producer_id",
+                "nativeType" : "char",
                 "original" : "false",
-                "precision" : 40,
+                "precision" : 9,
                 "scale" : 0,
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "subproducerguidewire"
+                    "value" : "terminationguidewire"
                   }
                 ]
               },
               {
-                "name" : "subproducer_start_date",
+                "name" : "state",
                 "fieldType" : "CONNECTOR",
-                "label" : "subproducer_start_date",
-                "nativeName" : "subproducer_start_date",
-                "nativeType" : "date",
+                "label" : "state",
+                "nativeName" : "state",
+                "nativeType" : "char",
                 "original" : "false",
-                "precision" : 10,
+                "precision" : 2,
                 "scale" : 0,
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "subproducerguidewire"
-                  }
-                ]
-              },
-              {
-                "name" : "subproducer_cancelled_date",
-                "fieldType" : "CONNECTOR",
-                "label" : "subproducer_cancelled_date",
-                "nativeName" : "subproducer_cancelled_date",
-                "nativeType" : "date",
-                "original" : "false",
-                "precision" : 10,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "subproducerguidewire"
+                    "value" : "terminationguidewire"
                   }
                 ]
               },
@@ -297,7 +447,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "subproducerguidewire"
+                    "value" : "terminationguidewire"
                   }
                 ]
               },
@@ -313,23 +463,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "subproducerguidewire"
-                  }
-                ]
-              },
-              {
-                "name" : "status",
-                "fieldType" : "CONNECTOR",
-                "label" : "status",
-                "nativeName" : "status",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 1,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "subproducerguidewire"
+                    "value" : "terminationguidewire"
                   }
                 ]
               }
@@ -345,9 +479,8 @@
         }
       },
       {
-        "description" : "this is redshift UDM staging table.",
-        "createTime" : "2025-04-29T16:54:45.081Z",
-        "name" : "tgt_adm_subproducer_guidewire",
+        "createTime" : "2025-06-20T13:58:57.298Z",
+        "name" : "tgt_adm_terminationguidewire",
         "advancedProperties" : [
           {
             "name" : "Forward Rejected Rows",
@@ -421,6 +554,28 @@
           },
           {
             "adapterField" : {
+              "name" : "effective_date"
+            },
+            "name" : "effective_date",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 15,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "gw_producer_id"
+            },
+            "name" : "gw_producer_id",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 15,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
               "name" : "id"
             },
             "name" : "id",
@@ -428,6 +583,17 @@
               "name" : "string"
             },
             "precision" : 15,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "lob"
+            },
+            "name" : "lob",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
             "scale" : 0
           },
           {
@@ -443,9 +609,53 @@
           },
           {
             "adapterField" : {
-              "name" : "status"
+              "name" : "new_date"
             },
-            "name" : "status",
+            "name" : "new_date",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 15,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "noticeto_agent"
+            },
+            "name" : "noticeto_agent",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 7,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "renewal_date"
+            },
+            "name" : "renewal_date",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 15,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "replaced_by"
+            },
+            "name" : "replaced_by",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 15,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "state"
+            },
+            "name" : "state",
             "platformType" : {
               "name" : "string"
             },
@@ -465,35 +675,13 @@
           },
           {
             "adapterField" : {
-              "name" : "subproducer_cancelled_date"
+              "name" : "type"
             },
-            "name" : "subproducer_cancelled_date",
+            "name" : "type",
             "platformType" : {
               "name" : "string"
             },
-            "precision" : 31,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "subproducer_name"
-            },
-            "name" : "subproducer_name",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 63,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "subproducer_start_date"
-            },
-            "name" : "subproducer_start_date",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 31,
+            "precision" : 7,
             "scale" : 0
           }
         ],
@@ -506,11 +694,11 @@
           "typeSystem" : "TOOLKIT",
           "useDynamicFileName" : "false",
           "object" : {
-            "name" : "metal/adm_subproducer_guidewire",
-            "label" : "metal/adm_subproducer_guidewire",
-            "objectName" : "adm_subproducer_guidewire",
+            "name" : "metal/adm_termination_guidewire",
+            "label" : "metal/adm_termination_guidewire",
+            "objectName" : "adm_termination_guidewire",
             "objectType" : "amazonredshift",
-            "path" : "metal/adm_subproducer_guidewire",
+            "path" : "metal/adm_termination_guidewire",
             "retainMetadata" : "false",
             "fields" : [
               {
@@ -525,7 +713,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_subproducer_guidewire"
+                    "value" : "adm_termination_guidewire"
                   }
                 ]
               },
@@ -541,7 +729,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_subproducer_guidewire"
+                    "value" : "adm_termination_guidewire"
                   }
                 ]
               },
@@ -557,7 +745,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_subproducer_guidewire"
+                    "value" : "adm_termination_guidewire"
                   }
                 ]
               },
@@ -573,7 +761,39 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_subproducer_guidewire"
+                    "value" : "adm_termination_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "effective_date",
+                "fieldType" : "CONNECTOR",
+                "label" : "effective_date",
+                "nativeName" : "effective_date",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 15,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_termination_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "gw_producer_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "gw_producer_id",
+                "nativeName" : "gw_producer_id",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 15,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_termination_guidewire"
                   }
                 ]
               },
@@ -589,7 +809,23 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_subproducer_guidewire"
+                    "value" : "adm_termination_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "lob",
+                "fieldType" : "CONNECTOR",
+                "label" : "lob",
+                "nativeName" : "lob",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_termination_guidewire"
                   }
                 ]
               },
@@ -605,15 +841,31 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_subproducer_guidewire"
+                    "value" : "adm_termination_guidewire"
                   }
                 ]
               },
               {
-                "name" : "status",
+                "name" : "new_date",
                 "fieldType" : "CONNECTOR",
-                "label" : "status",
-                "nativeName" : "status",
+                "label" : "new_date",
+                "nativeName" : "new_date",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 15,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_termination_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "noticeto_agent",
+                "fieldType" : "CONNECTOR",
+                "label" : "noticeto_agent",
+                "nativeName" : "noticeto_agent",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 7,
@@ -621,7 +873,55 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_subproducer_guidewire"
+                    "value" : "adm_termination_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "renewal_date",
+                "fieldType" : "CONNECTOR",
+                "label" : "renewal_date",
+                "nativeName" : "renewal_date",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 15,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_termination_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "replaced_by",
+                "fieldType" : "CONNECTOR",
+                "label" : "replaced_by",
+                "nativeName" : "replaced_by",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 15,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_termination_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "state",
+                "fieldType" : "CONNECTOR",
+                "label" : "state",
+                "nativeName" : "state",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 7,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_termination_guidewire"
                   }
                 ]
               },
@@ -637,55 +937,23 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_subproducer_guidewire"
+                    "value" : "adm_termination_guidewire"
                   }
                 ]
               },
               {
-                "name" : "subproducer_cancelled_date",
+                "name" : "type",
                 "fieldType" : "CONNECTOR",
-                "label" : "subproducer_cancelled_date",
-                "nativeName" : "subproducer_cancelled_date",
+                "label" : "type",
+                "nativeName" : "type",
                 "nativeType" : "varchar",
                 "original" : "false",
-                "precision" : 31,
+                "precision" : 7,
                 "scale" : 0,
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_subproducer_guidewire"
-                  }
-                ]
-              },
-              {
-                "name" : "subproducer_name",
-                "fieldType" : "CONNECTOR",
-                "label" : "subproducer_name",
-                "nativeName" : "subproducer_name",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 63,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_subproducer_guidewire"
-                  }
-                ]
-              },
-              {
-                "name" : "subproducer_start_date",
-                "fieldType" : "CONNECTOR",
-                "label" : "subproducer_start_date",
-                "nativeName" : "subproducer_start_date",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 31,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_subproducer_guidewire"
+                    "value" : "adm_termination_guidewire"
                   }
                 ]
               }
@@ -804,9 +1072,23 @@
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "o_create",
+              "fromFieldName" : "created",
               "toField" : {
                 "name" : "created"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "effective_date",
+              "toField" : {
+                "name" : "effective_date"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "gw_producer_id",
+              "toField" : {
+                "name" : "gw_producer_id"
               },
               "fromFieldNames" : null
             },
@@ -818,16 +1100,51 @@
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "o_modified",
+              "fromFieldName" : "lob",
+              "toField" : {
+                "name" : "lob"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "modified",
               "toField" : {
                 "name" : "modified"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "status",
+              "fromFieldName" : "new_date",
               "toField" : {
-                "name" : "status"
+                "name" : "new_date"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "noticeto_agent",
+              "toField" : {
+                "name" : "noticeto_agent"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "renewal_date",
+              "toField" : {
+                "name" : "renewal_date"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "replaced_by",
+              "toField" : {
+                "name" : "replaced_by"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "state",
+              "toField" : {
+                "name" : "state"
               },
               "fromFieldNames" : null
             },
@@ -839,23 +1156,9 @@
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "o_subproducer_cancelled_date",
+              "fromFieldName" : "type",
               "toField" : {
-                "name" : "subproducer_cancelled_date"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "subproducer_name",
-              "toField" : {
-                "name" : "subproducer_name"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "o_subproducer_start_date",
-              "toField" : {
-                "name" : "subproducer_start_date"
+                "name" : "type"
               },
               "fromFieldNames" : null
             }
@@ -863,9 +1166,8 @@
         }
       },
       {
-        "description" : "straight pass through, no transformation required ",
-        "createTime" : "2025-05-01T12:40:58.640Z",
-        "name" : "exp_read_all_fields",
+        "createTime" : "2025-06-20T14:14:27.036Z",
+        "name" : "exp_calc_fields",
         "groups" : [
           {
             "input" : "true",
@@ -887,10 +1189,10 @@
             "platformType" : {
               "name" : "string"
             },
-            "precision" : 20,
+            "precision" : 50,
             "scale" : 0,
             "expFieldType" : "OUTPUT",
-            "expression" : "'subproducerguidewire'"
+            "expression" : "'terminationguidewire'"
           },
           {
             "defaultValue" : "ERROR('transformation error')",
@@ -898,54 +1200,10 @@
             "platformType" : {
               "name" : "string"
             },
-            "precision" : 10,
+            "precision" : 30,
             "scale" : 0,
             "expFieldType" : "OUTPUT",
             "expression" : "'Daily'"
-          },
-          {
-            "defaultValue" : "ERROR('transformation error')",
-            "name" : "o_create",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 30,
-            "scale" : 0,
-            "expFieldType" : "OUTPUT",
-            "expression" : "TO_CHAR(created,'YYYY-MM-DD HH24:MI:SS')"
-          },
-          {
-            "defaultValue" : "ERROR('transformation error')",
-            "name" : "o_modified",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 30,
-            "scale" : 0,
-            "expFieldType" : "OUTPUT",
-            "expression" : "TO_CHAR(modified,'YYYY-MM-DD HH24:MI:SS')"
-          },
-          {
-            "defaultValue" : "ERROR('transformation error')",
-            "name" : "o_subproducer_cancelled_date",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 15,
-            "scale" : 0,
-            "expFieldType" : "OUTPUT",
-            "expression" : "TO_CHAR(subproducer_cancelled_date,'YYYY-MM-DD')"
-          },
-          {
-            "defaultValue" : "ERROR('transformation error')",
-            "name" : "o_subproducer_start_date",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 15,
-            "scale" : 0,
-            "expFieldType" : "OUTPUT",
-            "expression" : "TO_CHAR(subproducer_start_date,'YYYY-MM-DD')"
           }
         ],
         "windowSpec" : {
@@ -958,5 +1216,5 @@
       }
     ]
   },
-  "vcsExportTime" : "2025-06-23 11:01:59 EDT"
+  "vcsExportTime" : "2025-06-20 14:24:06 EDT"
 }

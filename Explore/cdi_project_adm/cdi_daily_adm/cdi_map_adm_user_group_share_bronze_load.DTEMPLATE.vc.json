@@ -3,10 +3,10 @@
     "allowMaxFieldLength" : "false",
     "bigIntConvertType" : "ONLY_BIGINT",
     "documentType" : "MAPPING",
-    "name" : "cdi_map_adm_super_group_bronze_load",
+    "name" : "cdi_map_adm_user_group_share_bronze_load",
     "links" : [
       {
-        "link" : "src_metal_super_group -> exp_convert_datatype"
+        "link" : "src_metal_user_group_share -> exp_convert_datatype"
       },
       {
         "link" : "exp_convert_datatype -> exp_MD5"
@@ -88,7 +88,7 @@
     "transformations" : [
       {
         "createTime" : "2025-05-12T20:18:11.235Z",
-        "name" : "src_metal_super_group",
+        "name" : "src_metal_user_group_share",
         "advancedProperties" : [
           {
             "name" : "Tracing Level",
@@ -145,24 +145,24 @@
           },
           {
             "adapterField" : {
-              "name" : "name"
+              "name" : "agency_nup"
             },
-            "name" : "name",
+            "name" : "agency_nup",
             "platformType" : {
               "name" : "string"
             },
-            "precision" : 255,
+            "precision" : 15,
             "scale" : 0
           },
           {
             "adapterField" : {
-              "name" : "number"
+              "name" : "sharedagency"
             },
-            "name" : "number",
+            "name" : "sharedagency",
             "platformType" : {
               "name" : "string"
             },
-            "precision" : 7,
+            "precision" : 15,
             "scale" : 0
           },
           {
@@ -208,7 +208,7 @@
           "typeSystem" : "TOOLKIT",
           "useDynamicFileName" : "false",
           "object" : {
-            "customQuery" : "with current_batch as (\nselect\n\tbls.batch_id,\n\tbls.source_start_cutoff_datetime,\n\tbls.source_end_cutoff_datetime\nfrom\n\tmetal.batch_load_summary bls\nwhere\n\tbls.source_system_code = 'ADM'\n\tand bls.batch_status = 'Inprogress'\n\tand bls.batch_id = (\n\tselect\n\t\tMAX(batch_id)\n\tfrom\n\t\tmetal.batch_load_summary\n\twhere\n\t\tsource_system_code = 'ADM'\n\t\tand batch_status = 'Inprogress' ) )\nselect\n\tdistinct metal_asg.source_name,\n\tmetal_asg.load_type,\n\tmetal_asg.id,\n\tmetal_asg.name,\n\tmetal_asg.number,\n\tmetal_asg.created,\n\tmetal_asg.modified,\n\tcurrent_batch.batch_id\nfrom\n\tmetal.adm_super_group metal_asg\ncross join current_batch\norder by\n\tmetal_asg.id,\n\tmetal_asg.created,\n\tmetal_asg.modified;",
+            "customQuery" : "WITH current_batch AS (\n    SELECT \n        bls.batch_id,\n        bls.source_start_cutoff_datetime,\n        bls.source_end_cutoff_datetime\n    FROM metal.batch_load_summary bls\n    WHERE bls.source_system_code = 'ADM'\n      AND bls.batch_status = 'Inprogress'\n      AND bls.batch_id = (\n          SELECT MAX(batch_id)\n          FROM metal.batch_load_summary\n          WHERE source_system_code = 'ADM'\n            AND batch_status = 'Inprogress'\n      )\n)\nSELECT DISTINCT  \n\t\tmetal_ugs.source_name, \n\t\tmetal_ugs.load_type, \n\t\tmetal_ugs.id, \n\t\tmetal_ugs.agency_nup, \n\t\tmetal_ugs.sharedagency, \n\t\tmetal_ugs.created, \n\t\tmetal_ugs.modified, \n\t\tcurrent_batch.batch_id\nFROM metal.adm_user_group_share metal_ugs\nCROSS JOIN current_batch\nORDER BY \n    metal_ugs.id,\n    metal_ugs.created,\n    metal_ugs.modified;",
             "retainMetadata" : "false",
             "fields" : [
               {
@@ -260,13 +260,13 @@
                 ]
               },
               {
-                "name" : "name",
+                "name" : "agency_nup",
                 "fieldType" : "CONNECTOR",
-                "label" : "name",
-                "nativeName" : "name",
+                "label" : "agency_nup",
+                "nativeName" : "agency_nup",
                 "nativeType" : "varchar",
                 "original" : "false",
-                "precision" : 255,
+                "precision" : 15,
                 "scale" : 0,
                 "properties" : [
                   {
@@ -276,13 +276,13 @@
                 ]
               },
               {
-                "name" : "number",
+                "name" : "sharedagency",
                 "fieldType" : "CONNECTOR",
-                "label" : "number",
-                "nativeName" : "number",
+                "label" : "sharedagency",
+                "nativeName" : "sharedagency",
                 "nativeType" : "varchar",
                 "original" : "false",
-                "precision" : 7,
+                "precision" : 15,
                 "scale" : 0,
                 "properties" : [
                   {
@@ -422,7 +422,7 @@
         "fields" : [
           {
             "defaultValue" : "ERROR('transformation error')",
-            "name" : "o_super_group_datetime_created",
+            "name" : "o_user_group_share_datetime_created",
             "platformType" : {
               "name" : "date/time"
             },
@@ -433,7 +433,7 @@
           },
           {
             "defaultValue" : "ERROR('transformation error')",
-            "name" : "o_super_group_datetime_modified",
+            "name" : "o_user_group_share_datetime_modified",
             "platformType" : {
               "name" : "date/time"
             },
@@ -444,7 +444,7 @@
           },
           {
             "defaultValue" : "ERROR('transformation error')",
-            "name" : "o_super_group_id",
+            "name" : "o_user_group_share_id",
             "platformType" : {
               "name" : "integer"
             },
@@ -452,6 +452,28 @@
             "scale" : 0,
             "expFieldType" : "OUTPUT",
             "expression" : "to_integer(ltrim(rtrim(id)))"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_user_group_share_agency_id",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "to_integer(ltrim(rtrim(agency_nup)))"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_user_group_share_sharedagency",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "to_integer(ltrim(rtrim(sharedagency)))"
           }
         ],
         "windowSpec" : {
@@ -489,7 +511,7 @@
             "precision" : 255,
             "scale" : 0,
             "expFieldType" : "OUTPUT",
-            "expression" : "MD5('source_name' || source_name || \n\t'load_type' || load_type || \n\t'o_super_group_datetime_created' || to_char(o_super_group_datetime_created) || \n\t'o_super_group_datetime_modified' || to_char(o_super_group_datetime_modified) || \n\t'o_super_group_id' || to_char(o_super_group_id) ||\n    'name' || name || 'number' || number)"
+            "expression" : "MD5('source_name' || source_name || \n\t'load_type' || load_type || \n\t'o_user_group_share_datetime_created' || to_char(o_user_group_share_datetime_created) || \n\t'o_user_group_share_datetime_modified' || to_char(o_user_group_share_datetime_modified) || \n\t'o_user_group_share_id' || to_char(o_user_group_share_id) || 'o_user_group_share_agency_id' || to_char(o_user_group_share_agency_id) || 'o_user_group_share_sharedagency' || to_char(o_user_group_share_sharedagency)\n    )"
           }
         ],
         "windowSpec" : {
@@ -526,9 +548,9 @@
         "fields" : [
           {
             "adapterField" : {
-              "name" : "super_group_row_id"
+              "name" : "user_group_share_row_id"
             },
-            "name" : "super_group_row_id",
+            "name" : "user_group_share_row_id",
             "platformType" : {
               "name" : "bigint"
             },
@@ -537,9 +559,9 @@
           },
           {
             "adapterField" : {
-              "name" : "super_group_row_md5checksum"
+              "name" : "user_group_share_row_md5checksum"
             },
-            "name" : "super_group_row_md5checksum",
+            "name" : "user_group_share_row_md5checksum",
             "platformType" : {
               "name" : "string"
             },
@@ -548,9 +570,9 @@
           },
           {
             "adapterField" : {
-              "name" : "super_group_id"
+              "name" : "user_group_share_id"
             },
-            "name" : "super_group_id",
+            "name" : "user_group_share_id",
             "platformType" : {
               "name" : "integer"
             },
@@ -559,9 +581,9 @@
           },
           {
             "adapterField" : {
-              "name" : "super_group_datetime_modified"
+              "name" : "user_group_share_datetime_modified"
             },
-            "name" : "super_group_datetime_modified",
+            "name" : "user_group_share_datetime_modified",
             "platformType" : {
               "name" : "date/time"
             },
@@ -570,9 +592,9 @@
           },
           {
             "adapterField" : {
-              "name" : "super_group_row_effective_end_datetime"
+              "name" : "user_group_share_row_effective_end_datetime"
             },
-            "name" : "super_group_row_effective_end_datetime",
+            "name" : "user_group_share_row_effective_end_datetime",
             "platformType" : {
               "name" : "date/time"
             },
@@ -589,14 +611,14 @@
           "typeSystem" : "TOOLKIT",
           "useDynamicFileName" : "false",
           "object" : {
-            "customQuery" : "SELECT \n        super_group_row_id, \n        super_group_row_md5checksum, \n        super_group_id,  \n  super_group_datetime_modified,\n  super_group_row_effective_end_datetime\t\n    FROM bronze.adm_super_group\n    where  super_group_row_effective_end_datetime\t= '9999-12-31 00:00:00.000'",
+            "customQuery" : "SELECT \n        user_group_share_row_id, \n        user_group_share_row_md5checksum, \n        user_group_share_id,  \n  user_group_share_datetime_modified,\n  user_group_share_row_effective_end_datetime\t\n    FROM bronze.adm_user_group_share\n    where  user_group_share_row_effective_end_datetime\t= '9999-12-31 00:00:00.000'",
             "retainMetadata" : "false",
             "fields" : [
               {
-                "name" : "super_group_row_id",
+                "name" : "user_group_share_row_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "super_group_row_id",
-                "nativeName" : "super_group_row_id",
+                "label" : "user_group_share_row_id",
+                "nativeName" : "user_group_share_row_id",
                 "nativeType" : "int8",
                 "original" : "false",
                 "precision" : 19,
@@ -609,10 +631,10 @@
                 ]
               },
               {
-                "name" : "super_group_row_md5checksum",
+                "name" : "user_group_share_row_md5checksum",
                 "fieldType" : "CONNECTOR",
-                "label" : "super_group_row_md5checksum",
-                "nativeName" : "super_group_row_md5checksum",
+                "label" : "user_group_share_row_md5checksum",
+                "nativeName" : "user_group_share_row_md5checksum",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 255,
@@ -625,10 +647,10 @@
                 ]
               },
               {
-                "name" : "super_group_id",
+                "name" : "user_group_share_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "super_group_id",
-                "nativeName" : "super_group_id",
+                "label" : "user_group_share_id",
+                "nativeName" : "user_group_share_id",
                 "nativeType" : "int4",
                 "original" : "false",
                 "precision" : 10,
@@ -641,10 +663,10 @@
                 ]
               },
               {
-                "name" : "super_group_datetime_modified",
+                "name" : "user_group_share_datetime_modified",
                 "fieldType" : "CONNECTOR",
-                "label" : "super_group_datetime_modified",
-                "nativeName" : "super_group_datetime_modified",
+                "label" : "user_group_share_datetime_modified",
+                "nativeName" : "user_group_share_datetime_modified",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 29,
@@ -657,10 +679,10 @@
                 ]
               },
               {
-                "name" : "super_group_row_effective_end_datetime",
+                "name" : "user_group_share_row_effective_end_datetime",
                 "fieldType" : "CONNECTOR",
-                "label" : "super_group_row_effective_end_datetime",
-                "nativeName" : "super_group_row_effective_end_datetime",
+                "label" : "user_group_share_row_effective_end_datetime",
+                "nativeName" : "user_group_share_row_effective_end_datetime",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 29,
@@ -754,11 +776,11 @@
             "precision" : 10,
             "scale" : 0,
             "expFieldType" : "OUTPUT",
-            "expression" : "IIF(ISNULL(super_group_row_id),'I','X')"
+            "expression" : "IIF(ISNULL(user_group_share_row_id),'I','X')"
           },
           {
             "defaultValue" : "ERROR('transformation error')",
-            "name" : "o_super_group_row_effective_end_datetime",
+            "name" : "o_user_group_share_row_effective_end_datetime",
             "platformType" : {
               "name" : "date/time"
             },
@@ -769,7 +791,7 @@
           },
           {
             "defaultValue" : "ERROR('transformation error')",
-            "name" : "o_super_group_row_effective_start_datetime",
+            "name" : "o_user_group_share_row_effective_start_datetime",
             "platformType" : {
               "name" : "date/time"
             },
@@ -787,7 +809,7 @@
             "precision" : 10,
             "scale" : 0,
             "expFieldType" : "OUTPUT",
-            "expression" : "IIF(NOT ISNULL(super_group_row_id) AND super_group_row_md5checksum <> o_src_md5_hash_value, 'U','X')"
+            "expression" : "IIF(NOT ISNULL(user_group_share_row_id) AND user_group_share_row_md5checksum <> o_src_md5_hash_value, 'U','X')"
           }
         ],
         "windowSpec" : {
@@ -922,9 +944,9 @@
         "fields" : [
           {
             "adapterField" : {
-              "name" : "super_group_row_id"
+              "name" : "user_group_share_row_id"
             },
-            "name" : "super_group_row_id",
+            "name" : "user_group_share_row_id",
             "platformType" : {
               "name" : "bigint"
             },
@@ -933,9 +955,9 @@
           },
           {
             "adapterField" : {
-              "name" : "super_group_batch_id"
+              "name" : "user_group_share_batch_id"
             },
-            "name" : "super_group_batch_id",
+            "name" : "user_group_share_batch_id",
             "platformType" : {
               "name" : "bigint"
             },
@@ -966,9 +988,9 @@
           },
           {
             "adapterField" : {
-              "name" : "super_group_row_md5checksum"
+              "name" : "user_group_share_row_md5checksum"
             },
-            "name" : "super_group_row_md5checksum",
+            "name" : "user_group_share_row_md5checksum",
             "platformType" : {
               "name" : "string"
             },
@@ -977,9 +999,9 @@
           },
           {
             "adapterField" : {
-              "name" : "super_group_datetime_created"
+              "name" : "user_group_share_datetime_created"
             },
-            "name" : "super_group_datetime_created",
+            "name" : "user_group_share_datetime_created",
             "platformType" : {
               "name" : "date/time"
             },
@@ -988,9 +1010,9 @@
           },
           {
             "adapterField" : {
-              "name" : "super_group_datetime_modified"
+              "name" : "user_group_share_datetime_modified"
             },
-            "name" : "super_group_datetime_modified",
+            "name" : "user_group_share_datetime_modified",
             "platformType" : {
               "name" : "date/time"
             },
@@ -999,9 +1021,9 @@
           },
           {
             "adapterField" : {
-              "name" : "super_group_row_effective_start_datetime"
+              "name" : "user_group_share_row_effective_start_datetime"
             },
-            "name" : "super_group_row_effective_start_datetime",
+            "name" : "user_group_share_row_effective_start_datetime",
             "platformType" : {
               "name" : "date/time"
             },
@@ -1010,9 +1032,9 @@
           },
           {
             "adapterField" : {
-              "name" : "super_group_row_effective_end_datetime"
+              "name" : "user_group_share_row_effective_end_datetime"
             },
-            "name" : "super_group_row_effective_end_datetime",
+            "name" : "user_group_share_row_effective_end_datetime",
             "platformType" : {
               "name" : "date/time"
             },
@@ -1021,9 +1043,9 @@
           },
           {
             "adapterField" : {
-              "name" : "super_group_id"
+              "name" : "user_group_share_id"
             },
-            "name" : "super_group_id",
+            "name" : "user_group_share_id",
             "platformType" : {
               "name" : "integer"
             },
@@ -1032,24 +1054,24 @@
           },
           {
             "adapterField" : {
-              "name" : "super_group_name"
+              "name" : "agency_id"
             },
-            "name" : "super_group_name",
+            "name" : "agency_id",
             "platformType" : {
-              "name" : "string"
+              "name" : "integer"
             },
-            "precision" : 255,
+            "precision" : 10,
             "scale" : 0
           },
           {
             "adapterField" : {
-              "name" : "super_group_number"
+              "name" : "shared_agency_id"
             },
-            "name" : "super_group_number",
+            "name" : "shared_agency_id",
             "platformType" : {
-              "name" : "string"
+              "name" : "integer"
             },
-            "precision" : 15,
+            "precision" : 10,
             "scale" : 0
           }
         ],
@@ -1062,18 +1084,18 @@
           "typeSystem" : "TOOLKIT",
           "useDynamicFileName" : "false",
           "object" : {
-            "name" : "bronze/adm_super_group",
-            "label" : "bronze/adm_super_group",
-            "objectName" : "adm_super_group",
+            "name" : "bronze/adm_user_group_share",
+            "label" : "bronze/adm_user_group_share",
+            "objectName" : "adm_user_group_share",
             "objectType" : "amazonredshift",
-            "path" : "bronze/adm_super_group",
+            "path" : "bronze/adm_user_group_share",
             "retainMetadata" : "false",
             "fields" : [
               {
-                "name" : "super_group_row_id",
+                "name" : "user_group_share_row_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "super_group_row_id",
-                "nativeName" : "super_group_row_id",
+                "label" : "user_group_share_row_id",
+                "nativeName" : "user_group_share_row_id",
                 "nativeType" : "int8",
                 "original" : "false",
                 "precision" : 19,
@@ -1081,15 +1103,15 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_super_group"
+                    "value" : "adm_user_group_share"
                   }
                 ]
               },
               {
-                "name" : "super_group_batch_id",
+                "name" : "user_group_share_batch_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "super_group_batch_id",
-                "nativeName" : "super_group_batch_id",
+                "label" : "user_group_share_batch_id",
+                "nativeName" : "user_group_share_batch_id",
                 "nativeType" : "int8",
                 "original" : "false",
                 "precision" : 19,
@@ -1097,7 +1119,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_super_group"
+                    "value" : "adm_user_group_share"
                   }
                 ]
               },
@@ -1113,7 +1135,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_super_group"
+                    "value" : "adm_user_group_share"
                   }
                 ]
               },
@@ -1129,15 +1151,15 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_super_group"
+                    "value" : "adm_user_group_share"
                   }
                 ]
               },
               {
-                "name" : "super_group_row_md5checksum",
+                "name" : "user_group_share_row_md5checksum",
                 "fieldType" : "CONNECTOR",
-                "label" : "super_group_row_md5checksum",
-                "nativeName" : "super_group_row_md5checksum",
+                "label" : "user_group_share_row_md5checksum",
+                "nativeName" : "user_group_share_row_md5checksum",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 255,
@@ -1145,15 +1167,15 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_super_group"
+                    "value" : "adm_user_group_share"
                   }
                 ]
               },
               {
-                "name" : "super_group_datetime_created",
+                "name" : "user_group_share_datetime_created",
                 "fieldType" : "CONNECTOR",
-                "label" : "super_group_datetime_created",
-                "nativeName" : "super_group_datetime_created",
+                "label" : "user_group_share_datetime_created",
+                "nativeName" : "user_group_share_datetime_created",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 29,
@@ -1161,15 +1183,15 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_super_group"
+                    "value" : "adm_user_group_share"
                   }
                 ]
               },
               {
-                "name" : "super_group_datetime_modified",
+                "name" : "user_group_share_datetime_modified",
                 "fieldType" : "CONNECTOR",
-                "label" : "super_group_datetime_modified",
-                "nativeName" : "super_group_datetime_modified",
+                "label" : "user_group_share_datetime_modified",
+                "nativeName" : "user_group_share_datetime_modified",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 29,
@@ -1177,15 +1199,15 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_super_group"
+                    "value" : "adm_user_group_share"
                   }
                 ]
               },
               {
-                "name" : "super_group_row_effective_start_datetime",
+                "name" : "user_group_share_row_effective_start_datetime",
                 "fieldType" : "CONNECTOR",
-                "label" : "super_group_row_effective_start_datetime",
-                "nativeName" : "super_group_row_effective_start_datetime",
+                "label" : "user_group_share_row_effective_start_datetime",
+                "nativeName" : "user_group_share_row_effective_start_datetime",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 29,
@@ -1193,15 +1215,15 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_super_group"
+                    "value" : "adm_user_group_share"
                   }
                 ]
               },
               {
-                "name" : "super_group_row_effective_end_datetime",
+                "name" : "user_group_share_row_effective_end_datetime",
                 "fieldType" : "CONNECTOR",
-                "label" : "super_group_row_effective_end_datetime",
-                "nativeName" : "super_group_row_effective_end_datetime",
+                "label" : "user_group_share_row_effective_end_datetime",
+                "nativeName" : "user_group_share_row_effective_end_datetime",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 29,
@@ -1209,15 +1231,15 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_super_group"
+                    "value" : "adm_user_group_share"
                   }
                 ]
               },
               {
-                "name" : "super_group_id",
+                "name" : "user_group_share_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "super_group_id",
-                "nativeName" : "super_group_id",
+                "label" : "user_group_share_id",
+                "nativeName" : "user_group_share_id",
                 "nativeType" : "int4",
                 "original" : "false",
                 "precision" : 10,
@@ -1225,39 +1247,39 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_super_group"
+                    "value" : "adm_user_group_share"
                   }
                 ]
               },
               {
-                "name" : "super_group_name",
+                "name" : "agency_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "super_group_name",
-                "nativeName" : "super_group_name",
-                "nativeType" : "varchar",
+                "label" : "agency_id",
+                "nativeName" : "agency_id",
+                "nativeType" : "int4",
                 "original" : "false",
-                "precision" : 255,
+                "precision" : 10,
                 "scale" : 0,
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_super_group"
+                    "value" : "adm_user_group_share"
                   }
                 ]
               },
               {
-                "name" : "super_group_number",
+                "name" : "shared_agency_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "super_group_number",
-                "nativeName" : "super_group_number",
-                "nativeType" : "varchar",
+                "label" : "shared_agency_id",
+                "nativeName" : "shared_agency_id",
+                "nativeType" : "int4",
                 "original" : "false",
-                "precision" : 15,
+                "precision" : 10,
                 "scale" : 0,
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_super_group"
+                    "value" : "adm_user_group_share"
                   }
                 ]
               }
@@ -1357,7 +1379,7 @@
             {
               "fromFieldName" : "batch_id",
               "toField" : {
-                "name" : "super_group_batch_id"
+                "name" : "user_group_share_batch_id"
               },
               "fromFieldNames" : null
             },
@@ -1378,56 +1400,56 @@
             {
               "fromFieldName" : "o_src_md5_hash_value",
               "toField" : {
-                "name" : "super_group_row_md5checksum"
+                "name" : "user_group_share_row_md5checksum"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "o_super_group_datetime_created",
+              "fromFieldName" : "o_user_group_share_datetime_created",
               "toField" : {
-                "name" : "super_group_datetime_created"
+                "name" : "user_group_share_datetime_created"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "o_super_group_datetime_modified",
+              "fromFieldName" : "o_user_group_share_datetime_modified",
               "toField" : {
-                "name" : "super_group_datetime_modified"
+                "name" : "user_group_share_datetime_modified"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "o_super_group_row_effective_end_datetime",
+              "fromFieldName" : "o_user_group_share_row_effective_end_datetime",
               "toField" : {
-                "name" : "super_group_row_effective_end_datetime"
+                "name" : "user_group_share_row_effective_end_datetime"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "o_super_group_row_effective_start_datetime",
+              "fromFieldName" : "o_user_group_share_row_effective_start_datetime",
               "toField" : {
-                "name" : "super_group_row_effective_start_datetime"
+                "name" : "user_group_share_row_effective_start_datetime"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "name",
+              "fromFieldName" : "o_user_group_share_id",
               "toField" : {
-                "name" : "super_group_name"
+                "name" : "user_group_share_id"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "o_super_group_id",
+              "fromFieldName" : "o_user_group_share_agency_id",
               "toField" : {
-                "name" : "super_group_id"
+                "name" : "agency_id"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "number",
+              "fromFieldName" : "o_user_group_share_sharedagency",
               "toField" : {
-                "name" : "super_group_number"
+                "name" : "shared_agency_id"
               },
               "fromFieldNames" : null
             }
@@ -1461,16 +1483,16 @@
         "inputSorted" : "false",
         "schemaProviderType" : "SELECTED_OBJECT",
         "updateColumns" : [
-          "super_group_row_id"
+          "user_group_share_row_id"
         ],
         "useLabels" : "false",
         "useSequenceFields" : "false",
         "fields" : [
           {
             "adapterField" : {
-              "name" : "super_group_row_id"
+              "name" : "user_group_share_row_id"
             },
-            "name" : "super_group_row_id",
+            "name" : "user_group_share_row_id",
             "platformType" : {
               "name" : "bigint"
             },
@@ -1479,9 +1501,9 @@
           },
           {
             "adapterField" : {
-              "name" : "super_group_batch_id"
+              "name" : "user_group_share_batch_id"
             },
-            "name" : "super_group_batch_id",
+            "name" : "user_group_share_batch_id",
             "platformType" : {
               "name" : "bigint"
             },
@@ -1512,9 +1534,9 @@
           },
           {
             "adapterField" : {
-              "name" : "super_group_row_md5checksum"
+              "name" : "user_group_share_row_md5checksum"
             },
-            "name" : "super_group_row_md5checksum",
+            "name" : "user_group_share_row_md5checksum",
             "platformType" : {
               "name" : "string"
             },
@@ -1523,9 +1545,9 @@
           },
           {
             "adapterField" : {
-              "name" : "super_group_datetime_created"
+              "name" : "user_group_share_datetime_created"
             },
-            "name" : "super_group_datetime_created",
+            "name" : "user_group_share_datetime_created",
             "platformType" : {
               "name" : "date/time"
             },
@@ -1534,9 +1556,9 @@
           },
           {
             "adapterField" : {
-              "name" : "super_group_datetime_modified"
+              "name" : "user_group_share_datetime_modified"
             },
-            "name" : "super_group_datetime_modified",
+            "name" : "user_group_share_datetime_modified",
             "platformType" : {
               "name" : "date/time"
             },
@@ -1545,9 +1567,9 @@
           },
           {
             "adapterField" : {
-              "name" : "super_group_row_effective_start_datetime"
+              "name" : "user_group_share_row_effective_start_datetime"
             },
-            "name" : "super_group_row_effective_start_datetime",
+            "name" : "user_group_share_row_effective_start_datetime",
             "platformType" : {
               "name" : "date/time"
             },
@@ -1556,9 +1578,9 @@
           },
           {
             "adapterField" : {
-              "name" : "super_group_row_effective_end_datetime"
+              "name" : "user_group_share_row_effective_end_datetime"
             },
-            "name" : "super_group_row_effective_end_datetime",
+            "name" : "user_group_share_row_effective_end_datetime",
             "platformType" : {
               "name" : "date/time"
             },
@@ -1567,9 +1589,9 @@
           },
           {
             "adapterField" : {
-              "name" : "super_group_id"
+              "name" : "user_group_share_id"
             },
-            "name" : "super_group_id",
+            "name" : "user_group_share_id",
             "platformType" : {
               "name" : "integer"
             },
@@ -1578,24 +1600,24 @@
           },
           {
             "adapterField" : {
-              "name" : "super_group_name"
+              "name" : "agency_id"
             },
-            "name" : "super_group_name",
+            "name" : "agency_id",
             "platformType" : {
-              "name" : "string"
+              "name" : "integer"
             },
-            "precision" : 255,
+            "precision" : 10,
             "scale" : 0
           },
           {
             "adapterField" : {
-              "name" : "super_group_number"
+              "name" : "shared_agency_id"
             },
-            "name" : "super_group_number",
+            "name" : "shared_agency_id",
             "platformType" : {
-              "name" : "string"
+              "name" : "integer"
             },
-            "precision" : 15,
+            "precision" : 10,
             "scale" : 0
           }
         ],
@@ -1619,18 +1641,18 @@
             "useBulkApiV2" : "false"
           },
           "object" : {
-            "name" : "bronze/adm_super_group",
-            "label" : "bronze/adm_super_group",
-            "objectName" : "adm_super_group",
+            "name" : "bronze/adm_user_group_share",
+            "label" : "bronze/adm_user_group_share",
+            "objectName" : "adm_user_group_share",
             "objectType" : "amazonredshift",
-            "path" : "bronze/adm_super_group",
+            "path" : "bronze/adm_user_group_share",
             "retainMetadata" : "false",
             "fields" : [
               {
-                "name" : "super_group_row_id",
+                "name" : "user_group_share_row_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "super_group_row_id",
-                "nativeName" : "super_group_row_id",
+                "label" : "user_group_share_row_id",
+                "nativeName" : "user_group_share_row_id",
                 "nativeType" : "int8",
                 "original" : "false",
                 "precision" : 19,
@@ -1638,15 +1660,15 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_super_group"
+                    "value" : "adm_user_group_share"
                   }
                 ]
               },
               {
-                "name" : "super_group_batch_id",
+                "name" : "user_group_share_batch_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "super_group_batch_id",
-                "nativeName" : "super_group_batch_id",
+                "label" : "user_group_share_batch_id",
+                "nativeName" : "user_group_share_batch_id",
                 "nativeType" : "int8",
                 "original" : "false",
                 "precision" : 19,
@@ -1654,7 +1676,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_super_group"
+                    "value" : "adm_user_group_share"
                   }
                 ]
               },
@@ -1670,7 +1692,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_super_group"
+                    "value" : "adm_user_group_share"
                   }
                 ]
               },
@@ -1686,15 +1708,15 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_super_group"
+                    "value" : "adm_user_group_share"
                   }
                 ]
               },
               {
-                "name" : "super_group_row_md5checksum",
+                "name" : "user_group_share_row_md5checksum",
                 "fieldType" : "CONNECTOR",
-                "label" : "super_group_row_md5checksum",
-                "nativeName" : "super_group_row_md5checksum",
+                "label" : "user_group_share_row_md5checksum",
+                "nativeName" : "user_group_share_row_md5checksum",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 255,
@@ -1702,15 +1724,15 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_super_group"
+                    "value" : "adm_user_group_share"
                   }
                 ]
               },
               {
-                "name" : "super_group_datetime_created",
+                "name" : "user_group_share_datetime_created",
                 "fieldType" : "CONNECTOR",
-                "label" : "super_group_datetime_created",
-                "nativeName" : "super_group_datetime_created",
+                "label" : "user_group_share_datetime_created",
+                "nativeName" : "user_group_share_datetime_created",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 29,
@@ -1718,15 +1740,15 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_super_group"
+                    "value" : "adm_user_group_share"
                   }
                 ]
               },
               {
-                "name" : "super_group_datetime_modified",
+                "name" : "user_group_share_datetime_modified",
                 "fieldType" : "CONNECTOR",
-                "label" : "super_group_datetime_modified",
-                "nativeName" : "super_group_datetime_modified",
+                "label" : "user_group_share_datetime_modified",
+                "nativeName" : "user_group_share_datetime_modified",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 29,
@@ -1734,15 +1756,15 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_super_group"
+                    "value" : "adm_user_group_share"
                   }
                 ]
               },
               {
-                "name" : "super_group_row_effective_start_datetime",
+                "name" : "user_group_share_row_effective_start_datetime",
                 "fieldType" : "CONNECTOR",
-                "label" : "super_group_row_effective_start_datetime",
-                "nativeName" : "super_group_row_effective_start_datetime",
+                "label" : "user_group_share_row_effective_start_datetime",
+                "nativeName" : "user_group_share_row_effective_start_datetime",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 29,
@@ -1750,15 +1772,15 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_super_group"
+                    "value" : "adm_user_group_share"
                   }
                 ]
               },
               {
-                "name" : "super_group_row_effective_end_datetime",
+                "name" : "user_group_share_row_effective_end_datetime",
                 "fieldType" : "CONNECTOR",
-                "label" : "super_group_row_effective_end_datetime",
-                "nativeName" : "super_group_row_effective_end_datetime",
+                "label" : "user_group_share_row_effective_end_datetime",
+                "nativeName" : "user_group_share_row_effective_end_datetime",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 29,
@@ -1766,15 +1788,15 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_super_group"
+                    "value" : "adm_user_group_share"
                   }
                 ]
               },
               {
-                "name" : "super_group_id",
+                "name" : "user_group_share_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "super_group_id",
-                "nativeName" : "super_group_id",
+                "label" : "user_group_share_id",
+                "nativeName" : "user_group_share_id",
                 "nativeType" : "int4",
                 "original" : "false",
                 "precision" : 10,
@@ -1782,39 +1804,39 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_super_group"
+                    "value" : "adm_user_group_share"
                   }
                 ]
               },
               {
-                "name" : "super_group_name",
+                "name" : "agency_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "super_group_name",
-                "nativeName" : "super_group_name",
-                "nativeType" : "varchar",
+                "label" : "agency_id",
+                "nativeName" : "agency_id",
+                "nativeType" : "int4",
                 "original" : "false",
-                "precision" : 255,
+                "precision" : 10,
                 "scale" : 0,
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_super_group"
+                    "value" : "adm_user_group_share"
                   }
                 ]
               },
               {
-                "name" : "super_group_number",
+                "name" : "shared_agency_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "super_group_number",
-                "nativeName" : "super_group_number",
-                "nativeType" : "varchar",
+                "label" : "shared_agency_id",
+                "nativeName" : "shared_agency_id",
+                "nativeType" : "int4",
                 "original" : "false",
-                "precision" : 15,
+                "precision" : 10,
                 "scale" : 0,
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_super_group"
+                    "value" : "adm_user_group_share"
                   }
                 ]
               }
@@ -1912,16 +1934,16 @@
         "manualMappings" : {
           "mappingList" : [
             {
-              "fromFieldName" : "super_group_row_id",
+              "fromFieldName" : "user_group_share_row_id",
               "toField" : {
-                "name" : "super_group_row_id"
+                "name" : "user_group_share_row_id"
               },
               "fromFieldNames" : null
             },
             {
               "fromFieldName" : "o_retire_old_record",
               "toField" : {
-                "name" : "super_group_row_effective_end_datetime"
+                "name" : "user_group_share_row_effective_end_datetime"
               },
               "fromFieldNames" : null
             }
@@ -1967,9 +1989,9 @@
         "joinType" : "Detail Outer Join",
         "joinConditions" : [
           {
-            "leftOperand" : "o_super_group_id",
+            "leftOperand" : "o_user_group_share_id",
             "operator" : "=",
-            "rightOperand" : "super_group_id"
+            "rightOperand" : "user_group_share_id"
           }
         ]
       },
@@ -2030,9 +2052,9 @@
         "fields" : [
           {
             "adapterField" : {
-              "name" : "super_group_row_id"
+              "name" : "user_group_share_row_id"
             },
-            "name" : "super_group_row_id",
+            "name" : "user_group_share_row_id",
             "platformType" : {
               "name" : "bigint"
             },
@@ -2041,9 +2063,9 @@
           },
           {
             "adapterField" : {
-              "name" : "super_group_batch_id"
+              "name" : "user_group_share_batch_id"
             },
-            "name" : "super_group_batch_id",
+            "name" : "user_group_share_batch_id",
             "platformType" : {
               "name" : "bigint"
             },
@@ -2074,9 +2096,9 @@
           },
           {
             "adapterField" : {
-              "name" : "super_group_row_md5checksum"
+              "name" : "user_group_share_row_md5checksum"
             },
-            "name" : "super_group_row_md5checksum",
+            "name" : "user_group_share_row_md5checksum",
             "platformType" : {
               "name" : "string"
             },
@@ -2085,9 +2107,9 @@
           },
           {
             "adapterField" : {
-              "name" : "super_group_datetime_created"
+              "name" : "user_group_share_datetime_created"
             },
-            "name" : "super_group_datetime_created",
+            "name" : "user_group_share_datetime_created",
             "platformType" : {
               "name" : "date/time"
             },
@@ -2096,9 +2118,9 @@
           },
           {
             "adapterField" : {
-              "name" : "super_group_datetime_modified"
+              "name" : "user_group_share_datetime_modified"
             },
-            "name" : "super_group_datetime_modified",
+            "name" : "user_group_share_datetime_modified",
             "platformType" : {
               "name" : "date/time"
             },
@@ -2107,9 +2129,9 @@
           },
           {
             "adapterField" : {
-              "name" : "super_group_row_effective_start_datetime"
+              "name" : "user_group_share_row_effective_start_datetime"
             },
-            "name" : "super_group_row_effective_start_datetime",
+            "name" : "user_group_share_row_effective_start_datetime",
             "platformType" : {
               "name" : "date/time"
             },
@@ -2118,9 +2140,9 @@
           },
           {
             "adapterField" : {
-              "name" : "super_group_row_effective_end_datetime"
+              "name" : "user_group_share_row_effective_end_datetime"
             },
-            "name" : "super_group_row_effective_end_datetime",
+            "name" : "user_group_share_row_effective_end_datetime",
             "platformType" : {
               "name" : "date/time"
             },
@@ -2129,9 +2151,9 @@
           },
           {
             "adapterField" : {
-              "name" : "super_group_id"
+              "name" : "user_group_share_id"
             },
-            "name" : "super_group_id",
+            "name" : "user_group_share_id",
             "platformType" : {
               "name" : "integer"
             },
@@ -2140,24 +2162,24 @@
           },
           {
             "adapterField" : {
-              "name" : "super_group_name"
+              "name" : "agency_id"
             },
-            "name" : "super_group_name",
+            "name" : "agency_id",
             "platformType" : {
-              "name" : "string"
+              "name" : "integer"
             },
-            "precision" : 255,
+            "precision" : 10,
             "scale" : 0
           },
           {
             "adapterField" : {
-              "name" : "super_group_number"
+              "name" : "shared_agency_id"
             },
-            "name" : "super_group_number",
+            "name" : "shared_agency_id",
             "platformType" : {
-              "name" : "string"
+              "name" : "integer"
             },
-            "precision" : 15,
+            "precision" : 10,
             "scale" : 0
           }
         ],
@@ -2170,18 +2192,18 @@
           "typeSystem" : "TOOLKIT",
           "useDynamicFileName" : "false",
           "object" : {
-            "name" : "bronze/adm_super_group",
-            "label" : "bronze/adm_super_group",
-            "objectName" : "adm_super_group",
+            "name" : "bronze/adm_user_group_share",
+            "label" : "bronze/adm_user_group_share",
+            "objectName" : "adm_user_group_share",
             "objectType" : "amazonredshift",
-            "path" : "bronze/adm_super_group",
+            "path" : "bronze/adm_user_group_share",
             "retainMetadata" : "false",
             "fields" : [
               {
-                "name" : "super_group_row_id",
+                "name" : "user_group_share_row_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "super_group_row_id",
-                "nativeName" : "super_group_row_id",
+                "label" : "user_group_share_row_id",
+                "nativeName" : "user_group_share_row_id",
                 "nativeType" : "int8",
                 "original" : "false",
                 "precision" : 19,
@@ -2189,15 +2211,15 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_super_group"
+                    "value" : "adm_user_group_share"
                   }
                 ]
               },
               {
-                "name" : "super_group_batch_id",
+                "name" : "user_group_share_batch_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "super_group_batch_id",
-                "nativeName" : "super_group_batch_id",
+                "label" : "user_group_share_batch_id",
+                "nativeName" : "user_group_share_batch_id",
                 "nativeType" : "int8",
                 "original" : "false",
                 "precision" : 19,
@@ -2205,7 +2227,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_super_group"
+                    "value" : "adm_user_group_share"
                   }
                 ]
               },
@@ -2221,7 +2243,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_super_group"
+                    "value" : "adm_user_group_share"
                   }
                 ]
               },
@@ -2237,15 +2259,15 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_super_group"
+                    "value" : "adm_user_group_share"
                   }
                 ]
               },
               {
-                "name" : "super_group_row_md5checksum",
+                "name" : "user_group_share_row_md5checksum",
                 "fieldType" : "CONNECTOR",
-                "label" : "super_group_row_md5checksum",
-                "nativeName" : "super_group_row_md5checksum",
+                "label" : "user_group_share_row_md5checksum",
+                "nativeName" : "user_group_share_row_md5checksum",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 255,
@@ -2253,15 +2275,15 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_super_group"
+                    "value" : "adm_user_group_share"
                   }
                 ]
               },
               {
-                "name" : "super_group_datetime_created",
+                "name" : "user_group_share_datetime_created",
                 "fieldType" : "CONNECTOR",
-                "label" : "super_group_datetime_created",
-                "nativeName" : "super_group_datetime_created",
+                "label" : "user_group_share_datetime_created",
+                "nativeName" : "user_group_share_datetime_created",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 29,
@@ -2269,15 +2291,15 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_super_group"
+                    "value" : "adm_user_group_share"
                   }
                 ]
               },
               {
-                "name" : "super_group_datetime_modified",
+                "name" : "user_group_share_datetime_modified",
                 "fieldType" : "CONNECTOR",
-                "label" : "super_group_datetime_modified",
-                "nativeName" : "super_group_datetime_modified",
+                "label" : "user_group_share_datetime_modified",
+                "nativeName" : "user_group_share_datetime_modified",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 29,
@@ -2285,15 +2307,15 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_super_group"
+                    "value" : "adm_user_group_share"
                   }
                 ]
               },
               {
-                "name" : "super_group_row_effective_start_datetime",
+                "name" : "user_group_share_row_effective_start_datetime",
                 "fieldType" : "CONNECTOR",
-                "label" : "super_group_row_effective_start_datetime",
-                "nativeName" : "super_group_row_effective_start_datetime",
+                "label" : "user_group_share_row_effective_start_datetime",
+                "nativeName" : "user_group_share_row_effective_start_datetime",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 29,
@@ -2301,15 +2323,15 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_super_group"
+                    "value" : "adm_user_group_share"
                   }
                 ]
               },
               {
-                "name" : "super_group_row_effective_end_datetime",
+                "name" : "user_group_share_row_effective_end_datetime",
                 "fieldType" : "CONNECTOR",
-                "label" : "super_group_row_effective_end_datetime",
-                "nativeName" : "super_group_row_effective_end_datetime",
+                "label" : "user_group_share_row_effective_end_datetime",
+                "nativeName" : "user_group_share_row_effective_end_datetime",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 29,
@@ -2317,15 +2339,15 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_super_group"
+                    "value" : "adm_user_group_share"
                   }
                 ]
               },
               {
-                "name" : "super_group_id",
+                "name" : "user_group_share_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "super_group_id",
-                "nativeName" : "super_group_id",
+                "label" : "user_group_share_id",
+                "nativeName" : "user_group_share_id",
                 "nativeType" : "int4",
                 "original" : "false",
                 "precision" : 10,
@@ -2333,39 +2355,39 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_super_group"
+                    "value" : "adm_user_group_share"
                   }
                 ]
               },
               {
-                "name" : "super_group_name",
+                "name" : "agency_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "super_group_name",
-                "nativeName" : "super_group_name",
-                "nativeType" : "varchar",
+                "label" : "agency_id",
+                "nativeName" : "agency_id",
+                "nativeType" : "int4",
                 "original" : "false",
-                "precision" : 255,
+                "precision" : 10,
                 "scale" : 0,
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_super_group"
+                    "value" : "adm_user_group_share"
                   }
                 ]
               },
               {
-                "name" : "super_group_number",
+                "name" : "shared_agency_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "super_group_number",
-                "nativeName" : "super_group_number",
-                "nativeType" : "varchar",
+                "label" : "shared_agency_id",
+                "nativeName" : "shared_agency_id",
+                "nativeType" : "int4",
                 "original" : "false",
-                "precision" : 15,
+                "precision" : 10,
                 "scale" : 0,
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_super_group"
+                    "value" : "adm_user_group_share"
                   }
                 ]
               }
@@ -2465,7 +2487,7 @@
             {
               "fromFieldName" : "batch_id",
               "toField" : {
-                "name" : "super_group_batch_id"
+                "name" : "user_group_share_batch_id"
               },
               "fromFieldNames" : null
             },
@@ -2486,56 +2508,56 @@
             {
               "fromFieldName" : "o_src_md5_hash_value",
               "toField" : {
-                "name" : "super_group_row_md5checksum"
+                "name" : "user_group_share_row_md5checksum"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "o_super_group_datetime_created",
+              "fromFieldName" : "o_user_group_share_datetime_created",
               "toField" : {
-                "name" : "super_group_datetime_created"
+                "name" : "user_group_share_datetime_created"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "o_super_group_datetime_modified",
+              "fromFieldName" : "o_user_group_share_datetime_modified",
               "toField" : {
-                "name" : "super_group_datetime_modified"
+                "name" : "user_group_share_datetime_modified"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "o_super_group_row_effective_end_datetime",
+              "fromFieldName" : "o_user_group_share_row_effective_start_datetime",
               "toField" : {
-                "name" : "super_group_row_effective_end_datetime"
+                "name" : "user_group_share_row_effective_start_datetime"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "o_super_group_row_effective_start_datetime",
+              "fromFieldName" : "o_user_group_share_row_effective_end_datetime",
               "toField" : {
-                "name" : "super_group_row_effective_start_datetime"
+                "name" : "user_group_share_row_effective_end_datetime"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "o_super_group_id",
+              "fromFieldName" : "o_user_group_share_id",
               "toField" : {
-                "name" : "super_group_id"
+                "name" : "user_group_share_id"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "name",
+              "fromFieldName" : "o_user_group_share_agency_id",
               "toField" : {
-                "name" : "super_group_name"
+                "name" : "agency_id"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "number",
+              "fromFieldName" : "o_user_group_share_sharedagency",
               "toField" : {
-                "name" : "super_group_number"
+                "name" : "shared_agency_id"
               },
               "fromFieldNames" : null
             }
@@ -2544,5 +2566,5 @@
       }
     ]
   },
-  "vcsExportTime" : "2025-06-20 06:22:21 PDT"
+  "vcsExportTime" : "2025-06-20 13:44:24 PDT"
 }
