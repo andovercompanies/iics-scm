@@ -4,7 +4,7 @@
       <types1:EntryId>EzfYtjCtbdsreK8-gt-25003973-2025-06-10T14:12:25.494Z::tf.xml</types1:EntryId>
       <types1:Name>cdi_tkf_flow_adm_commission_plans_load_daily</types1:Name>
       <types1:MimeType>application/xml+taskflow</types1:MimeType>
-      <types1:Description>This task flow is to load the ADM data into metal and then to bronze.</types1:Description>
+      <types1:Description>This task flow is to load the ADM data into metal layer and then to the bronze layer</types1:Description>
       <types1:AppliesTo/>
       <types1:Tags/>
       <types1:VersionLabel>1.0</types1:VersionLabel>
@@ -13,10 +13,10 @@
       <types1:CreatedBy>FMohiuddin@andovercos.com.SAML</types1:CreatedBy>
       <types1:CreationDate>2025-06-10T14:12:25Z</types1:CreationDate>
       <types1:ModifiedBy>ABetgeri@andovercos.com</types1:ModifiedBy>
-      <types1:ModificationDate>2025-06-23T14:19:03Z</types1:ModificationDate>
+      <types1:ModificationDate>2025-06-24T17:11:28Z</types1:ModificationDate>
       <types1:PublicationStatus>published</types1:PublicationStatus>
       <types1:PublishedBy>ABetgeri@andovercos.com</types1:PublishedBy>
-      <types1:PublicationDate>2025-06-23T14:19:08Z</types1:PublicationDate>
+      <types1:PublicationDate>2025-06-24T17:13:55Z</types1:PublicationDate>
       <types1:PublishedContributionId>project:/tf.cdi_tkf_flow_adm_commission_plans_load_daily/cdi_tkf_flow_adm_commission_plans_load_daily.tf.xml</types1:PublishedContributionId>
       <types1:Entry>
          <taskflow xmlns="http://schemas.active-endpoints.com/appmodules/screenflow/2010/10/avosScreenflow.xsd"
@@ -27,7 +27,7 @@
                    overrideAPIName="false">
             <parameterSet xmlns="http://schemas.active-endpoints.com/appmodules/screenflow/2021/04/taskflowModel.xsd"/>
             <appliesTo/>
-            <description>This task flow is to load the ADM data into metal and then to bronze.</description>
+            <description>This task flow is to load the ADM data into metal layer and then to the bronze layer</description>
             <tags/>
             <generator>Informatica Process Designer 11</generator>
             <tempFields>
@@ -43,7 +43,7 @@
                <field description="" name="cdi_tsk_map_batch_load" type="reference">
                   <options>
                      <option name="failOnNotRun">false</option>
-                     <option name="failOnFault">false</option>
+                     <option name="failOnFault">true</option>
                      <option name="referenceTo">$po:cdi-tsk-map-batch-load-3QGx2nIOBOVcfexqO6Gnuf</option>
                   </options>
                </field>
@@ -52,8 +52,8 @@
                       type="reference">
                   <options>
                      <option name="failOnNotRun">false</option>
-                     <option name="failOnFault">false</option>
-                     <option name="referenceTo">$po:cdi-tsk-map-adm-commission-plans-bronze-load-6ATgWSTtsv5bM6THDZ1c22</option>
+                     <option name="failOnFault">true</option>
+                     <option name="referenceTo">$po:cdi-tsk-map-adm-commission-plans-bronze-load-lVMEOrJB3AZewPUxvzVFwk</option>
                   </options>
                </field>
                <field description=""
@@ -61,7 +61,7 @@
                       type="reference">
                   <options>
                      <option name="failOnNotRun">false</option>
-                     <option name="failOnFault">false</option>
+                     <option name="failOnFault">true</option>
                      <option name="referenceTo">$po:cdi-tsk-map-batch-load-status-update-success-eRKvkLOENoreDOiVvTpgSA</option>
                   </options>
                </field>
@@ -70,7 +70,7 @@
                       type="reference">
                   <options>
                      <option name="failOnNotRun">false</option>
-                     <option name="failOnFault">false</option>
+                     <option name="failOnFault">true</option>
                      <option name="referenceTo">$po:cdi-tsk-map-batch-load-status-update-failure-0vAyMsS4KyaeM06sJngSGw</option>
                   </options>
                </field>
@@ -163,8 +163,14 @@
                         <parameter name="Has Inout Parameters" source="constant" updatable="true">true</parameter>
                         <parameter name="taskField" source="nested">
                            <operation source="field" to="cdi-tsk-map-batch-load-3QGx2nIOBOVcfexqO6Gnuf">temp.cdi_tsk_map_batch_load</operation>
-                           <operation source="constant"
-                                      to="cdi-tsk-map-batch-load-3QGx2nIOBOVcfexqO6Gnuf/inout[1]/target_table_name">adm_commissionplans</operation>
+                           <operation source="formula"
+                                      to="cdi-tsk-map-batch-load-3QGx2nIOBOVcfexqO6Gnuf/inout[1]/target_table_name">
+                              <expression language="XQuery">'adm_commissionplans'</expression>
+                           </operation>
+                           <operation source="formula"
+                                      to="cdi-tsk-map-batch-load-3QGx2nIOBOVcfexqO6Gnuf/inout[1]/sourcesystemcode">
+                              <expression language="XQuery">'ADM'</expression>
+                           </operation>
                         </parameter>
                      </serviceInput>
                      <serviceOutput>
@@ -199,9 +205,7 @@
                      <catch faultField="temp.cdi_tsk_map_batch_load/fault"
                             id="mc56w2mh"
                             interrupting="true"
-                            name="error">
-                        <suspend/>
-                     </catch>
+                            name="error"/>
                      <catch faultField="temp.cdi_tsk_map_batch_load/fault"
                             id="mc56w2mi"
                             interrupting="true"
@@ -217,12 +221,12 @@
                         <parameter name="Wait for Task to Complete" source="constant" updatable="true">true</parameter>
                         <parameter name="Max Wait" source="constant" updatable="true">604800</parameter>
                         <parameter name="Task Name" source="constant" updatable="true">cdi_tsk_map_adm_commission_plans_bronze_load</parameter>
-                        <parameter name="GUID" source="constant" updatable="true">6ATgWSTtsv5bM6THDZ1c22</parameter>
+                        <parameter name="GUID" source="constant" updatable="true">lVMEOrJB3AZewPUxvzVFwk</parameter>
                         <parameter name="Task Type" source="constant" updatable="true">MCT</parameter>
                         <parameter name="Has Inout Parameters" source="constant" updatable="true">false</parameter>
                         <parameter name="taskField" source="nested">
                            <operation source="field"
-                                      to="cdi-tsk-map-adm-commission-plans-bronze-load-6ATgWSTtsv5bM6THDZ1c22">temp.cdi_tsk_map_adm_commission_plans_bronze_load</operation>
+                                      to="cdi-tsk-map-adm-commission-plans-bronze-load-lVMEOrJB3AZewPUxvzVFwk">temp.cdi_tsk_map_adm_commission_plans_bronze_load</operation>
                         </parameter>
                      </serviceInput>
                      <serviceOutput>
@@ -261,9 +265,7 @@
                      <catch faultField="temp.cdi_tsk_map_adm_commission_plans_bronze_load/fault"
                             id="mc56w2on"
                             interrupting="true"
-                            name="error">
-                        <suspend/>
-                     </catch>
+                            name="error"/>
                      <catch faultField="temp.cdi_tsk_map_adm_commission_plans_bronze_load/fault"
                             id="mc56w2oo"
                             interrupting="true"
@@ -288,10 +290,14 @@
                               <parameter name="taskField" source="nested">
                                  <operation source="field"
                                             to="cdi-tsk-map-batch-load-status-update-success-eRKvkLOENoreDOiVvTpgSA">temp.cdi_tsk_map_batch_load_status_update_success</operation>
-                                 <operation source="constant"
-                                            to="cdi-tsk-map-batch-load-status-update-success-eRKvkLOENoreDOiVvTpgSA/inout[1]/target_table_name">adm_commissionplans</operation>
-                                 <operation source="constant"
-                                            to="cdi-tsk-map-batch-load-status-update-success-eRKvkLOENoreDOiVvTpgSA/inout[1]/sourcesystemcode">'ADM'</operation>
+                                 <operation source="formula"
+                                            to="cdi-tsk-map-batch-load-status-update-success-eRKvkLOENoreDOiVvTpgSA/inout[1]/target_table_name">
+                                    <expression language="XQuery">'adm_commissionplans'</expression>
+                                 </operation>
+                                 <operation source="formula"
+                                            to="cdi-tsk-map-batch-load-status-update-success-eRKvkLOENoreDOiVvTpgSA/inout[1]/sourcesystemcode">
+                                    <expression language="XQuery">'ADM'</expression>
+                                 </operation>
                               </parameter>
                            </serviceInput>
                            <serviceOutput>
@@ -343,9 +349,7 @@
                            <catch faultField="temp.cdi_tsk_map_batch_load_status_update_success/fault"
                                   id="mc56w2sr"
                                   interrupting="true"
-                                  name="error">
-                              <suspend/>
-                           </catch>
+                                  name="error"/>
                            <catch faultField="temp.cdi_tsk_map_batch_load_status_update_success/fault"
                                   id="mc56w2ss"
                                   interrupting="true"
@@ -370,10 +374,14 @@
                               <parameter name="taskField" source="nested">
                                  <operation source="field"
                                             to="cdi-tsk-map-batch-load-status-update-failure-0vAyMsS4KyaeM06sJngSGw">temp.cdi_tsk_map_batch_load_status_update_failure</operation>
-                                 <operation source="constant"
-                                            to="cdi-tsk-map-batch-load-status-update-failure-0vAyMsS4KyaeM06sJngSGw/inout[1]/target_table_name">adm_commissionplans</operation>
-                                 <operation source="constant"
-                                            to="cdi-tsk-map-batch-load-status-update-failure-0vAyMsS4KyaeM06sJngSGw/inout[1]/sourcesystemcode">'ADM'</operation>
+                                 <operation source="formula"
+                                            to="cdi-tsk-map-batch-load-status-update-failure-0vAyMsS4KyaeM06sJngSGw/inout[1]/target_table_name">
+                                    <expression language="XQuery">'adm_commissionplans'</expression>
+                                 </operation>
+                                 <operation source="formula"
+                                            to="cdi-tsk-map-batch-load-status-update-failure-0vAyMsS4KyaeM06sJngSGw/inout[1]/sourcesystemcode">
+                                    <expression language="XQuery">'ADM'</expression>
+                                 </operation>
                               </parameter>
                            </serviceInput>
                            <serviceOutput>
@@ -425,9 +433,7 @@
                            <catch faultField="temp.cdi_tsk_map_batch_load_status_update_failure/fault"
                                   id="mc56w2v9"
                                   interrupting="true"
-                                  name="error">
-                              <suspend/>
-                           </catch>
+                                  name="error"/>
                            <catch faultField="temp.cdi_tsk_map_batch_load_status_update_failure/fault"
                                   id="mc56w2va"
                                   interrupting="true"
@@ -524,9 +530,9 @@
                   </detail>
                </processObject>
                <processObject xmlns="http://schemas.active-endpoints.com/appmodules/screenflow/2011/06/avosHostEnvironment.xsd"
-                              displayName="cdi-tsk-map-adm-commission-plans-bronze-load-6ATgWSTtsv5bM6THDZ1c22"
+                              displayName="cdi-tsk-map-adm-commission-plans-bronze-load-lVMEOrJB3AZewPUxvzVFwk"
                               isByCopy="true"
-                              name="cdi-tsk-map-adm-commission-plans-bronze-load-6ATgWSTtsv5bM6THDZ1c22">
+                              name="cdi-tsk-map-adm-commission-plans-bronze-load-lVMEOrJB3AZewPUxvzVFwk">
                   <description/>
                   <tags/>
                   <detail>
@@ -641,5 +647,5 @@
       <types1:GUID>3Hnm5R4fHvbgZ85WYJMKYr</types1:GUID>
       <types1:DisplayName>cdi_tkf_flow_adm_commission_plans_load_daily</types1:DisplayName>
    </types1:Item>
-   <types1:CurrentServerDateTime>2025-06-23T15:20:49.873Z</types1:CurrentServerDateTime>
+   <types1:CurrentServerDateTime>2025-06-24T17:16:45.241Z</types1:CurrentServerDateTime>
 </aetgt:getResponse>
