@@ -1,0 +1,2924 @@
+{
+  "content" : {
+    "description" : "This job is responsible for reading data from the Metal staging layer and loading it into the Bronze SCD Type 2 tables. It ensures historical tracking of changes by identifying new, changed, and unchanged records, applying the appropriate logic to insert new versions or retire old ones with end dates as part of the SCD2 process.",
+    "allowMaxFieldLength" : "false",
+    "bigIntConvertType" : "ONLY_BIGINT",
+    "documentType" : "MAPPING",
+    "name" : "cdi_map_adm_contact_guidewire_bronze_load",
+    "links" : [
+      {
+        "link" : "source_delta_changes_contact_guidewire -> exp_convert_datatype"
+      },
+      {
+        "link" : "exp_convert_datatype -> exp_MD5"
+      },
+      {
+        "link" : "exp_flag_records -> rtr_insert_update_path",
+        "groupLink" : "DefaultGroup -> INPUT"
+      },
+      {
+        "link" : "src_tgt_query -> exp_passthrough"
+      },
+      {
+        "link" : "exp_MD5 -> jnr_src_tgt",
+        "groupLink" : "DefaultGroup -> Master"
+      },
+      {
+        "link" : "exp_passthrough -> jnr_src_tgt",
+        "groupLink" : "DefaultGroup -> Detail"
+      },
+      {
+        "link" : "jnr_src_tgt -> exp_flag_records",
+        "groupLink" : "OutputGroup -> DefaultGroup"
+      },
+      {
+        "link" : "rtr_insert_update_path -> tgt_insert_records",
+        "groupLink" : "insert_group -> DefaultGroup"
+      },
+      {
+        "link" : "rtr_insert_update_path -> tgt_update",
+        "groupLink" : "update_group -> DefaultGroup"
+      },
+      {
+        "link" : "exp_update -> tgt_update_closeout"
+      },
+      {
+        "link" : "rtr_insert_update_path -> exp_update",
+        "groupLink" : "update_group -> DefaultGroup"
+      }
+    ],
+    "parameters" : [
+      {
+        "input" : "true",
+        "output" : "false",
+        "precision" : 0,
+        "scale" : 0,
+        "allowRuntimeOverride" : "false",
+        "expressionVariable" : "false",
+        "name" : "S3_Staging_Bucket"
+      },
+      {
+        "input" : "true",
+        "output" : "false",
+        "precision" : 0,
+        "scale" : 0,
+        "allowRuntimeOverride" : "false",
+        "expressionVariable" : "false",
+        "name" : "DBConnection_UDM_SRC",
+        "anonymousType" : {
+          "subType" : "TOOLKIT_CCI",
+          "typeSystem" : "TOOLKIT",
+          "connectionType" : "Amazon Redshift v2"
+        }
+      },
+      {
+        "input" : "true",
+        "output" : "false",
+        "precision" : 0,
+        "scale" : 0,
+        "allowRuntimeOverride" : "false",
+        "expressionVariable" : "false",
+        "name" : "DBConnection_UDM_TGT",
+        "anonymousType" : {
+          "subType" : "TOOLKIT_CCI",
+          "typeSystem" : "TOOLKIT",
+          "connectionType" : "Amazon Redshift v2"
+        }
+      }
+    ],
+    "transformations" : [
+      {
+        "createTime" : "2025-05-12T20:18:11.235Z",
+        "name" : "source_delta_changes_contact_guidewire",
+        "advancedProperties" : [
+          {
+            "name" : "Tracing Level",
+            "value" : "Normal"
+          },
+          {
+            "name" : "Output is deterministic",
+            "value" : "false"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "false",
+            "name" : "DefaultGroup",
+            "output" : "true"
+          }
+        ],
+        "generateFilenamePort" : "false",
+        "useLabels" : "false",
+        "useSequenceFields" : "false",
+        "fields" : [
+          {
+            "adapterField" : {
+              "name" : "source_name"
+            },
+            "name" : "source_name",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "load_type"
+            },
+            "name" : "load_type",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "agency_nup"
+            },
+            "name" : "agency_nup",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 15,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "contact_email"
+            },
+            "name" : "contact_email",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "contact_firstname"
+            },
+            "name" : "contact_firstname",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "contact_lastname"
+            },
+            "name" : "contact_lastname",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "contact_title"
+            },
+            "name" : "contact_title",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "created"
+            },
+            "name" : "created",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 31,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "id"
+            },
+            "name" : "id",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 15,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "modified"
+            },
+            "name" : "modified",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 31,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "batch_id"
+            },
+            "name" : "batch_id",
+            "platformType" : {
+              "name" : "bigint"
+            },
+            "precision" : 19,
+            "scale" : 0
+          }
+        ],
+        "dataAdapter" : {
+          "connectionId$" : {
+            "name" : "DBConnection_UDM_SRC"
+          },
+          "excludeDynamicFileNameField" : "false",
+          "objectType" : "QUERY",
+          "typeSystem" : "TOOLKIT",
+          "useDynamicFileName" : "false",
+          "object" : {
+            "customQuery" : "WITH current_batch AS (\n    SELECT \n        bls.batch_id,\n        bls.source_start_cutoff_datetime,\n        bls.source_end_cutoff_datetime\n    FROM metal.batch_load_summary bls\n    WHERE bls.source_system_code = 'ADM'\n      AND bls.batch_status = 'Inprogress'\n      AND bls.batch_id = (\n          SELECT MAX(batch_id)\n          FROM metal.batch_load_summary\n          WHERE source_system_code = 'ADM'\n            AND batch_status = 'Inprogress'\n      )\n)\nSELECT DISTINCT \n\t\tmetal_acd.source_name, \n\t\tmetal_acd.load_type, \n\t\tmetal_acd.agency_nup, \n\t\tmetal_acd.contact_email, \n\t\tmetal_acd.contact_firstname, \n\t\tmetal_acd.contact_lastname, \n\t\tmetal_acd.contact_title, \n\t\tmetal_acd.created, \n\t\tmetal_acd.id,\n\t\tmetal_acd.modified,\n\t\tcurrent_batch.batch_id\nFROM metal.adm_contact_guidewire metal_acd\nCROSS JOIN current_batch\nORDER BY \n    metal_acd.id,\n    metal_acd.created,\n    metal_acd.modified;",
+            "retainMetadata" : "false",
+            "fields" : [
+              {
+                "name" : "source_name",
+                "fieldType" : "CONNECTOR",
+                "label" : "source_name",
+                "nativeName" : "source_name",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "load_type",
+                "fieldType" : "CONNECTOR",
+                "label" : "load_type",
+                "nativeName" : "load_type",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "agency_nup",
+                "fieldType" : "CONNECTOR",
+                "label" : "agency_nup",
+                "nativeName" : "agency_nup",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 15,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "contact_email",
+                "fieldType" : "CONNECTOR",
+                "label" : "contact_email",
+                "nativeName" : "contact_email",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "contact_firstname",
+                "fieldType" : "CONNECTOR",
+                "label" : "contact_firstname",
+                "nativeName" : "contact_firstname",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "contact_lastname",
+                "fieldType" : "CONNECTOR",
+                "label" : "contact_lastname",
+                "nativeName" : "contact_lastname",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "contact_title",
+                "fieldType" : "CONNECTOR",
+                "label" : "contact_title",
+                "nativeName" : "contact_title",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "created",
+                "fieldType" : "CONNECTOR",
+                "label" : "created",
+                "nativeName" : "created",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 31,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "id",
+                "fieldType" : "CONNECTOR",
+                "label" : "id",
+                "nativeName" : "id",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 15,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "modified",
+                "fieldType" : "CONNECTOR",
+                "label" : "modified",
+                "nativeName" : "modified",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 31,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "batch_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "batch_id",
+                "nativeName" : "batch_id",
+                "nativeType" : "int8",
+                "original" : "false",
+                "precision" : 19,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              }
+            ]
+          },
+          "readOptions" : {
+            "commandType" : 0,
+            "descending" : "false",
+            "queryAll" : "false",
+            "rowLimit" : 0,
+            "selectDistinct" : "false"
+          },
+          "runtimeAttributes" : {
+            "attributes" : [
+              {
+                "name" : "Read Mode",
+                "value" : "Direct"
+              },
+              {
+                "name" : "Fetch Size",
+                "value" : "10000"
+              },
+              {
+                "name" : "S3 Bucket Name",
+                "value" : "$$S3_Staging_Bucket"
+              },
+              {
+                "name" : "Enable Compression",
+                "value" : "YES"
+              },
+              {
+                "name" : "Temporary Credential Duration",
+                "value" : "900"
+              },
+              {
+                "name" : "Treat NULL Value as NULL",
+                "value" : "NO"
+              },
+              {
+                "name" : "Encryption Type",
+                "value" : "None"
+              },
+              {
+                "name" : "Download S3 Files In Multiple Parts",
+                "value" : "NO"
+              },
+              {
+                "name" : "Multipart Download Threshold Size",
+                "value" : "5242880"
+              },
+              {
+                "name" : "Select Distinct",
+                "value" : "NO"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "description" : "This expression transformation is used to convert source data types to align with the target schema",
+        "createTime" : "2025-05-12T20:24:23.791Z",
+        "name" : "exp_convert_datatype",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "windowConfigurationEnabled" : "false",
+        "fields" : [
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_contact_guidewire_datetime_created",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9,
+            "expFieldType" : "OUTPUT",
+            "expression" : "TO_DATE(to_char(created), 'YYYY-MM-DD HH24:MI:SS')"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_contact_guidewire_datetime_modified",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9,
+            "expFieldType" : "OUTPUT",
+            "expression" : "TO_DATE(to_char(modified), 'YYYY-MM-DD HH24:MI:SS')"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_agency_id",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "to_integer(ltrim(rtrim(agency_nup)))"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_agency_contact_guidewire_id",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "to_integer(ltrim(rtrim(id)))"
+          }
+        ],
+        "windowSpec" : {
+          "allRowsFollowing" : "false",
+          "allRowsPreceding" : "false",
+          "endOffset" : 0,
+          "startOffset" : 0,
+          "partitionKeys" : null
+        }
+      },
+      {
+        "description" : "This expression transformation is used to calculate the MD5 from the output of the previous expression's fields",
+        "createTime" : "2025-05-12T20:25:15.963Z",
+        "name" : "exp_MD5",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "windowConfigurationEnabled" : "false",
+        "fields" : [
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_src_md5_hash_value",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 255,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "MD5('source_name' || source_name || 'load_type' || load_type || 'o_contact_guidewire_datetime_created' || to_char(o_contact_guidewire_datetime_created) || 'o_contact_guidewire_datetime_modified' || to_char(o_contact_guidewire_datetime_modified) || 'o_agency_id' || to_char(o_agency_id) || 'contact_email' || contact_email || 'contact_firstname' || contact_firstname || 'contact_lastname' || contact_lastname || 'contact_title' || contact_title || 'o_agency_contact_guidewire_id' ||\nto_char(o_agency_contact_guidewire_id))"
+          }
+        ],
+        "windowSpec" : {
+          "allRowsFollowing" : "false",
+          "allRowsPreceding" : "false",
+          "endOffset" : 0,
+          "startOffset" : 0,
+          "partitionKeys" : null
+        }
+      },
+      {
+        "description" : "This source retrieves the active records in the target table",
+        "createTime" : "2025-05-12T20:25:27.947Z",
+        "name" : "src_tgt_query",
+        "advancedProperties" : [
+          {
+            "name" : "Tracing Level",
+            "value" : "Normal"
+          },
+          {
+            "name" : "Output is deterministic",
+            "value" : "false"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "false",
+            "name" : "DefaultGroup",
+            "output" : "true"
+          }
+        ],
+        "generateFilenamePort" : "false",
+        "useLabels" : "false",
+        "useSequenceFields" : "false",
+        "fields" : [
+          {
+            "adapterField" : {
+              "name" : "contact_guidewire_row_id"
+            },
+            "name" : "contact_guidewire_row_id",
+            "platformType" : {
+              "name" : "bigint"
+            },
+            "precision" : 19,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "contact_guidewire_row_md5checksum"
+            },
+            "name" : "contact_guidewire_row_md5checksum",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 255,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "agency_contact_guidewire_id"
+            },
+            "name" : "agency_contact_guidewire_id",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "contact_guidewire_datetime_modified"
+            },
+            "name" : "contact_guidewire_datetime_modified",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "contact_guidewire_row_effective_end_datetime"
+            },
+            "name" : "contact_guidewire_row_effective_end_datetime",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          }
+        ],
+        "dataAdapter" : {
+          "connectionId$" : {
+            "name" : "DBConnection_UDM_SRC"
+          },
+          "excludeDynamicFileNameField" : "false",
+          "objectType" : "QUERY",
+          "typeSystem" : "TOOLKIT",
+          "useDynamicFileName" : "false",
+          "object" : {
+            "customQuery" : "SELECT \n        contact_guidewire_row_id, \n        contact_guidewire_row_md5checksum, \n        agency_contact_guidewire_id,  \n  contact_guidewire_datetime_modified,\n  contact_guidewire_row_effective_end_datetime\t\n    FROM bronze.adm_contact_guidewire\n    where  contact_guidewire_row_effective_end_datetime = '9999-12-31 00:00:00.000'",
+            "retainMetadata" : "false",
+            "fields" : [
+              {
+                "name" : "contact_guidewire_row_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "contact_guidewire_row_id",
+                "nativeName" : "contact_guidewire_row_id",
+                "nativeType" : "int8",
+                "original" : "false",
+                "precision" : 19,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "contact_guidewire_row_md5checksum",
+                "fieldType" : "CONNECTOR",
+                "label" : "contact_guidewire_row_md5checksum",
+                "nativeName" : "contact_guidewire_row_md5checksum",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 255,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "agency_contact_guidewire_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "agency_contact_guidewire_id",
+                "nativeName" : "agency_contact_guidewire_id",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "contact_guidewire_datetime_modified",
+                "fieldType" : "CONNECTOR",
+                "label" : "contact_guidewire_datetime_modified",
+                "nativeName" : "contact_guidewire_datetime_modified",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "contact_guidewire_row_effective_end_datetime",
+                "fieldType" : "CONNECTOR",
+                "label" : "contact_guidewire_row_effective_end_datetime",
+                "nativeName" : "contact_guidewire_row_effective_end_datetime",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              }
+            ]
+          },
+          "readOptions" : {
+            "commandType" : 0,
+            "descending" : "false",
+            "queryAll" : "false",
+            "rowLimit" : 0,
+            "selectDistinct" : "false"
+          },
+          "runtimeAttributes" : {
+            "attributes" : [
+              {
+                "name" : "Read Mode",
+                "value" : "Staging"
+              },
+              {
+                "name" : "Fetch Size",
+                "value" : "10000"
+              },
+              {
+                "name" : "S3 Bucket Name",
+                "value" : "$$S3_Staging_Bucket"
+              },
+              {
+                "name" : "Enable Compression",
+                "value" : "YES"
+              },
+              {
+                "name" : "Temporary Credential Duration",
+                "value" : "900"
+              },
+              {
+                "name" : "Treat NULL Value as NULL",
+                "value" : "NO"
+              },
+              {
+                "name" : "Encryption Type",
+                "value" : "None"
+              },
+              {
+                "name" : "Download S3 Files In Multiple Parts",
+                "value" : "NO"
+              },
+              {
+                "name" : "Multipart Download Threshold Size",
+                "value" : "5242880"
+              },
+              {
+                "name" : "Select Distinct",
+                "value" : "NO"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "description" : "This Expression transformation flags records to determine whether they should be inserted or updated.",
+        "createTime" : "2025-05-12T20:29:41.842Z",
+        "name" : "exp_flag_records",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "windowConfigurationEnabled" : "false",
+        "fields" : [
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_insert_flag",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 10,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "IIF(ISNULL(contact_guidewire_row_id),'I','X')"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_contact_guidewire_row_effective_end_datetime",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9,
+            "expFieldType" : "OUTPUT",
+            "expression" : "To_Date('9999-12-31', 'YYYY-MM-DD')"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_contact_guidewire_row_effective_start_datetime",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9,
+            "expFieldType" : "OUTPUT",
+            "expression" : "SYSDATE"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_update_flag",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 10,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "IIF(NOT ISNULL(contact_guidewire_row_id) AND contact_guidewire_row_md5checksum <> o_src_md5_hash_value, 'U','X')"
+          }
+        ],
+        "windowSpec" : {
+          "allRowsFollowing" : "false",
+          "allRowsPreceding" : "false",
+          "endOffset" : 0,
+          "startOffset" : 0,
+          "partitionKeys" : null
+        }
+      },
+      {
+        "description" : "This Router transformation directs the data into separate pipelines for inserts and updates.",
+        "createTime" : "2025-05-12T20:29:57.871Z",
+        "name" : "rtr_insert_update_path",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "INPUT",
+            "output" : "false",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          },
+          {
+            "input" : "false",
+            "name" : "DEFAULT1",
+            "output" : "true"
+          },
+          {
+            "input" : "false",
+            "name" : "insert_group",
+            "output" : "true"
+          },
+          {
+            "input" : "false",
+            "name" : "update_group",
+            "output" : "true"
+          }
+        ],
+        "groupFilterConditions" : [
+          {
+            "name" : "insert_group",
+            "simpleFilterConditions" : [
+              {
+                "fieldName" : "o_insert_flag",
+                "filterValue" : "I",
+                "operator" : "="
+              }
+            ]
+          },
+          {
+            "name" : "update_group",
+            "simpleFilterConditions" : [
+              {
+                "fieldName" : "o_update_flag",
+                "filterValue" : "U",
+                "operator" : "="
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "createTime" : "2025-05-12T20:30:18.677Z",
+        "name" : "tgt_insert_records",
+        "advancedProperties" : [
+          {
+            "name" : "Forward Rejected Rows",
+            "value" : "true"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "false",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "createTarget" : "false",
+        "fieldMappingMode" : "MANUAL",
+        "inputSorted" : "false",
+        "schemaProviderType" : "SELECTED_OBJECT",
+        "updateColumns" : null,
+        "useLabels" : "false",
+        "useSequenceFields" : "false",
+        "fields" : [
+          {
+            "adapterField" : {
+              "name" : "contact_guidewire_row_id"
+            },
+            "name" : "contact_guidewire_row_id",
+            "platformType" : {
+              "name" : "bigint"
+            },
+            "precision" : 19,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "contact_guidewire_batch_id"
+            },
+            "name" : "contact_guidewire_batch_id",
+            "platformType" : {
+              "name" : "bigint"
+            },
+            "precision" : 19,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "source_name"
+            },
+            "name" : "source_name",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "load_type"
+            },
+            "name" : "load_type",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "contact_guidewire_row_md5checksum"
+            },
+            "name" : "contact_guidewire_row_md5checksum",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 255,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "contact_guidewire_datetime_created"
+            },
+            "name" : "contact_guidewire_datetime_created",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "contact_guidewire_datetime_modified"
+            },
+            "name" : "contact_guidewire_datetime_modified",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "contact_guidewire_row_effective_start_datetime"
+            },
+            "name" : "contact_guidewire_row_effective_start_datetime",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "contact_guidewire_row_effective_end_datetime"
+            },
+            "name" : "contact_guidewire_row_effective_end_datetime",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "agency_id"
+            },
+            "name" : "agency_id",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "agency_contact_email"
+            },
+            "name" : "agency_contact_email",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "agency_contact_firstname"
+            },
+            "name" : "agency_contact_firstname",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "agency_contact_lastname"
+            },
+            "name" : "agency_contact_lastname",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "agency_contact_title"
+            },
+            "name" : "agency_contact_title",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "agency_contact_guidewire_id"
+            },
+            "name" : "agency_contact_guidewire_id",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          }
+        ],
+        "dataAdapter" : {
+          "connectionId$" : {
+            "name" : "DBConnection_UDM_TGT"
+          },
+          "excludeDynamicFileNameField" : "false",
+          "objectType" : "SINGLE",
+          "typeSystem" : "TOOLKIT",
+          "useDynamicFileName" : "false",
+          "object" : {
+            "name" : "bronze/adm_contact_guidewire",
+            "label" : "bronze/adm_contact_guidewire",
+            "objectName" : "adm_contact_guidewire",
+            "objectType" : "amazonredshift",
+            "path" : "bronze/adm_contact_guidewire",
+            "retainMetadata" : "false",
+            "fields" : [
+              {
+                "name" : "contact_guidewire_row_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "contact_guidewire_row_id",
+                "nativeName" : "contact_guidewire_row_id",
+                "nativeType" : "int8",
+                "original" : "false",
+                "precision" : 19,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_contact_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "contact_guidewire_batch_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "contact_guidewire_batch_id",
+                "nativeName" : "contact_guidewire_batch_id",
+                "nativeType" : "int8",
+                "original" : "false",
+                "precision" : 19,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_contact_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "source_name",
+                "fieldType" : "CONNECTOR",
+                "label" : "source_name",
+                "nativeName" : "source_name",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_contact_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "load_type",
+                "fieldType" : "CONNECTOR",
+                "label" : "load_type",
+                "nativeName" : "load_type",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_contact_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "contact_guidewire_row_md5checksum",
+                "fieldType" : "CONNECTOR",
+                "label" : "contact_guidewire_row_md5checksum",
+                "nativeName" : "contact_guidewire_row_md5checksum",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 255,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_contact_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "contact_guidewire_datetime_created",
+                "fieldType" : "CONNECTOR",
+                "label" : "contact_guidewire_datetime_created",
+                "nativeName" : "contact_guidewire_datetime_created",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_contact_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "contact_guidewire_datetime_modified",
+                "fieldType" : "CONNECTOR",
+                "label" : "contact_guidewire_datetime_modified",
+                "nativeName" : "contact_guidewire_datetime_modified",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_contact_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "contact_guidewire_row_effective_start_datetime",
+                "fieldType" : "CONNECTOR",
+                "label" : "contact_guidewire_row_effective_start_datetime",
+                "nativeName" : "contact_guidewire_row_effective_start_datetime",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_contact_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "contact_guidewire_row_effective_end_datetime",
+                "fieldType" : "CONNECTOR",
+                "label" : "contact_guidewire_row_effective_end_datetime",
+                "nativeName" : "contact_guidewire_row_effective_end_datetime",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_contact_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "agency_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "agency_id",
+                "nativeName" : "agency_id",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_contact_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "agency_contact_email",
+                "fieldType" : "CONNECTOR",
+                "label" : "agency_contact_email",
+                "nativeName" : "agency_contact_email",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_contact_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "agency_contact_firstname",
+                "fieldType" : "CONNECTOR",
+                "label" : "agency_contact_firstname",
+                "nativeName" : "agency_contact_firstname",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_contact_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "agency_contact_lastname",
+                "fieldType" : "CONNECTOR",
+                "label" : "agency_contact_lastname",
+                "nativeName" : "agency_contact_lastname",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_contact_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "agency_contact_title",
+                "fieldType" : "CONNECTOR",
+                "label" : "agency_contact_title",
+                "nativeName" : "agency_contact_title",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_contact_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "agency_contact_guidewire_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "agency_contact_guidewire_id",
+                "nativeName" : "agency_contact_guidewire_id",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_contact_guidewire"
+                  }
+                ]
+              }
+            ],
+            "objectAttributes" : [
+              {
+                "name" : "recordType",
+                "value" : "TABLE"
+              }
+            ]
+          },
+          "runtimeAttributes" : {
+            "attributes" : [
+              {
+                "name" : "S3 Bucket Name",
+                "value" : "$$S3_Staging_Bucket"
+              },
+              {
+                "name" : "Enable Compression",
+                "value" : "YES"
+              },
+              {
+                "name" : "Batch Size",
+                "value" : "2000000"
+              },
+              {
+                "name" : "Max Errors Per Batch Upload Insert",
+                "value" : "1"
+              },
+              {
+                "name" : "Truncate Target Table Before Data Upload",
+                "value" : "NO"
+              },
+              {
+                "name" : "WaitTime In Seconds For S3 File Consistency",
+                "value" : "0"
+              },
+              {
+                "name" : "Temporary Credential Duration",
+                "value" : "900"
+              },
+              {
+                "name" : "S3 Server Side Encryption",
+                "value" : "NO"
+              },
+              {
+                "name" : "S3 Client Side Encryption",
+                "value" : "NO"
+              },
+              {
+                "name" : "Analyze Target Table",
+                "value" : "NO"
+              },
+              {
+                "name" : "Vacuum Target Table",
+                "value" : "None"
+              },
+              {
+                "name" : "Treat Source Rows As",
+                "value" : "INSERT"
+              },
+              {
+                "name" : "Transfer Manager Thread Pool Size",
+                "value" : "10"
+              },
+              {
+                "name" : "Minimum Upload Part Size",
+                "value" : "5242880"
+              },
+              {
+                "name" : "Preserve record order on write",
+                "value" : "NO"
+              },
+              {
+                "name" : "Number of files per batch",
+                "value" : "0"
+              }
+            ]
+          },
+          "writeOptions" : {
+            "batchSize" : 0,
+            "bulkApi" : "false",
+            "handleDecimalRoundOff" : "false",
+            "handleSpecialChars" : "false",
+            "operations" : [
+              "Insert"
+            ],
+            "setFieldsToNull" : "false",
+            "truncate" : "false",
+            "useErrorFile" : "false",
+            "useExactSrcNames" : "false",
+            "useSuccessFile" : "false"
+          }
+        },
+        "manualMappings" : {
+          "mappingList" : [
+            {
+              "fromFieldName" : "o_src_md5_hash_value",
+              "toField" : {
+                "name" : "contact_guidewire_row_md5checksum"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_contact_guidewire_datetime_created",
+              "toField" : {
+                "name" : "contact_guidewire_datetime_created"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_contact_guidewire_datetime_modified",
+              "toField" : {
+                "name" : "contact_guidewire_datetime_modified"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_agency_id",
+              "toField" : {
+                "name" : "agency_id"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "contact_email",
+              "toField" : {
+                "name" : "agency_contact_email"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "contact_firstname",
+              "toField" : {
+                "name" : "agency_contact_firstname"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "contact_lastname",
+              "toField" : {
+                "name" : "agency_contact_lastname"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "contact_title",
+              "toField" : {
+                "name" : "agency_contact_title"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_agency_contact_guidewire_id",
+              "toField" : {
+                "name" : "agency_contact_guidewire_id"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "batch_id",
+              "toField" : {
+                "name" : "contact_guidewire_batch_id"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_contact_guidewire_row_effective_end_datetime",
+              "toField" : {
+                "name" : "contact_guidewire_row_effective_end_datetime"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_contact_guidewire_row_effective_start_datetime",
+              "toField" : {
+                "name" : "contact_guidewire_row_effective_start_datetime"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "source_name",
+              "toField" : {
+                "name" : "source_name"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "load_type",
+              "toField" : {
+                "name" : "load_type"
+              },
+              "fromFieldNames" : null
+            }
+          ]
+        }
+      },
+      {
+        "createTime" : "2025-05-12T20:30:21.032Z",
+        "name" : "tgt_update_closeout",
+        "advancedProperties" : [
+          {
+            "name" : "Forward Rejected Rows",
+            "value" : "true"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "false",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "createTarget" : "false",
+        "fieldMappingMode" : "MANUAL",
+        "inputSorted" : "false",
+        "schemaProviderType" : "SELECTED_OBJECT",
+        "updateColumns" : [
+          "contact_guidewire_row_id"
+        ],
+        "useLabels" : "false",
+        "useSequenceFields" : "false",
+        "fields" : [
+          {
+            "adapterField" : {
+              "name" : "contact_guidewire_row_id"
+            },
+            "name" : "contact_guidewire_row_id",
+            "platformType" : {
+              "name" : "bigint"
+            },
+            "precision" : 19,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "contact_guidewire_batch_id"
+            },
+            "name" : "contact_guidewire_batch_id",
+            "platformType" : {
+              "name" : "bigint"
+            },
+            "precision" : 19,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "source_name"
+            },
+            "name" : "source_name",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "load_type"
+            },
+            "name" : "load_type",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "contact_guidewire_row_md5checksum"
+            },
+            "name" : "contact_guidewire_row_md5checksum",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 255,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "contact_guidewire_datetime_created"
+            },
+            "name" : "contact_guidewire_datetime_created",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "contact_guidewire_datetime_modified"
+            },
+            "name" : "contact_guidewire_datetime_modified",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "contact_guidewire_row_effective_start_datetime"
+            },
+            "name" : "contact_guidewire_row_effective_start_datetime",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "contact_guidewire_row_effective_end_datetime"
+            },
+            "name" : "contact_guidewire_row_effective_end_datetime",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "agency_id"
+            },
+            "name" : "agency_id",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "agency_contact_email"
+            },
+            "name" : "agency_contact_email",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "agency_contact_firstname"
+            },
+            "name" : "agency_contact_firstname",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "agency_contact_lastname"
+            },
+            "name" : "agency_contact_lastname",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "agency_contact_title"
+            },
+            "name" : "agency_contact_title",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "agency_contact_guidewire_id"
+            },
+            "name" : "agency_contact_guidewire_id",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          }
+        ],
+        "dataAdapter" : {
+          "connectionId$" : {
+            "name" : "DBConnection_UDM_TGT"
+          },
+          "excludeDynamicFileNameField" : "false",
+          "objectType" : "SINGLE",
+          "typeSystem" : "TOOLKIT",
+          "useDynamicFileName" : "false",
+          "bulkOptions" : {
+            "hardDelete" : "false",
+            "maxRowsPerRequest" : 0,
+            "monitorBulk" : "false",
+            "monitorBulkV2" : "false",
+            "pkChunkingEnabled" : "false",
+            "pkChunkingSize" : 0,
+            "serialMode" : "false",
+            "useBulkApi" : "false",
+            "useBulkApiV2" : "false"
+          },
+          "object" : {
+            "name" : "bronze/adm_contact_guidewire",
+            "label" : "bronze/adm_contact_guidewire",
+            "objectName" : "adm_contact_guidewire",
+            "objectType" : "amazonredshift",
+            "path" : "bronze/adm_contact_guidewire",
+            "retainMetadata" : "false",
+            "fields" : [
+              {
+                "name" : "contact_guidewire_row_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "contact_guidewire_row_id",
+                "nativeName" : "contact_guidewire_row_id",
+                "nativeType" : "int8",
+                "original" : "false",
+                "precision" : 19,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_contact_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "contact_guidewire_batch_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "contact_guidewire_batch_id",
+                "nativeName" : "contact_guidewire_batch_id",
+                "nativeType" : "int8",
+                "original" : "false",
+                "precision" : 19,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_contact_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "source_name",
+                "fieldType" : "CONNECTOR",
+                "label" : "source_name",
+                "nativeName" : "source_name",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_contact_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "load_type",
+                "fieldType" : "CONNECTOR",
+                "label" : "load_type",
+                "nativeName" : "load_type",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_contact_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "contact_guidewire_row_md5checksum",
+                "fieldType" : "CONNECTOR",
+                "label" : "contact_guidewire_row_md5checksum",
+                "nativeName" : "contact_guidewire_row_md5checksum",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 255,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_contact_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "contact_guidewire_datetime_created",
+                "fieldType" : "CONNECTOR",
+                "label" : "contact_guidewire_datetime_created",
+                "nativeName" : "contact_guidewire_datetime_created",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_contact_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "contact_guidewire_datetime_modified",
+                "fieldType" : "CONNECTOR",
+                "label" : "contact_guidewire_datetime_modified",
+                "nativeName" : "contact_guidewire_datetime_modified",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_contact_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "contact_guidewire_row_effective_start_datetime",
+                "fieldType" : "CONNECTOR",
+                "label" : "contact_guidewire_row_effective_start_datetime",
+                "nativeName" : "contact_guidewire_row_effective_start_datetime",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_contact_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "contact_guidewire_row_effective_end_datetime",
+                "fieldType" : "CONNECTOR",
+                "label" : "contact_guidewire_row_effective_end_datetime",
+                "nativeName" : "contact_guidewire_row_effective_end_datetime",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_contact_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "agency_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "agency_id",
+                "nativeName" : "agency_id",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_contact_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "agency_contact_email",
+                "fieldType" : "CONNECTOR",
+                "label" : "agency_contact_email",
+                "nativeName" : "agency_contact_email",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_contact_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "agency_contact_firstname",
+                "fieldType" : "CONNECTOR",
+                "label" : "agency_contact_firstname",
+                "nativeName" : "agency_contact_firstname",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_contact_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "agency_contact_lastname",
+                "fieldType" : "CONNECTOR",
+                "label" : "agency_contact_lastname",
+                "nativeName" : "agency_contact_lastname",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_contact_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "agency_contact_title",
+                "fieldType" : "CONNECTOR",
+                "label" : "agency_contact_title",
+                "nativeName" : "agency_contact_title",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_contact_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "agency_contact_guidewire_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "agency_contact_guidewire_id",
+                "nativeName" : "agency_contact_guidewire_id",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_contact_guidewire"
+                  }
+                ]
+              }
+            ],
+            "objectAttributes" : [
+              {
+                "name" : "recordType",
+                "value" : "TABLE"
+              }
+            ]
+          },
+          "runtimeAttributes" : {
+            "attributes" : [
+              {
+                "name" : "S3 Bucket Name",
+                "value" : "$$S3_Staging_Bucket"
+              },
+              {
+                "name" : "Enable Compression",
+                "value" : "YES"
+              },
+              {
+                "name" : "Batch Size",
+                "value" : "2000000"
+              },
+              {
+                "name" : "Max Errors Per Batch Upload Insert",
+                "value" : "1"
+              },
+              {
+                "name" : "Truncate Target Table Before Data Upload",
+                "value" : "NO"
+              },
+              {
+                "name" : "WaitTime In Seconds For S3 File Consistency",
+                "value" : "0"
+              },
+              {
+                "name" : "Temporary Credential Duration",
+                "value" : "900"
+              },
+              {
+                "name" : "S3 Server Side Encryption",
+                "value" : "NO"
+              },
+              {
+                "name" : "S3 Client Side Encryption",
+                "value" : "NO"
+              },
+              {
+                "name" : "Analyze Target Table",
+                "value" : "NO"
+              },
+              {
+                "name" : "Vacuum Target Table",
+                "value" : "None"
+              },
+              {
+                "name" : "Treat Source Rows As",
+                "value" : "UPDATE"
+              },
+              {
+                "name" : "Transfer Manager Thread Pool Size",
+                "value" : "10"
+              },
+              {
+                "name" : "Minimum Upload Part Size",
+                "value" : "5242880"
+              },
+              {
+                "name" : "Preserve record order on write",
+                "value" : "NO"
+              },
+              {
+                "name" : "Number of files per batch",
+                "value" : "0"
+              }
+            ]
+          },
+          "writeOptions" : {
+            "batchSize" : 0,
+            "bulkApi" : "false",
+            "handleDecimalRoundOff" : "false",
+            "handleSpecialChars" : "false",
+            "operations" : [
+              "Update"
+            ],
+            "setFieldsToNull" : "false",
+            "truncate" : "false",
+            "useErrorFile" : "false",
+            "useExactSrcNames" : "false",
+            "useSuccessFile" : "false"
+          }
+        },
+        "manualMappings" : {
+          "mappingList" : [
+            {
+              "fromFieldName" : "contact_guidewire_row_id",
+              "toField" : {
+                "name" : "contact_guidewire_row_id"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_retire_old_record",
+              "toField" : {
+                "name" : "contact_guidewire_row_effective_end_datetime"
+              },
+              "fromFieldNames" : null
+            }
+          ]
+        }
+      },
+      {
+        "createTime" : "2025-05-15T19:33:44.587Z",
+        "name" : "exp_passthrough",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true",
+                "bulkRenameOption" : {
+                  "literal" : "tgt_",
+                  "suffix" : "false"
+                }
+              }
+            ]
+          }
+        ],
+        "windowConfigurationEnabled" : "false",
+        "windowSpec" : {
+          "allRowsFollowing" : "false",
+          "allRowsPreceding" : "false",
+          "endOffset" : 0,
+          "startOffset" : 0,
+          "partitionKeys" : null
+        }
+      },
+      {
+        "description" : "This Joiner transformation is used to combine source records with the latest existing records from the target to identify new inserts and update the end date for records that need to be retired",
+        "createTime" : "2025-05-15T19:49:36.310Z",
+        "name" : "jnr_src_tgt",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "Master",
+            "output" : "false",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          },
+          {
+            "input" : "true",
+            "name" : "Detail",
+            "output" : "false",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          },
+          {
+            "input" : "false",
+            "name" : "OutputGroup",
+            "output" : "true"
+          }
+        ],
+        "joinType" : "Detail Outer Join",
+        "joinConditions" : [
+          {
+            "leftOperand" : "o_agency_contact_guidewire_id",
+            "operator" : "=",
+            "rightOperand" : "agency_contact_guidewire_id"
+          }
+        ]
+      },
+      {
+        "createTime" : "2025-05-23T20:37:31.100Z",
+        "name" : "tgt_update",
+        "advancedProperties" : [
+          {
+            "name" : "Forward Rejected Rows",
+            "value" : "true"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "false",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "createTarget" : "false",
+        "fieldMappingMode" : "MANUAL",
+        "inputSorted" : "false",
+        "schemaProviderType" : "SELECTED_OBJECT",
+        "updateColumns" : null,
+        "useLabels" : "false",
+        "useSequenceFields" : "false",
+        "fields" : [
+          {
+            "adapterField" : {
+              "name" : "contact_guidewire_row_id"
+            },
+            "name" : "contact_guidewire_row_id",
+            "platformType" : {
+              "name" : "bigint"
+            },
+            "precision" : 19,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "contact_guidewire_batch_id"
+            },
+            "name" : "contact_guidewire_batch_id",
+            "platformType" : {
+              "name" : "bigint"
+            },
+            "precision" : 19,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "source_name"
+            },
+            "name" : "source_name",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "load_type"
+            },
+            "name" : "load_type",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "contact_guidewire_row_md5checksum"
+            },
+            "name" : "contact_guidewire_row_md5checksum",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 255,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "contact_guidewire_datetime_created"
+            },
+            "name" : "contact_guidewire_datetime_created",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "contact_guidewire_datetime_modified"
+            },
+            "name" : "contact_guidewire_datetime_modified",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "contact_guidewire_row_effective_start_datetime"
+            },
+            "name" : "contact_guidewire_row_effective_start_datetime",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "contact_guidewire_row_effective_end_datetime"
+            },
+            "name" : "contact_guidewire_row_effective_end_datetime",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "agency_id"
+            },
+            "name" : "agency_id",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "agency_contact_email"
+            },
+            "name" : "agency_contact_email",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "agency_contact_firstname"
+            },
+            "name" : "agency_contact_firstname",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "agency_contact_lastname"
+            },
+            "name" : "agency_contact_lastname",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "agency_contact_title"
+            },
+            "name" : "agency_contact_title",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "agency_contact_guidewire_id"
+            },
+            "name" : "agency_contact_guidewire_id",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          }
+        ],
+        "dataAdapter" : {
+          "connectionId$" : {
+            "name" : "DBConnection_UDM_TGT"
+          },
+          "excludeDynamicFileNameField" : "false",
+          "objectType" : "SINGLE",
+          "typeSystem" : "TOOLKIT",
+          "useDynamicFileName" : "false",
+          "object" : {
+            "name" : "bronze/adm_contact_guidewire",
+            "label" : "bronze/adm_contact_guidewire",
+            "objectName" : "adm_contact_guidewire",
+            "objectType" : "amazonredshift",
+            "path" : "bronze/adm_contact_guidewire",
+            "retainMetadata" : "false",
+            "fields" : [
+              {
+                "name" : "contact_guidewire_row_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "contact_guidewire_row_id",
+                "nativeName" : "contact_guidewire_row_id",
+                "nativeType" : "int8",
+                "original" : "false",
+                "precision" : 19,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_contact_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "contact_guidewire_batch_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "contact_guidewire_batch_id",
+                "nativeName" : "contact_guidewire_batch_id",
+                "nativeType" : "int8",
+                "original" : "false",
+                "precision" : 19,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_contact_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "source_name",
+                "fieldType" : "CONNECTOR",
+                "label" : "source_name",
+                "nativeName" : "source_name",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_contact_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "load_type",
+                "fieldType" : "CONNECTOR",
+                "label" : "load_type",
+                "nativeName" : "load_type",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_contact_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "contact_guidewire_row_md5checksum",
+                "fieldType" : "CONNECTOR",
+                "label" : "contact_guidewire_row_md5checksum",
+                "nativeName" : "contact_guidewire_row_md5checksum",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 255,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_contact_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "contact_guidewire_datetime_created",
+                "fieldType" : "CONNECTOR",
+                "label" : "contact_guidewire_datetime_created",
+                "nativeName" : "contact_guidewire_datetime_created",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_contact_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "contact_guidewire_datetime_modified",
+                "fieldType" : "CONNECTOR",
+                "label" : "contact_guidewire_datetime_modified",
+                "nativeName" : "contact_guidewire_datetime_modified",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_contact_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "contact_guidewire_row_effective_start_datetime",
+                "fieldType" : "CONNECTOR",
+                "label" : "contact_guidewire_row_effective_start_datetime",
+                "nativeName" : "contact_guidewire_row_effective_start_datetime",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_contact_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "contact_guidewire_row_effective_end_datetime",
+                "fieldType" : "CONNECTOR",
+                "label" : "contact_guidewire_row_effective_end_datetime",
+                "nativeName" : "contact_guidewire_row_effective_end_datetime",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_contact_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "agency_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "agency_id",
+                "nativeName" : "agency_id",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_contact_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "agency_contact_email",
+                "fieldType" : "CONNECTOR",
+                "label" : "agency_contact_email",
+                "nativeName" : "agency_contact_email",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_contact_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "agency_contact_firstname",
+                "fieldType" : "CONNECTOR",
+                "label" : "agency_contact_firstname",
+                "nativeName" : "agency_contact_firstname",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_contact_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "agency_contact_lastname",
+                "fieldType" : "CONNECTOR",
+                "label" : "agency_contact_lastname",
+                "nativeName" : "agency_contact_lastname",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_contact_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "agency_contact_title",
+                "fieldType" : "CONNECTOR",
+                "label" : "agency_contact_title",
+                "nativeName" : "agency_contact_title",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_contact_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "agency_contact_guidewire_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "agency_contact_guidewire_id",
+                "nativeName" : "agency_contact_guidewire_id",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_contact_guidewire"
+                  }
+                ]
+              }
+            ],
+            "objectAttributes" : [
+              {
+                "name" : "recordType",
+                "value" : "TABLE"
+              }
+            ]
+          },
+          "runtimeAttributes" : {
+            "attributes" : [
+              {
+                "name" : "S3 Bucket Name",
+                "value" : "$$S3_Staging_Bucket"
+              },
+              {
+                "name" : "Enable Compression",
+                "value" : "YES"
+              },
+              {
+                "name" : "Batch Size",
+                "value" : "2000000"
+              },
+              {
+                "name" : "Max Errors Per Batch Upload Insert",
+                "value" : "1"
+              },
+              {
+                "name" : "Truncate Target Table Before Data Upload",
+                "value" : "NO"
+              },
+              {
+                "name" : "WaitTime In Seconds For S3 File Consistency",
+                "value" : "0"
+              },
+              {
+                "name" : "Temporary Credential Duration",
+                "value" : "900"
+              },
+              {
+                "name" : "S3 Server Side Encryption",
+                "value" : "NO"
+              },
+              {
+                "name" : "S3 Client Side Encryption",
+                "value" : "NO"
+              },
+              {
+                "name" : "Analyze Target Table",
+                "value" : "NO"
+              },
+              {
+                "name" : "Vacuum Target Table",
+                "value" : "None"
+              },
+              {
+                "name" : "Treat Source Rows As",
+                "value" : "INSERT"
+              },
+              {
+                "name" : "Transfer Manager Thread Pool Size",
+                "value" : "10"
+              },
+              {
+                "name" : "Minimum Upload Part Size",
+                "value" : "5242880"
+              },
+              {
+                "name" : "Preserve record order on write",
+                "value" : "NO"
+              },
+              {
+                "name" : "Number of files per batch",
+                "value" : "0"
+              }
+            ]
+          },
+          "writeOptions" : {
+            "batchSize" : 0,
+            "bulkApi" : "false",
+            "handleDecimalRoundOff" : "false",
+            "handleSpecialChars" : "false",
+            "operations" : [
+              "Insert"
+            ],
+            "setFieldsToNull" : "false",
+            "truncate" : "false",
+            "useErrorFile" : "false",
+            "useExactSrcNames" : "false",
+            "useSuccessFile" : "false"
+          }
+        },
+        "manualMappings" : {
+          "mappingList" : [
+            {
+              "fromFieldName" : "batch_id",
+              "toField" : {
+                "name" : "contact_guidewire_batch_id"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "source_name",
+              "toField" : {
+                "name" : "source_name"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "load_type",
+              "toField" : {
+                "name" : "load_type"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_src_md5_hash_value",
+              "toField" : {
+                "name" : "contact_guidewire_row_md5checksum"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_contact_guidewire_datetime_created",
+              "toField" : {
+                "name" : "contact_guidewire_datetime_created"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_contact_guidewire_datetime_modified",
+              "toField" : {
+                "name" : "contact_guidewire_datetime_modified"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_contact_guidewire_row_effective_start_datetime",
+              "toField" : {
+                "name" : "contact_guidewire_row_effective_start_datetime"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_contact_guidewire_row_effective_end_datetime",
+              "toField" : {
+                "name" : "contact_guidewire_row_effective_end_datetime"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_agency_id",
+              "toField" : {
+                "name" : "agency_id"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "contact_email",
+              "toField" : {
+                "name" : "agency_contact_email"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "contact_firstname",
+              "toField" : {
+                "name" : "agency_contact_firstname"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "contact_lastname",
+              "toField" : {
+                "name" : "agency_contact_lastname"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "contact_title",
+              "toField" : {
+                "name" : "agency_contact_title"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_agency_contact_guidewire_id",
+              "toField" : {
+                "name" : "agency_contact_guidewire_id"
+              },
+              "fromFieldNames" : null
+            }
+          ]
+        }
+      },
+      {
+        "createTime" : "2025-05-23T20:39:26.326Z",
+        "name" : "exp_update",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "windowConfigurationEnabled" : "false",
+        "fields" : [
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_retire_old_record",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9,
+            "expFieldType" : "OUTPUT",
+            "expression" : "SYSDATE"
+          }
+        ],
+        "windowSpec" : {
+          "allRowsFollowing" : "false",
+          "allRowsPreceding" : "false",
+          "endOffset" : 0,
+          "startOffset" : 0,
+          "partitionKeys" : null
+        }
+      }
+    ]
+  },
+  "vcsExportTime" : "2025-06-18 09:11:40 EDT"
+}

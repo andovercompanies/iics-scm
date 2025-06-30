@@ -230,7 +230,7 @@
           "typeSystem" : "TOOLKIT",
           "useDynamicFileName" : "false",
           "object" : {
-            "customQuery" : "WITH current_batch AS (\n    SELECT \n        bls.batch_id,\n        bls.source_start_cutoff_datetime,\n        bls.source_end_cutoff_datetime\n    FROM metal.batch_load_summary bls\n    WHERE bls.source_system_code = 'Guidewire'\n      AND bls.batch_status = 'Inprogress'\n      AND bls.batch_id = (\n          SELECT MAX(batch_id)\n          FROM metal.batch_load_summary\n          WHERE source_system_code = 'Guidewire'\n            AND batch_status = 'Inprogress'\n      )\n)\nSELECT DISTINCT  \n\t\tmetal_aae.source_name, \n\t\tmetal_aae.load_type, \n\t\tmetal_aae.agency_nup, \n\t\tmetal_aae.create_date, \n\t\tmetal_aae.email_address, \n\t\tmetal_aae.email_type, \n\t\tmetal_aae.group_nup, \n\t\tmetal_aae.id, \n\t\tmetal_aae.modified_date,\n\t\tcurrent_batch.batch_id\nFROM metal.adm_agency_email metal_aae\nCROSS JOIN current_batch\nORDER BY \n    metal_aae.id,\n    metal_aae.create_date,\n    metal_aae.modified_date;",
+            "customQuery" : "WITH current_batch AS (\n    SELECT \n        bls.batch_id,\n        bls.source_start_cutoff_datetime,\n        bls.source_end_cutoff_datetime\n    FROM metal.batch_load_summary bls\n    WHERE bls.source_system_code = 'ADM'\n      AND bls.batch_status = 'Inprogress'\n      AND bls.batch_id = (\n          SELECT MAX(batch_id)\n          FROM metal.batch_load_summary\n          WHERE source_system_code = 'ADM'\n            AND batch_status = 'Inprogress'\n      )\n)\nSELECT DISTINCT  \n\t\tmetal_aae.source_name, \n\t\tmetal_aae.load_type, \n\t\tmetal_aae.agency_nup, \n\t\tmetal_aae.create_date, \n\t\tmetal_aae.email_address, \n\t\tmetal_aae.email_type, \n\t\tmetal_aae.group_nup, \n\t\tmetal_aae.id, \n\t\tmetal_aae.modified_date,\n\t\tcurrent_batch.batch_id\nFROM metal.adm_agency_email metal_aae\nCROSS JOIN current_batch\nORDER BY \n    metal_aae.id,\n    metal_aae.create_date,\n    metal_aae.modified_date;",
             "retainMetadata" : "false",
             "fields" : [
               {
@@ -414,7 +414,7 @@
             "attributes" : [
               {
                 "name" : "Read Mode",
-                "value" : "Staging"
+                "value" : "Direct"
               },
               {
                 "name" : "Fetch Size",
@@ -483,7 +483,7 @@
             "precision" : 29,
             "scale" : 9,
             "expFieldType" : "OUTPUT",
-            "expression" : "TO_DATE(to_char(create_date), 'YYYY-MM-DD HH24:MI:SS')"
+            "expression" : "IIF(ISNULL(create_date), NULL,TO_DATE(to_char(create_date), 'YYYY-MM-DD HH24:MI:SS'))"
           },
           {
             "defaultValue" : "ERROR('transformation error')",
@@ -494,7 +494,7 @@
             "precision" : 29,
             "scale" : 9,
             "expFieldType" : "OUTPUT",
-            "expression" : "TO_DATE(to_char(modified_date), 'YYYY-MM-DD HH24:MI:SS')"
+            "expression" : "IIF(ISNULL(modified_date), NULL, TO_DATE(to_char(modified_date), 'YYYY-MM-DD HH24:MI:SS'))"
           },
           {
             "defaultValue" : "ERROR('transformation error')",
@@ -505,7 +505,7 @@
             "precision" : 10,
             "scale" : 0,
             "expFieldType" : "OUTPUT",
-            "expression" : "to_integer(ltrim(rtrim(agency_nup)))"
+            "expression" : "IIF(ISNULL(agency_nup), NULL, to_integer(ltrim(rtrim(agency_nup))))"
           },
           {
             "defaultValue" : "ERROR('transformation error')",
@@ -516,7 +516,7 @@
             "precision" : 10,
             "scale" : 0,
             "expFieldType" : "OUTPUT",
-            "expression" : "to_integer(ltrim(rtrim(group_nup)))"
+            "expression" : "IIF(ISNULL(group_nup), NULL, to_integer(ltrim(rtrim(group_nup))))"
           },
           {
             "defaultValue" : "ERROR('transformation error')",
@@ -527,7 +527,7 @@
             "precision" : 10,
             "scale" : 0,
             "expFieldType" : "OUTPUT",
-            "expression" : "to_integer(ltrim(rtrim(id)))"
+            "expression" : "IIF(ISNULL(id), NULL, to_integer(ltrim(rtrim(id))))"
           }
         ],
         "windowSpec" : {
@@ -2810,5 +2810,5 @@
       }
     ]
   },
-  "vcsExportTime" : "2025-05-26 13:44:17 PDT"
+  "vcsExportTime" : "2025-06-27 08:43:25 PDT"
 }

@@ -30,7 +30,7 @@
       "truncateTarget" : false,
       "bulkApiDBTarget" : false,
       "customFuncCfg" : { },
-      "customQuery" : "SELECT MAX(batch_id) AS batch_id,\ntarget_table_name from metal.batch_load_summary\nWHERE \nsource_system_code = 'ADM' AND \nbatch_status = 'Inprogress' AND\n target_table_name = '$$target_table_name'\n  GROUP BY target_table_name",
+      "customQuery" : "select batch_load_summary_row_id,target_table_name,batch_id from metal.batch_load_summary where target_table_name = '$$target_table_name' AND batch_id in ( SELECT MAX(batch_id) AS batch_id from metal.batch_load_summary WHERE source_system_code = 'ADM' AND batch_status = 'Inprogress' AND target_table_name = '$$target_table_name' AND batch_end_Datetime IS NULL GROUP BY target_table_name ) and batch_end_Datetime IS NULL",
       "commandType" : 0,
       "handleSpecialChars" : false,
       "handleDecimalRoundOff" : false,
@@ -66,7 +66,7 @@
         "default" : "metal/batch_load_summary",
         "objectParameterized" : "false",
         "visible" : "false",
-        "defaultTargetUpdateColumns" : "batch_id,target_table_name",
+        "defaultTargetUpdateColumns" : "batch_id,target_table_name,batch_load_summary_row_id",
         "supportApplyDDLChanges" : "false",
         "originalPath" : "tgt_batch_table_load"
       },
@@ -84,7 +84,8 @@
       "customFuncCfg" : { },
       "targetUpdateColumns" : [
         "batch_id",
-        "target_table_name"
+        "target_table_name",
+        "batch_load_summary_row_id"
       ],
       "extendedObject" : {
         "singleMode" : true
@@ -182,6 +183,7 @@
     }
   ],
   "verbose" : false,
+  "lastRunTime" : 1749674607000,
   "mappingId" : "@bYePEb7rHWKgy3u2INwuwY",
   "mappingTemplateName" : "cdi_map_batch_load_status_update_success",
   "sessionPropertiesList" : [
@@ -213,7 +215,8 @@
       "precision" : "100",
       "scale" : "0",
       "retentionPolicy" : "ON_SUCCESS_OR_WARNING",
-      "aggregationType" : "MAX"
+      "aggregationType" : "MAX",
+      "currentValue" : "adm_agencyguidewire"
     },
     {
       "name" : "sourcesystemcode",
@@ -221,7 +224,8 @@
       "precision" : "100",
       "scale" : "0",
       "retentionPolicy" : "ON_SUCCESS_OR_WARNING",
-      "aggregationType" : "MAX"
+      "aggregationType" : "MAX",
+      "currentValue" : "ADM"
     },
     {
       "name" : "batch_status_inprogress",
@@ -229,7 +233,8 @@
       "precision" : "100",
       "scale" : "0",
       "retentionPolicy" : "ON_SUCCESS_OR_WARNING",
-      "aggregationType" : "MAX"
+      "aggregationType" : "MAX",
+      "currentValue" : "Inprogress"
     },
     {
       "name" : "batch_status_success",
@@ -237,7 +242,8 @@
       "precision" : "100",
       "scale" : "0",
       "retentionPolicy" : "ON_SUCCESS_OR_WARNING",
-      "aggregationType" : "MAX"
+      "aggregationType" : "MAX",
+      "currentValue" : "Success"
     },
     {
       "name" : "batch_run_type",
@@ -245,7 +251,8 @@
       "precision" : "100",
       "scale" : "0",
       "retentionPolicy" : "ON_SUCCESS_OR_WARNING",
-      "aggregationType" : "MAX"
+      "aggregationType" : "MAX",
+      "currentValue" : "Daily"
     },
     {
       "name" : "row_created_by",
@@ -253,12 +260,13 @@
       "precision" : "100",
       "scale" : "0",
       "retentionPolicy" : "ON_SUCCESS_OR_WARNING",
-      "aggregationType" : "MAX"
+      "aggregationType" : "MAX",
+      "currentValue" : "IICS_User"
     }
   ],
   "hidden" : false,
   "enableCrossSchemaPushdown" : true,
-  "enableParallelRun" : false,
+  "enableParallelRun" : true,
   "autoTunedApplied" : false,
   "autoTunedAppliedType" : "NONE",
   "parameterFileName" : "Andover_Param_ADM.param",
@@ -269,5 +277,5 @@
   "optimizationPlan" : "NONE",
   "allowMaxFieldLength" : false,
   "midstreamPreview" : false,
-  "vcsExportTime" : "2025-06-04 10:43:52 PDT"
+  "vcsExportTime" : "2025-06-12 12:34:30 PDT"
 }
