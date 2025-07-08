@@ -1,12 +1,13 @@
 {
   "content" : {
+    "description" : "Loads from Metal staging layer to the Bronze tables. SCD2(maintains history of the records, active records are open ended and old ones have closed date)",
     "allowMaxFieldLength" : "false",
     "bigIntConvertType" : "ONLY_BIGINT",
     "documentType" : "MAPPING",
-    "name" : "cdi_map_adm_producer_license_bronze_load",
+    "name" : "cdi_map_adm_producer_bronze_load",
     "links" : [
       {
-        "link" : "src_delta_changes_producer_license -> exp_convert_datatype"
+        "link" : "src_metal_producer -> exp_convert_datatype"
       },
       {
         "link" : "exp_convert_datatype -> exp_MD5"
@@ -16,30 +17,30 @@
         "groupLink" : "DefaultGroup -> INPUT"
       },
       {
-        "link" : "src_tgt_query -> exp_passthrough"
+        "link" : "exp_update -> tgt_update_closeout"
       },
       {
         "link" : "exp_MD5 -> jnr_src_tgt",
         "groupLink" : "DefaultGroup -> Master"
       },
       {
-        "link" : "exp_passthrough -> jnr_src_tgt",
-        "groupLink" : "DefaultGroup -> Detail"
-      },
-      {
         "link" : "jnr_src_tgt -> exp_flag_records",
         "groupLink" : "OutputGroup -> DefaultGroup"
       },
       {
-        "link" : "rtr_insert_update_path -> tgt_insert_records",
-        "groupLink" : "insert_group -> DefaultGroup"
+        "link" : "exp_passthrough -> jnr_src_tgt",
+        "groupLink" : "DefaultGroup -> Detail"
+      },
+      {
+        "link" : "src_tgt_query -> exp_passthrough"
       },
       {
         "link" : "rtr_insert_update_path -> tgt_update_records",
         "groupLink" : "update_group -> DefaultGroup"
       },
       {
-        "link" : "exp_update -> tgt_update_closeout"
+        "link" : "rtr_insert_update_path -> tgt_insert_records",
+        "groupLink" : "insert_group -> DefaultGroup"
       },
       {
         "link" : "rtr_insert_update_path -> exp_update",
@@ -47,15 +48,6 @@
       }
     ],
     "parameters" : [
-      {
-        "input" : "true",
-        "output" : "false",
-        "precision" : 0,
-        "scale" : 0,
-        "allowRuntimeOverride" : "false",
-        "expressionVariable" : "false",
-        "name" : "S3_Staging_Bucket"
-      },
       {
         "input" : "true",
         "output" : "false",
@@ -83,12 +75,21 @@
           "typeSystem" : "TOOLKIT",
           "connectionType" : "Amazon Redshift v2"
         }
+      },
+      {
+        "input" : "true",
+        "output" : "false",
+        "precision" : 0,
+        "scale" : 0,
+        "allowRuntimeOverride" : "false",
+        "expressionVariable" : "false",
+        "name" : "S3_Staging_Bucket"
       }
     ],
     "transformations" : [
       {
         "createTime" : "2025-05-12T20:18:11.235Z",
-        "name" : "src_delta_changes_producer_license",
+        "name" : "src_metal_producer",
         "advancedProperties" : [
           {
             "name" : "Tracing Level",
@@ -134,42 +135,9 @@
           },
           {
             "adapterField" : {
-              "name" : "agency_code"
+              "name" : "active"
             },
-            "name" : "agency_code",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 7,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "appointed_date"
-            },
-            "name" : "appointed_date",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 15,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "cancellation_date"
-            },
-            "name" : "cancellation_date",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 15,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "company"
-            },
-            "name" : "company",
+            "name" : "active",
             "platformType" : {
               "name" : "string"
             },
@@ -189,24 +157,24 @@
           },
           {
             "adapterField" : {
-              "name" : "expiration_date"
+              "name" : "fid_num"
             },
-            "name" : "expiration_date",
+            "name" : "fid_num",
             "platformType" : {
               "name" : "string"
             },
-            "precision" : 15,
+            "precision" : 2047,
             "scale" : 0
           },
           {
             "adapterField" : {
-              "name" : "gw_producer_id"
+              "name" : "fid_type"
             },
-            "name" : "gw_producer_id",
+            "name" : "fid_type",
             "platformType" : {
               "name" : "string"
             },
-            "precision" : 15,
+            "precision" : 7,
             "scale" : 0
           },
           {
@@ -222,39 +190,6 @@
           },
           {
             "adapterField" : {
-              "name" : "license_number"
-            },
-            "name" : "license_number",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 31,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "license_type"
-            },
-            "name" : "license_type",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 7,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "lob"
-            },
-            "name" : "lob",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 63,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
               "name" : "modified"
             },
             "name" : "modified",
@@ -266,24 +201,24 @@
           },
           {
             "adapterField" : {
-              "name" : "producer_id"
+              "name" : "name"
             },
-            "name" : "producer_id",
+            "name" : "name",
             "platformType" : {
               "name" : "string"
             },
-            "precision" : 15,
+            "precision" : 63,
             "scale" : 0
           },
           {
             "adapterField" : {
-              "name" : "state"
+              "name" : "npn_number"
             },
-            "name" : "state",
+            "name" : "npn_number",
             "platformType" : {
               "name" : "string"
             },
-            "precision" : 7,
+            "precision" : 31,
             "scale" : 0
           },
           {
@@ -295,17 +230,6 @@
               "name" : "string"
             },
             "precision" : 7,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "term_id"
-            },
-            "name" : "term_id",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 15,
             "scale" : 0
           },
           {
@@ -329,7 +253,7 @@
           "typeSystem" : "TOOLKIT",
           "useDynamicFileName" : "false",
           "object" : {
-            "customQuery" : "with current_batch as (\nselect\n\tbls.batch_id,\n\tbls.source_start_cutoff_datetime,\n\tbls.source_end_cutoff_datetime\nfrom\n\tmetal.batch_load_summary bls\nwhere\n\tbls.source_system_code = 'ADM'\n\tand bls.batch_status = 'Inprogress'\n\tand bls.batch_id = (\n\tselect\n\t\tMAX(batch_id)\n\tfrom\n\t\tmetal.batch_load_summary\n\twhere\n\t\tsource_system_code = 'ADM'\n\t\tand batch_status = 'Inprogress'\n      )\n)\t\n\t\n\tselect\n\tdistinct\n\tmetal_apl.source_name,\n\tmetal_apl.load_type,\n\tmetal_apl.agency_code,\n\tmetal_apl.appointed_date,\n\tmetal_apl.cancellation_date,\n\tmetal_apl.company,\n\tmetal_apl.created,\n\tmetal_apl.expiration_date,\n\tmetal_apl.gw_producer_id,\n\tmetal_apl.id,\n\tmetal_apl.license_number,\n\tmetal_apl.license_type,\n\tmetal_apl.lob,\n\tmetal_apl.modified,\n\tmetal_apl.producer_id,\n\tmetal_apl.state,\n\tmetal_apl.term_flag,\n\tmetal_apl.term_id,\n\tcurrent_batch.batch_id\nfrom\n\tmetal.adm_producer_license metal_apl\ncross join current_batch\norder by\n\tmetal_apl.id,\n\tmetal_apl.created,\n\tmetal_apl.modified;",
+            "customQuery" : "with current_batch as (\nselect\n\tbls.batch_id,\n\tbls.source_start_cutoff_datetime,\n\tbls.source_end_cutoff_datetime\nfrom\n\tmetal.batch_load_summary bls\nwhere\n\tbls.source_system_code = 'ADM'\n\tand bls.batch_status = 'Inprogress'\n\tand bls.batch_id = (\n\tselect\n\t\tMAX(batch_id)\n\tfrom\n\t\tmetal.batch_load_summary\n\twhere\n\t\tsource_system_code = 'ADM'\n\t\tand batch_status = 'Inprogress' ) )\nselect\n\tdistinct\n\tmetal_ap.source_name,\n\tmetal_ap.load_type,\n\tmetal_ap.active,\n\tmetal_ap.created,\n\tmetal_ap.fid_num,\n\tmetal_ap.fid_type,\n\tmetal_ap.id,\n\tmetal_ap.modified,\n\tmetal_ap.name,\n\tmetal_ap.npn_number,\n\tmetal_ap.term_flag,\n\tcurrent_batch.batch_id\nfrom\n\tmetal.adm_producer metal_ap\ncross join current_batch\norder by\n\tmetal_ap.id,\n\tmetal_ap.created,\n\tmetal_ap.modified;",
             "retainMetadata" : "false",
             "fields" : [
               {
@@ -365,58 +289,10 @@
                 ]
               },
               {
-                "name" : "agency_code",
+                "name" : "active",
                 "fieldType" : "CONNECTOR",
-                "label" : "agency_code",
-                "nativeName" : "agency_code",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 7,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "INFARS_CUSTOM_SCHEMA"
-                  }
-                ]
-              },
-              {
-                "name" : "appointed_date",
-                "fieldType" : "CONNECTOR",
-                "label" : "appointed_date",
-                "nativeName" : "appointed_date",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 15,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "INFARS_CUSTOM_SCHEMA"
-                  }
-                ]
-              },
-              {
-                "name" : "cancellation_date",
-                "fieldType" : "CONNECTOR",
-                "label" : "cancellation_date",
-                "nativeName" : "cancellation_date",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 15,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "INFARS_CUSTOM_SCHEMA"
-                  }
-                ]
-              },
-              {
-                "name" : "company",
-                "fieldType" : "CONNECTOR",
-                "label" : "company",
-                "nativeName" : "company",
+                "label" : "active",
+                "nativeName" : "active",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 7,
@@ -445,13 +321,13 @@
                 ]
               },
               {
-                "name" : "expiration_date",
+                "name" : "fid_num",
                 "fieldType" : "CONNECTOR",
-                "label" : "expiration_date",
-                "nativeName" : "expiration_date",
+                "label" : "fid_num",
+                "nativeName" : "fid_num",
                 "nativeType" : "varchar",
                 "original" : "false",
-                "precision" : 15,
+                "precision" : 2047,
                 "scale" : 0,
                 "properties" : [
                   {
@@ -461,13 +337,13 @@
                 ]
               },
               {
-                "name" : "gw_producer_id",
+                "name" : "fid_type",
                 "fieldType" : "CONNECTOR",
-                "label" : "gw_producer_id",
-                "nativeName" : "gw_producer_id",
+                "label" : "fid_type",
+                "nativeName" : "fid_type",
                 "nativeType" : "varchar",
                 "original" : "false",
-                "precision" : 15,
+                "precision" : 7,
                 "scale" : 0,
                 "properties" : [
                   {
@@ -493,54 +369,6 @@
                 ]
               },
               {
-                "name" : "license_number",
-                "fieldType" : "CONNECTOR",
-                "label" : "license_number",
-                "nativeName" : "license_number",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 31,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "INFARS_CUSTOM_SCHEMA"
-                  }
-                ]
-              },
-              {
-                "name" : "license_type",
-                "fieldType" : "CONNECTOR",
-                "label" : "license_type",
-                "nativeName" : "license_type",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 7,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "INFARS_CUSTOM_SCHEMA"
-                  }
-                ]
-              },
-              {
-                "name" : "lob",
-                "fieldType" : "CONNECTOR",
-                "label" : "lob",
-                "nativeName" : "lob",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 63,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "INFARS_CUSTOM_SCHEMA"
-                  }
-                ]
-              },
-              {
                 "name" : "modified",
                 "fieldType" : "CONNECTOR",
                 "label" : "modified",
@@ -557,13 +385,13 @@
                 ]
               },
               {
-                "name" : "producer_id",
+                "name" : "name",
                 "fieldType" : "CONNECTOR",
-                "label" : "producer_id",
-                "nativeName" : "producer_id",
+                "label" : "name",
+                "nativeName" : "name",
                 "nativeType" : "varchar",
                 "original" : "false",
-                "precision" : 15,
+                "precision" : 63,
                 "scale" : 0,
                 "properties" : [
                   {
@@ -573,13 +401,13 @@
                 ]
               },
               {
-                "name" : "state",
+                "name" : "npn_number",
                 "fieldType" : "CONNECTOR",
-                "label" : "state",
-                "nativeName" : "state",
+                "label" : "npn_number",
+                "nativeName" : "npn_number",
                 "nativeType" : "varchar",
                 "original" : "false",
-                "precision" : 7,
+                "precision" : 31,
                 "scale" : 0,
                 "properties" : [
                   {
@@ -596,22 +424,6 @@
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 7,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "INFARS_CUSTOM_SCHEMA"
-                  }
-                ]
-              },
-              {
-                "name" : "term_id",
-                "fieldType" : "CONNECTOR",
-                "label" : "term_id",
-                "nativeName" : "term_id",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 15,
                 "scale" : 0,
                 "properties" : [
                   {
@@ -643,7 +455,15 @@
             "descending" : "false",
             "queryAll" : "false",
             "rowLimit" : 0,
-            "selectDistinct" : "false"
+            "selectDistinct" : "false",
+            "filterConditions" : [
+              {
+                "fieldName" : "id",
+                "filterValue" : "2277",
+                "objectName" : "metal/adm_agency_email",
+                "operator" : "EQUALS"
+              }
+            ]
           },
           "runtimeAttributes" : {
             "attributes" : [
@@ -692,7 +512,6 @@
         }
       },
       {
-        "description" : "This expression transformation is used to convert source data types to align with the target schema",
         "createTime" : "2025-05-12T20:24:23.791Z",
         "name" : "exp_convert_datatype",
         "groups" : [
@@ -712,7 +531,7 @@
         "fields" : [
           {
             "defaultValue" : "ERROR('transformation error')",
-            "name" : "o_producer_licenses_datetime_created",
+            "name" : "o_producer_datetime_created",
             "platformType" : {
               "name" : "date/time"
             },
@@ -723,7 +542,7 @@
           },
           {
             "defaultValue" : "ERROR('transformation error')",
-            "name" : "o_producer_licenses_datetime_modified",
+            "name" : "o_producer_datetime_modified",
             "platformType" : {
               "name" : "date/time"
             },
@@ -734,61 +553,6 @@
           },
           {
             "defaultValue" : "ERROR('transformation error')",
-            "name" : "o_agency_number",
-            "platformType" : {
-              "name" : "integer"
-            },
-            "precision" : 10,
-            "scale" : 0,
-            "expFieldType" : "OUTPUT",
-            "expression" : "IIF(ISNULL(agency_code), NULL, to_integer(ltrim(rtrim(agency_code))))"
-          },
-          {
-            "defaultValue" : "ERROR('transformation error')",
-            "name" : "o_license_id",
-            "platformType" : {
-              "name" : "integer"
-            },
-            "precision" : 10,
-            "scale" : 0,
-            "expFieldType" : "OUTPUT",
-            "expression" : "IIF(ISNULL(id),NULL,to_integer(ltrim(rtrim(id))))"
-          },
-          {
-            "defaultValue" : "ERROR('transformation error')",
-            "name" : "o_license_appointed_date",
-            "platformType" : {
-              "name" : "date/time"
-            },
-            "precision" : 29,
-            "scale" : 9,
-            "expFieldType" : "OUTPUT",
-            "expression" : "IIF(NOT ISNULL(appointed_date) AND appointed_date != '',TO_DATE(to_char(appointed_date), 'YYYY-MM-DD')\n)"
-          },
-          {
-            "defaultValue" : "ERROR('transformation error')",
-            "name" : "o_license_cancellation_date",
-            "platformType" : {
-              "name" : "date/time"
-            },
-            "precision" : 29,
-            "scale" : 9,
-            "expFieldType" : "OUTPUT",
-            "expression" : "IIF(NOT ISNULL(cancellation_date) AND cancellation_date != '',TO_DATE(to_char(cancellation_date), 'YYYY-MM-DD')\n)"
-          },
-          {
-            "defaultValue" : "ERROR('transformation error')",
-            "name" : "o_license_expiration_date",
-            "platformType" : {
-              "name" : "date/time"
-            },
-            "precision" : 29,
-            "scale" : 9,
-            "expFieldType" : "OUTPUT",
-            "expression" : "IIF(NOT ISNULL(expiration_date) AND expiration_date != '',TO_DATE(to_char(expiration_date), 'YYYY-MM-DD')\n)"
-          },
-          {
-            "defaultValue" : "ERROR('transformation error')",
             "name" : "o_producer_id",
             "platformType" : {
               "name" : "integer"
@@ -796,29 +560,18 @@
             "precision" : 10,
             "scale" : 0,
             "expFieldType" : "OUTPUT",
-            "expression" : "IIF(ISNULL(producer_id),NULL,to_integer(ltrim(rtrim(producer_id))))"
+            "expression" : "IIF(ISNULL(id), NULL, to_integer(ltrim(rtrim(id))))"
           },
           {
             "defaultValue" : "ERROR('transformation error')",
-            "name" : "o_license_termination_flag",
+            "name" : "o_producer_termination_flag",
             "platformType" : {
               "name" : "integer"
             },
             "precision" : 10,
             "scale" : 0,
             "expFieldType" : "OUTPUT",
-            "expression" : "IIF(ISNULL(term_flag),NULL,to_integer(ltrim(rtrim(term_flag))))"
-          },
-          {
-            "defaultValue" : "ERROR('transformation error')",
-            "name" : "o_license_termination_id",
-            "platformType" : {
-              "name" : "integer"
-            },
-            "precision" : 10,
-            "scale" : 0,
-            "expFieldType" : "OUTPUT",
-            "expression" : "IIF(ISNULL(term_id),NULL,to_integer(ltrim(rtrim(term_id))))"
+            "expression" : "IIF(ISNULL(term_flag), NULL, to_integer(ltrim(rtrim(term_flag))))"
           }
         ],
         "windowSpec" : {
@@ -830,7 +583,6 @@
         }
       },
       {
-        "description" : "This expression transformation is used to calculate the MD5 from the output of the previous expression's fields",
         "createTime" : "2025-05-12T20:25:15.963Z",
         "name" : "exp_MD5",
         "groups" : [
@@ -857,7 +609,7 @@
             "precision" : 255,
             "scale" : 0,
             "expFieldType" : "OUTPUT",
-            "expression" : "MD5(\n'source_name'||source_name||\n'load_type'||load_type||\n'o_producer_licenses_datetime_created'||to_char(o_producer_licenses_datetime_created)||\n'o_producer_licenses_datetime_modified'||to_char(o_producer_licenses_datetime_modified)||\n'o_agency_number'||to_char(o_agency_number)||\n'o_license_appointed_date'||to_char(o_license_appointed_date)||\n'o_license_cancellation_date'||to_char(o_license_cancellation_date)||\n'company'||company||\n'o_license_expiration_date'||to_char(o_license_expiration_date)||\n'gw_producer_id'||to_char(gw_producer_id)||\n'o_license_id'||to_char(o_license_id)||\n'license_number'||to_char(license_number)||\n'license_type'||license_type||\n'lob'||lob||\n'o_producer_id'||to_char(o_producer_id)||\n'state'|| state||\n'o_license_termination_flag'||to_char(o_license_termination_flag)||\n'o_license_termination_id'||to_char(o_license_termination_id))"
+            "expression" : "MD5(\n'source_name'||source_name|| \n'load_type'||load_type||\n'active'||active||\n'o_producer_datetime_created' || to_char(o_producer_datetime_created) ||\n'fid_num'||fid_num|| \n'fid_type'||fid_type||\n'o_producer_id'||to_char(o_producer_id)||\n'o_producer_datetime_modified' || to_char(o_producer_datetime_modified) ||\n'name'||name||\n'npn_number'||npn_number||\n'o_producer_termination_flag' || to_char(o_producer_termination_flag)\n)"
           }
         ],
         "windowSpec" : {
@@ -869,7 +621,6 @@
         }
       },
       {
-        "description" : "This source retrieves the active records in the target table",
         "createTime" : "2025-05-12T20:25:27.947Z",
         "name" : "src_tgt_query",
         "advancedProperties" : [
@@ -895,9 +646,9 @@
         "fields" : [
           {
             "adapterField" : {
-              "name" : "producer_licenses_row_id"
+              "name" : "producer_row_id"
             },
-            "name" : "producer_licenses_row_id",
+            "name" : "producer_row_id",
             "platformType" : {
               "name" : "bigint"
             },
@@ -906,9 +657,9 @@
           },
           {
             "adapterField" : {
-              "name" : "producer_licenses_batch_id"
+              "name" : "producer_batch_id"
             },
-            "name" : "producer_licenses_batch_id",
+            "name" : "producer_batch_id",
             "platformType" : {
               "name" : "bigint"
             },
@@ -917,9 +668,9 @@
           },
           {
             "adapterField" : {
-              "name" : "producer_licenses_row_md5checksum"
+              "name" : "producer_row_md5checksum"
             },
-            "name" : "producer_licenses_row_md5checksum",
+            "name" : "producer_row_md5checksum",
             "platformType" : {
               "name" : "string"
             },
@@ -928,9 +679,9 @@
           },
           {
             "adapterField" : {
-              "name" : "license_id"
+              "name" : "producer_id"
             },
-            "name" : "license_id",
+            "name" : "producer_id",
             "platformType" : {
               "name" : "integer"
             },
@@ -939,9 +690,20 @@
           },
           {
             "adapterField" : {
-              "name" : "producer_licenses_row_effective_end_datetime"
+              "name" : "producer_datetime_modified"
             },
-            "name" : "producer_licenses_row_effective_end_datetime",
+            "name" : "producer_datetime_modified",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "producer_row_effective_end_datetime"
+            },
+            "name" : "producer_row_effective_end_datetime",
             "platformType" : {
               "name" : "date/time"
             },
@@ -958,14 +720,14 @@
           "typeSystem" : "TOOLKIT",
           "useDynamicFileName" : "false",
           "object" : {
-            "customQuery" : "select\n\tproducer_licenses_row_id ,\n\tproducer_licenses_batch_id,\n\tproducer_licenses_row_md5checksum ,\n\tlicense_id,\n\tproducer_licenses_row_effective_end_datetime\nfrom\n\tbronze.adm_producer_licenses\nwhere\n\tproducer_licenses_row_effective_end_datetime = '9999-12-31 00:00:00.000'",
+            "customQuery" : "select\n\tproducer_row_id,\n\tproducer_batch_id,\n\tproducer_row_md5checksum,\n\tproducer_id,\n\tproducer_datetime_modified,\n\tproducer_row_effective_end_datetime\nfrom\n\tbronze.adm_producer\nwhere\n\tproducer_row_effective_end_datetime = '9999-12-31 00:00:00.000'",
             "retainMetadata" : "false",
             "fields" : [
               {
-                "name" : "producer_licenses_row_id",
+                "name" : "producer_row_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "producer_licenses_row_id",
-                "nativeName" : "producer_licenses_row_id",
+                "label" : "producer_row_id",
+                "nativeName" : "producer_row_id",
                 "nativeType" : "int8",
                 "original" : "false",
                 "precision" : 19,
@@ -978,10 +740,10 @@
                 ]
               },
               {
-                "name" : "producer_licenses_batch_id",
+                "name" : "producer_batch_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "producer_licenses_batch_id",
-                "nativeName" : "producer_licenses_batch_id",
+                "label" : "producer_batch_id",
+                "nativeName" : "producer_batch_id",
                 "nativeType" : "int8",
                 "original" : "false",
                 "precision" : 19,
@@ -994,10 +756,10 @@
                 ]
               },
               {
-                "name" : "producer_licenses_row_md5checksum",
+                "name" : "producer_row_md5checksum",
                 "fieldType" : "CONNECTOR",
-                "label" : "producer_licenses_row_md5checksum",
-                "nativeName" : "producer_licenses_row_md5checksum",
+                "label" : "producer_row_md5checksum",
+                "nativeName" : "producer_row_md5checksum",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 255,
@@ -1010,10 +772,10 @@
                 ]
               },
               {
-                "name" : "license_id",
+                "name" : "producer_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "license_id",
-                "nativeName" : "license_id",
+                "label" : "producer_id",
+                "nativeName" : "producer_id",
                 "nativeType" : "int4",
                 "original" : "false",
                 "precision" : 10,
@@ -1026,10 +788,26 @@
                 ]
               },
               {
-                "name" : "producer_licenses_row_effective_end_datetime",
+                "name" : "producer_datetime_modified",
                 "fieldType" : "CONNECTOR",
-                "label" : "producer_licenses_row_effective_end_datetime",
-                "nativeName" : "producer_licenses_row_effective_end_datetime",
+                "label" : "producer_datetime_modified",
+                "nativeName" : "producer_datetime_modified",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "producer_row_effective_end_datetime",
+                "fieldType" : "CONNECTOR",
+                "label" : "producer_row_effective_end_datetime",
+                "nativeName" : "producer_row_effective_end_datetime",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 29,
@@ -1097,7 +875,6 @@
         }
       },
       {
-        "description" : "This Expression transformation flags records to determine whether they should be inserted or updated.",
         "createTime" : "2025-05-12T20:29:41.842Z",
         "name" : "exp_flag_records",
         "groups" : [
@@ -1124,22 +901,11 @@
             "precision" : 10,
             "scale" : 0,
             "expFieldType" : "OUTPUT",
-            "expression" : "IIF(ISNULL(producer_licenses_row_id),'I','X')"
+            "expression" : "IIF(ISNULL(producer_row_id),'I','X')"
           },
           {
             "defaultValue" : "ERROR('transformation error')",
-            "name" : "o_producer_license_row_effective_end_datetime",
-            "platformType" : {
-              "name" : "date/time"
-            },
-            "precision" : 29,
-            "scale" : 9,
-            "expFieldType" : "OUTPUT",
-            "expression" : "To_Date('9999-12-31', 'YYYY-MM-DD')"
-          },
-          {
-            "defaultValue" : "ERROR('transformation error')",
-            "name" : "o_producer_license_row_effective_start_datetime",
+            "name" : "o_producer_row_effective_start_datetime",
             "platformType" : {
               "name" : "date/time"
             },
@@ -1150,6 +916,17 @@
           },
           {
             "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_producer_row_effective_end_datetime",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9,
+            "expFieldType" : "OUTPUT",
+            "expression" : "TO_DATE('9999-12-31', 'YYYY-MM-DD')"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
             "name" : "o_update_flag",
             "platformType" : {
               "name" : "string"
@@ -1157,7 +934,7 @@
             "precision" : 10,
             "scale" : 0,
             "expFieldType" : "OUTPUT",
-            "expression" : "IIF(NOT ISNULL(producer_licenses_row_id) AND producer_licenses_row_md5checksum <> o_src_md5_hash_value, 'U','X')"
+            "expression" : "IIF(NOT ISNULL(producer_row_id) AND producer_row_md5checksum <> o_src_md5_hash_value, 'U','X')"
           }
         ],
         "windowSpec" : {
@@ -1169,7 +946,6 @@
         }
       },
       {
-        "description" : "This Router transformation directs the data into separate pipelines for inserts and updates.",
         "createTime" : "2025-05-12T20:29:57.871Z",
         "name" : "rtr_insert_update_path",
         "groups" : [
@@ -1224,6 +1000,44 @@
         ]
       },
       {
+        "createTime" : "2025-05-12T20:30:13.384Z",
+        "name" : "exp_update",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "windowConfigurationEnabled" : "false",
+        "fields" : [
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_retire_old_record",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9,
+            "expFieldType" : "OUTPUT",
+            "expression" : "SYSDATE"
+          }
+        ],
+        "windowSpec" : {
+          "allRowsFollowing" : "false",
+          "allRowsPreceding" : "false",
+          "endOffset" : 0,
+          "startOffset" : 0,
+          "partitionKeys" : null
+        }
+      },
+      {
         "createTime" : "2025-05-12T20:30:18.677Z",
         "name" : "tgt_insert_records",
         "advancedProperties" : [
@@ -1255,9 +1069,9 @@
         "fields" : [
           {
             "adapterField" : {
-              "name" : "producer_licenses_row_id"
+              "name" : "producer_row_id"
             },
-            "name" : "producer_licenses_row_id",
+            "name" : "producer_row_id",
             "platformType" : {
               "name" : "bigint"
             },
@@ -1266,9 +1080,9 @@
           },
           {
             "adapterField" : {
-              "name" : "producer_licenses_batch_id"
+              "name" : "producer_batch_id"
             },
-            "name" : "producer_licenses_batch_id",
+            "name" : "producer_batch_id",
             "platformType" : {
               "name" : "bigint"
             },
@@ -1299,9 +1113,9 @@
           },
           {
             "adapterField" : {
-              "name" : "producer_licenses_row_md5checksum"
+              "name" : "producer_row_md5checksum"
             },
-            "name" : "producer_licenses_row_md5checksum",
+            "name" : "producer_row_md5checksum",
             "platformType" : {
               "name" : "string"
             },
@@ -1310,9 +1124,9 @@
           },
           {
             "adapterField" : {
-              "name" : "producer_licenses_datetime_created"
+              "name" : "producer_datetime_created"
             },
-            "name" : "producer_licenses_datetime_created",
+            "name" : "producer_datetime_created",
             "platformType" : {
               "name" : "date/time"
             },
@@ -1321,9 +1135,9 @@
           },
           {
             "adapterField" : {
-              "name" : "producer_licenses_datetime_modified"
+              "name" : "producer_datetime_modified"
             },
-            "name" : "producer_licenses_datetime_modified",
+            "name" : "producer_datetime_modified",
             "platformType" : {
               "name" : "date/time"
             },
@@ -1332,9 +1146,9 @@
           },
           {
             "adapterField" : {
-              "name" : "producer_licenses_row_effective_start_datetime"
+              "name" : "producer_row_effective_start_datetime"
             },
-            "name" : "producer_licenses_row_effective_start_datetime",
+            "name" : "producer_row_effective_start_datetime",
             "platformType" : {
               "name" : "date/time"
             },
@@ -1343,9 +1157,9 @@
           },
           {
             "adapterField" : {
-              "name" : "producer_licenses_row_effective_end_datetime"
+              "name" : "producer_row_effective_end_datetime"
             },
-            "name" : "producer_licenses_row_effective_end_datetime",
+            "name" : "producer_row_effective_end_datetime",
             "platformType" : {
               "name" : "date/time"
             },
@@ -1354,9 +1168,9 @@
           },
           {
             "adapterField" : {
-              "name" : "agency_number"
+              "name" : "is_producer_active"
             },
-            "name" : "agency_number",
+            "name" : "is_producer_active",
             "platformType" : {
               "name" : "string"
             },
@@ -1365,101 +1179,24 @@
           },
           {
             "adapterField" : {
-              "name" : "license_appointed_date"
+              "name" : "federal_id_number"
             },
-            "name" : "license_appointed_date",
+            "name" : "federal_id_number",
             "platformType" : {
-              "name" : "date/time"
+              "name" : "string"
             },
-            "precision" : 29,
-            "scale" : 9
+            "precision" : 2047,
+            "scale" : 0
           },
           {
             "adapterField" : {
-              "name" : "license_cancellation_date"
+              "name" : "federal_id_type"
             },
-            "name" : "license_cancellation_date",
-            "platformType" : {
-              "name" : "date/time"
-            },
-            "precision" : 29,
-            "scale" : 9
-          },
-          {
-            "adapterField" : {
-              "name" : "company_abbreviation"
-            },
-            "name" : "company_abbreviation",
+            "name" : "federal_id_type",
             "platformType" : {
               "name" : "string"
             },
             "precision" : 7,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "license_expiration_date"
-            },
-            "name" : "license_expiration_date",
-            "platformType" : {
-              "name" : "date/time"
-            },
-            "precision" : 29,
-            "scale" : 9
-          },
-          {
-            "adapterField" : {
-              "name" : "acx_producer_id"
-            },
-            "name" : "acx_producer_id",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 15,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "license_id"
-            },
-            "name" : "license_id",
-            "platformType" : {
-              "name" : "integer"
-            },
-            "precision" : 10,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "license_number"
-            },
-            "name" : "license_number",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 31,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "license_type"
-            },
-            "name" : "license_type",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 7,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "line_of_business"
-            },
-            "name" : "line_of_business",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 63,
             "scale" : 0
           },
           {
@@ -1475,31 +1212,31 @@
           },
           {
             "adapterField" : {
-              "name" : "license_issued_state"
+              "name" : "producer_name"
             },
-            "name" : "license_issued_state",
+            "name" : "producer_name",
             "platformType" : {
               "name" : "string"
             },
-            "precision" : 7,
+            "precision" : 63,
             "scale" : 0
           },
           {
             "adapterField" : {
-              "name" : "license_termination_flag"
+              "name" : "national_producer_number"
             },
-            "name" : "license_termination_flag",
+            "name" : "national_producer_number",
             "platformType" : {
-              "name" : "integer"
+              "name" : "string"
             },
-            "precision" : 10,
+            "precision" : 31,
             "scale" : 0
           },
           {
             "adapterField" : {
-              "name" : "license_termination_id"
+              "name" : "producer_termination_flag"
             },
-            "name" : "license_termination_id",
+            "name" : "producer_termination_flag",
             "platformType" : {
               "name" : "integer"
             },
@@ -1516,18 +1253,18 @@
           "typeSystem" : "TOOLKIT",
           "useDynamicFileName" : "false",
           "object" : {
-            "name" : "bronze/adm_producer_licenses",
-            "label" : "bronze/adm_producer_licenses",
-            "objectName" : "adm_producer_licenses",
+            "name" : "bronze/adm_producer",
+            "label" : "bronze/adm_producer",
+            "objectName" : "adm_producer",
             "objectType" : "amazonredshift",
-            "path" : "bronze/adm_producer_licenses",
+            "path" : "bronze/adm_producer",
             "retainMetadata" : "false",
             "fields" : [
               {
-                "name" : "producer_licenses_row_id",
+                "name" : "producer_row_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "producer_licenses_row_id",
-                "nativeName" : "producer_licenses_row_id",
+                "label" : "producer_row_id",
+                "nativeName" : "producer_row_id",
                 "nativeType" : "int8",
                 "original" : "false",
                 "precision" : 19,
@@ -1535,15 +1272,15 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_producer_licenses"
+                    "value" : "adm_producer"
                   }
                 ]
               },
               {
-                "name" : "producer_licenses_batch_id",
+                "name" : "producer_batch_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "producer_licenses_batch_id",
-                "nativeName" : "producer_licenses_batch_id",
+                "label" : "producer_batch_id",
+                "nativeName" : "producer_batch_id",
                 "nativeType" : "int8",
                 "original" : "false",
                 "precision" : 19,
@@ -1551,7 +1288,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_producer_licenses"
+                    "value" : "adm_producer"
                   }
                 ]
               },
@@ -1567,7 +1304,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_producer_licenses"
+                    "value" : "adm_producer"
                   }
                 ]
               },
@@ -1583,15 +1320,15 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_producer_licenses"
+                    "value" : "adm_producer"
                   }
                 ]
               },
               {
-                "name" : "producer_licenses_row_md5checksum",
+                "name" : "producer_row_md5checksum",
                 "fieldType" : "CONNECTOR",
-                "label" : "producer_licenses_row_md5checksum",
-                "nativeName" : "producer_licenses_row_md5checksum",
+                "label" : "producer_row_md5checksum",
+                "nativeName" : "producer_row_md5checksum",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 255,
@@ -1599,15 +1336,15 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_producer_licenses"
+                    "value" : "adm_producer"
                   }
                 ]
               },
               {
-                "name" : "producer_licenses_datetime_created",
+                "name" : "producer_datetime_created",
                 "fieldType" : "CONNECTOR",
-                "label" : "producer_licenses_datetime_created",
-                "nativeName" : "producer_licenses_datetime_created",
+                "label" : "producer_datetime_created",
+                "nativeName" : "producer_datetime_created",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 29,
@@ -1615,15 +1352,15 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_producer_licenses"
+                    "value" : "adm_producer"
                   }
                 ]
               },
               {
-                "name" : "producer_licenses_datetime_modified",
+                "name" : "producer_datetime_modified",
                 "fieldType" : "CONNECTOR",
-                "label" : "producer_licenses_datetime_modified",
-                "nativeName" : "producer_licenses_datetime_modified",
+                "label" : "producer_datetime_modified",
+                "nativeName" : "producer_datetime_modified",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 29,
@@ -1631,15 +1368,15 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_producer_licenses"
+                    "value" : "adm_producer"
                   }
                 ]
               },
               {
-                "name" : "producer_licenses_row_effective_start_datetime",
+                "name" : "producer_row_effective_start_datetime",
                 "fieldType" : "CONNECTOR",
-                "label" : "producer_licenses_row_effective_start_datetime",
-                "nativeName" : "producer_licenses_row_effective_start_datetime",
+                "label" : "producer_row_effective_start_datetime",
+                "nativeName" : "producer_row_effective_start_datetime",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 29,
@@ -1647,15 +1384,15 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_producer_licenses"
+                    "value" : "adm_producer"
                   }
                 ]
               },
               {
-                "name" : "producer_licenses_row_effective_end_datetime",
+                "name" : "producer_row_effective_end_datetime",
                 "fieldType" : "CONNECTOR",
-                "label" : "producer_licenses_row_effective_end_datetime",
-                "nativeName" : "producer_licenses_row_effective_end_datetime",
+                "label" : "producer_row_effective_end_datetime",
+                "nativeName" : "producer_row_effective_end_datetime",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 29,
@@ -1663,15 +1400,15 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_producer_licenses"
+                    "value" : "adm_producer"
                   }
                 ]
               },
               {
-                "name" : "agency_number",
+                "name" : "is_producer_active",
                 "fieldType" : "CONNECTOR",
-                "label" : "agency_number",
-                "nativeName" : "agency_number",
+                "label" : "is_producer_active",
+                "nativeName" : "is_producer_active",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 7,
@@ -1679,47 +1416,31 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_producer_licenses"
+                    "value" : "adm_producer"
                   }
                 ]
               },
               {
-                "name" : "license_appointed_date",
+                "name" : "federal_id_number",
                 "fieldType" : "CONNECTOR",
-                "label" : "license_appointed_date",
-                "nativeName" : "license_appointed_date",
-                "nativeType" : "date",
+                "label" : "federal_id_number",
+                "nativeName" : "federal_id_number",
+                "nativeType" : "varchar",
                 "original" : "false",
-                "precision" : 13,
+                "precision" : 2047,
                 "scale" : 0,
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_producer_licenses"
+                    "value" : "adm_producer"
                   }
                 ]
               },
               {
-                "name" : "license_cancellation_date",
+                "name" : "federal_id_type",
                 "fieldType" : "CONNECTOR",
-                "label" : "license_cancellation_date",
-                "nativeName" : "license_cancellation_date",
-                "nativeType" : "date",
-                "original" : "false",
-                "precision" : 13,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_producer_licenses"
-                  }
-                ]
-              },
-              {
-                "name" : "company_abbreviation",
-                "fieldType" : "CONNECTOR",
-                "label" : "company_abbreviation",
-                "nativeName" : "company_abbreviation",
+                "label" : "federal_id_type",
+                "nativeName" : "federal_id_type",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 7,
@@ -1727,103 +1448,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_producer_licenses"
-                  }
-                ]
-              },
-              {
-                "name" : "license_expiration_date",
-                "fieldType" : "CONNECTOR",
-                "label" : "license_expiration_date",
-                "nativeName" : "license_expiration_date",
-                "nativeType" : "date",
-                "original" : "false",
-                "precision" : 13,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_producer_licenses"
-                  }
-                ]
-              },
-              {
-                "name" : "acx_producer_id",
-                "fieldType" : "CONNECTOR",
-                "label" : "acx_producer_id",
-                "nativeName" : "acx_producer_id",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 15,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_producer_licenses"
-                  }
-                ]
-              },
-              {
-                "name" : "license_id",
-                "fieldType" : "CONNECTOR",
-                "label" : "license_id",
-                "nativeName" : "license_id",
-                "nativeType" : "int4",
-                "original" : "false",
-                "precision" : 10,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_producer_licenses"
-                  }
-                ]
-              },
-              {
-                "name" : "license_number",
-                "fieldType" : "CONNECTOR",
-                "label" : "license_number",
-                "nativeName" : "license_number",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 31,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_producer_licenses"
-                  }
-                ]
-              },
-              {
-                "name" : "license_type",
-                "fieldType" : "CONNECTOR",
-                "label" : "license_type",
-                "nativeName" : "license_type",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 7,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_producer_licenses"
-                  }
-                ]
-              },
-              {
-                "name" : "line_of_business",
-                "fieldType" : "CONNECTOR",
-                "label" : "line_of_business",
-                "nativeName" : "line_of_business",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 63,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_producer_licenses"
+                    "value" : "adm_producer"
                   }
                 ]
               },
@@ -1839,31 +1464,47 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_producer_licenses"
+                    "value" : "adm_producer"
                   }
                 ]
               },
               {
-                "name" : "license_issued_state",
+                "name" : "producer_name",
                 "fieldType" : "CONNECTOR",
-                "label" : "license_issued_state",
-                "nativeName" : "license_issued_state",
+                "label" : "producer_name",
+                "nativeName" : "producer_name",
                 "nativeType" : "varchar",
                 "original" : "false",
-                "precision" : 7,
+                "precision" : 63,
                 "scale" : 0,
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_producer_licenses"
+                    "value" : "adm_producer"
                   }
                 ]
               },
               {
-                "name" : "license_termination_flag",
+                "name" : "national_producer_number",
                 "fieldType" : "CONNECTOR",
-                "label" : "license_termination_flag",
-                "nativeName" : "license_termination_flag",
+                "label" : "national_producer_number",
+                "nativeName" : "national_producer_number",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 31,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_producer"
+                  }
+                ]
+              },
+              {
+                "name" : "producer_termination_flag",
+                "fieldType" : "CONNECTOR",
+                "label" : "producer_termination_flag",
+                "nativeName" : "producer_termination_flag",
                 "nativeType" : "int4",
                 "original" : "false",
                 "precision" : 10,
@@ -1871,23 +1512,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_producer_licenses"
-                  }
-                ]
-              },
-              {
-                "name" : "license_termination_id",
-                "fieldType" : "CONNECTOR",
-                "label" : "license_termination_id",
-                "nativeName" : "license_termination_id",
-                "nativeType" : "int4",
-                "original" : "false",
-                "precision" : 10,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_producer_licenses"
+                    "value" : "adm_producer"
                   }
                 ]
               }
@@ -1985,6 +1610,13 @@
         "manualMappings" : {
           "mappingList" : [
             {
+              "fromFieldName" : "batch_id",
+              "toField" : {
+                "name" : "producer_batch_id"
+              },
+              "fromFieldNames" : null
+            },
+            {
               "fromFieldName" : "source_name",
               "toField" : {
                 "name" : "source_name"
@@ -2001,119 +1633,49 @@
             {
               "fromFieldName" : "o_src_md5_hash_value",
               "toField" : {
-                "name" : "producer_licenses_row_md5checksum"
+                "name" : "producer_row_md5checksum"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "o_producer_licenses_datetime_created",
+              "fromFieldName" : "o_producer_datetime_created",
               "toField" : {
-                "name" : "producer_licenses_datetime_created"
+                "name" : "producer_datetime_created"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "o_producer_licenses_datetime_modified",
+              "fromFieldName" : "o_producer_datetime_modified",
               "toField" : {
-                "name" : "producer_licenses_datetime_modified"
+                "name" : "producer_datetime_modified"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "o_producer_license_row_effective_start_datetime",
+              "fromFieldName" : "o_producer_row_effective_start_datetime",
               "toField" : {
-                "name" : "producer_licenses_row_effective_start_datetime"
+                "name" : "producer_row_effective_start_datetime"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "o_producer_license_row_effective_end_datetime",
+              "fromFieldName" : "o_producer_row_effective_end_datetime",
               "toField" : {
-                "name" : "producer_licenses_row_effective_end_datetime"
+                "name" : "producer_row_effective_end_datetime"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "o_agency_number",
+              "fromFieldName" : "active",
               "toField" : {
-                "name" : "agency_number"
+                "name" : "is_producer_active"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "batch_id",
+              "fromFieldName" : "o_producer_termination_flag",
               "toField" : {
-                "name" : "producer_licenses_batch_id"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "o_license_id",
-              "toField" : {
-                "name" : "license_id"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "company",
-              "toField" : {
-                "name" : "company_abbreviation"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "gw_producer_id",
-              "toField" : {
-                "name" : "acx_producer_id"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "license_number",
-              "toField" : {
-                "name" : "license_number"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "license_type",
-              "toField" : {
-                "name" : "license_type"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "lob",
-              "toField" : {
-                "name" : "line_of_business"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "state",
-              "toField" : {
-                "name" : "license_issued_state"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "o_license_appointed_date",
-              "toField" : {
-                "name" : "license_appointed_date"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "o_license_cancellation_date",
-              "toField" : {
-                "name" : "license_cancellation_date"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "o_license_expiration_date",
-              "toField" : {
-                "name" : "license_expiration_date"
+                "name" : "producer_termination_flag"
               },
               "fromFieldNames" : null
             },
@@ -2125,16 +1687,30 @@
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "o_license_termination_flag",
+              "fromFieldName" : "fid_type",
               "toField" : {
-                "name" : "license_termination_flag"
+                "name" : "federal_id_type"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "o_license_termination_id",
+              "fromFieldName" : "fid_num",
               "toField" : {
-                "name" : "license_termination_id"
+                "name" : "federal_id_number"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "name",
+              "toField" : {
+                "name" : "producer_name"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "npn_number",
+              "toField" : {
+                "name" : "national_producer_number"
               },
               "fromFieldNames" : null
             }
@@ -2142,6 +1718,7 @@
         }
       },
       {
+        "description" : "Loads from Metal staging layer to the Bronze tables. SCD2(maintains history of the records, active records are open ended and old ones have closed date)",
         "createTime" : "2025-05-12T20:30:21.032Z",
         "name" : "tgt_update_closeout",
         "advancedProperties" : [
@@ -2168,16 +1745,16 @@
         "inputSorted" : "false",
         "schemaProviderType" : "SELECTED_OBJECT",
         "updateColumns" : [
-          "producer_licenses_row_id"
+          "producer_row_id"
         ],
         "useLabels" : "false",
         "useSequenceFields" : "false",
         "fields" : [
           {
             "adapterField" : {
-              "name" : "producer_licenses_row_id"
+              "name" : "producer_row_id"
             },
-            "name" : "producer_licenses_row_id",
+            "name" : "producer_row_id",
             "platformType" : {
               "name" : "bigint"
             },
@@ -2186,9 +1763,9 @@
           },
           {
             "adapterField" : {
-              "name" : "producer_licenses_batch_id"
+              "name" : "producer_batch_id"
             },
-            "name" : "producer_licenses_batch_id",
+            "name" : "producer_batch_id",
             "platformType" : {
               "name" : "bigint"
             },
@@ -2219,9 +1796,9 @@
           },
           {
             "adapterField" : {
-              "name" : "producer_licenses_row_md5checksum"
+              "name" : "producer_row_md5checksum"
             },
-            "name" : "producer_licenses_row_md5checksum",
+            "name" : "producer_row_md5checksum",
             "platformType" : {
               "name" : "string"
             },
@@ -2230,9 +1807,9 @@
           },
           {
             "adapterField" : {
-              "name" : "producer_licenses_datetime_created"
+              "name" : "producer_datetime_created"
             },
-            "name" : "producer_licenses_datetime_created",
+            "name" : "producer_datetime_created",
             "platformType" : {
               "name" : "date/time"
             },
@@ -2241,9 +1818,9 @@
           },
           {
             "adapterField" : {
-              "name" : "producer_licenses_datetime_modified"
+              "name" : "producer_datetime_modified"
             },
-            "name" : "producer_licenses_datetime_modified",
+            "name" : "producer_datetime_modified",
             "platformType" : {
               "name" : "date/time"
             },
@@ -2252,9 +1829,9 @@
           },
           {
             "adapterField" : {
-              "name" : "producer_licenses_row_effective_start_datetime"
+              "name" : "producer_row_effective_start_datetime"
             },
-            "name" : "producer_licenses_row_effective_start_datetime",
+            "name" : "producer_row_effective_start_datetime",
             "platformType" : {
               "name" : "date/time"
             },
@@ -2263,9 +1840,9 @@
           },
           {
             "adapterField" : {
-              "name" : "producer_licenses_row_effective_end_datetime"
+              "name" : "producer_row_effective_end_datetime"
             },
-            "name" : "producer_licenses_row_effective_end_datetime",
+            "name" : "producer_row_effective_end_datetime",
             "platformType" : {
               "name" : "date/time"
             },
@@ -2274,9 +1851,9 @@
           },
           {
             "adapterField" : {
-              "name" : "agency_number"
+              "name" : "is_producer_active"
             },
-            "name" : "agency_number",
+            "name" : "is_producer_active",
             "platformType" : {
               "name" : "string"
             },
@@ -2285,101 +1862,24 @@
           },
           {
             "adapterField" : {
-              "name" : "license_appointed_date"
+              "name" : "federal_id_number"
             },
-            "name" : "license_appointed_date",
+            "name" : "federal_id_number",
             "platformType" : {
-              "name" : "date/time"
+              "name" : "string"
             },
-            "precision" : 29,
-            "scale" : 9
+            "precision" : 2047,
+            "scale" : 0
           },
           {
             "adapterField" : {
-              "name" : "license_cancellation_date"
+              "name" : "federal_id_type"
             },
-            "name" : "license_cancellation_date",
-            "platformType" : {
-              "name" : "date/time"
-            },
-            "precision" : 29,
-            "scale" : 9
-          },
-          {
-            "adapterField" : {
-              "name" : "company_abbreviation"
-            },
-            "name" : "company_abbreviation",
+            "name" : "federal_id_type",
             "platformType" : {
               "name" : "string"
             },
             "precision" : 7,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "license_expiration_date"
-            },
-            "name" : "license_expiration_date",
-            "platformType" : {
-              "name" : "date/time"
-            },
-            "precision" : 29,
-            "scale" : 9
-          },
-          {
-            "adapterField" : {
-              "name" : "acx_producer_id"
-            },
-            "name" : "acx_producer_id",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 15,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "license_id"
-            },
-            "name" : "license_id",
-            "platformType" : {
-              "name" : "integer"
-            },
-            "precision" : 10,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "license_number"
-            },
-            "name" : "license_number",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 31,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "license_type"
-            },
-            "name" : "license_type",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 7,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "line_of_business"
-            },
-            "name" : "line_of_business",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 63,
             "scale" : 0
           },
           {
@@ -2395,31 +1895,31 @@
           },
           {
             "adapterField" : {
-              "name" : "license_issued_state"
+              "name" : "producer_name"
             },
-            "name" : "license_issued_state",
+            "name" : "producer_name",
             "platformType" : {
               "name" : "string"
             },
-            "precision" : 7,
+            "precision" : 63,
             "scale" : 0
           },
           {
             "adapterField" : {
-              "name" : "license_termination_flag"
+              "name" : "national_producer_number"
             },
-            "name" : "license_termination_flag",
+            "name" : "national_producer_number",
             "platformType" : {
-              "name" : "integer"
+              "name" : "string"
             },
-            "precision" : 10,
+            "precision" : 31,
             "scale" : 0
           },
           {
             "adapterField" : {
-              "name" : "license_termination_id"
+              "name" : "producer_termination_flag"
             },
-            "name" : "license_termination_id",
+            "name" : "producer_termination_flag",
             "platformType" : {
               "name" : "integer"
             },
@@ -2447,18 +1947,18 @@
             "useBulkApiV2" : "false"
           },
           "object" : {
-            "name" : "bronze/adm_producer_licenses",
-            "label" : "bronze/adm_producer_licenses",
-            "objectName" : "adm_producer_licenses",
+            "name" : "bronze/adm_producer",
+            "label" : "bronze/adm_producer",
+            "objectName" : "adm_producer",
             "objectType" : "amazonredshift",
-            "path" : "bronze/adm_producer_licenses",
+            "path" : "bronze/adm_producer",
             "retainMetadata" : "false",
             "fields" : [
               {
-                "name" : "producer_licenses_row_id",
+                "name" : "producer_row_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "producer_licenses_row_id",
-                "nativeName" : "producer_licenses_row_id",
+                "label" : "producer_row_id",
+                "nativeName" : "producer_row_id",
                 "nativeType" : "int8",
                 "original" : "false",
                 "precision" : 19,
@@ -2466,15 +1966,15 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_producer_licenses"
+                    "value" : "adm_producer"
                   }
                 ]
               },
               {
-                "name" : "producer_licenses_batch_id",
+                "name" : "producer_batch_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "producer_licenses_batch_id",
-                "nativeName" : "producer_licenses_batch_id",
+                "label" : "producer_batch_id",
+                "nativeName" : "producer_batch_id",
                 "nativeType" : "int8",
                 "original" : "false",
                 "precision" : 19,
@@ -2482,7 +1982,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_producer_licenses"
+                    "value" : "adm_producer"
                   }
                 ]
               },
@@ -2498,7 +1998,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_producer_licenses"
+                    "value" : "adm_producer"
                   }
                 ]
               },
@@ -2514,15 +2014,15 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_producer_licenses"
+                    "value" : "adm_producer"
                   }
                 ]
               },
               {
-                "name" : "producer_licenses_row_md5checksum",
+                "name" : "producer_row_md5checksum",
                 "fieldType" : "CONNECTOR",
-                "label" : "producer_licenses_row_md5checksum",
-                "nativeName" : "producer_licenses_row_md5checksum",
+                "label" : "producer_row_md5checksum",
+                "nativeName" : "producer_row_md5checksum",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 255,
@@ -2530,15 +2030,15 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_producer_licenses"
+                    "value" : "adm_producer"
                   }
                 ]
               },
               {
-                "name" : "producer_licenses_datetime_created",
+                "name" : "producer_datetime_created",
                 "fieldType" : "CONNECTOR",
-                "label" : "producer_licenses_datetime_created",
-                "nativeName" : "producer_licenses_datetime_created",
+                "label" : "producer_datetime_created",
+                "nativeName" : "producer_datetime_created",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 29,
@@ -2546,15 +2046,15 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_producer_licenses"
+                    "value" : "adm_producer"
                   }
                 ]
               },
               {
-                "name" : "producer_licenses_datetime_modified",
+                "name" : "producer_datetime_modified",
                 "fieldType" : "CONNECTOR",
-                "label" : "producer_licenses_datetime_modified",
-                "nativeName" : "producer_licenses_datetime_modified",
+                "label" : "producer_datetime_modified",
+                "nativeName" : "producer_datetime_modified",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 29,
@@ -2562,15 +2062,15 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_producer_licenses"
+                    "value" : "adm_producer"
                   }
                 ]
               },
               {
-                "name" : "producer_licenses_row_effective_start_datetime",
+                "name" : "producer_row_effective_start_datetime",
                 "fieldType" : "CONNECTOR",
-                "label" : "producer_licenses_row_effective_start_datetime",
-                "nativeName" : "producer_licenses_row_effective_start_datetime",
+                "label" : "producer_row_effective_start_datetime",
+                "nativeName" : "producer_row_effective_start_datetime",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 29,
@@ -2578,15 +2078,15 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_producer_licenses"
+                    "value" : "adm_producer"
                   }
                 ]
               },
               {
-                "name" : "producer_licenses_row_effective_end_datetime",
+                "name" : "producer_row_effective_end_datetime",
                 "fieldType" : "CONNECTOR",
-                "label" : "producer_licenses_row_effective_end_datetime",
-                "nativeName" : "producer_licenses_row_effective_end_datetime",
+                "label" : "producer_row_effective_end_datetime",
+                "nativeName" : "producer_row_effective_end_datetime",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 29,
@@ -2594,15 +2094,15 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_producer_licenses"
+                    "value" : "adm_producer"
                   }
                 ]
               },
               {
-                "name" : "agency_number",
+                "name" : "is_producer_active",
                 "fieldType" : "CONNECTOR",
-                "label" : "agency_number",
-                "nativeName" : "agency_number",
+                "label" : "is_producer_active",
+                "nativeName" : "is_producer_active",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 7,
@@ -2610,47 +2110,31 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_producer_licenses"
+                    "value" : "adm_producer"
                   }
                 ]
               },
               {
-                "name" : "license_appointed_date",
+                "name" : "federal_id_number",
                 "fieldType" : "CONNECTOR",
-                "label" : "license_appointed_date",
-                "nativeName" : "license_appointed_date",
-                "nativeType" : "date",
+                "label" : "federal_id_number",
+                "nativeName" : "federal_id_number",
+                "nativeType" : "varchar",
                 "original" : "false",
-                "precision" : 13,
+                "precision" : 2047,
                 "scale" : 0,
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_producer_licenses"
+                    "value" : "adm_producer"
                   }
                 ]
               },
               {
-                "name" : "license_cancellation_date",
+                "name" : "federal_id_type",
                 "fieldType" : "CONNECTOR",
-                "label" : "license_cancellation_date",
-                "nativeName" : "license_cancellation_date",
-                "nativeType" : "date",
-                "original" : "false",
-                "precision" : 13,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_producer_licenses"
-                  }
-                ]
-              },
-              {
-                "name" : "company_abbreviation",
-                "fieldType" : "CONNECTOR",
-                "label" : "company_abbreviation",
-                "nativeName" : "company_abbreviation",
+                "label" : "federal_id_type",
+                "nativeName" : "federal_id_type",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 7,
@@ -2658,103 +2142,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_producer_licenses"
-                  }
-                ]
-              },
-              {
-                "name" : "license_expiration_date",
-                "fieldType" : "CONNECTOR",
-                "label" : "license_expiration_date",
-                "nativeName" : "license_expiration_date",
-                "nativeType" : "date",
-                "original" : "false",
-                "precision" : 13,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_producer_licenses"
-                  }
-                ]
-              },
-              {
-                "name" : "acx_producer_id",
-                "fieldType" : "CONNECTOR",
-                "label" : "acx_producer_id",
-                "nativeName" : "acx_producer_id",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 15,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_producer_licenses"
-                  }
-                ]
-              },
-              {
-                "name" : "license_id",
-                "fieldType" : "CONNECTOR",
-                "label" : "license_id",
-                "nativeName" : "license_id",
-                "nativeType" : "int4",
-                "original" : "false",
-                "precision" : 10,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_producer_licenses"
-                  }
-                ]
-              },
-              {
-                "name" : "license_number",
-                "fieldType" : "CONNECTOR",
-                "label" : "license_number",
-                "nativeName" : "license_number",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 31,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_producer_licenses"
-                  }
-                ]
-              },
-              {
-                "name" : "license_type",
-                "fieldType" : "CONNECTOR",
-                "label" : "license_type",
-                "nativeName" : "license_type",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 7,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_producer_licenses"
-                  }
-                ]
-              },
-              {
-                "name" : "line_of_business",
-                "fieldType" : "CONNECTOR",
-                "label" : "line_of_business",
-                "nativeName" : "line_of_business",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 63,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_producer_licenses"
+                    "value" : "adm_producer"
                   }
                 ]
               },
@@ -2770,31 +2158,47 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_producer_licenses"
+                    "value" : "adm_producer"
                   }
                 ]
               },
               {
-                "name" : "license_issued_state",
+                "name" : "producer_name",
                 "fieldType" : "CONNECTOR",
-                "label" : "license_issued_state",
-                "nativeName" : "license_issued_state",
+                "label" : "producer_name",
+                "nativeName" : "producer_name",
                 "nativeType" : "varchar",
                 "original" : "false",
-                "precision" : 7,
+                "precision" : 63,
                 "scale" : 0,
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_producer_licenses"
+                    "value" : "adm_producer"
                   }
                 ]
               },
               {
-                "name" : "license_termination_flag",
+                "name" : "national_producer_number",
                 "fieldType" : "CONNECTOR",
-                "label" : "license_termination_flag",
-                "nativeName" : "license_termination_flag",
+                "label" : "national_producer_number",
+                "nativeName" : "national_producer_number",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 31,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_producer"
+                  }
+                ]
+              },
+              {
+                "name" : "producer_termination_flag",
+                "fieldType" : "CONNECTOR",
+                "label" : "producer_termination_flag",
+                "nativeName" : "producer_termination_flag",
                 "nativeType" : "int4",
                 "original" : "false",
                 "precision" : 10,
@@ -2802,23 +2206,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_producer_licenses"
-                  }
-                ]
-              },
-              {
-                "name" : "license_termination_id",
-                "fieldType" : "CONNECTOR",
-                "label" : "license_termination_id",
-                "nativeName" : "license_termination_id",
-                "nativeType" : "int4",
-                "original" : "false",
-                "precision" : 10,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_producer_licenses"
+                    "value" : "adm_producer"
                   }
                 ]
               }
@@ -2916,16 +2304,16 @@
         "manualMappings" : {
           "mappingList" : [
             {
-              "fromFieldName" : "producer_licenses_row_id",
+              "fromFieldName" : "o_retire_old_record",
               "toField" : {
-                "name" : "producer_licenses_row_id"
+                "name" : "producer_row_effective_end_datetime"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "o_retire_old_record",
+              "fromFieldName" : "producer_row_id",
               "toField" : {
-                "name" : "producer_licenses_row_effective_end_datetime"
+                "name" : "producer_row_id"
               },
               "fromFieldNames" : null
             }
@@ -2933,37 +2321,7 @@
         }
       },
       {
-        "createTime" : "2025-05-15T19:33:44.587Z",
-        "name" : "exp_passthrough",
-        "groups" : [
-          {
-            "input" : "true",
-            "name" : "DefaultGroup",
-            "output" : "true",
-            "rules" : [
-              {
-                "bulkRename" : "false",
-                "include" : "true",
-                "bulkRenameOption" : {
-                  "literal" : "tgt_",
-                  "suffix" : "false"
-                }
-              }
-            ]
-          }
-        ],
-        "windowConfigurationEnabled" : "false",
-        "windowSpec" : {
-          "allRowsFollowing" : "false",
-          "allRowsPreceding" : "false",
-          "endOffset" : 0,
-          "startOffset" : 0,
-          "partitionKeys" : null
-        }
-      },
-      {
-        "description" : "This Joiner transformation is used to combine source records with the latest existing records from the target to identify new inserts and update the end date for records that need to be retired",
-        "createTime" : "2025-05-15T19:49:36.310Z",
+        "createTime" : "2025-05-14T04:21:47.331Z",
         "name" : "jnr_src_tgt",
         "groups" : [
           {
@@ -2984,7 +2342,11 @@
             "rules" : [
               {
                 "bulkRename" : "false",
-                "include" : "true"
+                "include" : "true",
+                "bulkRenameOption" : {
+                  "literal" : "tgt_",
+                  "suffix" : "false"
+                }
               }
             ]
           },
@@ -2997,14 +2359,39 @@
         "joinType" : "Detail Outer Join",
         "joinConditions" : [
           {
-            "leftOperand" : "o_license_id",
+            "leftOperand" : "o_producer_id",
             "operator" : "=",
-            "rightOperand" : "license_id"
+            "rightOperand" : "producer_id"
           }
         ]
       },
       {
-        "createTime" : "2025-05-23T20:37:31.100Z",
+        "createTime" : "2025-05-26T17:59:42.156Z",
+        "name" : "exp_passthrough",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "windowConfigurationEnabled" : "false",
+        "windowSpec" : {
+          "allRowsFollowing" : "false",
+          "allRowsPreceding" : "false",
+          "endOffset" : 0,
+          "startOffset" : 0,
+          "partitionKeys" : null
+        }
+      },
+      {
+        "createTime" : "2025-05-26T18:05:12.437Z",
         "name" : "tgt_update_records",
         "advancedProperties" : [
           {
@@ -3035,9 +2422,9 @@
         "fields" : [
           {
             "adapterField" : {
-              "name" : "producer_licenses_row_id"
+              "name" : "producer_row_id"
             },
-            "name" : "producer_licenses_row_id",
+            "name" : "producer_row_id",
             "platformType" : {
               "name" : "bigint"
             },
@@ -3046,9 +2433,9 @@
           },
           {
             "adapterField" : {
-              "name" : "producer_licenses_batch_id"
+              "name" : "producer_batch_id"
             },
-            "name" : "producer_licenses_batch_id",
+            "name" : "producer_batch_id",
             "platformType" : {
               "name" : "bigint"
             },
@@ -3079,9 +2466,9 @@
           },
           {
             "adapterField" : {
-              "name" : "producer_licenses_row_md5checksum"
+              "name" : "producer_row_md5checksum"
             },
-            "name" : "producer_licenses_row_md5checksum",
+            "name" : "producer_row_md5checksum",
             "platformType" : {
               "name" : "string"
             },
@@ -3090,9 +2477,9 @@
           },
           {
             "adapterField" : {
-              "name" : "producer_licenses_datetime_created"
+              "name" : "producer_datetime_created"
             },
-            "name" : "producer_licenses_datetime_created",
+            "name" : "producer_datetime_created",
             "platformType" : {
               "name" : "date/time"
             },
@@ -3101,9 +2488,9 @@
           },
           {
             "adapterField" : {
-              "name" : "producer_licenses_datetime_modified"
+              "name" : "producer_datetime_modified"
             },
-            "name" : "producer_licenses_datetime_modified",
+            "name" : "producer_datetime_modified",
             "platformType" : {
               "name" : "date/time"
             },
@@ -3112,9 +2499,9 @@
           },
           {
             "adapterField" : {
-              "name" : "producer_licenses_row_effective_start_datetime"
+              "name" : "producer_row_effective_start_datetime"
             },
-            "name" : "producer_licenses_row_effective_start_datetime",
+            "name" : "producer_row_effective_start_datetime",
             "platformType" : {
               "name" : "date/time"
             },
@@ -3123,9 +2510,9 @@
           },
           {
             "adapterField" : {
-              "name" : "producer_licenses_row_effective_end_datetime"
+              "name" : "producer_row_effective_end_datetime"
             },
-            "name" : "producer_licenses_row_effective_end_datetime",
+            "name" : "producer_row_effective_end_datetime",
             "platformType" : {
               "name" : "date/time"
             },
@@ -3134,9 +2521,9 @@
           },
           {
             "adapterField" : {
-              "name" : "agency_number"
+              "name" : "is_producer_active"
             },
-            "name" : "agency_number",
+            "name" : "is_producer_active",
             "platformType" : {
               "name" : "string"
             },
@@ -3145,101 +2532,24 @@
           },
           {
             "adapterField" : {
-              "name" : "license_appointed_date"
+              "name" : "federal_id_number"
             },
-            "name" : "license_appointed_date",
+            "name" : "federal_id_number",
             "platformType" : {
-              "name" : "date/time"
+              "name" : "string"
             },
-            "precision" : 29,
-            "scale" : 9
+            "precision" : 2047,
+            "scale" : 0
           },
           {
             "adapterField" : {
-              "name" : "license_cancellation_date"
+              "name" : "federal_id_type"
             },
-            "name" : "license_cancellation_date",
-            "platformType" : {
-              "name" : "date/time"
-            },
-            "precision" : 29,
-            "scale" : 9
-          },
-          {
-            "adapterField" : {
-              "name" : "company_abbreviation"
-            },
-            "name" : "company_abbreviation",
+            "name" : "federal_id_type",
             "platformType" : {
               "name" : "string"
             },
             "precision" : 7,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "license_expiration_date"
-            },
-            "name" : "license_expiration_date",
-            "platformType" : {
-              "name" : "date/time"
-            },
-            "precision" : 29,
-            "scale" : 9
-          },
-          {
-            "adapterField" : {
-              "name" : "acx_producer_id"
-            },
-            "name" : "acx_producer_id",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 15,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "license_id"
-            },
-            "name" : "license_id",
-            "platformType" : {
-              "name" : "integer"
-            },
-            "precision" : 10,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "license_number"
-            },
-            "name" : "license_number",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 31,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "license_type"
-            },
-            "name" : "license_type",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 7,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "line_of_business"
-            },
-            "name" : "line_of_business",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 63,
             "scale" : 0
           },
           {
@@ -3255,31 +2565,31 @@
           },
           {
             "adapterField" : {
-              "name" : "license_issued_state"
+              "name" : "producer_name"
             },
-            "name" : "license_issued_state",
+            "name" : "producer_name",
             "platformType" : {
               "name" : "string"
             },
-            "precision" : 7,
+            "precision" : 63,
             "scale" : 0
           },
           {
             "adapterField" : {
-              "name" : "license_termination_flag"
+              "name" : "national_producer_number"
             },
-            "name" : "license_termination_flag",
+            "name" : "national_producer_number",
             "platformType" : {
-              "name" : "integer"
+              "name" : "string"
             },
-            "precision" : 10,
+            "precision" : 31,
             "scale" : 0
           },
           {
             "adapterField" : {
-              "name" : "license_termination_id"
+              "name" : "producer_termination_flag"
             },
-            "name" : "license_termination_id",
+            "name" : "producer_termination_flag",
             "platformType" : {
               "name" : "integer"
             },
@@ -3296,18 +2606,18 @@
           "typeSystem" : "TOOLKIT",
           "useDynamicFileName" : "false",
           "object" : {
-            "name" : "bronze/adm_producer_licenses",
-            "label" : "bronze/adm_producer_licenses",
-            "objectName" : "adm_producer_licenses",
+            "name" : "bronze/adm_producer",
+            "label" : "bronze/adm_producer",
+            "objectName" : "adm_producer",
             "objectType" : "amazonredshift",
-            "path" : "bronze/adm_producer_licenses",
+            "path" : "bronze/adm_producer",
             "retainMetadata" : "false",
             "fields" : [
               {
-                "name" : "producer_licenses_row_id",
+                "name" : "producer_row_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "producer_licenses_row_id",
-                "nativeName" : "producer_licenses_row_id",
+                "label" : "producer_row_id",
+                "nativeName" : "producer_row_id",
                 "nativeType" : "int8",
                 "original" : "false",
                 "precision" : 19,
@@ -3315,15 +2625,15 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_producer_licenses"
+                    "value" : "adm_producer"
                   }
                 ]
               },
               {
-                "name" : "producer_licenses_batch_id",
+                "name" : "producer_batch_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "producer_licenses_batch_id",
-                "nativeName" : "producer_licenses_batch_id",
+                "label" : "producer_batch_id",
+                "nativeName" : "producer_batch_id",
                 "nativeType" : "int8",
                 "original" : "false",
                 "precision" : 19,
@@ -3331,7 +2641,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_producer_licenses"
+                    "value" : "adm_producer"
                   }
                 ]
               },
@@ -3347,7 +2657,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_producer_licenses"
+                    "value" : "adm_producer"
                   }
                 ]
               },
@@ -3363,15 +2673,15 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_producer_licenses"
+                    "value" : "adm_producer"
                   }
                 ]
               },
               {
-                "name" : "producer_licenses_row_md5checksum",
+                "name" : "producer_row_md5checksum",
                 "fieldType" : "CONNECTOR",
-                "label" : "producer_licenses_row_md5checksum",
-                "nativeName" : "producer_licenses_row_md5checksum",
+                "label" : "producer_row_md5checksum",
+                "nativeName" : "producer_row_md5checksum",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 255,
@@ -3379,15 +2689,15 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_producer_licenses"
+                    "value" : "adm_producer"
                   }
                 ]
               },
               {
-                "name" : "producer_licenses_datetime_created",
+                "name" : "producer_datetime_created",
                 "fieldType" : "CONNECTOR",
-                "label" : "producer_licenses_datetime_created",
-                "nativeName" : "producer_licenses_datetime_created",
+                "label" : "producer_datetime_created",
+                "nativeName" : "producer_datetime_created",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 29,
@@ -3395,15 +2705,15 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_producer_licenses"
+                    "value" : "adm_producer"
                   }
                 ]
               },
               {
-                "name" : "producer_licenses_datetime_modified",
+                "name" : "producer_datetime_modified",
                 "fieldType" : "CONNECTOR",
-                "label" : "producer_licenses_datetime_modified",
-                "nativeName" : "producer_licenses_datetime_modified",
+                "label" : "producer_datetime_modified",
+                "nativeName" : "producer_datetime_modified",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 29,
@@ -3411,15 +2721,15 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_producer_licenses"
+                    "value" : "adm_producer"
                   }
                 ]
               },
               {
-                "name" : "producer_licenses_row_effective_start_datetime",
+                "name" : "producer_row_effective_start_datetime",
                 "fieldType" : "CONNECTOR",
-                "label" : "producer_licenses_row_effective_start_datetime",
-                "nativeName" : "producer_licenses_row_effective_start_datetime",
+                "label" : "producer_row_effective_start_datetime",
+                "nativeName" : "producer_row_effective_start_datetime",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 29,
@@ -3427,15 +2737,15 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_producer_licenses"
+                    "value" : "adm_producer"
                   }
                 ]
               },
               {
-                "name" : "producer_licenses_row_effective_end_datetime",
+                "name" : "producer_row_effective_end_datetime",
                 "fieldType" : "CONNECTOR",
-                "label" : "producer_licenses_row_effective_end_datetime",
-                "nativeName" : "producer_licenses_row_effective_end_datetime",
+                "label" : "producer_row_effective_end_datetime",
+                "nativeName" : "producer_row_effective_end_datetime",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 29,
@@ -3443,15 +2753,15 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_producer_licenses"
+                    "value" : "adm_producer"
                   }
                 ]
               },
               {
-                "name" : "agency_number",
+                "name" : "is_producer_active",
                 "fieldType" : "CONNECTOR",
-                "label" : "agency_number",
-                "nativeName" : "agency_number",
+                "label" : "is_producer_active",
+                "nativeName" : "is_producer_active",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 7,
@@ -3459,47 +2769,31 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_producer_licenses"
+                    "value" : "adm_producer"
                   }
                 ]
               },
               {
-                "name" : "license_appointed_date",
+                "name" : "federal_id_number",
                 "fieldType" : "CONNECTOR",
-                "label" : "license_appointed_date",
-                "nativeName" : "license_appointed_date",
-                "nativeType" : "date",
+                "label" : "federal_id_number",
+                "nativeName" : "federal_id_number",
+                "nativeType" : "varchar",
                 "original" : "false",
-                "precision" : 13,
+                "precision" : 2047,
                 "scale" : 0,
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_producer_licenses"
+                    "value" : "adm_producer"
                   }
                 ]
               },
               {
-                "name" : "license_cancellation_date",
+                "name" : "federal_id_type",
                 "fieldType" : "CONNECTOR",
-                "label" : "license_cancellation_date",
-                "nativeName" : "license_cancellation_date",
-                "nativeType" : "date",
-                "original" : "false",
-                "precision" : 13,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_producer_licenses"
-                  }
-                ]
-              },
-              {
-                "name" : "company_abbreviation",
-                "fieldType" : "CONNECTOR",
-                "label" : "company_abbreviation",
-                "nativeName" : "company_abbreviation",
+                "label" : "federal_id_type",
+                "nativeName" : "federal_id_type",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 7,
@@ -3507,103 +2801,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_producer_licenses"
-                  }
-                ]
-              },
-              {
-                "name" : "license_expiration_date",
-                "fieldType" : "CONNECTOR",
-                "label" : "license_expiration_date",
-                "nativeName" : "license_expiration_date",
-                "nativeType" : "date",
-                "original" : "false",
-                "precision" : 13,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_producer_licenses"
-                  }
-                ]
-              },
-              {
-                "name" : "acx_producer_id",
-                "fieldType" : "CONNECTOR",
-                "label" : "acx_producer_id",
-                "nativeName" : "acx_producer_id",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 15,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_producer_licenses"
-                  }
-                ]
-              },
-              {
-                "name" : "license_id",
-                "fieldType" : "CONNECTOR",
-                "label" : "license_id",
-                "nativeName" : "license_id",
-                "nativeType" : "int4",
-                "original" : "false",
-                "precision" : 10,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_producer_licenses"
-                  }
-                ]
-              },
-              {
-                "name" : "license_number",
-                "fieldType" : "CONNECTOR",
-                "label" : "license_number",
-                "nativeName" : "license_number",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 31,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_producer_licenses"
-                  }
-                ]
-              },
-              {
-                "name" : "license_type",
-                "fieldType" : "CONNECTOR",
-                "label" : "license_type",
-                "nativeName" : "license_type",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 7,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_producer_licenses"
-                  }
-                ]
-              },
-              {
-                "name" : "line_of_business",
-                "fieldType" : "CONNECTOR",
-                "label" : "line_of_business",
-                "nativeName" : "line_of_business",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 63,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_producer_licenses"
+                    "value" : "adm_producer"
                   }
                 ]
               },
@@ -3619,31 +2817,47 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_producer_licenses"
+                    "value" : "adm_producer"
                   }
                 ]
               },
               {
-                "name" : "license_issued_state",
+                "name" : "producer_name",
                 "fieldType" : "CONNECTOR",
-                "label" : "license_issued_state",
-                "nativeName" : "license_issued_state",
+                "label" : "producer_name",
+                "nativeName" : "producer_name",
                 "nativeType" : "varchar",
                 "original" : "false",
-                "precision" : 7,
+                "precision" : 63,
                 "scale" : 0,
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_producer_licenses"
+                    "value" : "adm_producer"
                   }
                 ]
               },
               {
-                "name" : "license_termination_flag",
+                "name" : "national_producer_number",
                 "fieldType" : "CONNECTOR",
-                "label" : "license_termination_flag",
-                "nativeName" : "license_termination_flag",
+                "label" : "national_producer_number",
+                "nativeName" : "national_producer_number",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 31,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_producer"
+                  }
+                ]
+              },
+              {
+                "name" : "producer_termination_flag",
+                "fieldType" : "CONNECTOR",
+                "label" : "producer_termination_flag",
+                "nativeName" : "producer_termination_flag",
                 "nativeType" : "int4",
                 "original" : "false",
                 "precision" : 10,
@@ -3651,23 +2865,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_producer_licenses"
-                  }
-                ]
-              },
-              {
-                "name" : "license_termination_id",
-                "fieldType" : "CONNECTOR",
-                "label" : "license_termination_id",
-                "nativeName" : "license_termination_id",
-                "nativeType" : "int4",
-                "original" : "false",
-                "precision" : 10,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_producer_licenses"
+                    "value" : "adm_producer"
                   }
                 ]
               }
@@ -3765,9 +2963,23 @@
         "manualMappings" : {
           "mappingList" : [
             {
+              "fromFieldName" : "fid_num",
+              "toField" : {
+                "name" : "federal_id_number"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "fid_type",
+              "toField" : {
+                "name" : "federal_id_type"
+              },
+              "fromFieldNames" : null
+            },
+            {
               "fromFieldName" : "batch_id",
               "toField" : {
-                "name" : "producer_licenses_batch_id"
+                "name" : "producer_batch_id"
               },
               "fromFieldNames" : null
             },
@@ -3786,107 +2998,44 @@
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "o_agency_number",
-              "toField" : {
-                "name" : "agency_number"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "company",
-              "toField" : {
-                "name" : "company_abbreviation"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "gw_producer_id",
-              "toField" : {
-                "name" : "acx_producer_id"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "license_number",
-              "toField" : {
-                "name" : "license_number"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "license_type",
-              "toField" : {
-                "name" : "license_type"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "lob",
-              "toField" : {
-                "name" : "line_of_business"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "state",
-              "toField" : {
-                "name" : "license_issued_state"
-              },
-              "fromFieldNames" : null
-            },
-            {
               "fromFieldName" : "o_src_md5_hash_value",
               "toField" : {
-                "name" : "producer_licenses_row_md5checksum"
+                "name" : "producer_row_md5checksum"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "o_producer_licenses_datetime_created",
+              "fromFieldName" : "o_producer_datetime_created",
               "toField" : {
-                "name" : "producer_licenses_datetime_created"
+                "name" : "producer_datetime_created"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "o_producer_licenses_datetime_modified",
+              "fromFieldName" : "o_producer_datetime_modified",
               "toField" : {
-                "name" : "producer_licenses_datetime_modified"
+                "name" : "producer_datetime_modified"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "o_producer_license_row_effective_start_datetime",
+              "fromFieldName" : "o_producer_row_effective_start_datetime",
               "toField" : {
-                "name" : "producer_licenses_row_effective_start_datetime"
+                "name" : "producer_row_effective_start_datetime"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "o_producer_license_row_effective_end_datetime",
+              "fromFieldName" : "o_producer_row_effective_end_datetime",
               "toField" : {
-                "name" : "producer_licenses_row_effective_end_datetime"
+                "name" : "producer_row_effective_end_datetime"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "o_license_appointed_date",
+              "fromFieldName" : "active",
               "toField" : {
-                "name" : "license_appointed_date"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "o_license_cancellation_date",
-              "toField" : {
-                "name" : "license_cancellation_date"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "o_license_expiration_date",
-              "toField" : {
-                "name" : "license_expiration_date"
+                "name" : "is_producer_active"
               },
               "fromFieldNames" : null
             },
@@ -3898,68 +3047,30 @@
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "o_license_termination_flag",
+              "fromFieldName" : "o_producer_termination_flag",
               "toField" : {
-                "name" : "license_termination_flag"
+                "name" : "producer_termination_flag"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "o_license_termination_id",
+              "fromFieldName" : "name",
               "toField" : {
-                "name" : "license_termination_id"
+                "name" : "producer_name"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "o_license_id",
+              "fromFieldName" : "npn_number",
               "toField" : {
-                "name" : "license_id"
+                "name" : "national_producer_number"
               },
               "fromFieldNames" : null
             }
           ]
         }
-      },
-      {
-        "createTime" : "2025-05-23T20:39:26.326Z",
-        "name" : "exp_update",
-        "groups" : [
-          {
-            "input" : "true",
-            "name" : "DefaultGroup",
-            "output" : "true",
-            "rules" : [
-              {
-                "bulkRename" : "false",
-                "include" : "true"
-              }
-            ]
-          }
-        ],
-        "windowConfigurationEnabled" : "false",
-        "fields" : [
-          {
-            "defaultValue" : "ERROR('transformation error')",
-            "name" : "o_retire_old_record",
-            "platformType" : {
-              "name" : "date/time"
-            },
-            "precision" : 29,
-            "scale" : 9,
-            "expFieldType" : "OUTPUT",
-            "expression" : "SYSDATE"
-          }
-        ],
-        "windowSpec" : {
-          "allRowsFollowing" : "false",
-          "allRowsPreceding" : "false",
-          "endOffset" : 0,
-          "startOffset" : 0,
-          "partitionKeys" : null
-        }
       }
     ]
   },
-  "vcsExportTime" : "2025-07-07 11:33:29 EDT"
+  "vcsExportTime" : "2025-07-08 12:08:50 EDT"
 }

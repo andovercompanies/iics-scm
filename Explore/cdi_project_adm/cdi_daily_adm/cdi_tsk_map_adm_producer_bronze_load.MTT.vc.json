@@ -1,11 +1,12 @@
 {
-  "name" : "cdi_tsk_map_adm_producer_license_bronze_load",
+  "name" : "cdi_tsk_map_adm_producer_bronze_load",
+  "description" : "This job is responsible for reading data from the Metal staging layer and loading it into the Bronze SCD Type 2 tables. It ensures historical tracking of changes by identifying new, changed, and unchanged records, applying the appropriate logic to insert new versions or retire old ones with end dates as part of the SCD2 process.",
   "runtimeEnvironmentId" : "@3pADNCV9u0PcgrXjM7rx0t",
   "runtimeEnvironmentName" : "sag_aws_linux",
   "maxLogs" : 10,
   "parameters" : [
     {
-      "name" : "$src_delta_changes_producer_license$",
+      "name" : "$src_metal_producer$",
       "type" : "SOURCE",
       "label" : "DBConnection_UDM_SRC",
       "uiProperties" : {
@@ -17,11 +18,11 @@
         "isSelectDistinct" : "false",
         "objectParameterized" : "false",
         "visible" : "false",
-        "originalPath" : "src_delta_changes_producer_license"
+        "originalPath" : "src_metal_producer"
       },
       "sourceConnectionId" : "@aYZ4ekzHgIPeKpiaoqDLKP",
       "connectionName" : "redshift_nonprod_andover_dw_dev",
-      "sourceObject" : "DUMMY_src_delta_changes_producer_license",
+      "sourceObject" : "DUMMY_src_metal_producer",
       "newFlatFile" : false,
       "newObject" : false,
       "showBusinessNames" : true,
@@ -29,7 +30,7 @@
       "truncateTarget" : false,
       "bulkApiDBTarget" : false,
       "customFuncCfg" : { },
-      "customQuery" : "with current_batch as (\nselect\n\tbls.batch_id,\n\tbls.source_start_cutoff_datetime,\n\tbls.source_end_cutoff_datetime\nfrom\n\tmetal.batch_load_summary bls\nwhere\n\tbls.source_system_code = 'ADM'\n\tand bls.batch_status = 'Inprogress'\n\tand bls.batch_id = (\n\tselect\n\t\tMAX(batch_id)\n\tfrom\n\t\tmetal.batch_load_summary\n\twhere\n\t\tsource_system_code = 'ADM'\n\t\tand batch_status = 'Inprogress'\n      )\n)\t\n\t\n\tselect\n\tdistinct\n\tmetal_apl.source_name,\n\tmetal_apl.load_type,\n\tmetal_apl.agency_code,\n\tmetal_apl.appointed_date,\n\tmetal_apl.cancellation_date,\n\tmetal_apl.company,\n\tmetal_apl.created,\n\tmetal_apl.expiration_date,\n\tmetal_apl.gw_producer_id,\n\tmetal_apl.id,\n\tmetal_apl.license_number,\n\tmetal_apl.license_type,\n\tmetal_apl.lob,\n\tmetal_apl.modified,\n\tmetal_apl.producer_id,\n\tmetal_apl.state,\n\tmetal_apl.term_flag,\n\tmetal_apl.term_id,\n\tcurrent_batch.batch_id\nfrom\n\tmetal.adm_producer_license metal_apl\ncross join current_batch\norder by\n\tmetal_apl.id,\n\tmetal_apl.created,\n\tmetal_apl.modified;",
+      "customQuery" : "with current_batch as (\nselect\n\tbls.batch_id,\n\tbls.source_start_cutoff_datetime,\n\tbls.source_end_cutoff_datetime\nfrom\n\tmetal.batch_load_summary bls\nwhere\n\tbls.source_system_code = 'ADM'\n\tand bls.batch_status = 'Inprogress'\n\tand bls.batch_id = (\n\tselect\n\t\tMAX(batch_id)\n\tfrom\n\t\tmetal.batch_load_summary\n\twhere\n\t\tsource_system_code = 'ADM'\n\t\tand batch_status = 'Inprogress' ) )\nselect\n\tdistinct\n\tmetal_ap.source_name,\n\tmetal_ap.load_type,\n\tmetal_ap.active,\n\tmetal_ap.created,\n\tmetal_ap.fid_num,\n\tmetal_ap.fid_type,\n\tmetal_ap.id,\n\tmetal_ap.modified,\n\tmetal_ap.name,\n\tmetal_ap.npn_number,\n\tmetal_ap.term_flag,\n\tcurrent_batch.batch_id\nfrom\n\tmetal.adm_producer metal_ap\ncross join current_batch\norder by\n\tmetal_ap.id,\n\tmetal_ap.created,\n\tmetal_ap.modified;",
       "commandType" : 0,
       "handleSpecialChars" : false,
       "handleDecimalRoundOff" : false,
@@ -38,11 +39,10 @@
       "excludeDynamicFileNameField" : false,
       "currentlyProcessedFileName" : false,
       "retainFieldMetadata" : false,
-      "objectName" : "DUMMY_src_delta_changes_producer_license",
+      "objectName" : "DUMMY_src_metal_producer",
       "useExactSrcNames" : false,
       "userUpdated" : true,
       "unspecified" : false,
-      "fetchMode" : "ORIGINAL",
       "runtimeParameterData" : {
         "connectionParameterName" : "DBConnection_UDM_SRC",
         "connectionRuntimeParameter" : false,
@@ -76,7 +76,7 @@
       "truncateTarget" : false,
       "bulkApiDBTarget" : false,
       "customFuncCfg" : { },
-      "customQuery" : "select\n\tproducer_licenses_row_id ,\n\tproducer_licenses_batch_id,\n\tproducer_licenses_row_md5checksum ,\n\tlicense_id,\n\tproducer_licenses_row_effective_end_datetime\nfrom\n\tbronze.adm_producer_licenses\nwhere\n\tproducer_licenses_row_effective_end_datetime = '9999-12-31 00:00:00.000'",
+      "customQuery" : "select\n\tproducer_row_id,\n\tproducer_batch_id,\n\tproducer_row_md5checksum,\n\tproducer_id,\n\tproducer_datetime_modified,\n\tproducer_row_effective_end_datetime\nfrom\n\tbronze.adm_producer\nwhere\n\tproducer_row_effective_end_datetime = '9999-12-31 00:00:00.000'",
       "commandType" : 0,
       "handleSpecialChars" : false,
       "handleDecimalRoundOff" : false,
@@ -89,7 +89,6 @@
       "useExactSrcNames" : false,
       "userUpdated" : true,
       "unspecified" : false,
-      "fetchMode" : "ORIGINAL",
       "runtimeParameterData" : {
         "connectionParameterName" : "DBConnection_UDM_SRC",
         "connectionRuntimeParameter" : false,
@@ -108,7 +107,7 @@
         "paramName" : "DBConnection_UDM_TGT",
         "paramType-mapping" : "Connection",
         "logcnx" : "DBConnection_UDM_TGT",
-        "default" : "bronze/adm_producer_licenses",
+        "default" : "bronze/adm_producer",
         "objectParameterized" : "false",
         "visible" : "false",
         "supportApplyDDLChanges" : "false",
@@ -116,8 +115,8 @@
       },
       "targetConnectionId" : "@aYZ4ekzHgIPeKpiaoqDLKP",
       "connectionName" : "redshift_nonprod_andover_dw_dev",
-      "targetObject" : "bronze/adm_producer_licenses",
-      "targetObjectLabel" : "bronze/adm_producer_licenses",
+      "targetObject" : "bronze/adm_producer",
+      "targetObjectLabel" : "bronze/adm_producer",
       "newFlatFile" : false,
       "newObject" : false,
       "showBusinessNames" : true,
@@ -137,12 +136,11 @@
       "excludeDynamicFileNameField" : false,
       "currentlyProcessedFileName" : false,
       "retainFieldMetadata" : false,
-      "objectName" : "bronze/adm_producer_licenses",
-      "objectLabel" : "bronze/adm_producer_licenses",
+      "objectName" : "bronze/adm_producer",
+      "objectLabel" : "bronze/adm_producer",
       "useExactSrcNames" : false,
       "userUpdated" : true,
       "unspecified" : false,
-      "fetchMode" : "ORIGINAL",
       "runtimeParameterData" : {
         "connectionParameterName" : "DBConnection_UDM_TGT",
         "connectionRuntimeParameter" : false,
@@ -161,17 +159,17 @@
         "paramName" : "DBConnection_UDM_TGT",
         "paramType-mapping" : "Connection",
         "logcnx" : "DBConnection_UDM_TGT",
-        "default" : "bronze/adm_producer_licenses",
+        "default" : "bronze/adm_producer",
         "objectParameterized" : "false",
         "visible" : "false",
-        "defaultTargetUpdateColumns" : "producer_licenses_row_id",
+        "defaultTargetUpdateColumns" : "producer_row_id",
         "supportApplyDDLChanges" : "false",
         "originalPath" : "tgt_update_closeout"
       },
       "targetConnectionId" : "@aYZ4ekzHgIPeKpiaoqDLKP",
       "connectionName" : "redshift_nonprod_andover_dw_dev",
-      "targetObject" : "bronze/adm_producer_licenses",
-      "targetObjectLabel" : "bronze/adm_producer_licenses",
+      "targetObject" : "bronze/adm_producer",
+      "targetObjectLabel" : "bronze/adm_producer",
       "newFlatFile" : false,
       "newObject" : false,
       "showBusinessNames" : true,
@@ -181,7 +179,7 @@
       "operationType" : "Update",
       "customFuncCfg" : { },
       "targetUpdateColumns" : [
-        "producer_licenses_row_id"
+        "producer_row_id"
       ],
       "extendedObject" : {
         "singleMode" : true
@@ -194,12 +192,11 @@
       "excludeDynamicFileNameField" : false,
       "currentlyProcessedFileName" : false,
       "retainFieldMetadata" : false,
-      "objectName" : "bronze/adm_producer_licenses",
-      "objectLabel" : "bronze/adm_producer_licenses",
+      "objectName" : "bronze/adm_producer",
+      "objectLabel" : "bronze/adm_producer",
       "useExactSrcNames" : false,
       "userUpdated" : true,
       "unspecified" : false,
-      "fetchMode" : "ORIGINAL",
       "runtimeParameterData" : {
         "connectionParameterName" : "DBConnection_UDM_TGT",
         "connectionRuntimeParameter" : false,
@@ -218,7 +215,7 @@
         "paramName" : "DBConnection_UDM_TGT",
         "paramType-mapping" : "Connection",
         "logcnx" : "DBConnection_UDM_TGT",
-        "default" : "bronze/adm_producer_licenses",
+        "default" : "bronze/adm_producer",
         "objectParameterized" : "false",
         "visible" : "false",
         "supportApplyDDLChanges" : "false",
@@ -226,8 +223,8 @@
       },
       "targetConnectionId" : "@aYZ4ekzHgIPeKpiaoqDLKP",
       "connectionName" : "redshift_nonprod_andover_dw_dev",
-      "targetObject" : "bronze/adm_producer_licenses",
-      "targetObjectLabel" : "bronze/adm_producer_licenses",
+      "targetObject" : "bronze/adm_producer",
+      "targetObjectLabel" : "bronze/adm_producer",
       "newFlatFile" : false,
       "newObject" : false,
       "showBusinessNames" : true,
@@ -247,12 +244,11 @@
       "excludeDynamicFileNameField" : false,
       "currentlyProcessedFileName" : false,
       "retainFieldMetadata" : false,
-      "objectName" : "bronze/adm_producer_licenses",
-      "objectLabel" : "bronze/adm_producer_licenses",
+      "objectName" : "bronze/adm_producer",
+      "objectLabel" : "bronze/adm_producer",
       "useExactSrcNames" : false,
       "userUpdated" : true,
       "unspecified" : false,
-      "fetchMode" : "ORIGINAL",
       "runtimeParameterData" : {
         "connectionParameterName" : "DBConnection_UDM_TGT",
         "connectionRuntimeParameter" : false,
@@ -263,9 +259,9 @@
     }
   ],
   "verbose" : false,
-  "lastRunTime" : 1751643413000,
-  "mappingId" : "@kNjwjglB36Ai8DWtaXv4iP",
-  "mappingTemplateName" : "cdi_map_adm_producer_license_bronze_load",
+  "lastRunTime" : 1751890392000,
+  "mappingId" : "@3wQm8XXKbC1e3ufArbEImF",
+  "mappingTemplateName" : "cdi_map_adm_producer_bronze_load",
   "sessionPropertiesList" : [
     {
       "name" : "Pushdown Optimization",
@@ -293,5 +289,5 @@
   "optimizationPlan" : "NONE",
   "allowMaxFieldLength" : false,
   "midstreamPreview" : false,
-  "vcsExportTime" : "2025-07-07 11:33:30 EDT"
+  "vcsExportTime" : "2025-07-08 12:08:50 EDT"
 }
