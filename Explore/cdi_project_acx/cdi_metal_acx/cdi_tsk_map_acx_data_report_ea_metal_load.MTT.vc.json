@@ -1,30 +1,28 @@
 {
-  "name" : "cdi_tsk_map_s3_subsidiary_generic_fields_data_metal_load",
-  "description" : "This is the mapping task to run the mapping to load LC360 Generic Fileds table from Json File",
+  "name" : "cdi_tsk_map_acx_data_report_ea_metal_load",
+  "description" : "This mapping task to ready daily changes data from ACX Guidewire DB and load to redshift UDM Metal staging table.",
   "runtimeEnvironmentId" : "@3pADNCV9u0PcgrXjM7rx0t",
   "runtimeEnvironmentName" : "sag_aws_linux",
   "maxLogs" : 10,
   "parameters" : [
     {
-      "name" : "$LC360_src_JSON$",
-      "type" : "EXTENDED_SOURCE",
-      "label" : "S3Connection_LC360_SRC",
-      "description" : "Source connection for LC360 JSON files located in S3 Bucket",
+      "name" : "$src_datareport$",
+      "type" : "SOURCE",
+      "label" : "DBConnection_ACX_SRCM",
       "uiProperties" : {
-        "cnxtype" : "Amazon S3 v2",
+        "cnxtype" : "MySQL",
         "connectionParameterized" : "true",
-        "paramName" : "S3Connection_LC360_SRC",
+        "paramName" : "DBConnection_ACX_SRCM",
         "paramType-mapping" : "Connection",
-        "logcnx" : "S3Connection_LC360_SRC",
+        "logcnx" : "DBConnection_ACX_SRCM",
         "isSelectDistinct" : "false",
-        "isMsrcFilterParameterized" : "false",
-        "isMsrcSortParameterized" : "false",
         "objectParameterized" : "false",
         "visible" : "false",
-        "originalPath" : "LC360_src_JSON"
+        "originalPath" : "src_datareport"
       },
-      "sourceConnectionId" : "@6poLdu1mSUher3f4LPDk6Y",
-      "connectionName" : "conn_s3v2_advr_np_inbound_data_lc360",
+      "sourceConnectionId" : "@1MPwv79N5kdekz7fZXQSas",
+      "connectionName" : "conn_mysql_model_insurance_now_gw",
+      "sourceObject" : "DUMMY_src_datareport",
       "newFlatFile" : false,
       "newObject" : false,
       "showBusinessNames" : true,
@@ -32,24 +30,7 @@
       "truncateTarget" : false,
       "bulkApiDBTarget" : false,
       "customFuncCfg" : { },
-      "extendedObject" : {
-        "object" : {
-          "name" : "advr-dev-inbound-data/metal%2F/tgt-cdl-lc360.metal%2F/raw.inbox%2F/0013bc82-7f62-4652-a350-29289bb6fdec_2_24_2025_15_29_25_646.json",
-          "label" : "advr-dev-inbound-data/metal%2F/tgt-cdl-lc360.metal%2F/raw.inbox%2F/0013bc82-7f62-4652-a350-29289bb6fdec_2_24_2025_15_29_25_646.json",
-          "metadataUpdated" : false
-        },
-        "singleMode" : true,
-        "objects" : [
-          {
-            "name" : "advr-dev-inbound-data/metal%2F/tgt-cdl-lc360.metal%2F/raw.inbox%2F/0013bc82-7f62-4652-a350-29289bb6fdec_2_24_2025_15_29_25_646.json",
-            "label" : "advr-dev-inbound-data/metal%2F/tgt-cdl-lc360.metal%2F/raw.inbox%2F/0013bc82-7f62-4652-a350-29289bb6fdec_2_24_2025_15_29_25_646.json",
-            "metadataUpdated" : false
-          }
-        ]
-      },
-      "oprRuntimeAttrs" : {
-        "enableIncrementalLoad" : "NO"
-      },
+      "customQuery" : "select\n\ta.SystemId,\n\ta.ParentId,\n\ta.CMMContainer,\n\ta.Id,\n\ta.UpdateCount,\n\ta.UpdateUser,\n\ta.UpdateTimestamp,\n\ta.TemplateIdRef,\n\ta.TypeCd,\n\ta.SourceCd,\n\ta.StatusCd,\n\ta.ResultCd,\n\ta.RequestTypeCd,\n\ta.TransmittedDt,\n\ta.TransmittedTm,\n\ta.ReceivedDt,\n\ta.ReceivedTm,\n\ta.ProcessedDt,\n\ta.ProcessedTm,\n\ta.AddDt,\n\ta.AddTm,\n\ta.PartyId,\n\ta.RowId,\n\ta.StateSpecificCode,\n\ta.InspectionNumber,\n\ta.InspectionId\nfrom\ndatareport a\ninner join advrxxchangedbeans b \n\ton a.Systemid = b.Systemid\n\tand a.CmmContainer = b.CmmContainer\n\tand b.CmmContainer = 'DataReport'\nWHERE \nCONCAT(b.adddt, ' ', substr(b.addtm, 1, 8))>= $LASTRUNTIME;",
       "commandType" : 0,
       "handleSpecialChars" : false,
       "handleDecimalRoundOff" : false,
@@ -58,39 +39,39 @@
       "excludeDynamicFileNameField" : false,
       "currentlyProcessedFileName" : false,
       "retainFieldMetadata" : false,
+      "objectName" : "DUMMY_src_datareport",
       "useExactSrcNames" : false,
       "userUpdated" : true,
       "fetchMode" : "ORIGINAL",
       "runtimeParameterData" : {
-        "connectionParameterName" : "S3Connection_LC360_SRC",
-        "connectionRuntimeParameter" : true,
+        "connectionParameterName" : "DBConnection_ACX_SRCM",
+        "connectionRuntimeParameter" : false,
         "objectRuntimeParameter" : false
       },
-      "restmodernSource" : true,
       "unspecified" : false,
-      "fileList" : false
+      "fileList" : false,
+      "restmodernSource" : true
     },
     {
-      "name" : "$LC360_tgt_metal$",
+      "name" : "$tgt_acx_data_report_ea$",
       "type" : "TARGET",
-      "label" : "DBConnection_TGT",
-      "description" : "Parameter for LC360 AWS Redshift Target tables",
+      "label" : "DBConnection_ACX_TGT",
       "uiProperties" : {
         "cnxtype" : "Amazon Redshift v2",
         "connectionParameterized" : "true",
-        "paramName" : "DBConnection_TGT",
+        "paramName" : "DBConnection_ACX_TGT",
         "paramType-mapping" : "Connection",
-        "logcnx" : "DBConnection_TGT",
-        "default" : "metal/lc360_generic_fields_stg",
+        "logcnx" : "DBConnection_ACX_TGT",
+        "default" : "metal/acx_data_report",
         "objectParameterized" : "false",
         "visible" : "false",
         "supportApplyDDLChanges" : "false",
-        "originalPath" : "LC360_tgt_metal"
+        "originalPath" : "tgt_acx_data_report_ea"
       },
       "targetConnectionId" : "@aYZ4ekzHgIPeKpiaoqDLKP",
       "connectionName" : "redshift_nonprod_andover_dw_dev",
-      "targetObject" : "metal/lc360_generic_fields_stg",
-      "targetObjectLabel" : "metal/lc360_generic_fields_stg",
+      "targetObject" : "metal/acx_data_report",
+      "targetObjectLabel" : "metal/acx_data_report",
       "newFlatFile" : false,
       "newObject" : false,
       "showBusinessNames" : true,
@@ -110,26 +91,26 @@
       "excludeDynamicFileNameField" : false,
       "currentlyProcessedFileName" : false,
       "retainFieldMetadata" : false,
-      "objectName" : "metal/lc360_generic_fields_stg",
-      "objectLabel" : "metal/lc360_generic_fields_stg",
+      "objectName" : "metal/acx_data_report",
+      "objectLabel" : "metal/acx_data_report",
       "useExactSrcNames" : false,
       "userUpdated" : true,
       "fetchMode" : "ORIGINAL",
       "runtimeParameterData" : {
-        "connectionParameterName" : "DBConnection_TGT",
-        "connectionRuntimeParameter" : true,
+        "connectionParameterName" : "DBConnection_ACX_TGT",
+        "connectionRuntimeParameter" : false,
         "objectRuntimeParameter" : false
       },
       "targetSchemaProviderType" : "SELECTED_OBJECT",
-      "restmodernSource" : true,
       "unspecified" : false,
-      "fileList" : false
+      "fileList" : false,
+      "restmodernSource" : true
     }
   ],
   "verbose" : false,
-  "lastRunTime" : 1752253748000,
-  "mappingId" : "@fOGdavwFHQEeve0VPklPKs",
-  "mappingTemplateName" : "cdi_map_s3_subsidiary_generic_fields_data_metal_load",
+  "lastRunTime" : 1753130794000,
+  "mappingId" : "@75DF2p4874VhB4Y9NuUeaV",
+  "mappingTemplateName" : "cdi_map_acx_data_report_ea_metal_load",
   "sessionPropertiesList" : [
     {
       "name" : "Pushdown Optimization",
@@ -146,10 +127,10 @@
   ],
   "hidden" : false,
   "enableCrossSchemaPushdown" : true,
-  "enableParallelRun" : true,
+  "enableParallelRun" : false,
   "autoTunedApplied" : false,
   "autoTunedAppliedType" : "NONE",
-  "parameterFileName" : "Andover_Param_LC360.param",
+  "parameterFileName" : "Andover_Param_ACX.param",
   "parameterFileDir" : "$PMRootDir/andover/parameters",
   "paramFileType" : "PARAM_FILE_LOCAL",
   "schemaMode" : "async",
@@ -158,5 +139,5 @@
   "allowMaxFieldLength" : false,
   "specialCharacterSupport" : false,
   "midstreamPreview" : false,
-  "vcsExportTime" : "2025-07-14 09:50:11 EDT"
+  "vcsExportTime" : "2025-07-21 16:49:01 EDT"
 }
