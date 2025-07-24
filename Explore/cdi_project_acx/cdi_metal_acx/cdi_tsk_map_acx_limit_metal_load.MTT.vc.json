@@ -1,30 +1,28 @@
 {
-  "name" : "cdi_tsk_map_s3_subsidiary_generic_fields_data_metal_load",
-  "description" : "This is the mapping task to run the mapping to load LC360 Generic Fileds table from Json File",
+  "name" : "cdi_tsk_map_acx_limit_metal_load",
+  "description" : "This mapping task to read daily changes data from ACX Guidewire DB and load to redshift UDM Metal staging table.",
   "runtimeEnvironmentId" : "@3pADNCV9u0PcgrXjM7rx0t",
   "runtimeEnvironmentName" : "sag_aws_linux",
   "maxLogs" : 10,
   "parameters" : [
     {
-      "name" : "$LC360_src_JSON$",
-      "type" : "EXTENDED_SOURCE",
-      "label" : "S3Connection_LC360_SRC",
-      "description" : "Source connection for LC360 JSON files located in S3 Bucket",
+      "name" : "$src_limit$",
+      "type" : "SOURCE",
+      "label" : "DBConnection_ACX_SRCM",
       "uiProperties" : {
-        "cnxtype" : "Amazon S3 v2",
+        "cnxtype" : "MySQL",
         "connectionParameterized" : "true",
-        "paramName" : "S3Connection_LC360_SRC",
+        "paramName" : "DBConnection_ACX_SRCM",
         "paramType-mapping" : "Connection",
-        "logcnx" : "S3Connection_LC360_SRC",
+        "logcnx" : "DBConnection_ACX_SRCM",
         "isSelectDistinct" : "false",
-        "isMsrcFilterParameterized" : "false",
-        "isMsrcSortParameterized" : "false",
         "objectParameterized" : "false",
         "visible" : "false",
-        "originalPath" : "LC360_src_JSON"
+        "originalPath" : "src_limit"
       },
-      "sourceConnectionId" : "@6poLdu1mSUher3f4LPDk6Y",
-      "connectionName" : "conn_s3v2_advr_np_inbound_data_lc360",
+      "sourceConnectionId" : "@1MPwv79N5kdekz7fZXQSas",
+      "connectionName" : "conn_mysql_model_insurance_now_gw",
+      "sourceObject" : "DUMMY_src_limit",
       "newFlatFile" : false,
       "newObject" : false,
       "showBusinessNames" : true,
@@ -32,24 +30,7 @@
       "truncateTarget" : false,
       "bulkApiDBTarget" : false,
       "customFuncCfg" : { },
-      "extendedObject" : {
-        "object" : {
-          "name" : "advr-dev-inbound-data/metal%2Ftgt-cdl-lc360.metal%2F/raw.inbox%2F/0013bc82-7f62-4652-a350-29289bb6fdec_2_24_2025_15_29_25_646.json",
-          "label" : "advr-dev-inbound-data/metal%2Ftgt-cdl-lc360.metal%2F/raw.inbox%2F/0013bc82-7f62-4652-a350-29289bb6fdec_2_24_2025_15_29_25_646.json",
-          "metadataUpdated" : false
-        },
-        "singleMode" : true,
-        "objects" : [
-          {
-            "name" : "advr-dev-inbound-data/metal%2Ftgt-cdl-lc360.metal%2F/raw.inbox%2F/0013bc82-7f62-4652-a350-29289bb6fdec_2_24_2025_15_29_25_646.json",
-            "label" : "advr-dev-inbound-data/metal%2Ftgt-cdl-lc360.metal%2F/raw.inbox%2F/0013bc82-7f62-4652-a350-29289bb6fdec_2_24_2025_15_29_25_646.json",
-            "metadataUpdated" : false
-          }
-        ]
-      },
-      "oprRuntimeAttrs" : {
-        "enableIncrementalLoad" : "NO"
-      },
+      "customQuery" : "SELECT limit.SystemId, limit.ParentId, limit.CMMContainer, limit.Id, limit.LimitCd, limit.TypeCd, limit.Value, limit.RowId \nFROM\n `limit` \njoin advrxxchangedbeans\non `limit`.CMMContainer = advrxxchangedbeans.CMMContainer\nand `limit`.SystemId = advrxxchangedbeans.SystemId\nwhere  \nCONCAT(advrxxchangedbeans.adddt, ' ', substr(advrxxchangedbeans.addtm, 1, 8))>= $LASTRUNTIME;",
       "commandType" : 0,
       "handleSpecialChars" : false,
       "handleDecimalRoundOff" : false,
@@ -58,12 +39,13 @@
       "excludeDynamicFileNameField" : false,
       "currentlyProcessedFileName" : false,
       "retainFieldMetadata" : false,
+      "objectName" : "DUMMY_src_limit",
       "useExactSrcNames" : false,
       "userUpdated" : true,
       "fetchMode" : "ORIGINAL",
       "runtimeParameterData" : {
-        "connectionParameterName" : "S3Connection_LC360_SRC",
-        "connectionRuntimeParameter" : true,
+        "connectionParameterName" : "DBConnection_ACX_SRCM",
+        "connectionRuntimeParameter" : false,
         "objectRuntimeParameter" : false
       },
       "restmodernSource" : true,
@@ -71,26 +53,25 @@
       "fileList" : false
     },
     {
-      "name" : "$LC360_tgt_metal$",
+      "name" : "$tgt_acx_limit$",
       "type" : "TARGET",
-      "label" : "DBConnection_TGT",
-      "description" : "Parameter for LC360 AWS Redshift Target tables",
+      "label" : "DBConnection_ACX_TGT",
       "uiProperties" : {
         "cnxtype" : "Amazon Redshift v2",
         "connectionParameterized" : "true",
-        "paramName" : "DBConnection_TGT",
+        "paramName" : "DBConnection_ACX_TGT",
         "paramType-mapping" : "Connection",
-        "logcnx" : "DBConnection_TGT",
-        "default" : "metal/lc360_generic_fields_stg",
+        "logcnx" : "DBConnection_ACX_TGT",
+        "default" : "metal/acx_limit",
         "objectParameterized" : "false",
         "visible" : "false",
         "supportApplyDDLChanges" : "false",
-        "originalPath" : "LC360_tgt_metal"
+        "originalPath" : "tgt_acx_limit"
       },
       "targetConnectionId" : "@aYZ4ekzHgIPeKpiaoqDLKP",
       "connectionName" : "redshift_nonprod_andover_dw_dev",
-      "targetObject" : "metal/lc360_generic_fields_stg",
-      "targetObjectLabel" : "metal/lc360_generic_fields_stg",
+      "targetObject" : "metal/acx_limit",
+      "targetObjectLabel" : "metal/acx_limit",
       "newFlatFile" : false,
       "newObject" : false,
       "showBusinessNames" : true,
@@ -110,26 +91,25 @@
       "excludeDynamicFileNameField" : false,
       "currentlyProcessedFileName" : false,
       "retainFieldMetadata" : false,
-      "objectName" : "metal/lc360_generic_fields_stg",
-      "objectLabel" : "metal/lc360_generic_fields_stg",
+      "objectName" : "metal/acx_limit",
+      "objectLabel" : "metal/acx_limit",
       "useExactSrcNames" : false,
       "userUpdated" : true,
       "fetchMode" : "ORIGINAL",
       "runtimeParameterData" : {
-        "connectionParameterName" : "DBConnection_TGT",
-        "connectionRuntimeParameter" : true,
+        "connectionParameterName" : "DBConnection_ACX_TGT",
+        "connectionRuntimeParameter" : false,
         "objectRuntimeParameter" : false
       },
-      "targetSchemaProviderType" : "SELECTED_OBJECT",
       "restmodernSource" : true,
       "unspecified" : false,
       "fileList" : false
     }
   ],
   "verbose" : false,
-  "lastRunTime" : 1752857846000,
-  "mappingId" : "@fOGdavwFHQEeve0VPklPKs",
-  "mappingTemplateName" : "cdi_map_s3_subsidiary_generic_fields_data_metal_load",
+  "lastRunTime" : 1753383362000,
+  "mappingId" : "@g3E6ILSdaeIdirUsXogGA0",
+  "mappingTemplateName" : "cdi_map_acx_limit_metal_load",
   "sessionPropertiesList" : [
     {
       "name" : "Pushdown Optimization",
@@ -146,10 +126,10 @@
   ],
   "hidden" : false,
   "enableCrossSchemaPushdown" : true,
-  "enableParallelRun" : true,
+  "enableParallelRun" : false,
   "autoTunedApplied" : false,
   "autoTunedAppliedType" : "NONE",
-  "parameterFileName" : "Andover_Param_LC360.param",
+  "parameterFileName" : "Andover_Param_ACX.param",
   "parameterFileDir" : "$PMRootDir/andover/parameters",
   "paramFileType" : "PARAM_FILE_LOCAL",
   "schemaMode" : "async",
@@ -158,5 +138,5 @@
   "allowMaxFieldLength" : false,
   "specialCharacterSupport" : false,
   "midstreamPreview" : false,
-  "vcsExportTime" : "2025-07-24 17:05:52 EDT"
+  "vcsExportTime" : "2025-07-24 12:07:10 PDT"
 }
