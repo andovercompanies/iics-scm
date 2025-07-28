@@ -1,16 +1,17 @@
 {
   "content" : {
+    "description" : "This job reads data from ACX Guidewire DB and loads it into the Metal staging tables. It follows a one-to-one mapping with no transformations.",
     "allowMaxFieldLength" : "false",
     "bigIntConvertType" : "ONLY_BIGINT",
     "documentType" : "MAPPING",
-    "name" : "cdi_map_acx_ea_factors_metal_load",
+    "name" : "cdi_map_acx_search_criteria_metal_load",
     "specialCharacterSupport" : "false",
     "links" : [
       {
-        "link" : "exp_conversion -> tgt_acx_ea_factors"
+        "link" : "exp_read_all_fields -> tgt_acx_search_criteria"
       },
       {
-        "link" : "src_eafactors -> exp_conversion"
+        "link" : "src_searchcriteriaea -> exp_read_all_fields"
       }
     ],
     "parameters" : [
@@ -30,10 +31,11 @@
         "scale" : 0,
         "allowRuntimeOverride" : "false",
         "expressionVariable" : "false",
-        "name" : "DBConnection_ACX_SRCM",
+        "name" : "DBConnection_ACX_TGT",
         "anonymousType" : {
-          "typeSystem" : "MySQL",
-          "connectionType" : "MySQL"
+          "subType" : "TOOLKIT_CCI",
+          "typeSystem" : "TOOLKIT",
+          "connectionType" : "Amazon Redshift v2"
         }
       },
       {
@@ -43,18 +45,17 @@
         "scale" : 0,
         "allowRuntimeOverride" : "false",
         "expressionVariable" : "false",
-        "name" : "DBConnection_ACX_TGT",
+        "name" : "DBConnection_ACX_SRCM",
         "anonymousType" : {
-          "subType" : "TOOLKIT_CCI",
-          "typeSystem" : "TOOLKIT",
-          "connectionType" : "Amazon Redshift v2"
+          "typeSystem" : "MySQL",
+          "connectionType" : "MySQL"
         }
       }
     ],
     "transformations" : [
       {
-        "createTime" : "2025-07-21T16:57:13.662Z",
-        "name" : "src_eafactors",
+        "createTime" : "2025-07-16T21:35:38.241Z",
+        "name" : "src_searchcriteriaea",
         "advancedProperties" : [
           {
             "name" : "Tracing Level",
@@ -122,9 +123,9 @@
           },
           {
             "adapterField" : {
-              "name" : "Name"
+              "name" : "SearchCriteriaName"
             },
-            "name" : "Name",
+            "name" : "SearchCriteriaName",
             "platformType" : {
               "name" : "string"
             },
@@ -133,9 +134,9 @@
           },
           {
             "adapterField" : {
-              "name" : "Value"
+              "name" : "SearchCriteriaValue"
             },
-            "name" : "Value",
+            "name" : "SearchCriteriaValue",
             "platformType" : {
               "name" : "string"
             },
@@ -144,13 +145,24 @@
           },
           {
             "adapterField" : {
-              "name" : "Influence"
+              "name" : "Type"
             },
-            "name" : "Influence",
+            "name" : "Type",
             "platformType" : {
-              "name" : "integer"
+              "name" : "string"
             },
-            "precision" : 10,
+            "precision" : 100,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "KeyParentBeanRefId"
+            },
+            "name" : "KeyParentBeanRefId",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 100,
             "scale" : 0
           },
           {
@@ -174,7 +186,7 @@
           "typeSystem" : "MySQL",
           "useDynamicFileName" : "false",
           "object" : {
-            "customQuery" : "select\n\ta.SystemId,\n\ta.ParentId,\n\ta.CMMContainer,\n\ta.Id,\n\ta.Name,\n\ta.Value,\n\ta.Influence,\n\ta.RowId\nfrom\n\teafactors a\ninner join advrxxchangedbeans b \n  on\n\ta.SystemId = b.SystemId\n\tand a.CMMContainer = b.CMMContainer\nwhere\n concat(b.adddt, ' ', substr(b.addtm, 1, 8))>= $LASTRUNTIME",
+            "customQuery" : "select\n\ta.SystemId,\n\ta.ParentId,\n\ta.CMMContainer,\n\ta.Id,\n\ta.SearchCriteriaName,\n\ta.SearchCriteriaValue,\n\ta.`Type`,\n\ta.KeyParentBeanRefId,\n\ta.RowId\nfrom\n\tsearchcriteriaea a\ninner join advrxxchangedbeans b\non a.Systemid = b.Systemid\nand a.CmmContainer = b.CmmContainer\nand b.CmmContainer in ('Policy','DataReport','Application')\nwhere CONCAT(b.adddt, ' ', substr(b.addtm, 1, 8))>= $LASTRUNTIME",
             "retainMetadata" : "false",
             "fields" : [
               {
@@ -189,7 +201,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "eafactors"
+                    "value" : "searchcriteriaea"
                   }
                 ]
               },
@@ -205,7 +217,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "eafactors"
+                    "value" : "searchcriteriaea"
                   }
                 ]
               },
@@ -221,7 +233,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "eafactors"
+                    "value" : "searchcriteriaea"
                   }
                 ]
               },
@@ -237,15 +249,15 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "eafactors"
+                    "value" : "searchcriteriaea"
                   }
                 ]
               },
               {
-                "name" : "Name",
+                "name" : "SearchCriteriaName",
                 "fieldType" : "CONNECTOR",
-                "label" : "Name",
-                "nativeName" : "Name",
+                "label" : "SearchCriteriaName",
+                "nativeName" : "SearchCriteriaName",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 100,
@@ -253,15 +265,15 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "eafactors"
+                    "value" : "searchcriteriaea"
                   }
                 ]
               },
               {
-                "name" : "Value",
+                "name" : "SearchCriteriaValue",
                 "fieldType" : "CONNECTOR",
-                "label" : "Value",
-                "nativeName" : "Value",
+                "label" : "SearchCriteriaValue",
+                "nativeName" : "SearchCriteriaValue",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 100,
@@ -269,23 +281,39 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "eafactors"
+                    "value" : "searchcriteriaea"
                   }
                 ]
               },
               {
-                "name" : "Influence",
+                "name" : "Type",
                 "fieldType" : "CONNECTOR",
-                "label" : "Influence",
-                "nativeName" : "Influence",
-                "nativeType" : "integer",
+                "label" : "Type",
+                "nativeName" : "Type",
+                "nativeType" : "varchar",
                 "original" : "false",
-                "precision" : 10,
+                "precision" : 100,
                 "scale" : 0,
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "eafactors"
+                    "value" : "searchcriteriaea"
+                  }
+                ]
+              },
+              {
+                "name" : "KeyParentBeanRefId",
+                "fieldType" : "CONNECTOR",
+                "label" : "KeyParentBeanRefId",
+                "nativeName" : "KeyParentBeanRefId",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 100,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "searchcriteriaea"
                   }
                 ]
               },
@@ -301,7 +329,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "eafactors"
+                    "value" : "searchcriteriaea"
                   }
                 ]
               }
@@ -317,8 +345,9 @@
         }
       },
       {
-        "createTime" : "2025-07-21T16:57:13.662Z",
-        "name" : "tgt_acx_ea_factors",
+        "description" : "this is redshift UDM staging table.",
+        "createTime" : "2025-07-16T21:35:38.241Z",
+        "name" : "tgt_acx_search_criteria",
         "advancedProperties" : [
           {
             "name" : "Forward Rejected Rows",
@@ -415,9 +444,9 @@
           },
           {
             "adapterField" : {
-              "name" : "name"
+              "name" : "search_criteria_name"
             },
-            "name" : "name",
+            "name" : "search_criteria_name",
             "platformType" : {
               "name" : "string"
             },
@@ -426,9 +455,9 @@
           },
           {
             "adapterField" : {
-              "name" : "value"
+              "name" : "search_criteria_value"
             },
-            "name" : "value",
+            "name" : "search_criteria_value",
             "platformType" : {
               "name" : "string"
             },
@@ -437,13 +466,24 @@
           },
           {
             "adapterField" : {
-              "name" : "influence"
+              "name" : "type"
             },
-            "name" : "influence",
+            "name" : "type",
             "platformType" : {
               "name" : "string"
             },
-            "precision" : 15,
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "key_parent_bean_ref_id"
+            },
+            "name" : "key_parent_bean_ref_id",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
             "scale" : 0
           },
           {
@@ -467,11 +507,11 @@
           "typeSystem" : "TOOLKIT",
           "useDynamicFileName" : "false",
           "object" : {
-            "name" : "metal/acx_ea_factors",
-            "label" : "metal/acx_ea_factors",
-            "objectName" : "acx_ea_factors",
+            "name" : "metal/acx_search_criteria_ea",
+            "label" : "metal/acx_search_criteria_ea",
+            "objectName" : "acx_search_criteria_ea",
             "objectType" : "amazonredshift",
-            "path" : "metal/acx_ea_factors",
+            "path" : "metal/acx_search_criteria_ea",
             "retainMetadata" : "false",
             "fields" : [
               {
@@ -486,7 +526,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "acx_ea_factors"
+                    "value" : "acx_search_criteria_ea"
                   }
                 ]
               },
@@ -502,7 +542,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "acx_ea_factors"
+                    "value" : "acx_search_criteria_ea"
                   }
                 ]
               },
@@ -518,7 +558,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "acx_ea_factors"
+                    "value" : "acx_search_criteria_ea"
                   }
                 ]
               },
@@ -534,7 +574,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "acx_ea_factors"
+                    "value" : "acx_search_criteria_ea"
                   }
                 ]
               },
@@ -550,7 +590,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "acx_ea_factors"
+                    "value" : "acx_search_criteria_ea"
                   }
                 ]
               },
@@ -566,15 +606,15 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "acx_ea_factors"
+                    "value" : "acx_search_criteria_ea"
                   }
                 ]
               },
               {
-                "name" : "name",
+                "name" : "search_criteria_name",
                 "fieldType" : "CONNECTOR",
-                "label" : "name",
-                "nativeName" : "name",
+                "label" : "search_criteria_name",
+                "nativeName" : "search_criteria_name",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 127,
@@ -582,15 +622,15 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "acx_ea_factors"
+                    "value" : "acx_search_criteria_ea"
                   }
                 ]
               },
               {
-                "name" : "value",
+                "name" : "search_criteria_value",
                 "fieldType" : "CONNECTOR",
-                "label" : "value",
-                "nativeName" : "value",
+                "label" : "search_criteria_value",
+                "nativeName" : "search_criteria_value",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 127,
@@ -598,23 +638,39 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "acx_ea_factors"
+                    "value" : "acx_search_criteria_ea"
                   }
                 ]
               },
               {
-                "name" : "influence",
+                "name" : "type",
                 "fieldType" : "CONNECTOR",
-                "label" : "influence",
-                "nativeName" : "influence",
+                "label" : "type",
+                "nativeName" : "type",
                 "nativeType" : "varchar",
                 "original" : "false",
-                "precision" : 15,
+                "precision" : 127,
                 "scale" : 0,
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "acx_ea_factors"
+                    "value" : "acx_search_criteria_ea"
+                  }
+                ]
+              },
+              {
+                "name" : "key_parent_bean_ref_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "key_parent_bean_ref_id",
+                "nativeName" : "key_parent_bean_ref_id",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "acx_search_criteria_ea"
                   }
                 ]
               },
@@ -630,7 +686,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "acx_ea_factors"
+                    "value" : "acx_search_criteria_ea"
                   }
                 ]
               }
@@ -770,23 +826,30 @@
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "Name",
+              "fromFieldName" : "SearchCriteriaName",
               "toField" : {
-                "name" : "name"
+                "name" : "search_criteria_name"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "Value",
+              "fromFieldName" : "SearchCriteriaValue",
               "toField" : {
-                "name" : "value"
+                "name" : "search_criteria_value"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "Influence",
+              "fromFieldName" : "Type",
               "toField" : {
-                "name" : "influence"
+                "name" : "type"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "KeyParentBeanRefId",
+              "toField" : {
+                "name" : "key_parent_bean_ref_id"
               },
               "fromFieldNames" : null
             },
@@ -801,8 +864,9 @@
         }
       },
       {
-        "createTime" : "2025-07-21T17:17:39.082Z",
-        "name" : "exp_conversion",
+        "description" : "straight pass through, no transformation required",
+        "createTime" : "2025-07-16T21:35:48.463Z",
+        "name" : "exp_read_all_fields",
         "groups" : [
           {
             "input" : "true",
@@ -827,7 +891,7 @@
             "precision" : 20,
             "scale" : 0,
             "expFieldType" : "OUTPUT",
-            "expression" : "'eafactors'"
+            "expression" : "'searchcriteria'"
           },
           {
             "defaultValue" : "ERROR('transformation error')",
@@ -835,7 +899,7 @@
             "platformType" : {
               "name" : "string"
             },
-            "precision" : 20,
+            "precision" : 10,
             "scale" : 0,
             "expFieldType" : "OUTPUT",
             "expression" : "'Daily'"
@@ -851,5 +915,5 @@
       }
     ]
   },
-  "vcsExportTime" : "2025-07-25 11:08:19 PDT"
+  "vcsExportTime" : "2025-07-28 11:11:45 EDT"
 }

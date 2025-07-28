@@ -1,28 +1,28 @@
 {
-  "name" : "cdi_tsk_map_adm_group_guidewire_metal_stg_load",
-  "description" : "this mapping task to ready daily changes data from ADM maria DB and load to redshift UDM staging table.",
+  "name" : "cdi_tsk_map_acx_search_criteria_metal_load",
+  "description" : "This mapping task to ready daily changes data from ACX Guidewire DB and load to redshift Metal staging table.",
   "runtimeEnvironmentId" : "@3pADNCV9u0PcgrXjM7rx0t",
   "runtimeEnvironmentName" : "sag_aws_linux",
   "maxLogs" : 10,
   "parameters" : [
     {
-      "name" : "$src_groupguidewire$",
+      "name" : "$src_searchcriteriaea$",
       "type" : "SOURCE",
-      "label" : "DBConnection_ADM_SRC",
+      "label" : "DBConnection_ACX_SRCM",
       "uiProperties" : {
         "cnxtype" : "MySQL",
         "connectionParameterized" : "true",
-        "paramName" : "DBConnection_ADM_SRC",
+        "paramName" : "DBConnection_ACX_SRCM",
         "paramType-mapping" : "Connection",
-        "logcnx" : "DBConnection_ADM_SRC",
+        "logcnx" : "DBConnection_ACX_SRCM",
         "isSelectDistinct" : "false",
         "objectParameterized" : "false",
         "visible" : "false",
-        "originalPath" : "src_groupguidewire"
+        "originalPath" : "src_searchcriteriaea"
       },
-      "sourceConnectionId" : "@4uzdhtCEfeKgnmfNINATi5",
-      "connectionName" : "conn_mysql_model_adm",
-      "sourceObject" : "DUMMY_src_groupguidewire",
+      "sourceConnectionId" : "@1MPwv79N5kdekz7fZXQSas",
+      "connectionName" : "conn_mysql_model_insurance_now_gw",
+      "sourceObject" : "DUMMY_src_searchcriteriaea",
       "newFlatFile" : false,
       "newObject" : false,
       "showBusinessNames" : true,
@@ -30,7 +30,7 @@
       "truncateTarget" : false,
       "bulkApiDBTarget" : false,
       "customFuncCfg" : { },
-      "customQuery" : "SELECT\n\tgroups_nup,\n\tgroups_number,\n\tcombined,\n\tqualifyingamount,\n\tshare,\n\tsuper_group_id,\n\tcontingent_group_name1,\n\tcontingent_group_name2,\n\tfieldrep,\n\tfieldrep_state,\n\tuser_gw,\n\tstatus_date,\n\tcreated,\n\tmodified,\n\tcontingent_paymentby,\n\tach_accounttype1,\n\tach_accounttype2,\n\tach_accountnum,\n\tach_routingnum,\n\ttransfer_status,\n\tagencies_transferable\nFROM\n\tagencymanagement.groupguidewire\nWHERE\n\tmodified >= $LASTRUNTIME\nORDER BY\n\tmodified DESC;",
+      "customQuery" : "select\n\ta.SystemId,\n\ta.ParentId,\n\ta.CMMContainer,\n\ta.Id,\n\ta.SearchCriteriaName,\n\ta.SearchCriteriaValue,\n\ta.`Type`,\n\ta.KeyParentBeanRefId,\n\ta.RowId\nfrom\n\tsearchcriteriaea a\ninner join advrxxchangedbeans b\non a.Systemid = b.Systemid\nand a.CmmContainer = b.CmmContainer\nand b.CmmContainer in ('Policy','DataReport','Application')\nwhere CONCAT(b.adddt, ' ', substr(b.addtm, 1, 8))>= $LASTRUNTIME",
       "commandType" : 0,
       "handleSpecialChars" : false,
       "handleDecimalRoundOff" : false,
@@ -39,11 +39,12 @@
       "excludeDynamicFileNameField" : false,
       "currentlyProcessedFileName" : false,
       "retainFieldMetadata" : false,
-      "objectName" : "DUMMY_src_groupguidewire",
+      "objectName" : "DUMMY_src_searchcriteriaea",
       "useExactSrcNames" : false,
       "userUpdated" : true,
+      "fetchMode" : "ORIGINAL",
       "runtimeParameterData" : {
-        "connectionParameterName" : "DBConnection_ADM_SRC",
+        "connectionParameterName" : "DBConnection_ACX_SRCM",
         "connectionRuntimeParameter" : false,
         "objectRuntimeParameter" : false
       },
@@ -52,25 +53,25 @@
       "fileList" : false
     },
     {
-      "name" : "$tgt_adm_group_guidewire$",
+      "name" : "$tgt_acx_search_criteria$",
       "type" : "TARGET",
-      "label" : "DBConnection_UDM_TGT",
+      "label" : "DBConnection_ACX_TGT",
       "uiProperties" : {
         "cnxtype" : "Amazon Redshift v2",
         "connectionParameterized" : "true",
-        "paramName" : "DBConnection_UDM_TGT",
+        "paramName" : "DBConnection_ACX_TGT",
         "paramType-mapping" : "Connection",
-        "logcnx" : "DBConnection_UDM_TGT",
-        "default" : "metal/adm_group_guidewire",
+        "logcnx" : "DBConnection_ACX_TGT",
+        "default" : "metal/acx_search_criteria_ea",
         "objectParameterized" : "false",
         "visible" : "false",
         "supportApplyDDLChanges" : "false",
-        "originalPath" : "tgt_adm_group_guidewire"
+        "originalPath" : "tgt_acx_search_criteria"
       },
       "targetConnectionId" : "@aYZ4ekzHgIPeKpiaoqDLKP",
       "connectionName" : "redshift_nonprod_andover_dw_dev",
-      "targetObject" : "metal/adm_group_guidewire",
-      "targetObjectLabel" : "metal/adm_group_guidewire",
+      "targetObject" : "metal/acx_search_criteria_ea",
+      "targetObjectLabel" : "metal/acx_search_criteria_ea",
       "newFlatFile" : false,
       "newObject" : false,
       "showBusinessNames" : true,
@@ -90,24 +91,26 @@
       "excludeDynamicFileNameField" : false,
       "currentlyProcessedFileName" : false,
       "retainFieldMetadata" : false,
-      "objectName" : "metal/adm_group_guidewire",
-      "objectLabel" : "metal/adm_group_guidewire",
+      "objectName" : "metal/acx_search_criteria_ea",
+      "objectLabel" : "metal/acx_search_criteria_ea",
       "useExactSrcNames" : false,
       "userUpdated" : true,
+      "fetchMode" : "ORIGINAL",
       "runtimeParameterData" : {
-        "connectionParameterName" : "DBConnection_UDM_TGT",
+        "connectionParameterName" : "DBConnection_ACX_TGT",
         "connectionRuntimeParameter" : false,
         "objectRuntimeParameter" : false
       },
+      "targetSchemaProviderType" : "SELECTED_OBJECT",
       "restmodernSource" : true,
       "unspecified" : false,
       "fileList" : false
     }
   ],
   "verbose" : false,
-  "lastRunTime" : 1753470000000,
-  "mappingId" : "@6OuvUN0atBxhLBqRCo0JYs",
-  "mappingTemplateName" : "cdi_map_adm_group_guidewire_metal_stg_load",
+  "lastRunTime" : 1753370095000,
+  "mappingId" : "@4bXtEtasHyAheTfouStdoS",
+  "mappingTemplateName" : "cdi_map_acx_search_criteria_metal_load",
   "sessionPropertiesList" : [
     {
       "name" : "Pushdown Optimization",
@@ -127,7 +130,7 @@
   "enableParallelRun" : false,
   "autoTunedApplied" : false,
   "autoTunedAppliedType" : "NONE",
-  "parameterFileName" : "Andover_Param_ADM.param",
+  "parameterFileName" : "Andover_Param_ACX.param",
   "parameterFileDir" : "$PMRootDir/andover/parameters",
   "paramFileType" : "PARAM_FILE_LOCAL",
   "schemaMode" : "async",
@@ -136,5 +139,5 @@
   "allowMaxFieldLength" : false,
   "specialCharacterSupport" : false,
   "midstreamPreview" : false,
-  "vcsExportTime" : "2025-07-25 12:09:11 PDT"
+  "vcsExportTime" : "2025-07-28 11:11:45 EDT"
 }
