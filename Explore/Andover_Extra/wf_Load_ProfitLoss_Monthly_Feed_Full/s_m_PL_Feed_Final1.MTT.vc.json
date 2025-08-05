@@ -1,0 +1,255 @@
+{
+  "name" : "s_m_PL_Feed_Final1",
+  "description" : "Session pushed from PC to ICS : s_m_PL_Feed_Final1",
+  "runtimeEnvironmentId" : "@2NZZ3Ll26eokZZRvQWlJuU",
+  "runtimeEnvironmentName" : "sag_aws_linux",
+  "maxLogs" : 10,
+  "parameters" : [
+    {
+      "name" : "$SQ_ProfitLoss_Monthly_Feed$",
+      "type" : "EXTENDED_SOURCE",
+      "label" : "DBConnection_Src",
+      "uiProperties" : {
+        "cnxtype" : "Amazon Redshift v2",
+        "connectionParameterized" : "true",
+        "paramName" : "DBConnection_Src",
+        "paramType-mapping" : "Connection",
+        "logcnx" : "DBConnection_Src",
+        "isSelectDistinct" : "false",
+        "isMsrcFilterParameterized" : "false",
+        "isMsrcSortParameterized" : "false",
+        "objectParameterized" : "false",
+        "visible" : "false",
+        "originalPath" : "SQ_ProfitLoss_Monthly_Feed"
+      },
+      "sourceConnectionId" : "@iWG7WweMRiOiUzzrDFkK0U",
+      "connectionName" : "redshift_uat_andover_dw_uat",
+      "newFlatFile" : false,
+      "newObject" : false,
+      "showBusinessNames" : true,
+      "naturalOrder" : true,
+      "truncateTarget" : false,
+      "bulkApiDBTarget" : false,
+      "customFuncCfg" : { },
+      "extendedObject" : {
+        "object" : {
+          "name" : "dbo/profitloss_monthly_feed",
+          "label" : "profitloss_monthly_feed",
+          "metadataUpdated" : false
+        },
+        "singleMode" : true,
+        "objects" : [
+          {
+            "name" : "dbo/profitloss_monthly_feed",
+            "label" : "profitloss_monthly_feed",
+            "metadataUpdated" : false
+          }
+        ]
+      },
+      "runtimeAttrs" : {
+        "SQL Query" : "SELECT \na.source, \na.company, \na.lineofbusiness, \na.riskstate, \na.annual_statement_line, \na.stateline, \na.directwrittenpremium, \na.cededwrittenpremium, \nc.directytdwrittenpremium, \ncoalesce(b.cededytdwrittenpremium,0) as cededytdwrittenpremium, \na.directunearnedpremium, \na.cededunearnedpremium, \na.directlosspaid, \na.directcasereserve, \na.directlossibnrreserve, \na.cededlosspaid, \na.cededcasereserve, \na.cededlossibnrreserve, \na.directpaiddcc, \na.directpaidao, \na.directlaecasereserve, \na.\"directlae ibnr reserve\", \na.cededpaiddcc, \na.cededpaidao, \na.cededlaecasereserve, \na.cededlaeibnrreserve, \na.directcommissionsincurred, \na.cededcommissionsincurred, \na.account_entered_dt, \na.reinsurancecompany, \n(c.directytdwrittenpremium * dm5.value_of_measure) AS directcontingentcommissionincurred, \n(c.directytdwrittenpremium * dm2.value_of_measure) AS directpaidofficeexpense, \n((c.directytdwrittenpremium * dm3.value_of_measure)) AS directotheruwexpenseincurred, \nCASE WHEN tx4.spremium IN (0, 0.00, 0.0000) THEN dm4.value_of_measure \n  ELSE ((a.directwrittenpremium / tx4.spremium) * dm4.value_of_measure) END AS directcatastrophecharge, \n(coalesce(b.cededytdwrittenpremium,0) * dm1.value_of_measure) AS cededcontingentcommissionincurred, \n((coalesce(b.cededytdwrittenpremium,0) * dm3.value_of_measure)) AS cededotheruwexpenseincurred \nFROM \n(SELECT DISTINCT \na.source, \na.company, \na.lineofbusiness, \na.riskstate, \na.annual_statement_line, \na.stateline, \nCASE WHEN a.directwrittenpremium IS NOT NULL THEN a.directwrittenpremium \n  ELSE 0 END AS directwrittenpremium, \nCASE WHEN a.directwrittenpremium IS NOT NULL OR (a.directwrittenpremium IS NULL AND a.directcommissionsincurred IS NULL) \n  THEN SUM( a.directwrittenpremium) OVER ( PARTITION BY DATE_PART('year', a.account_entered_dt), a.source, a.company, a.lineofbusiness, \n    a.riskstate, a.annual_statement_line, a.stateline \n\tORDER BY DATE_PART('year', a.account_entered_dt), DATE_PART('month', a.account_entered_dt) ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW ) \n  ELSE 0 END AS directytdwrittenpremium, \nCASE WHEN a.source LIKE '%_Ceded_Premiums%' AND a.cededwrittenpremium IS NOT NULL \n  THEN SUM( a.cededwrittenpremium) OVER ( PARTITION BY DATE_PART('year', a.account_entered_dt), a.source, a.company, a.lineofbusiness, \n    a.riskstate, a.annual_statement_line, a.stateline, a.reinsurancecompany \n\tORDER BY DATE_PART('month', a.account_entered_dt) ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW ) \n  WHEN a.cededwrittenpremium IS NOT NULL \n  THEN SUM(a.cededwrittenpremium) OVER ( PARTITION BY DATE_PART('year', a.account_entered_dt), a.source, a.company, a.lineofbusiness, \n    a.riskstate, a.annual_statement_line, a.stateline \n\tORDER BY DATE_PART('month', a.account_entered_dt) ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW ) \n  ELSE 0 END AS cededytdwrittenpremium, \na.cededwrittenpremium, \na.directunearnedpremium, \na.cededunearnedpremium, \na.directlosspaid, \na.directcasereserve, \na.directlossibnrreserve, \na.cededlosspaid, \na.cededcasereserve, \na.cededlossibnrreserve, \na.directpaiddcc, \na.directpaidao, \na.directlaecasereserve, \na.\"directlae ibnr reserve\", \na.cededpaiddcc, \na.cededpaidao, \na.cededlaecasereserve, \na.cededlaeibnrreserve, \na.directcommissionsincurred, \na.cededcommissionsincurred, \na.account_entered_dt, \na.reinsurancecompany \nFROM dbo.profitloss_monthly_base a) a \nLEFT OUTER JOIN \n( SELECT DISTINCT \n  a.Source, \n  a.Company, \n  a.LineOfBusiness, \n  a.RiskState, \n  a.Annual_Statement_Line, \n  a.Stateline, \n  a.account_entered_dt, \n  a.ReinsuranceCompany, \n  sum_cededwrittenpremium_month, \n  CASE WHEN sum_cededwrittenpremium_month IS NOT NULL \n    THEN SUM(sum_cededwrittenpremium_month) OVER ( PARTITION BY DATE_PART('year', a.account_entered_dt), a.source, a.company, a.lineofbusiness, \n\ta.riskstate, a.annual_statement_line, a.stateline, a.reinsurancecompany \n\tORDER BY DATE_PART('month', a.account_entered_dt) ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW ) \n  ELSE 0 END AS cededytdwrittenpremium \n  FROM \n  (SELECT DISTINCT \n    a.Source, \n\ta.Company, \n\ta.LineOfBusiness, \n\ta.RiskState, \n\ta.Annual_Statement_Line, \n\ta.Stateline, \n\ta.account_entered_dt, \n\ta.ReinsuranceCompany, \n\tsum(a.cededwrittenpremium) as sum_cededwrittenpremium_month \n\tFROM dbo.ProfitLoss_Monthly_Base a \n\tgroup by a.Source, \n\ta.Company, \n\ta.LineOfBusiness, \n\ta.RiskState, \n\ta.Annual_Statement_Line, \n\ta.Stateline, \n\ta.account_entered_dt, \n\ta.ReinsuranceCompany \n\tORDER BY a.account_entered_dt, \n\ta.source ) a \n) b \non b.source = a.source \nAND b.company = a.company \nAND b.lineofbusiness = a.lineofbusiness \nAND b.riskstate = a.riskstate \nAND b.annual_statement_line = a.annual_statement_line \nAND b.stateline = a.stateline \nAND b.account_entered_dt = a.account_entered_dt \nand b.ReinsuranceCompany = a.ReinsuranceCompany \nLEFT OUTER JOIN \n( SELECT DISTINCT \n  a.Source, \n  a.Company, \n  a.LineOfBusiness, \n  a.RiskState, \n  a.Annual_Statement_Line, \n  a.Stateline, \n  a.account_entered_dt, \n  sum_directwrittenpremium_month, \n  CASE WHEN sum_directwrittenpremium_month IS NOT NULL OR (sum_directwrittenpremium_month IS NULL AND a.directcommissionsincurred IS NULL) \n    THEN SUM( sum_directwrittenpremium_month) OVER ( PARTITION BY DATE_PART('year', a.account_entered_dt), a.source, a.company, a.lineofbusiness, \n\t  a.riskstate, a.annual_statement_line, a.stateline \n\t  ORDER BY DATE_PART('year', a.account_entered_dt), DATE_PART('month', a.account_entered_dt) ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW ) \n\tELSE 0 END AS directytdwrittenpremium \n  FROM \n  (SELECT DISTINCT \n    a.Source, \n\ta.Company, \n\ta.LineOfBusiness, \n\ta.RiskState, \n\ta.Annual_Statement_Line, \n\ta.Stateline, \n\ta.account_entered_dt, \n\ta.directcommissionsincurred, \n\tsum(a.directwrittenpremium) as sum_directwrittenpremium_month \n\tFROM dbo.ProfitLoss_Monthly_Base a \n\tgroup by \n\ta.Source, \n\ta.Company, \n\ta.LineOfBusiness, \n\ta.RiskState, \n\ta.Annual_Statement_Line, \n\ta.Stateline, \n\ta.directcommissionsincurred, \n\ta.account_entered_dt \n\tORDER BY \n\ta.account_entered_dt, \n\ta.Source) a\n) c \non c.source = a.source \nAND c.company = a.company \nAND c.lineofbusiness = a.lineofbusiness \nAND c.riskstate = a.riskstate \nAND c.annual_statement_line = a.annual_statement_line \nAND c.stateline = a.stateline \nAND c.account_entered_dt = a.account_entered_dt \nLEFT JOIN dbo.profitloss_manual_feed dm1 \nON dm1.data_element = 'Ceded Contingent Commission Incurred Factor' \nAND dm1.feedtype = 'Ceded' \nAND dm1.asl = CASE WHEN dm1.asl = 'All' THEN dm1.asl ELSE a.annual_statement_line END \nAND dm1.year = DATE_PART('year', a.account_entered_dt) \nAND dm1.company = CASE WHEN dm1.company = 'All' THEN dm1.company ELSE a.company END \nAND dm1.state = CASE WHEN dm1.state = 'All' THEN dm1.state ELSE a.riskstate END \nAND CAST(a.reinsurancecompany AS INTEGER) = CAST(dm1.reinsurance_company AS INTEGER) \nLEFT JOIN dbo.profitloss_manual_feed dm5 ON dm5.data_element = 'Direct Contingent Commission Incurred Factor' \nAND dm5.feedtype = 'Direct' \nAND dm5.asl = CASE WHEN dm5.asl = 'All' THEN dm5.asl ELSE a.annual_statement_line END \nAND dm5.year = DATE_PART('year', a.account_entered_dt)\nand a.Account_Entered_Dt >= dm5.Valid_From_Dt \nand a.Account_Entered_Dt < dm5.Valid_To_Dt \nAND dm5.company = CASE WHEN dm5.company = 'All' THEN dm5.company ELSE a.company END \nAND dm5.state = CASE WHEN dm5.state = 'All' THEN dm5.state ELSE a.riskstate END \nLEFT JOIN dbo.profitloss_manual_feed dm2 \nON dm2.data_element = 'Direct Paid Home Office Loss Expense (Line Amount)' \nAND dm2.feedtype = 'Direct' \nAND (CASE WHEN LENGTH(dm2.asl) = 1 THEN CONCAT('00', dm2.asl) \n  WHEN LENGTH(dm2.asl) = 2 THEN CONCAT('0', dm2.asl) ELSE dm2.asl END) = CASE WHEN dm2.asl = 'All' THEN dm2.asl ELSE a.annual_statement_line END \nAND dm2.year = DATE_PART('year', a.account_entered_dt) \nAND a.account_entered_dt >= dm2.valid_from_dt \nAND a.account_entered_dt < dm2.valid_to_dt \nAND UPPER(dm2.company) = CASE WHEN dm2.company = 'All' THEN dm2.company ELSE UPPER(a.company) END \nAND UPPER(dm2.state) = CASE WHEN dm2.state = 'All' THEN dm2.state ELSE UPPER(LEFT(a.riskstate, 2)) END \nLEFT JOIN \n(SELECT \n  SUM(directwrittenpremium) AS spremium, \n  annual_statement_line, \n  account_entered_dt, \n  riskstate \n  FROM dbo.profitloss_monthly_base \n  GROUP BY annual_statement_line, \n  account_entered_dt, \n  riskstate) tx4 \nON tx4.annual_statement_line = a.annual_statement_line \nAND tx4.account_entered_dt = a.account_entered_dt \nAND a.riskstate = tx4.riskstate \nLEFT JOIN dbo.profitloss_manual_feed dm3 \nON dm3.data_element = 'Direct Other U/W Expense Incurred Factor' \nAND dm3.feedtype = 'Direct' \nAND (CASE WHEN LENGTH(dm3.asl) = 1 THEN CONCAT('00', dm3.asl) \n  WHEN LENGTH(dm3.asl) = 2 THEN CONCAT('0', dm3.asl) ELSE dm3.asl END) = a.annual_statement_line \nAND dm3.year = DATE_PART('year', a.account_entered_dt) \nAND a.account_entered_dt >= dm3.valid_from_dt \nAND a.account_entered_dt < dm3.valid_to_dt \nAND dm3.company = CASE WHEN dm3.company = 'All' THEN dm3.company ELSE a.company END \nAND dm3.state = UPPER(LEFT(a.riskstate, 2)) \nLEFT JOIN \n(SELECT DISTINCT \n  SUM(value_of_measure) OVER (PARTITION BY year, month, asl, state) AS value_of_measure, \n  year, \n  month, \n  asl,\n  state  \n  FROM dbo.profitloss_manual_feed \n  WHERE data_element = 'Direct Catastrophe Charge'\n  and valid_to_dt = '9999-12-31') dm4 \nON (CASE WHEN dm4.asl = 'All' THEN dm4.asl \n  WHEN LENGTH(dm4.asl) = 1 THEN CONCAT('00', dm4.asl) \n  WHEN LENGTH(dm4.asl) = 2 THEN CONCAT('0', dm4.asl) \n  ELSE dm4.asl END) = (CASE WHEN dm4.asl = 'All' THEN dm4.asl \n    WHEN LENGTH(a.annual_statement_line) = 1 THEN CONCAT('00', a.annual_statement_line) \n\tWHEN LENGTH(a.annual_statement_line) = 2 THEN CONCAT('0', a.annual_statement_line) \n\tELSE a.annual_statement_line END) \nand dm4.State=upper(left(a.RiskState,2))\nAND dm4.year = DATE_PART('year', a.account_entered_dt) \nAND (CASE WHEN dm4.month = 'All' \n  THEN dm4.month ELSE dm4.month END) = (CASE WHEN dm4.month = 'All' \n    THEN dm4.month ELSE TO_CHAR(a.account_entered_dt, 'Month') END\n) \nWHERE a.stateline IS NOT NULL \nAND a.account_entered_dt < '2020-01-01' \nORDER BY a.account_entered_dt, a.source"
+      },
+      "oprRuntimeAttrs" : {
+        "sqlQuery" : "SELECT \na.source, \na.company, \na.lineofbusiness, \na.riskstate, \na.annual_statement_line, \na.stateline, \na.directwrittenpremium, \na.cededwrittenpremium, \nc.directytdwrittenpremium, \ncoalesce(b.cededytdwrittenpremium,0) as cededytdwrittenpremium, \na.directunearnedpremium, \na.cededunearnedpremium, \na.directlosspaid, \na.directcasereserve, \na.directlossibnrreserve, \na.cededlosspaid, \na.cededcasereserve, \na.cededlossibnrreserve, \na.directpaiddcc, \na.directpaidao, \na.directlaecasereserve, \na.\"directlae ibnr reserve\", \na.cededpaiddcc, \na.cededpaidao, \na.cededlaecasereserve, \na.cededlaeibnrreserve, \na.directcommissionsincurred, \na.cededcommissionsincurred, \na.account_entered_dt, \na.reinsurancecompany, \n(c.directytdwrittenpremium * dm5.value_of_measure) AS directcontingentcommissionincurred, \n(c.directytdwrittenpremium * dm2.value_of_measure) AS directpaidofficeexpense, \n((c.directytdwrittenpremium * dm3.value_of_measure)) AS directotheruwexpenseincurred, \nCASE WHEN tx4.spremium IN (0, 0.00, 0.0000) THEN dm4.value_of_measure \n  ELSE ((a.directwrittenpremium / tx4.spremium) * dm4.value_of_measure) END AS directcatastrophecharge, \n(coalesce(b.cededytdwrittenpremium,0) * dm1.value_of_measure) AS cededcontingentcommissionincurred, \n((coalesce(b.cededytdwrittenpremium,0) * dm3.value_of_measure)) AS cededotheruwexpenseincurred \nFROM \n(SELECT DISTINCT \na.source, \na.company, \na.lineofbusiness, \na.riskstate, \na.annual_statement_line, \na.stateline, \nCASE WHEN a.directwrittenpremium IS NOT NULL THEN a.directwrittenpremium \n  ELSE 0 END AS directwrittenpremium, \nCASE WHEN a.directwrittenpremium IS NOT NULL OR (a.directwrittenpremium IS NULL AND a.directcommissionsincurred IS NULL) \n  THEN SUM( a.directwrittenpremium) OVER ( PARTITION BY DATE_PART('year', a.account_entered_dt), a.source, a.company, a.lineofbusiness, \n    a.riskstate, a.annual_statement_line, a.stateline \n\tORDER BY DATE_PART('year', a.account_entered_dt), DATE_PART('month', a.account_entered_dt) ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW ) \n  ELSE 0 END AS directytdwrittenpremium, \nCASE WHEN a.source LIKE '%_Ceded_Premiums%' AND a.cededwrittenpremium IS NOT NULL \n  THEN SUM( a.cededwrittenpremium) OVER ( PARTITION BY DATE_PART('year', a.account_entered_dt), a.source, a.company, a.lineofbusiness, \n    a.riskstate, a.annual_statement_line, a.stateline, a.reinsurancecompany \n\tORDER BY DATE_PART('month', a.account_entered_dt) ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW ) \n  WHEN a.cededwrittenpremium IS NOT NULL \n  THEN SUM(a.cededwrittenpremium) OVER ( PARTITION BY DATE_PART('year', a.account_entered_dt), a.source, a.company, a.lineofbusiness, \n    a.riskstate, a.annual_statement_line, a.stateline \n\tORDER BY DATE_PART('month', a.account_entered_dt) ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW ) \n  ELSE 0 END AS cededytdwrittenpremium, \na.cededwrittenpremium, \na.directunearnedpremium, \na.cededunearnedpremium, \na.directlosspaid, \na.directcasereserve, \na.directlossibnrreserve, \na.cededlosspaid, \na.cededcasereserve, \na.cededlossibnrreserve, \na.directpaiddcc, \na.directpaidao, \na.directlaecasereserve, \na.\"directlae ibnr reserve\", \na.cededpaiddcc, \na.cededpaidao, \na.cededlaecasereserve, \na.cededlaeibnrreserve, \na.directcommissionsincurred, \na.cededcommissionsincurred, \na.account_entered_dt, \na.reinsurancecompany \nFROM dbo.profitloss_monthly_base a) a \nLEFT OUTER JOIN \n( SELECT DISTINCT \n  a.Source, \n  a.Company, \n  a.LineOfBusiness, \n  a.RiskState, \n  a.Annual_Statement_Line, \n  a.Stateline, \n  a.account_entered_dt, \n  a.ReinsuranceCompany, \n  sum_cededwrittenpremium_month, \n  CASE WHEN sum_cededwrittenpremium_month IS NOT NULL \n    THEN SUM(sum_cededwrittenpremium_month) OVER ( PARTITION BY DATE_PART('year', a.account_entered_dt), a.source, a.company, a.lineofbusiness, \n\ta.riskstate, a.annual_statement_line, a.stateline, a.reinsurancecompany \n\tORDER BY DATE_PART('month', a.account_entered_dt) ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW ) \n  ELSE 0 END AS cededytdwrittenpremium \n  FROM \n  (SELECT DISTINCT \n    a.Source, \n\ta.Company, \n\ta.LineOfBusiness, \n\ta.RiskState, \n\ta.Annual_Statement_Line, \n\ta.Stateline, \n\ta.account_entered_dt, \n\ta.ReinsuranceCompany, \n\tsum(a.cededwrittenpremium) as sum_cededwrittenpremium_month \n\tFROM dbo.ProfitLoss_Monthly_Base a \n\tgroup by a.Source, \n\ta.Company, \n\ta.LineOfBusiness, \n\ta.RiskState, \n\ta.Annual_Statement_Line, \n\ta.Stateline, \n\ta.account_entered_dt, \n\ta.ReinsuranceCompany \n\tORDER BY a.account_entered_dt, \n\ta.source ) a \n) b \non b.source = a.source \nAND b.company = a.company \nAND b.lineofbusiness = a.lineofbusiness \nAND b.riskstate = a.riskstate \nAND b.annual_statement_line = a.annual_statement_line \nAND b.stateline = a.stateline \nAND b.account_entered_dt = a.account_entered_dt \nand b.ReinsuranceCompany = a.ReinsuranceCompany \nLEFT OUTER JOIN \n( SELECT DISTINCT \n  a.Source, \n  a.Company, \n  a.LineOfBusiness, \n  a.RiskState, \n  a.Annual_Statement_Line, \n  a.Stateline, \n  a.account_entered_dt, \n  sum_directwrittenpremium_month, \n  CASE WHEN sum_directwrittenpremium_month IS NOT NULL OR (sum_directwrittenpremium_month IS NULL AND a.directcommissionsincurred IS NULL) \n    THEN SUM( sum_directwrittenpremium_month) OVER ( PARTITION BY DATE_PART('year', a.account_entered_dt), a.source, a.company, a.lineofbusiness, \n\t  a.riskstate, a.annual_statement_line, a.stateline \n\t  ORDER BY DATE_PART('year', a.account_entered_dt), DATE_PART('month', a.account_entered_dt) ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW ) \n\tELSE 0 END AS directytdwrittenpremium \n  FROM \n  (SELECT DISTINCT \n    a.Source, \n\ta.Company, \n\ta.LineOfBusiness, \n\ta.RiskState, \n\ta.Annual_Statement_Line, \n\ta.Stateline, \n\ta.account_entered_dt, \n\ta.directcommissionsincurred, \n\tsum(a.directwrittenpremium) as sum_directwrittenpremium_month \n\tFROM dbo.ProfitLoss_Monthly_Base a \n\tgroup by \n\ta.Source, \n\ta.Company, \n\ta.LineOfBusiness, \n\ta.RiskState, \n\ta.Annual_Statement_Line, \n\ta.Stateline, \n\ta.directcommissionsincurred, \n\ta.account_entered_dt \n\tORDER BY \n\ta.account_entered_dt, \n\ta.Source) a\n) c \non c.source = a.source \nAND c.company = a.company \nAND c.lineofbusiness = a.lineofbusiness \nAND c.riskstate = a.riskstate \nAND c.annual_statement_line = a.annual_statement_line \nAND c.stateline = a.stateline \nAND c.account_entered_dt = a.account_entered_dt \nLEFT JOIN dbo.profitloss_manual_feed dm1 \nON dm1.data_element = 'Ceded Contingent Commission Incurred Factor' \nAND dm1.feedtype = 'Ceded' \nAND dm1.asl = CASE WHEN dm1.asl = 'All' THEN dm1.asl ELSE a.annual_statement_line END \nAND dm1.year = DATE_PART('year', a.account_entered_dt) \nAND dm1.company = CASE WHEN dm1.company = 'All' THEN dm1.company ELSE a.company END \nAND dm1.state = CASE WHEN dm1.state = 'All' THEN dm1.state ELSE a.riskstate END \nAND CAST(a.reinsurancecompany AS INTEGER) = CAST(dm1.reinsurance_company AS INTEGER) \nLEFT JOIN dbo.profitloss_manual_feed dm5 ON dm5.data_element = 'Direct Contingent Commission Incurred Factor' \nAND dm5.feedtype = 'Direct' \nAND dm5.asl = CASE WHEN dm5.asl = 'All' THEN dm5.asl ELSE a.annual_statement_line END \nAND dm5.year = DATE_PART('year', a.account_entered_dt)\nand a.Account_Entered_Dt >= dm5.Valid_From_Dt \nand a.Account_Entered_Dt < dm5.Valid_To_Dt \nAND dm5.company = CASE WHEN dm5.company = 'All' THEN dm5.company ELSE a.company END \nAND dm5.state = CASE WHEN dm5.state = 'All' THEN dm5.state ELSE a.riskstate END \nLEFT JOIN dbo.profitloss_manual_feed dm2 \nON dm2.data_element = 'Direct Paid Home Office Loss Expense (Line Amount)' \nAND dm2.feedtype = 'Direct' \nAND (CASE WHEN LENGTH(dm2.asl) = 1 THEN CONCAT('00', dm2.asl) \n  WHEN LENGTH(dm2.asl) = 2 THEN CONCAT('0', dm2.asl) ELSE dm2.asl END) = CASE WHEN dm2.asl = 'All' THEN dm2.asl ELSE a.annual_statement_line END \nAND dm2.year = DATE_PART('year', a.account_entered_dt) \nAND a.account_entered_dt >= dm2.valid_from_dt \nAND a.account_entered_dt < dm2.valid_to_dt \nAND UPPER(dm2.company) = CASE WHEN dm2.company = 'All' THEN dm2.company ELSE UPPER(a.company) END \nAND UPPER(dm2.state) = CASE WHEN dm2.state = 'All' THEN dm2.state ELSE UPPER(LEFT(a.riskstate, 2)) END \nLEFT JOIN \n(SELECT \n  SUM(directwrittenpremium) AS spremium, \n  annual_statement_line, \n  account_entered_dt, \n  riskstate \n  FROM dbo.profitloss_monthly_base \n  GROUP BY annual_statement_line, \n  account_entered_dt, \n  riskstate) tx4 \nON tx4.annual_statement_line = a.annual_statement_line \nAND tx4.account_entered_dt = a.account_entered_dt \nAND a.riskstate = tx4.riskstate \nLEFT JOIN dbo.profitloss_manual_feed dm3 \nON dm3.data_element = 'Direct Other U/W Expense Incurred Factor' \nAND dm3.feedtype = 'Direct' \nAND (CASE WHEN LENGTH(dm3.asl) = 1 THEN CONCAT('00', dm3.asl) \n  WHEN LENGTH(dm3.asl) = 2 THEN CONCAT('0', dm3.asl) ELSE dm3.asl END) = a.annual_statement_line \nAND dm3.year = DATE_PART('year', a.account_entered_dt) \nAND a.account_entered_dt >= dm3.valid_from_dt \nAND a.account_entered_dt < dm3.valid_to_dt \nAND dm3.company = CASE WHEN dm3.company = 'All' THEN dm3.company ELSE a.company END \nAND dm3.state = UPPER(LEFT(a.riskstate, 2)) \nLEFT JOIN \n(SELECT DISTINCT \n  SUM(value_of_measure) OVER (PARTITION BY year, month, asl, state) AS value_of_measure, \n  year, \n  month, \n  asl,\n  state  \n  FROM dbo.profitloss_manual_feed \n  WHERE data_element = 'Direct Catastrophe Charge'\n  and valid_to_dt = '9999-12-31') dm4 \nON (CASE WHEN dm4.asl = 'All' THEN dm4.asl \n  WHEN LENGTH(dm4.asl) = 1 THEN CONCAT('00', dm4.asl) \n  WHEN LENGTH(dm4.asl) = 2 THEN CONCAT('0', dm4.asl) \n  ELSE dm4.asl END) = (CASE WHEN dm4.asl = 'All' THEN dm4.asl \n    WHEN LENGTH(a.annual_statement_line) = 1 THEN CONCAT('00', a.annual_statement_line) \n\tWHEN LENGTH(a.annual_statement_line) = 2 THEN CONCAT('0', a.annual_statement_line) \n\tELSE a.annual_statement_line END) \nand dm4.State=upper(left(a.RiskState,2))\nAND dm4.year = DATE_PART('year', a.account_entered_dt) \nAND (CASE WHEN dm4.month = 'All' \n  THEN dm4.month ELSE dm4.month END) = (CASE WHEN dm4.month = 'All' \n    THEN dm4.month ELSE TO_CHAR(a.account_entered_dt, 'Month') END\n) \nWHERE a.stateline IS NOT NULL \nAND a.account_entered_dt < '2020-01-01' \nORDER BY a.account_entered_dt, a.source"
+      },
+      "commandType" : 0,
+      "handleSpecialChars" : false,
+      "handleDecimalRoundOff" : false,
+      "frsAsset" : false,
+      "dynamicFileName" : false,
+      "excludeDynamicFileNameField" : false,
+      "currentlyProcessedFileName" : false,
+      "retainFieldMetadata" : false,
+      "useExactSrcNames" : false,
+      "userUpdated" : true,
+      "fetchMode" : "ORIGINAL",
+      "runtimeParameterData" : {
+        "connectionParameterName" : "DBConnection_Src",
+        "connectionRuntimeParameter" : true,
+        "objectRuntimeParameter" : false
+      },
+      "restmodernSource" : true,
+      "unspecified" : false,
+      "fileList" : false
+    },
+    {
+      "name" : "$ProfitLoss_Monthly_Feed1$",
+      "type" : "TARGET",
+      "label" : "DBConnection_Tgt",
+      "uiProperties" : {
+        "cnxtype" : "Amazon Redshift v2",
+        "connectionParameterized" : "true",
+        "paramName" : "DBConnection_Tgt",
+        "paramType-mapping" : "Connection",
+        "logcnx" : "DBConnection_Tgt",
+        "default" : "dbo/profitloss_monthly_feed",
+        "objectParameterized" : "false",
+        "visible" : "false",
+        "supportApplyDDLChanges" : "false",
+        "originalPath" : "ProfitLoss_Monthly_Feed1"
+      },
+      "targetConnectionId" : "@iWG7WweMRiOiUzzrDFkK0U",
+      "connectionName" : "redshift_uat_andover_dw_uat",
+      "targetObject" : "dbo/profitloss_monthly_feed",
+      "targetObjectLabel" : "profitloss_monthly_feed",
+      "newFlatFile" : false,
+      "newObject" : false,
+      "showBusinessNames" : true,
+      "naturalOrder" : true,
+      "truncateTarget" : false,
+      "bulkApiDBTarget" : false,
+      "operationType" : "Insert",
+      "customFuncCfg" : { },
+      "extendedObject" : {
+        "singleMode" : true
+      },
+      "commandType" : 0,
+      "handleSpecialChars" : false,
+      "handleDecimalRoundOff" : false,
+      "frsAsset" : false,
+      "dynamicFileName" : false,
+      "excludeDynamicFileNameField" : false,
+      "currentlyProcessedFileName" : false,
+      "retainFieldMetadata" : false,
+      "objectName" : "dbo/profitloss_monthly_feed",
+      "objectLabel" : "profitloss_monthly_feed",
+      "useExactSrcNames" : false,
+      "userUpdated" : true,
+      "fetchMode" : "ORIGINAL",
+      "runtimeParameterData" : {
+        "connectionParameterName" : "DBConnection_Tgt",
+        "connectionRuntimeParameter" : true,
+        "objectRuntimeParameter" : false
+      },
+      "targetSchemaProviderType" : "SELECTED_OBJECT",
+      "restmodernSource" : true,
+      "unspecified" : false,
+      "fileList" : false
+    },
+    {
+      "name" : "$LKP_Manual_Feed$",
+      "type" : "LOOKUP",
+      "label" : "DBConnection_Tgt",
+      "uiProperties" : {
+        "cnxtype" : "Amazon Redshift v2",
+        "connectionParameterized" : "true",
+        "paramName" : "DBConnection_Tgt",
+        "paramType-mapping" : "Connection",
+        "logcnx" : "DBConnection_Tgt",
+        "isCachedLookup" : "true",
+        "multipleMatchPolicy" : "Use Any Value",
+        "default" : "dbo/profitloss_manual_feed",
+        "objectParameterized" : "false",
+        "visible" : "false",
+        "originalPath" : "LKP_Manual_Feed"
+      },
+      "lookupConnectionId" : "@iWG7WweMRiOiUzzrDFkK0U",
+      "connectionName" : "redshift_uat_andover_dw_uat",
+      "lookupObject" : "dbo/profitloss_manual_feed",
+      "lookupObjectLabel" : "profitloss_manual_feed",
+      "newFlatFile" : false,
+      "newObject" : false,
+      "showBusinessNames" : true,
+      "naturalOrder" : true,
+      "truncateTarget" : false,
+      "bulkApiDBTarget" : false,
+      "customFuncCfg" : { },
+      "runtimeAttrs" : {
+        "Lookup Index Cache Size" : "AUTO",
+        "Optional" : "true",
+        "Lookup cache persistent" : "false",
+        "Lookup source is static" : "false",
+        "Update Dynamic Cache Condition" : "TRUE",
+        "Case Sensitive String Comparison" : "false",
+        "Re-cache from lookup source" : "false",
+        "Insert Else Update" : "false",
+        "Lookup caching enabled" : "true",
+        "Lookup Data Cache Size" : "AUTO",
+        "Tracing Level" : "Normal",
+        "Sorted Input" : "false",
+        "Lookup cache directory name" : "$PMCacheDir",
+        "Output Old Value On Update" : "false",
+        "Dynamic Lookup Cache" : "false",
+        "Pre-build lookup cache" : "AUTO"
+      },
+      "commandType" : 0,
+      "handleSpecialChars" : false,
+      "handleDecimalRoundOff" : false,
+      "frsAsset" : false,
+      "dynamicFileName" : false,
+      "excludeDynamicFileNameField" : false,
+      "currentlyProcessedFileName" : false,
+      "retainFieldMetadata" : false,
+      "objectName" : "dbo/profitloss_manual_feed",
+      "objectLabel" : "profitloss_manual_feed",
+      "useExactSrcNames" : false,
+      "userUpdated" : true,
+      "fetchMode" : "ORIGINAL",
+      "runtimeParameterData" : {
+        "connectionParameterName" : "DBConnection_Tgt",
+        "connectionRuntimeParameter" : true,
+        "objectRuntimeParameter" : false
+      },
+      "restmodernSource" : true,
+      "unspecified" : false,
+      "fileList" : false
+    }
+  ],
+  "verbose" : false,
+  "lastRunTime" : 1753890431000,
+  "mappingId" : "@3Hqvg3vL8KgbrbrqG9kfCy",
+  "mappingTemplateName" : "m_PL_Feed_Final",
+  "sessionPropertiesList" : [
+    {
+      "name" : "Allow Temporary Sequence for Pushdown",
+      "value" : "NO"
+    },
+    {
+      "name" : "Allow Temporary View for Pushdown",
+      "value" : "NO"
+    },
+    {
+      "name" : "Cache LOOKUP() function",
+      "value" : "YES"
+    },
+    {
+      "name" : "Data Column Delimiter",
+      "value" : "|"
+    },
+    {
+      "name" : "DateTime Format String",
+      "value" : "MM/DD/YYYY HH24:MI:SS.US"
+    },
+    {
+      "name" : "Error Log File Name",
+      "value" : "PMError.log"
+    },
+    {
+      "name" : "Pushdown Optimization",
+      "value" : "None"
+    },
+    {
+      "name" : "Pushdown Optimization Context",
+      "value" : "None"
+    },
+    {
+      "name" : "Pushdown Optimization Fallback Option",
+      "value" : "Partial PDO"
+    }
+  ],
+  "hidden" : false,
+  "enableCrossSchemaPushdown" : false,
+  "enableParallelRun" : false,
+  "autoTunedApplied" : false,
+  "autoTunedAppliedType" : "NONE",
+  "parameterFileName" : "Andover_Parm_Feed.txt",
+  "parameterFileDir" : "$PMRootDir/andover/parameters",
+  "paramFileType" : "PARAM_FILE_LOCAL",
+  "schemaMode" : "async",
+  "valid" : true,
+  "optimizationPlan" : "NONE",
+  "allowMaxFieldLength" : false,
+  "specialCharacterSupport" : false,
+  "midstreamPreview" : false,
+  "vcsExportTime" : "2025-08-05 10:58:31 PDT"
+}
