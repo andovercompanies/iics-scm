@@ -1,27 +1,28 @@
 {
-  "name" : "cdi_tsk_map_acx_risk_bronze_risk_application_stg_ld",
+  "name" : "cdi_tsk_map_adm_agency_group_metal_stg_load",
+  "description" : "this mapping task to ready daily changes data from ADM maria DB and load to redshift UDM staging table.",
   "runtimeEnvironmentId" : "@3pADNCV9u0PcgrXjM7rx0t",
   "runtimeEnvironmentName" : "sag_aws_linux",
   "maxLogs" : 10,
   "parameters" : [
     {
-      "name" : "$Src_risk$",
+      "name" : "$src_agencygroup$",
       "type" : "SOURCE",
-      "label" : "DBConnection_SRCM",
+      "label" : "DBConnection_ADM_SRC",
       "uiProperties" : {
         "cnxtype" : "MySQL",
         "connectionParameterized" : "true",
-        "paramName" : "DBConnection_SRCM",
+        "paramName" : "DBConnection_ADM_SRC",
         "paramType-mapping" : "Connection",
-        "logcnx" : "DBConnection_SRCM",
+        "logcnx" : "DBConnection_ADM_SRC",
         "isSelectDistinct" : "false",
         "objectParameterized" : "false",
         "visible" : "false",
-        "originalPath" : "Src_risk"
+        "originalPath" : "src_agencygroup"
       },
-      "sourceConnectionId" : "@1MPwv79N5kdekz7fZXQSas",
-      "connectionName" : "conn_mysql_model_insurance_now_gw",
-      "sourceObject" : "DUMMY_Src_risk",
+      "sourceConnectionId" : "@4uzdhtCEfeKgnmfNINATi5",
+      "connectionName" : "conn_mysql_model_adm",
+      "sourceObject" : "DUMMY_src_agencygroup",
       "newFlatFile" : false,
       "newObject" : false,
       "showBusinessNames" : true,
@@ -29,7 +30,7 @@
       "truncateTarget" : false,
       "bulkApiDBTarget" : false,
       "customFuncCfg" : { },
-      "customQuery" : "select distinct risk.systemid,\n    \t  risk.ParentId,\n    \t  risk.Id,\n    \t  risk.CMMContainer,\n    \t  risk.TypeCd,\n          risk.status,\n    \t  risk.LocationRef,\n    \t  risk.TotalAnnualSalesOrRentalIncome,\n\t\t  risk.Plan    \t\nfrom risk\n  join advrxxchangedbeans\n         on risk.CMMContainer = advrxxchangedbeans.CMMContainer\n       and risk.SystemId = advrxxchangedbeans.SystemId\n  where risk.cmmcontainer = 'Application'\n    and concat(advrxxchangedbeans.adddt,advrxxchangedbeans.addtm)>='$$m_strtdt' \n    and concat(advrxxchangedbeans.adddt,advrxxchangedbeans.addtm) <='$$m_Enddt'",
+      "customQuery" : "SELECT id, name, 'number', modified_by, created, modified\nFROM agencymanagement.agencygroup\nWHERE modified >=$LASTRUNTIME\nORDER BY modified DESC",
       "commandType" : 0,
       "handleSpecialChars" : false,
       "handleDecimalRoundOff" : false,
@@ -38,13 +39,12 @@
       "excludeDynamicFileNameField" : false,
       "currentlyProcessedFileName" : false,
       "retainFieldMetadata" : false,
-      "objectName" : "DUMMY_Src_risk",
+      "objectName" : "DUMMY_src_agencygroup",
       "useExactSrcNames" : false,
       "userUpdated" : true,
-      "fetchMode" : "ORIGINAL",
       "runtimeParameterData" : {
-        "connectionParameterName" : "DBConnection_SRCM",
-        "connectionRuntimeParameter" : true,
+        "connectionParameterName" : "DBConnection_ADM_SRC",
+        "connectionRuntimeParameter" : false,
         "objectRuntimeParameter" : false
       },
       "restmodernSource" : true,
@@ -52,25 +52,25 @@
       "fileList" : false
     },
     {
-      "name" : "$risk_application_stg$",
+      "name" : "$tgt_adm_agency_group$",
       "type" : "TARGET",
-      "label" : "DBConnection_TGT",
+      "label" : "DBConnection_UDM_TGT",
       "uiProperties" : {
         "cnxtype" : "Amazon Redshift v2",
         "connectionParameterized" : "true",
-        "paramName" : "DBConnection_TGT",
+        "paramName" : "DBConnection_UDM_TGT",
         "paramType-mapping" : "Connection",
-        "logcnx" : "DBConnection_TGT",
-        "default" : "dbo/risk_application_stg",
+        "logcnx" : "DBConnection_UDM_TGT",
+        "default" : "metal/adm_agency_group",
         "objectParameterized" : "false",
         "visible" : "false",
         "supportApplyDDLChanges" : "false",
-        "originalPath" : "risk_application_stg"
+        "originalPath" : "tgt_adm_agency_group"
       },
       "targetConnectionId" : "@aYZ4ekzHgIPeKpiaoqDLKP",
       "connectionName" : "redshift_nonprod_andover_dw_dev",
-      "targetObject" : "dbo/risk_application_stg",
-      "targetObjectLabel" : "dbo/risk_application_stg",
+      "targetObject" : "metal/adm_agency_group",
+      "targetObjectLabel" : "metal/adm_agency_group",
       "newFlatFile" : false,
       "newObject" : false,
       "showBusinessNames" : true,
@@ -90,14 +90,13 @@
       "excludeDynamicFileNameField" : false,
       "currentlyProcessedFileName" : false,
       "retainFieldMetadata" : false,
-      "objectName" : "dbo/risk_application_stg",
-      "objectLabel" : "dbo/risk_application_stg",
+      "objectName" : "metal/adm_agency_group",
+      "objectLabel" : "metal/adm_agency_group",
       "useExactSrcNames" : false,
       "userUpdated" : true,
-      "fetchMode" : "ORIGINAL",
       "runtimeParameterData" : {
-        "connectionParameterName" : "DBConnection_TGT",
-        "connectionRuntimeParameter" : true,
+        "connectionParameterName" : "DBConnection_UDM_TGT",
+        "connectionRuntimeParameter" : false,
         "objectRuntimeParameter" : false
       },
       "restmodernSource" : true,
@@ -106,9 +105,9 @@
     }
   ],
   "verbose" : false,
-  "lastRunTime" : 1754062489000,
-  "mappingId" : "@2YufMbCML1XhlVDSItL5uY",
-  "mappingTemplateName" : "cdi_map_acx_risk_bronze_risk_application_stg_ld",
+  "lastRunTime" : 1753795074000,
+  "mappingId" : "@aNpOxCLS2MXetjwemiKcqo",
+  "mappingTemplateName" : "cdi_map_adm_agency_group_metal_stg_load",
   "sessionPropertiesList" : [
     {
       "name" : "Pushdown Optimization",
@@ -123,32 +122,12 @@
       "value" : "Partial PDO"
     }
   ],
-  "inOutParameters" : [
-    {
-      "name" : "m_strtdt",
-      "datatype" : "STRING",
-      "precision" : "120",
-      "scale" : "0",
-      "retentionPolicy" : "NEVER",
-      "aggregationType" : "MAX",
-      "currentValue" : "1970-01-01"
-    },
-    {
-      "name" : "m_Enddt",
-      "datatype" : "STRING",
-      "precision" : "120",
-      "scale" : "0",
-      "retentionPolicy" : "NEVER",
-      "aggregationType" : "MAX",
-      "currentValue" : "2025-07-31"
-    }
-  ],
   "hidden" : false,
   "enableCrossSchemaPushdown" : true,
   "enableParallelRun" : false,
   "autoTunedApplied" : false,
   "autoTunedAppliedType" : "NONE",
-  "parameterFileName" : "Andover_Param_GW.param",
+  "parameterFileName" : "Andover_Param_ADM.param",
   "parameterFileDir" : "$PMRootDir/andover/parameters",
   "paramFileType" : "PARAM_FILE_LOCAL",
   "schemaMode" : "async",
@@ -157,5 +136,5 @@
   "allowMaxFieldLength" : false,
   "specialCharacterSupport" : false,
   "midstreamPreview" : false,
-  "vcsExportTime" : "2025-08-01 09:00:08 PDT"
+  "vcsExportTime" : "2025-07-30 17:01:37 EDT"
 }
