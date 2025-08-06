@@ -5,6 +5,7 @@
     "bigIntConvertType" : "ONLY_BIGINT",
     "documentType" : "MAPPING",
     "name" : "cdi_map_adm_agency_license_bronze_load",
+    "specialCharacterSupport" : "false",
     "links" : [
       {
         "link" : "src_delta_changes_agency_license -> exp_convert_datatype"
@@ -278,6 +279,17 @@
           },
           {
             "adapterField" : {
+              "name" : "license_class"
+            },
+            "name" : "license_class",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
               "name" : "batch_id"
             },
             "name" : "batch_id",
@@ -297,7 +309,7 @@
           "typeSystem" : "TOOLKIT",
           "useDynamicFileName" : "false",
           "object" : {
-            "customQuery" : "with current_batch as (\nselect\n\tbls.batch_id,\n\tbls.source_start_cutoff_datetime,\n\tbls.source_end_cutoff_datetime\nfrom\n\tmetal.batch_load_summary bls\nwhere\n\tbls.source_system_code = 'ADM'\n\tand bls.batch_status = 'Inprogress'\n\tand bls.batch_id = (\n\tselect\n\t\tMAX(batch_id)\n\tfrom\n\t\tmetal.batch_load_summary\n\twhere\n\t\tsource_system_code = 'ADM'\n\t\tand batch_status = 'Inprogress' ) )\nselect\n\tdistinct\n\tmetal_aal.source_name,\n\tmetal_aal.load_type,\n\tmetal_aal.agency_id,\n\tmetal_aal.bs_appointed_date,\n\tmetal_aal.ca_appointed_date,\n\tmetal_aal.created,\n\tmetal_aal.delete_flag,\n\tmetal_aal.expiration_date,\n\tmetal_aal.id,\n\tmetal_aal.license_number,\n\tmetal_aal.lob,\n\tmetal_aal.mk_appointed_date,\n\tmetal_aal.modified,\n\tmetal_aal.state,\n\tmetal_aal.term_id,\n       current_batch.batch_id\nfrom\n\tmetal.adm_agency_license metal_aal\ncross join current_batch\norder by\n\tmetal_aal.id,\n\tmetal_aal.created,\n\tmetal_aal.modified;",
+            "customQuery" : "with current_batch as (\nselect\n\tbls.batch_id,\n\tbls.source_start_cutoff_datetime,\n\tbls.source_end_cutoff_datetime\nfrom\n\tmetal.batch_load_summary bls\nwhere\n\tbls.source_system_code = 'ADM'\n\tand bls.batch_status = 'Inprogress'\n\tand bls.batch_id = (\n\tselect\n\t\tMAX(batch_id)\n\tfrom\n\t\tmetal.batch_load_summary\n\twhere\n\t\tsource_system_code = 'ADM'\n\t\tand batch_status = 'Inprogress' ) )\nselect\n\tdistinct\n\tmetal_aal.source_name,\n\tmetal_aal.load_type,\n\tmetal_aal.agency_id,\n\tmetal_aal.bs_appointed_date,\n\tmetal_aal.ca_appointed_date,\n\tmetal_aal.created,\n\tmetal_aal.delete_flag,\n\tmetal_aal.expiration_date,\n\tmetal_aal.id,\n\tmetal_aal.license_number,\n\tmetal_aal.lob,\n\tmetal_aal.mk_appointed_date,\n\tmetal_aal.modified,\n\tmetal_aal.state,\n\tmetal_aal.term_id,\nmetal_aal.license_class,\n       current_batch.batch_id\nfrom\n\tmetal.adm_agency_license metal_aal\ncross join current_batch\norder by\n\tmetal_aal.id,\n\tmetal_aal.created,\n\tmetal_aal.modified;",
             "retainMetadata" : "false",
             "fields" : [
               {
@@ -532,6 +544,22 @@
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 15,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "license_class",
+                "fieldType" : "CONNECTOR",
+                "label" : "license_class",
+                "nativeName" : "license_class",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
                 "scale" : 0,
                 "properties" : [
                   {
@@ -783,7 +811,7 @@
             "precision" : 255,
             "scale" : 0,
             "expFieldType" : "OUTPUT",
-            "expression" : "MD5(\n'source_name'||source_name|| \n'load_type'||load_type||\n'o_agency_id'||to_char(o_agency_id)||\n'o_bay_state_appointed_date'|| to_char(o_bay_state_appointed_date)|| \n'o_cambridge_mutual_appointed_date'|| to_char(o_cambridge_mutual_appointed_date)||\n'o_adm_agency_license_datetime_created'|| to_char(o_adm_agency_license_datetime_created)||\n'o_agency_license_delete_flag'||to_char(o_agency_license_delete_flag)||\n'o_agency_license_expiration_date'|| to_char(o_agency_license_expiration_date)||\n'o_agency_license_id'|| to_char(o_agency_license_id)||\n'license_number'||to_char(license_number)||\n'lob'||lob||\n'o_merrimack_mutual_appointed_date'|| to_char(o_merrimack_mutual_appointed_date)||\n'o_adm_agency_license_datetime_modified'|| to_char(o_adm_agency_license_datetime_modified)|| \n'state'||state||\n'o_agency_license_termination_id'||to_char(o_agency_license_termination_id)\n)"
+            "expression" : "MD5(\n'source_name'||source_name|| \n'load_type'||load_type||\n'o_agency_id'||to_char(o_agency_id)||\n'o_bay_state_appointed_date'|| to_char(o_bay_state_appointed_date)|| \n'o_cambridge_mutual_appointed_date'|| to_char(o_cambridge_mutual_appointed_date)||\n'o_adm_agency_license_datetime_created'|| to_char(o_adm_agency_license_datetime_created)||\n'o_agency_license_delete_flag'||to_char(o_agency_license_delete_flag)||\n'o_agency_license_expiration_date'|| to_char(o_agency_license_expiration_date)||\n'o_agency_license_id'|| to_char(o_agency_license_id)||\n'license_number'||to_char(license_number)||\n'lob'||lob||\n'o_merrimack_mutual_appointed_date'|| to_char(o_merrimack_mutual_appointed_date)||\n'o_adm_agency_license_datetime_modified'|| to_char(o_adm_agency_license_datetime_modified)|| \n'state'||state||\n'o_agency_license_termination_id'||to_char(o_agency_license_termination_id) || 'license_class' || license_class\n)"
           }
         ],
         "windowSpec" : {
@@ -1237,6 +1265,7 @@
         "fieldMappingMode" : "MANUAL",
         "inputSorted" : "false",
         "schemaProviderType" : "SELECTED_OBJECT",
+        "targetFieldsOrdered" : "false",
         "updateColumns" : null,
         "useLabels" : "false",
         "useSequenceFields" : "false",
@@ -1459,6 +1488,17 @@
               "name" : "integer"
             },
             "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "agency_license_class"
+            },
+            "name" : "agency_license_class",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
             "scale" : 0
           }
         ],
@@ -1797,6 +1837,22 @@
                     "value" : "adm_agency_license"
                   }
                 ]
+              },
+              {
+                "name" : "agency_license_class",
+                "fieldType" : "CONNECTOR",
+                "label" : "agency_license_class",
+                "nativeName" : "agency_license_class",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_agency_license"
+                  }
+                ]
               }
             ],
             "objectAttributes" : [
@@ -1834,7 +1890,7 @@
               },
               {
                 "name" : "Temporary Credential Duration",
-                "value" : "900"
+                "value" : "43200"
               },
               {
                 "name" : "S3 Server Side Encryption",
@@ -1891,6 +1947,13 @@
         },
         "manualMappings" : {
           "mappingList" : [
+            {
+              "fromFieldName" : "batch_id",
+              "toField" : {
+                "name" : "adm_agency_license_batch_id"
+              },
+              "fromFieldNames" : null
+            },
             {
               "fromFieldName" : "source_name",
               "toField" : {
@@ -1983,6 +2046,13 @@
               "fromFieldNames" : null
             },
             {
+              "fromFieldName" : "license_number",
+              "toField" : {
+                "name" : "state_issued_agency_license_number"
+              },
+              "fromFieldNames" : null
+            },
+            {
               "fromFieldName" : "lob",
               "toField" : {
                 "name" : "line_of_business"
@@ -1997,13 +2067,6 @@
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "o_agency_license_termination_id",
-              "toField" : {
-                "name" : "agency_license_termination_id"
-              },
-              "fromFieldNames" : null
-            },
-            {
               "fromFieldName" : "state",
               "toField" : {
                 "name" : "agency_license_issued_state_abbreviation"
@@ -2011,16 +2074,16 @@
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "license_number",
+              "fromFieldName" : "license_class",
               "toField" : {
-                "name" : "state_issued_agency_license_number"
+                "name" : "agency_license_class"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "batch_id",
+              "fromFieldName" : "o_agency_license_termination_id",
               "toField" : {
-                "name" : "adm_agency_license_batch_id"
+                "name" : "agency_license_termination_id"
               },
               "fromFieldNames" : null
             }
@@ -2054,6 +2117,7 @@
         "fieldMappingMode" : "MANUAL",
         "inputSorted" : "false",
         "schemaProviderType" : "SELECTED_OBJECT",
+        "targetFieldsOrdered" : "false",
         "updateColumns" : [
           "adm_agency_license_row_id"
         ],
@@ -2278,6 +2342,17 @@
               "name" : "integer"
             },
             "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "agency_license_class"
+            },
+            "name" : "agency_license_class",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
             "scale" : 0
           }
         ],
@@ -2627,6 +2702,22 @@
                     "value" : "adm_agency_license"
                   }
                 ]
+              },
+              {
+                "name" : "agency_license_class",
+                "fieldType" : "CONNECTOR",
+                "label" : "agency_license_class",
+                "nativeName" : "agency_license_class",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_agency_license"
+                  }
+                ]
               }
             ],
             "objectAttributes" : [
@@ -2834,6 +2925,7 @@
         "fieldMappingMode" : "MANUAL",
         "inputSorted" : "false",
         "schemaProviderType" : "SELECTED_OBJECT",
+        "targetFieldsOrdered" : "false",
         "updateColumns" : null,
         "useLabels" : "false",
         "useSequenceFields" : "false",
@@ -3056,6 +3148,17 @@
               "name" : "integer"
             },
             "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "agency_license_class"
+            },
+            "name" : "agency_license_class",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
             "scale" : 0
           }
         ],
@@ -3394,6 +3497,22 @@
                     "value" : "adm_agency_license"
                   }
                 ]
+              },
+              {
+                "name" : "agency_license_class",
+                "fieldType" : "CONNECTOR",
+                "label" : "agency_license_class",
+                "nativeName" : "agency_license_class",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_agency_license"
+                  }
+                ]
               }
             ],
             "objectAttributes" : [
@@ -3431,7 +3550,7 @@
               },
               {
                 "name" : "Temporary Credential Duration",
-                "value" : "900"
+                "value" : "43200"
               },
               {
                 "name" : "S3 Server Side Encryption",
@@ -3488,6 +3607,13 @@
         },
         "manualMappings" : {
           "mappingList" : [
+            {
+              "fromFieldName" : "batch_id",
+              "toField" : {
+                "name" : "adm_agency_license_batch_id"
+              },
+              "fromFieldNames" : null
+            },
             {
               "fromFieldName" : "source_name",
               "toField" : {
@@ -3615,9 +3741,9 @@
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "batch_id",
+              "fromFieldName" : "license_class",
               "toField" : {
-                "name" : "adm_agency_license_batch_id"
+                "name" : "agency_license_class"
               },
               "fromFieldNames" : null
             }
@@ -3626,5 +3752,5 @@
       }
     ]
   },
-  "vcsExportTime" : "2025-07-08 13:57:05 EDT"
+  "vcsExportTime" : "2025-08-01 12:56:00 PDT"
 }
