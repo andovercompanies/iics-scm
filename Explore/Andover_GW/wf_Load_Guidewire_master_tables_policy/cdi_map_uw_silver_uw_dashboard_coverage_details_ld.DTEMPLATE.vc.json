@@ -4,6 +4,7 @@
     "bigIntConvertType" : "ONLY_BIGINT",
     "documentType" : "MAPPING",
     "name" : "cdi_map_uw_silver_uw_dashboard_coverage_details_ld",
+    "specialCharacterSupport" : "false",
     "links" : [
       {
         "link" : "source_query -> exp_uw_dashboard_coverage_details"
@@ -374,7 +375,7 @@
           "typeSystem" : "TOOLKIT",
           "useDynamicFileName" : "false",
           "object" : {
-            "customQuery" : "SELECT \n  DISTINCT \n  prkr.policy_system_id, \n  prkr.policy_number, \n  prkr.policy_module_number, \n  prkr.policy_key,\n  prkr.policy_key_code,\n  prkr.risk_system_id, \n  prkr.risk_id, \n  b.systemid AS building_system_id, \n  b.id AS building_id, \n  LPAD(b.bldgnumber, 3, '0') AS building_number, \n  c.systemid AS coverage_system_id, \n  c.id as coverage_id,\n  c.cmmcontainer AS coverage_cmm_container, \n  c.status AS coverage_status, \n  c.coveragecd as coverage_code,\n  c.description AS coverage_description,\n  c.finalpremiumamt AS coverage_premium_amount, \n  l.systemid AS limit_system_id, \n  l.parentid AS limit_parent_id, \n  l.coverage_limit1 AS limit_coverage_limit1, \n  l.coverage_limit2 AS limit_coverage_limit2,  \n  l.coverage_limit3 AS limit_coverage_limit3, \n  l.coverage_limit4 AS limit_coverage_limit4,\n  tgt.uw_dashboard_coverage_details_row_id,\n  tgt.uw_dashboard_coverage_details_md5_hash_value\n  FROM \n  dbo.coverage_stg c \n  LEFT JOIN dbo.building_stg b ON c.systemid = b.systemid \n  AND c.cmmcontainer = b.cmmcontainer AND c.cmmcontainer = 'Policy' -- filtering ON Policy only\n  AND c.parentid = b.parentid\n  LEFT JOIN dbo.basicpolicy_stg bp on\n    bp.systemid = c.systemid\n    AND bp.cmmcontainer = c.cmmcontainer\n  LEFT JOIN dbo.policy_risk_key_reference prkr ON \n  c.systemid = prkr.policy_system_id \n  AND c.cmmcontainer = prkr.policy_cmm_container \n  AND prkr.risk_id = b.parentid\n  LEFT JOIN (\n    SELECT \n      DISTINCT systemid, \n      parentid, \n      cmmcontainer, \n      MAX(\n        CASE WHEN limitcd = 'Limit1' THEN value END\n      ) AS \"coverage_limit1\", \n      MAX(\n        CASE WHEN limitcd = 'Limit2' THEN value END\n      ) AS \"coverage_limit2\", \n      MAX(\n        CASE WHEN limitcd = 'Limit3' THEN value END\n      ) AS \"coverage_limit3\", \n      MAX(\n        CASE WHEN limitcd = 'Limit4' THEN value END\n      ) AS \"coverage_limit4\" \n    FROM \n      dbo.limit_stg \n    GROUP BY \n      systemid, \n      parentid, \n      cmmcontainer\n  ) l ON c.systemid = l.systemid \n  AND c.id = l.parentid \n  AND l.cmmcontainer ='Policy' \n  left join dbo.uw_dashboard_coverage_details tgt\n  on tgt.risk_id = prkr.risk_id\n  and tgt.coverage_system_id = c.systemid\n  and tgt.coverage_id = c.id\n  and tgt.coverage_cmm_container = c.cmmcontainer\n  and coalesce(tgt.coverage_description , '') = coalesce(c.description, '')\n -- and tgt.coverage_description = c.description\n  and tgt.uw_dashboard_coverage_details_row_effective_end_date = '9999-12-31'\nWHERE c.status = 'Active' \n  AND prkr.policy_risk_key_reference_row_effective_end_date = '9999-12-31' \nUNION\nSELECT\n  DISTINCT \n  prkr.policy_system_id, \n  prkr.policy_number, \n  prkr.policy_module_number, \n  prkr.policy_key,\n  prkr.policy_key_code,\n  prkr.risk_system_id, \n  prkr.risk_id, \n  b.building_application_system_id AS building_system_id, \n  b.building_application_id AS building_id, \n  LPAD(\n    b.building_application_building_number, \n    3, '0'\n  ) AS building_number, \n  c.coverage_application_system_id AS coverage_system_id, \n  c.coverage_application_id as coverage_id,\n  c.coverage_application_cmm_container AS coverage_cmm_container, \n  c.coverage_application_status AS coverage_status, \n  c.coverage_application_coverage_code as coverage_code,\n  c.coverage_application_description AS coverage_description,\n  c.coverage_application_final_premium_amount AS coverage_premium_amount, \n  l.systemid AS limit_system_id, \n  l.parentid AS limit_parent_id, \n  l.coverage_limit1 AS limit_coverage_limit1, \n  l.coverage_limit2 AS limit_coverage_limit2,  \n  l.coverage_limit3 AS limit_coverage_limit3, \n  l.coverage_limit4 AS limit_coverage_limit4,\n  tgt.uw_dashboard_coverage_details_row_id,\n  tgt.uw_dashboard_coverage_details_md5_hash_value\n  FROM dbo.coverage_application_stg c \n  LEFT JOIN dbo.building_application_stg b ON c.coverage_application_system_id = b.building_application_system_id \n  AND c.coverage_application_cmm_container = b.building_application_cmm_container \n  and c.coverage_application_parent_id = b.building_application_parent_id\n  LEFT JOIN dbo.policy_risk_key_reference prkr ON c.coverage_application_system_id = prkr.policy_system_id \n  AND c.coverage_application_cmm_container = prkr.policy_cmm_container AND prkr.policy_cmm_container = 'Application' -- filtering ON Application only\n  AND prkr.risk_id = b.building_application_parent_id \n  LEFT JOIN (\n    SELECT \n      DISTINCT systemid, \n      parentid, \n      cmmcontainer, \n      MAX(\n        CASE WHEN limitcd = 'Limit1' THEN value END\n      ) AS \"coverage_limit1\", \n      MAX(\n        CASE WHEN limitcd = 'Limit2' THEN value END\n      ) AS \"coverage_limit2\", \n      MAX(\n        CASE WHEN limitcd = 'Limit3' THEN value END\n      ) AS \"coverage_limit3\", \n      MAX(\n        CASE WHEN limitcd = 'Limit4' THEN value END\n      ) AS \"coverage_limit4\" \n    FROM \n      dbo.limit_stg \n    GROUP BY \n      systemid, \n      parentid, \n      cmmcontainer\n  ) l ON c.coverage_application_system_id = l.systemid \n  AND c.coverage_application_id = l.parentid \n  AND l.cmmcontainer ='Application'\n  left join dbo.uw_dashboard_coverage_details tgt\n  on tgt.risk_id = prkr.risk_id\n  and tgt.coverage_system_id = c.coverage_application_system_id\n  and tgt.coverage_id = c.coverage_application_id\n  and tgt.coverage_cmm_container = c.coverage_application_cmm_container\n  and coalesce(tgt.coverage_description, '') = coalesce(c.coverage_application_description, '')\n  --and tgt.coverage_description = c.coverage_application_description\n  and tgt.uw_dashboard_coverage_details_row_effective_end_date = '9999-12-31'\n  WHERE c.coverage_application_status = 'Active' \n  AND prkr.policy_risk_key_reference_row_effective_end_date = '9999-12-31'",
+            "customQuery" : "SELECT \n  DISTINCT \n  prkr.policy_system_id, \n  prkr.policy_number, \n  prkr.policy_module_number, \n  prkr.policy_key,\n  prkr.policy_key_code,\n  prkr.risk_system_id, \n  prkr.risk_id, \n  b.systemid AS building_system_id, \n  b.id AS building_id, \n  LPAD(b.bldgnumber, 3, '0') AS building_number, \n  c.systemid AS coverage_system_id, \n  c.id as coverage_id,\n  c.cmmcontainer AS coverage_cmm_container, \n  c.status AS coverage_status, \n  c.coveragecd as coverage_code,\n  c.description AS coverage_description,\n  c.finalpremiumamt AS coverage_premium_amount, \n  l.systemid AS limit_system_id, \n  l.parentid AS limit_parent_id, \n  l.coverage_limit1 AS limit_coverage_limit1, \n  l.coverage_limit2 AS limit_coverage_limit2,  \n  l.coverage_limit3 AS limit_coverage_limit3, \n  l.coverage_limit4 AS limit_coverage_limit4,\n  tgt.uw_dashboard_coverage_details_row_id,\n  tgt.uw_dashboard_coverage_details_md5_hash_value\n  FROM \n  dbo.coverage_stg c \n  LEFT JOIN dbo.building_stg b ON c.systemid = b.systemid \n  AND c.cmmcontainer = b.cmmcontainer AND c.cmmcontainer = 'Policy' -- filtering ON Policy only\n  AND c.parentid = b.parentid\n  LEFT JOIN dbo.basicpolicy_stg bp on\n    bp.systemid = c.systemid\n    AND bp.cmmcontainer = c.cmmcontainer\n  LEFT JOIN dbo.policy_risk_key_reference prkr ON \n  c.systemid = prkr.policy_system_id \n  AND c.cmmcontainer = prkr.policy_cmm_container \n  AND prkr.risk_id = b.parentid\n  LEFT JOIN (\n    SELECT \n      DISTINCT systemid, \n      parentid, \n      cmmcontainer, \n      MAX(\n        CASE WHEN limitcd = 'Limit1' THEN value END\n      ) AS \"coverage_limit1\", \n      MAX(\n        CASE WHEN limitcd = 'Limit2' THEN value END\n      ) AS \"coverage_limit2\", \n      MAX(\n        CASE WHEN limitcd = 'Limit3' THEN value END\n      ) AS \"coverage_limit3\", \n      MAX(\n        CASE WHEN limitcd = 'Limit4' THEN value END\n      ) AS \"coverage_limit4\" \n    FROM \n      dbo.limit_stg \n    GROUP BY \n      systemid, \n      parentid, \n      cmmcontainer\n  ) l ON c.systemid = l.systemid \n  AND c.id = l.parentid \n  AND l.cmmcontainer ='Policy' \n  left join dbo.uw_dashboard_coverage_details tgt\n  on tgt.risk_id = prkr.risk_id\n  and tgt.coverage_system_id = c.systemid\n  and tgt.coverage_id = c.id\n  and tgt.coverage_cmm_container = c.cmmcontainer\n  and coalesce(tgt.coverage_description , '') = coalesce(c.description, '')\n -- and tgt.coverage_description = c.description\n  and tgt.uw_dashboard_coverage_details_row_effective_end_datetime = '9999-12-31'\nWHERE c.status = 'Active' \n  AND prkr.policy_risk_key_reference_row_effective_end_date = '9999-12-31' \nUNION\nSELECT\n  DISTINCT \n  prkr.policy_system_id, \n  prkr.policy_number, \n  prkr.policy_module_number, \n  prkr.policy_key,\n  prkr.policy_key_code,\n  prkr.risk_system_id, \n  prkr.risk_id, \n  b.building_application_system_id AS building_system_id, \n  b.building_application_id AS building_id, \n  LPAD(\n    b.building_application_building_number, \n    3, '0'\n  ) AS building_number, \n  c.coverage_application_system_id AS coverage_system_id, \n  c.coverage_application_id as coverage_id,\n  c.coverage_application_cmm_container AS coverage_cmm_container, \n  c.coverage_application_status AS coverage_status, \n  c.coverage_application_coverage_code as coverage_code,\n  c.coverage_application_description AS coverage_description,\n  c.coverage_application_final_premium_amount AS coverage_premium_amount, \n  l.systemid AS limit_system_id, \n  l.parentid AS limit_parent_id, \n  l.coverage_limit1 AS limit_coverage_limit1, \n  l.coverage_limit2 AS limit_coverage_limit2,  \n  l.coverage_limit3 AS limit_coverage_limit3, \n  l.coverage_limit4 AS limit_coverage_limit4,\n  tgt.uw_dashboard_coverage_details_row_id,\n  tgt.uw_dashboard_coverage_details_md5_hash_value\n  FROM dbo.coverage_application_stg c \n  LEFT JOIN dbo.building_application_stg b ON c.coverage_application_system_id = b.building_application_system_id \n  AND c.coverage_application_cmm_container = b.building_application_cmm_container \n  and c.coverage_application_parent_id = b.building_application_parent_id\n  LEFT JOIN dbo.policy_risk_key_reference prkr ON c.coverage_application_system_id = prkr.policy_system_id \n  AND c.coverage_application_cmm_container = prkr.policy_cmm_container AND prkr.policy_cmm_container = 'Application' -- filtering ON Application only\n  AND prkr.risk_id = b.building_application_parent_id \n  LEFT JOIN (\n    SELECT \n      DISTINCT systemid, \n      parentid, \n      cmmcontainer, \n      MAX(\n        CASE WHEN limitcd = 'Limit1' THEN value END\n      ) AS \"coverage_limit1\", \n      MAX(\n        CASE WHEN limitcd = 'Limit2' THEN value END\n      ) AS \"coverage_limit2\", \n      MAX(\n        CASE WHEN limitcd = 'Limit3' THEN value END\n      ) AS \"coverage_limit3\", \n      MAX(\n        CASE WHEN limitcd = 'Limit4' THEN value END\n      ) AS \"coverage_limit4\" \n    FROM \n      dbo.limit_stg \n    GROUP BY \n      systemid, \n      parentid, \n      cmmcontainer\n  ) l ON c.coverage_application_system_id = l.systemid \n  AND c.coverage_application_id = l.parentid \n  AND l.cmmcontainer ='Application'\n  left join dbo.uw_dashboard_coverage_details tgt\n  on tgt.risk_id = prkr.risk_id\n  and tgt.coverage_system_id = c.coverage_application_system_id\n  and tgt.coverage_id = c.coverage_application_id\n  and tgt.coverage_cmm_container = c.coverage_application_cmm_container\n  and coalesce(tgt.coverage_description, '') = coalesce(c.coverage_application_description, '')\n  --and tgt.coverage_description = c.coverage_application_description\n  and tgt.uw_dashboard_coverage_details_row_effective_end_datetime = '9999-12-31'\n  WHERE c.coverage_application_status = 'Active' \n  AND prkr.policy_risk_key_reference_row_effective_end_date = '9999-12-31'",
             "retainMetadata" : "false",
             "fields" : [
               {
@@ -854,6 +855,7 @@
         "fieldMappingMode" : "MANUAL",
         "inputSorted" : "false",
         "schemaProviderType" : "SELECTED_OBJECT",
+        "targetFieldsOrdered" : "false",
         "updateColumns" : null,
         "useLabels" : "false",
         "useSequenceFields" : "false",
@@ -871,9 +873,31 @@
           },
           {
             "adapterField" : {
-              "name" : "uw_dashboard_coverage_details_last_update_date"
+              "name" : "uw_dashboard_coverage_details_last_update_datetime"
             },
-            "name" : "uw_dashboard_coverage_details_last_update_date",
+            "name" : "uw_dashboard_coverage_details_last_update_datetime",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "uw_dashboard_coverage_details_row_effective_start_datetime"
+            },
+            "name" : "uw_dashboard_coverage_details_row_effective_start_datetime",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "uw_dashboard_coverage_details_row_effective_end_datetime"
+            },
+            "name" : "uw_dashboard_coverage_details_row_effective_end_datetime",
             "platformType" : {
               "name" : "date/time"
             },
@@ -890,28 +914,6 @@
             },
             "precision" : 1023,
             "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "uw_dashboard_coverage_details_row_effective_start_date"
-            },
-            "name" : "uw_dashboard_coverage_details_row_effective_start_date",
-            "platformType" : {
-              "name" : "date/time"
-            },
-            "precision" : 29,
-            "scale" : 9
-          },
-          {
-            "adapterField" : {
-              "name" : "uw_dashboard_coverage_details_row_effective_end_date"
-            },
-            "name" : "uw_dashboard_coverage_details_row_effective_end_date",
-            "platformType" : {
-              "name" : "date/time"
-            },
-            "precision" : 29,
-            "scale" : 9
           },
           {
             "adapterField" : {
@@ -1165,28 +1167,6 @@
             },
             "precision" : 511,
             "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "application_system_id"
-            },
-            "name" : "application_system_id",
-            "platformType" : {
-              "name" : "integer"
-            },
-            "precision" : 10,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "application_number"
-            },
-            "name" : "application_number",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 511,
-            "scale" : 0
           }
         ],
         "dataAdapter" : {
@@ -1222,22 +1202,6 @@
                 ]
               },
               {
-                "name" : "uw_dashboard_coverage_details_last_update_date",
-                "fieldType" : "CONNECTOR",
-                "label" : "uw_dashboard_coverage_details_last_update_date",
-                "nativeName" : "uw_dashboard_coverage_details_last_update_date",
-                "nativeType" : "date",
-                "original" : "false",
-                "precision" : 13,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "uw_dashboard_coverage_details"
-                  }
-                ]
-              },
-              {
                 "name" : "uw_dashboard_coverage_details_md5_hash_value",
                 "fieldType" : "CONNECTOR",
                 "label" : "uw_dashboard_coverage_details_md5_hash_value",
@@ -1245,38 +1209,6 @@
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 1023,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "uw_dashboard_coverage_details"
-                  }
-                ]
-              },
-              {
-                "name" : "uw_dashboard_coverage_details_row_effective_start_date",
-                "fieldType" : "CONNECTOR",
-                "label" : "uw_dashboard_coverage_details_row_effective_start_date",
-                "nativeName" : "uw_dashboard_coverage_details_row_effective_start_date",
-                "nativeType" : "date",
-                "original" : "false",
-                "precision" : 13,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "uw_dashboard_coverage_details"
-                  }
-                ]
-              },
-              {
-                "name" : "uw_dashboard_coverage_details_row_effective_end_date",
-                "fieldType" : "CONNECTOR",
-                "label" : "uw_dashboard_coverage_details_row_effective_end_date",
-                "nativeName" : "uw_dashboard_coverage_details_row_effective_end_date",
-                "nativeType" : "date",
-                "original" : "false",
-                "precision" : 13,
                 "scale" : 0,
                 "properties" : [
                   {
@@ -1654,14 +1586,14 @@
                 ]
               },
               {
-                "name" : "application_system_id",
+                "name" : "uw_dashboard_coverage_details_last_update_datetime",
                 "fieldType" : "CONNECTOR",
-                "label" : "application_system_id",
-                "nativeName" : "application_system_id",
-                "nativeType" : "int4",
+                "label" : "uw_dashboard_coverage_details_last_update_datetime",
+                "nativeName" : "uw_dashboard_coverage_details_last_update_datetime",
+                "nativeType" : "timestamp",
                 "original" : "false",
-                "precision" : 10,
-                "scale" : 0,
+                "precision" : 29,
+                "scale" : 6,
                 "properties" : [
                   {
                     "name" : "parentObject",
@@ -1670,14 +1602,30 @@
                 ]
               },
               {
-                "name" : "application_number",
+                "name" : "uw_dashboard_coverage_details_row_effective_start_datetime",
                 "fieldType" : "CONNECTOR",
-                "label" : "application_number",
-                "nativeName" : "application_number",
-                "nativeType" : "varchar",
+                "label" : "uw_dashboard_coverage_details_row_effective_start_datetime",
+                "nativeName" : "uw_dashboard_coverage_details_row_effective_start_datetime",
+                "nativeType" : "timestamp",
                 "original" : "false",
-                "precision" : 511,
-                "scale" : 0,
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "uw_dashboard_coverage_details"
+                  }
+                ]
+              },
+              {
+                "name" : "uw_dashboard_coverage_details_row_effective_end_datetime",
+                "fieldType" : "CONNECTOR",
+                "label" : "uw_dashboard_coverage_details_row_effective_end_datetime",
+                "nativeName" : "uw_dashboard_coverage_details_row_effective_end_datetime",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
                 "properties" : [
                   {
                     "name" : "parentObject",
@@ -1779,30 +1727,9 @@
         "manualMappings" : {
           "mappingList" : [
             {
-              "fromFieldName" : "uw_dashboard_coverage_details_last_update_date",
-              "toField" : {
-                "name" : "uw_dashboard_coverage_details_last_update_date"
-              },
-              "fromFieldNames" : null
-            },
-            {
               "fromFieldName" : "src_md5_hash_value",
               "toField" : {
                 "name" : "uw_dashboard_coverage_details_md5_hash_value"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "uw_dashboard_coverage_details_row_effective_start_date",
-              "toField" : {
-                "name" : "uw_dashboard_coverage_details_row_effective_start_date"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "uw_dashboard_coverage_details_row_effective_end_date",
-              "toField" : {
-                "name" : "uw_dashboard_coverage_details_row_effective_end_date"
               },
               "fromFieldNames" : null
             },
@@ -1964,6 +1891,27 @@
               "fromFieldName" : "limit_coverage_limit4",
               "toField" : {
                 "name" : "limit_coverage_limit4"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "uw_dashboard_coverage_details_last_update_date",
+              "toField" : {
+                "name" : "uw_dashboard_coverage_details_last_update_datetime"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "uw_dashboard_coverage_details_row_effective_start_date",
+              "toField" : {
+                "name" : "uw_dashboard_coverage_details_row_effective_start_datetime"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "uw_dashboard_coverage_details_row_effective_end_date",
+              "toField" : {
+                "name" : "uw_dashboard_coverage_details_row_effective_end_datetime"
               },
               "fromFieldNames" : null
             }
@@ -2109,6 +2057,7 @@
         "fieldMappingMode" : "MANUAL",
         "inputSorted" : "false",
         "schemaProviderType" : "SELECTED_OBJECT",
+        "targetFieldsOrdered" : "false",
         "updateColumns" : null,
         "useLabels" : "false",
         "useSequenceFields" : "false",
@@ -2126,9 +2075,31 @@
           },
           {
             "adapterField" : {
-              "name" : "uw_dashboard_coverage_details_last_update_date"
+              "name" : "uw_dashboard_coverage_details_last_update_datetime"
             },
-            "name" : "uw_dashboard_coverage_details_last_update_date",
+            "name" : "uw_dashboard_coverage_details_last_update_datetime",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "uw_dashboard_coverage_details_row_effective_start_datetime"
+            },
+            "name" : "uw_dashboard_coverage_details_row_effective_start_datetime",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "uw_dashboard_coverage_details_row_effective_end_datetime"
+            },
+            "name" : "uw_dashboard_coverage_details_row_effective_end_datetime",
             "platformType" : {
               "name" : "date/time"
             },
@@ -2145,28 +2116,6 @@
             },
             "precision" : 1023,
             "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "uw_dashboard_coverage_details_row_effective_start_date"
-            },
-            "name" : "uw_dashboard_coverage_details_row_effective_start_date",
-            "platformType" : {
-              "name" : "date/time"
-            },
-            "precision" : 29,
-            "scale" : 9
-          },
-          {
-            "adapterField" : {
-              "name" : "uw_dashboard_coverage_details_row_effective_end_date"
-            },
-            "name" : "uw_dashboard_coverage_details_row_effective_end_date",
-            "platformType" : {
-              "name" : "date/time"
-            },
-            "precision" : 29,
-            "scale" : 9
           },
           {
             "adapterField" : {
@@ -2420,28 +2369,6 @@
             },
             "precision" : 511,
             "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "application_system_id"
-            },
-            "name" : "application_system_id",
-            "platformType" : {
-              "name" : "integer"
-            },
-            "precision" : 10,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "application_number"
-            },
-            "name" : "application_number",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 511,
-            "scale" : 0
           }
         ],
         "dataAdapter" : {
@@ -2477,22 +2404,6 @@
                 ]
               },
               {
-                "name" : "uw_dashboard_coverage_details_last_update_date",
-                "fieldType" : "CONNECTOR",
-                "label" : "uw_dashboard_coverage_details_last_update_date",
-                "nativeName" : "uw_dashboard_coverage_details_last_update_date",
-                "nativeType" : "date",
-                "original" : "false",
-                "precision" : 13,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "uw_dashboard_coverage_details"
-                  }
-                ]
-              },
-              {
                 "name" : "uw_dashboard_coverage_details_md5_hash_value",
                 "fieldType" : "CONNECTOR",
                 "label" : "uw_dashboard_coverage_details_md5_hash_value",
@@ -2500,38 +2411,6 @@
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 1023,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "uw_dashboard_coverage_details"
-                  }
-                ]
-              },
-              {
-                "name" : "uw_dashboard_coverage_details_row_effective_start_date",
-                "fieldType" : "CONNECTOR",
-                "label" : "uw_dashboard_coverage_details_row_effective_start_date",
-                "nativeName" : "uw_dashboard_coverage_details_row_effective_start_date",
-                "nativeType" : "date",
-                "original" : "false",
-                "precision" : 13,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "uw_dashboard_coverage_details"
-                  }
-                ]
-              },
-              {
-                "name" : "uw_dashboard_coverage_details_row_effective_end_date",
-                "fieldType" : "CONNECTOR",
-                "label" : "uw_dashboard_coverage_details_row_effective_end_date",
-                "nativeName" : "uw_dashboard_coverage_details_row_effective_end_date",
-                "nativeType" : "date",
-                "original" : "false",
-                "precision" : 13,
                 "scale" : 0,
                 "properties" : [
                   {
@@ -2909,14 +2788,14 @@
                 ]
               },
               {
-                "name" : "application_system_id",
+                "name" : "uw_dashboard_coverage_details_last_update_datetime",
                 "fieldType" : "CONNECTOR",
-                "label" : "application_system_id",
-                "nativeName" : "application_system_id",
-                "nativeType" : "int4",
+                "label" : "uw_dashboard_coverage_details_last_update_datetime",
+                "nativeName" : "uw_dashboard_coverage_details_last_update_datetime",
+                "nativeType" : "timestamp",
                 "original" : "false",
-                "precision" : 10,
-                "scale" : 0,
+                "precision" : 29,
+                "scale" : 6,
                 "properties" : [
                   {
                     "name" : "parentObject",
@@ -2925,14 +2804,30 @@
                 ]
               },
               {
-                "name" : "application_number",
+                "name" : "uw_dashboard_coverage_details_row_effective_start_datetime",
                 "fieldType" : "CONNECTOR",
-                "label" : "application_number",
-                "nativeName" : "application_number",
-                "nativeType" : "varchar",
+                "label" : "uw_dashboard_coverage_details_row_effective_start_datetime",
+                "nativeName" : "uw_dashboard_coverage_details_row_effective_start_datetime",
+                "nativeType" : "timestamp",
                 "original" : "false",
-                "precision" : 511,
-                "scale" : 0,
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "uw_dashboard_coverage_details"
+                  }
+                ]
+              },
+              {
+                "name" : "uw_dashboard_coverage_details_row_effective_end_datetime",
+                "fieldType" : "CONNECTOR",
+                "label" : "uw_dashboard_coverage_details_row_effective_end_datetime",
+                "nativeName" : "uw_dashboard_coverage_details_row_effective_end_datetime",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
                 "properties" : [
                   {
                     "name" : "parentObject",
@@ -3034,30 +2929,9 @@
         "manualMappings" : {
           "mappingList" : [
             {
-              "fromFieldName" : "uw_dashboard_coverage_details_last_update_date",
-              "toField" : {
-                "name" : "uw_dashboard_coverage_details_last_update_date"
-              },
-              "fromFieldNames" : null
-            },
-            {
               "fromFieldName" : "src_md5_hash_value",
               "toField" : {
                 "name" : "uw_dashboard_coverage_details_md5_hash_value"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "uw_dashboard_coverage_details_row_effective_start_date",
-              "toField" : {
-                "name" : "uw_dashboard_coverage_details_row_effective_start_date"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "uw_dashboard_coverage_details_row_effective_end_date",
-              "toField" : {
-                "name" : "uw_dashboard_coverage_details_row_effective_end_date"
               },
               "fromFieldNames" : null
             },
@@ -3221,6 +3095,27 @@
                 "name" : "limit_coverage_limit4"
               },
               "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "uw_dashboard_coverage_details_last_update_date",
+              "toField" : {
+                "name" : "uw_dashboard_coverage_details_last_update_datetime"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "uw_dashboard_coverage_details_row_effective_start_date",
+              "toField" : {
+                "name" : "uw_dashboard_coverage_details_row_effective_start_datetime"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "uw_dashboard_coverage_details_row_effective_end_date",
+              "toField" : {
+                "name" : "uw_dashboard_coverage_details_row_effective_end_datetime"
+              },
+              "fromFieldNames" : null
             }
           ]
         }
@@ -3251,6 +3146,7 @@
         "fieldMappingMode" : "MANUAL",
         "inputSorted" : "false",
         "schemaProviderType" : "SELECTED_OBJECT",
+        "targetFieldsOrdered" : "false",
         "updateColumns" : [
           "uw_dashboard_coverage_details_row_id"
         ],
@@ -3270,9 +3166,31 @@
           },
           {
             "adapterField" : {
-              "name" : "uw_dashboard_coverage_details_last_update_date"
+              "name" : "uw_dashboard_coverage_details_last_update_datetime"
             },
-            "name" : "uw_dashboard_coverage_details_last_update_date",
+            "name" : "uw_dashboard_coverage_details_last_update_datetime",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "uw_dashboard_coverage_details_row_effective_start_datetime"
+            },
+            "name" : "uw_dashboard_coverage_details_row_effective_start_datetime",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "uw_dashboard_coverage_details_row_effective_end_datetime"
+            },
+            "name" : "uw_dashboard_coverage_details_row_effective_end_datetime",
             "platformType" : {
               "name" : "date/time"
             },
@@ -3289,28 +3207,6 @@
             },
             "precision" : 1023,
             "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "uw_dashboard_coverage_details_row_effective_start_date"
-            },
-            "name" : "uw_dashboard_coverage_details_row_effective_start_date",
-            "platformType" : {
-              "name" : "date/time"
-            },
-            "precision" : 29,
-            "scale" : 9
-          },
-          {
-            "adapterField" : {
-              "name" : "uw_dashboard_coverage_details_row_effective_end_date"
-            },
-            "name" : "uw_dashboard_coverage_details_row_effective_end_date",
-            "platformType" : {
-              "name" : "date/time"
-            },
-            "precision" : 29,
-            "scale" : 9
           },
           {
             "adapterField" : {
@@ -3564,28 +3460,6 @@
             },
             "precision" : 511,
             "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "application_system_id"
-            },
-            "name" : "application_system_id",
-            "platformType" : {
-              "name" : "integer"
-            },
-            "precision" : 10,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "application_number"
-            },
-            "name" : "application_number",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 511,
-            "scale" : 0
           }
         ],
         "dataAdapter" : {
@@ -3632,22 +3506,6 @@
                 ]
               },
               {
-                "name" : "uw_dashboard_coverage_details_last_update_date",
-                "fieldType" : "CONNECTOR",
-                "label" : "uw_dashboard_coverage_details_last_update_date",
-                "nativeName" : "uw_dashboard_coverage_details_last_update_date",
-                "nativeType" : "date",
-                "original" : "false",
-                "precision" : 13,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "uw_dashboard_coverage_details"
-                  }
-                ]
-              },
-              {
                 "name" : "uw_dashboard_coverage_details_md5_hash_value",
                 "fieldType" : "CONNECTOR",
                 "label" : "uw_dashboard_coverage_details_md5_hash_value",
@@ -3655,38 +3513,6 @@
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 1023,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "uw_dashboard_coverage_details"
-                  }
-                ]
-              },
-              {
-                "name" : "uw_dashboard_coverage_details_row_effective_start_date",
-                "fieldType" : "CONNECTOR",
-                "label" : "uw_dashboard_coverage_details_row_effective_start_date",
-                "nativeName" : "uw_dashboard_coverage_details_row_effective_start_date",
-                "nativeType" : "date",
-                "original" : "false",
-                "precision" : 13,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "uw_dashboard_coverage_details"
-                  }
-                ]
-              },
-              {
-                "name" : "uw_dashboard_coverage_details_row_effective_end_date",
-                "fieldType" : "CONNECTOR",
-                "label" : "uw_dashboard_coverage_details_row_effective_end_date",
-                "nativeName" : "uw_dashboard_coverage_details_row_effective_end_date",
-                "nativeType" : "date",
-                "original" : "false",
-                "precision" : 13,
                 "scale" : 0,
                 "properties" : [
                   {
@@ -4064,14 +3890,14 @@
                 ]
               },
               {
-                "name" : "application_system_id",
+                "name" : "uw_dashboard_coverage_details_last_update_datetime",
                 "fieldType" : "CONNECTOR",
-                "label" : "application_system_id",
-                "nativeName" : "application_system_id",
-                "nativeType" : "int4",
+                "label" : "uw_dashboard_coverage_details_last_update_datetime",
+                "nativeName" : "uw_dashboard_coverage_details_last_update_datetime",
+                "nativeType" : "timestamp",
                 "original" : "false",
-                "precision" : 10,
-                "scale" : 0,
+                "precision" : 29,
+                "scale" : 6,
                 "properties" : [
                   {
                     "name" : "parentObject",
@@ -4080,14 +3906,30 @@
                 ]
               },
               {
-                "name" : "application_number",
+                "name" : "uw_dashboard_coverage_details_row_effective_start_datetime",
                 "fieldType" : "CONNECTOR",
-                "label" : "application_number",
-                "nativeName" : "application_number",
-                "nativeType" : "varchar",
+                "label" : "uw_dashboard_coverage_details_row_effective_start_datetime",
+                "nativeName" : "uw_dashboard_coverage_details_row_effective_start_datetime",
+                "nativeType" : "timestamp",
                 "original" : "false",
-                "precision" : 511,
-                "scale" : 0,
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "uw_dashboard_coverage_details"
+                  }
+                ]
+              },
+              {
+                "name" : "uw_dashboard_coverage_details_row_effective_end_datetime",
+                "fieldType" : "CONNECTOR",
+                "label" : "uw_dashboard_coverage_details_row_effective_end_datetime",
+                "nativeName" : "uw_dashboard_coverage_details_row_effective_end_datetime",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
                 "properties" : [
                   {
                     "name" : "parentObject",
@@ -4198,14 +4040,14 @@
             {
               "fromFieldName" : "uw_dashboard_coverage_details_last_update_date",
               "toField" : {
-                "name" : "uw_dashboard_coverage_details_row_effective_end_date"
+                "name" : "uw_dashboard_coverage_details_last_update_datetime"
               },
               "fromFieldNames" : null
             },
             {
               "fromFieldName" : "uw_dashboard_coverage_details_last_update_date",
               "toField" : {
-                "name" : "uw_dashboard_coverage_details_last_update_date"
+                "name" : "uw_dashboard_coverage_details_row_effective_end_datetime"
               },
               "fromFieldNames" : null
             }
@@ -4214,5 +4056,5 @@
       }
     ]
   },
-  "vcsExportTime" : "2025-04-14 15:15:48 EDT"
+  "vcsExportTime" : "2025-07-14 09:56:22 PDT"
 }
