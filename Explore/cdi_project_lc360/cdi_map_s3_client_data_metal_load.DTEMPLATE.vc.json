@@ -3,7 +3,7 @@
     "allowMaxFieldLength" : "false",
     "bigIntConvertType" : "ONLY_BIGINT",
     "documentType" : "MAPPING",
-    "name" : "cdi_map_s3_agent_data_metal_load",
+    "name" : "cdi_map_s3_client_data_metal_load",
     "specialCharacterSupport" : "false",
     "links" : [
       {
@@ -14,33 +14,45 @@
         "groupLink" : "DefaultGroup -> Input_Group"
       },
       {
-        "link" : "Expression_group1 -> Joiner",
-        "groupLink" : "DefaultGroup -> Detail"
+        "link" : "exp_config -> LC360_tgt_metal"
       },
       {
-        "link" : "Expression_agent_passthru -> Joiner",
+        "link" : "StructureParser -> Sorter_agent2",
+        "groupLink" : "Agent2 -> DefaultGroup"
+      },
+      {
+        "link" : "StructureParser -> Sorter_group",
+        "groupLink" : "group3 -> DefaultGroup"
+      },
+      {
+        "link" : "Sorter_group -> exp_group"
+      },
+      {
+        "link" : "exp_group -> jnr_grp_agent",
         "groupLink" : "DefaultGroup -> Master"
       },
       {
-        "link" : "Joiner -> filter_null",
+        "link" : "Sorter_agent2 -> jnr_grp_agent",
+        "groupLink" : "DefaultGroup -> Detail"
+      },
+      {
+        "link" : "StructureParser -> Sorter_address1",
+        "groupLink" : "Address1 -> DefaultGroup"
+      },
+      {
+        "link" : "jnr_grp_agent -> jnr_grp_agent_add",
+        "groupLink" : "OutputGroup -> Master"
+      },
+      {
+        "link" : "Sorter_address1 -> exp_address"
+      },
+      {
+        "link" : "exp_address -> jnr_grp_agent_add",
+        "groupLink" : "DefaultGroup -> Detail"
+      },
+      {
+        "link" : "jnr_grp_agent_add -> exp_config",
         "groupLink" : "OutputGroup -> DefaultGroup"
-      },
-      {
-        "link" : "filter_null -> LC360_tgt_metal"
-      },
-      {
-        "link" : "Sorter -> Expression_group1"
-      },
-      {
-        "link" : "StructureParser -> Sorter",
-        "groupLink" : "group1 -> DefaultGroup"
-      },
-      {
-        "link" : "Sorter1 -> Expression_agent_passthru"
-      },
-      {
-        "link" : "StructureParser -> Sorter1",
-        "groupLink" : "Agent1 -> DefaultGroup"
       }
     ],
     "parameters" : [
@@ -236,14 +248,14 @@
               },
               {
                 "name" : "Temporary Credential Duration",
-                "value" : "900"
+                "value" : "43200"
               }
             ]
           }
         }
       },
       {
-        "description" : "Target table in AWS Redshift metal database with target table name lc360_generic_fields_stg",
+        "description" : "Target table in AWS Redshift metal database",
         "createTime" : "2025-07-17T20:43:56.481Z",
         "name" : "LC360_tgt_metal",
         "advancedProperties" : [
@@ -320,9 +332,9 @@
           },
           {
             "adapterField" : {
-              "name" : "inspection_id"
+              "name" : "agent_id"
             },
-            "name" : "inspection_id",
+            "name" : "agent_id",
             "platformType" : {
               "name" : "string"
             },
@@ -331,31 +343,20 @@
           },
           {
             "adapterField" : {
-              "name" : "city"
+              "name" : "client_id"
             },
-            "name" : "city",
+            "name" : "client_id",
             "platformType" : {
               "name" : "string"
             },
-            "precision" : 255,
+            "precision" : 63,
             "scale" : 0
           },
           {
             "adapterField" : {
-              "name" : "country"
+              "name" : "currency"
             },
-            "name" : "country",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 255,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "region1"
-            },
-            "name" : "region1",
+            "name" : "currency",
             "platformType" : {
               "name" : "string"
             },
@@ -364,9 +365,9 @@
           },
           {
             "adapterField" : {
-              "name" : "region2"
+              "name" : "ibc_code"
             },
-            "name" : "region2",
+            "name" : "ibc_code",
             "platformType" : {
               "name" : "string"
             },
@@ -375,9 +376,9 @@
           },
           {
             "adapterField" : {
-              "name" : "region3"
+              "name" : "icc_code"
             },
-            "name" : "region3",
+            "name" : "icc_code",
             "platformType" : {
               "name" : "string"
             },
@@ -386,9 +387,31 @@
           },
           {
             "adapterField" : {
-              "name" : "region4"
+              "name" : "is_deleted"
             },
-            "name" : "region4",
+            "name" : "is_deleted",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "language"
+            },
+            "name" : "language",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "lookup_id"
+            },
+            "name" : "lookup_id",
             "platformType" : {
               "name" : "string"
             },
@@ -397,9 +420,20 @@
           },
           {
             "adapterField" : {
-              "name" : "street1"
+              "name" : "name"
             },
-            "name" : "street1",
+            "name" : "name",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 1023,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "naics_code"
+            },
+            "name" : "naics_code",
             "platformType" : {
               "name" : "string"
             },
@@ -408,9 +442,64 @@
           },
           {
             "adapterField" : {
-              "name" : "street2"
+              "name" : "policy_effective_date"
             },
-            "name" : "street2",
+            "name" : "policy_effective_date",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "policy_expiration_date"
+            },
+            "name" : "policy_expiration_date",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "policy_number"
+            },
+            "name" : "policy_number",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "policy_renewal_date"
+            },
+            "name" : "policy_renewal_date",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "primary_account_manager"
+            },
+            "name" : "primary_account_manager",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "sic_code"
+            },
+            "name" : "sic_code",
             "platformType" : {
               "name" : "string"
             },
@@ -419,9 +508,31 @@
           },
           {
             "adapterField" : {
-              "name" : "zip_code"
+              "name" : "underwriter_id"
             },
-            "name" : "zip_code",
+            "name" : "underwriter_id",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "group3_document_id"
+            },
+            "name" : "group3_document_id",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "client_city"
+            },
+            "name" : "client_city",
             "platformType" : {
               "name" : "string"
             },
@@ -430,9 +541,97 @@
           },
           {
             "adapterField" : {
-              "name" : "latitude"
+              "name" : "client_country"
             },
-            "name" : "latitude",
+            "name" : "client_country",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 511,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "client_region1"
+            },
+            "name" : "client_region1",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 511,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "client_region2"
+            },
+            "name" : "client_region2",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 511,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "client_region3"
+            },
+            "name" : "client_region3",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 511,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "client_region4"
+            },
+            "name" : "client_region4",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 511,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "client_street1"
+            },
+            "name" : "client_street1",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 511,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "client_street2"
+            },
+            "name" : "client_street2",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 511,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "client_zip_code"
+            },
+            "name" : "client_zip_code",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "client_latitude"
+            },
+            "name" : "client_latitude",
             "platformType" : {
               "name" : "string"
             },
@@ -441,9 +640,9 @@
           },
           {
             "adapterField" : {
-              "name" : "longitude"
+              "name" : "client_longitude"
             },
-            "name" : "longitude",
+            "name" : "client_longitude",
             "platformType" : {
               "name" : "string"
             },
@@ -452,9 +651,20 @@
           },
           {
             "adapterField" : {
-              "name" : "agency_code"
+              "name" : "agent2_document_id"
             },
-            "name" : "agency_code",
+            "name" : "agent2_document_id",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "agent_city"
+            },
+            "name" : "agent_city",
             "platformType" : {
               "name" : "string"
             },
@@ -463,13 +673,134 @@
           },
           {
             "adapterField" : {
-              "name" : "agency_name"
+              "name" : "agent_country"
             },
-            "name" : "agency_name",
+            "name" : "agent_country",
             "platformType" : {
               "name" : "string"
             },
             "precision" : 511,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "agent_region1"
+            },
+            "name" : "agent_region1",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 511,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "agent_region2"
+            },
+            "name" : "agent_region2",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 511,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "agent_region3"
+            },
+            "name" : "agent_region3",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 511,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "agent_region4"
+            },
+            "name" : "agent_region4",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 511,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "agent_street1"
+            },
+            "name" : "agent_street1",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 511,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "agent_street2"
+            },
+            "name" : "agent_street2",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 511,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "agent_zip_code"
+            },
+            "name" : "agent_zip_code",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "agent_latitude"
+            },
+            "name" : "agent_latitude",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 15,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "agent_longitude"
+            },
+            "name" : "agent_longitude",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 15,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "agent_agency_code"
+            },
+            "name" : "agent_agency_code",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 511,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "agent_agency_name"
+            },
+            "name" : "agent_agency_name",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 1023,
             "scale" : 0
           },
           {
@@ -485,24 +816,13 @@
           },
           {
             "adapterField" : {
-              "name" : "agent_id"
-            },
-            "name" : "agent_id",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 63,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
               "name" : "agent_name"
             },
             "name" : "agent_name",
             "platformType" : {
               "name" : "string"
             },
-            "precision" : 511,
+            "precision" : 1023,
             "scale" : 0
           },
           {
@@ -518,9 +838,9 @@
           },
           {
             "adapterField" : {
-              "name" : "email"
+              "name" : "agent_email"
             },
-            "name" : "email",
+            "name" : "agent_email",
             "platformType" : {
               "name" : "string"
             },
@@ -529,46 +849,46 @@
           },
           {
             "adapterField" : {
-              "name" : "fax_number"
+              "name" : "agent_fax_number"
             },
-            "name" : "fax_number",
+            "name" : "agent_fax_number",
             "platformType" : {
               "name" : "string"
             },
-            "precision" : 511,
+            "precision" : 63,
             "scale" : 0
           },
           {
             "adapterField" : {
-              "name" : "phone_number"
+              "name" : "agent_phone_number"
             },
-            "name" : "phone_number",
+            "name" : "agent_phone_number",
             "platformType" : {
               "name" : "string"
             },
-            "precision" : 127,
+            "precision" : 63,
             "scale" : 0
           },
           {
             "adapterField" : {
-              "name" : "cell_phone_number"
+              "name" : "agent_cell_phone_number"
             },
-            "name" : "cell_phone_number",
+            "name" : "agent_cell_phone_number",
             "platformType" : {
               "name" : "string"
             },
-            "precision" : 511,
+            "precision" : 63,
             "scale" : 0
           },
           {
             "adapterField" : {
-              "name" : "agent1_document_id"
+              "name" : "address_document_id"
             },
-            "name" : "agent1_document_id",
+            "name" : "address_document_id",
             "platformType" : {
               "name" : "string"
             },
-            "precision" : 511,
+            "precision" : 63,
             "scale" : 0
           },
           {
@@ -592,11 +912,11 @@
           "typeSystem" : "TOOLKIT",
           "useDynamicFileName" : "false",
           "object" : {
-            "name" : "metal/lc360_agent_data_stg",
-            "label" : "metal/lc360_agent_data_stg",
-            "objectName" : "lc360_agent_data_stg",
+            "name" : "metal/lc360_client_data_stg",
+            "label" : "metal/lc360_client_data_stg",
+            "objectName" : "lc360_client_data_stg",
             "objectType" : "amazonredshift",
-            "path" : "metal/lc360_agent_data_stg",
+            "path" : "metal/lc360_client_data_stg",
             "retainMetadata" : "false",
             "fields" : [
               {
@@ -611,7 +931,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "lc360_agent_data_stg"
+                    "value" : "lc360_client_data_stg"
                   }
                 ]
               },
@@ -627,7 +947,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "lc360_agent_data_stg"
+                    "value" : "lc360_client_data_stg"
                   }
                 ]
               },
@@ -643,7 +963,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "lc360_agent_data_stg"
+                    "value" : "lc360_client_data_stg"
                   }
                 ]
               },
@@ -659,247 +979,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "lc360_agent_data_stg"
-                  }
-                ]
-              },
-              {
-                "name" : "inspection_id",
-                "fieldType" : "CONNECTOR",
-                "label" : "inspection_id",
-                "nativeName" : "inspection_id",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 63,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "lc360_agent_data_stg"
-                  }
-                ]
-              },
-              {
-                "name" : "city",
-                "fieldType" : "CONNECTOR",
-                "label" : "city",
-                "nativeName" : "city",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 255,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "lc360_agent_data_stg"
-                  }
-                ]
-              },
-              {
-                "name" : "country",
-                "fieldType" : "CONNECTOR",
-                "label" : "country",
-                "nativeName" : "country",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 255,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "lc360_agent_data_stg"
-                  }
-                ]
-              },
-              {
-                "name" : "region1",
-                "fieldType" : "CONNECTOR",
-                "label" : "region1",
-                "nativeName" : "region1",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 511,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "lc360_agent_data_stg"
-                  }
-                ]
-              },
-              {
-                "name" : "region2",
-                "fieldType" : "CONNECTOR",
-                "label" : "region2",
-                "nativeName" : "region2",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 511,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "lc360_agent_data_stg"
-                  }
-                ]
-              },
-              {
-                "name" : "region3",
-                "fieldType" : "CONNECTOR",
-                "label" : "region3",
-                "nativeName" : "region3",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 511,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "lc360_agent_data_stg"
-                  }
-                ]
-              },
-              {
-                "name" : "region4",
-                "fieldType" : "CONNECTOR",
-                "label" : "region4",
-                "nativeName" : "region4",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 511,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "lc360_agent_data_stg"
-                  }
-                ]
-              },
-              {
-                "name" : "street1",
-                "fieldType" : "CONNECTOR",
-                "label" : "street1",
-                "nativeName" : "street1",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 511,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "lc360_agent_data_stg"
-                  }
-                ]
-              },
-              {
-                "name" : "street2",
-                "fieldType" : "CONNECTOR",
-                "label" : "street2",
-                "nativeName" : "street2",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 511,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "lc360_agent_data_stg"
-                  }
-                ]
-              },
-              {
-                "name" : "zip_code",
-                "fieldType" : "CONNECTOR",
-                "label" : "zip_code",
-                "nativeName" : "zip_code",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 511,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "lc360_agent_data_stg"
-                  }
-                ]
-              },
-              {
-                "name" : "latitude",
-                "fieldType" : "CONNECTOR",
-                "label" : "latitude",
-                "nativeName" : "latitude",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 15,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "lc360_agent_data_stg"
-                  }
-                ]
-              },
-              {
-                "name" : "longitude",
-                "fieldType" : "CONNECTOR",
-                "label" : "longitude",
-                "nativeName" : "longitude",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 15,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "lc360_agent_data_stg"
-                  }
-                ]
-              },
-              {
-                "name" : "agency_code",
-                "fieldType" : "CONNECTOR",
-                "label" : "agency_code",
-                "nativeName" : "agency_code",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 511,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "lc360_agent_data_stg"
-                  }
-                ]
-              },
-              {
-                "name" : "agency_name",
-                "fieldType" : "CONNECTOR",
-                "label" : "agency_name",
-                "nativeName" : "agency_name",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 511,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "lc360_agent_data_stg"
-                  }
-                ]
-              },
-              {
-                "name" : "agent_code",
-                "fieldType" : "CONNECTOR",
-                "label" : "agent_code",
-                "nativeName" : "agent_code",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 511,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "lc360_agent_data_stg"
+                    "value" : "lc360_client_data_stg"
                   }
                 ]
               },
@@ -915,7 +995,695 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "lc360_agent_data_stg"
+                    "value" : "lc360_client_data_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "client_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "client_id",
+                "nativeName" : "client_id",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "lc360_client_data_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "currency",
+                "fieldType" : "CONNECTOR",
+                "label" : "currency",
+                "nativeName" : "currency",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 511,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "lc360_client_data_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "ibc_code",
+                "fieldType" : "CONNECTOR",
+                "label" : "ibc_code",
+                "nativeName" : "ibc_code",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 511,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "lc360_client_data_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "icc_code",
+                "fieldType" : "CONNECTOR",
+                "label" : "icc_code",
+                "nativeName" : "icc_code",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 511,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "lc360_client_data_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "is_deleted",
+                "fieldType" : "CONNECTOR",
+                "label" : "is_deleted",
+                "nativeName" : "is_deleted",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "lc360_client_data_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "language",
+                "fieldType" : "CONNECTOR",
+                "label" : "language",
+                "nativeName" : "language",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "lc360_client_data_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "lookup_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "lookup_id",
+                "nativeName" : "lookup_id",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 511,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "lc360_client_data_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "name",
+                "fieldType" : "CONNECTOR",
+                "label" : "name",
+                "nativeName" : "name",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 1023,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "lc360_client_data_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "naics_code",
+                "fieldType" : "CONNECTOR",
+                "label" : "naics_code",
+                "nativeName" : "naics_code",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 511,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "lc360_client_data_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "policy_effective_date",
+                "fieldType" : "CONNECTOR",
+                "label" : "policy_effective_date",
+                "nativeName" : "policy_effective_date",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "lc360_client_data_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "policy_expiration_date",
+                "fieldType" : "CONNECTOR",
+                "label" : "policy_expiration_date",
+                "nativeName" : "policy_expiration_date",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "lc360_client_data_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "policy_number",
+                "fieldType" : "CONNECTOR",
+                "label" : "policy_number",
+                "nativeName" : "policy_number",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "lc360_client_data_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "policy_renewal_date",
+                "fieldType" : "CONNECTOR",
+                "label" : "policy_renewal_date",
+                "nativeName" : "policy_renewal_date",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "lc360_client_data_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "primary_account_manager",
+                "fieldType" : "CONNECTOR",
+                "label" : "primary_account_manager",
+                "nativeName" : "primary_account_manager",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "lc360_client_data_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "sic_code",
+                "fieldType" : "CONNECTOR",
+                "label" : "sic_code",
+                "nativeName" : "sic_code",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 511,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "lc360_client_data_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "underwriter_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "underwriter_id",
+                "nativeName" : "underwriter_id",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "lc360_client_data_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "group3_document_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "group3_document_id",
+                "nativeName" : "group3_document_id",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "lc360_client_data_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "client_city",
+                "fieldType" : "CONNECTOR",
+                "label" : "client_city",
+                "nativeName" : "client_city",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 511,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "lc360_client_data_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "client_country",
+                "fieldType" : "CONNECTOR",
+                "label" : "client_country",
+                "nativeName" : "client_country",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 511,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "lc360_client_data_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "client_region1",
+                "fieldType" : "CONNECTOR",
+                "label" : "client_region1",
+                "nativeName" : "client_region1",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 511,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "lc360_client_data_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "client_region2",
+                "fieldType" : "CONNECTOR",
+                "label" : "client_region2",
+                "nativeName" : "client_region2",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 511,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "lc360_client_data_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "client_region3",
+                "fieldType" : "CONNECTOR",
+                "label" : "client_region3",
+                "nativeName" : "client_region3",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 511,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "lc360_client_data_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "client_region4",
+                "fieldType" : "CONNECTOR",
+                "label" : "client_region4",
+                "nativeName" : "client_region4",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 511,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "lc360_client_data_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "client_street1",
+                "fieldType" : "CONNECTOR",
+                "label" : "client_street1",
+                "nativeName" : "client_street1",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 511,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "lc360_client_data_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "client_street2",
+                "fieldType" : "CONNECTOR",
+                "label" : "client_street2",
+                "nativeName" : "client_street2",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 511,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "lc360_client_data_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "client_zip_code",
+                "fieldType" : "CONNECTOR",
+                "label" : "client_zip_code",
+                "nativeName" : "client_zip_code",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "lc360_client_data_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "client_latitude",
+                "fieldType" : "CONNECTOR",
+                "label" : "client_latitude",
+                "nativeName" : "client_latitude",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 15,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "lc360_client_data_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "client_longitude",
+                "fieldType" : "CONNECTOR",
+                "label" : "client_longitude",
+                "nativeName" : "client_longitude",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 15,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "lc360_client_data_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "agent2_document_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "agent2_document_id",
+                "nativeName" : "agent2_document_id",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "lc360_client_data_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "agent_city",
+                "fieldType" : "CONNECTOR",
+                "label" : "agent_city",
+                "nativeName" : "agent_city",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 511,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "lc360_client_data_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "agent_country",
+                "fieldType" : "CONNECTOR",
+                "label" : "agent_country",
+                "nativeName" : "agent_country",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 511,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "lc360_client_data_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "agent_region1",
+                "fieldType" : "CONNECTOR",
+                "label" : "agent_region1",
+                "nativeName" : "agent_region1",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 511,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "lc360_client_data_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "agent_region2",
+                "fieldType" : "CONNECTOR",
+                "label" : "agent_region2",
+                "nativeName" : "agent_region2",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 511,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "lc360_client_data_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "agent_region3",
+                "fieldType" : "CONNECTOR",
+                "label" : "agent_region3",
+                "nativeName" : "agent_region3",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 511,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "lc360_client_data_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "agent_region4",
+                "fieldType" : "CONNECTOR",
+                "label" : "agent_region4",
+                "nativeName" : "agent_region4",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 511,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "lc360_client_data_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "agent_street1",
+                "fieldType" : "CONNECTOR",
+                "label" : "agent_street1",
+                "nativeName" : "agent_street1",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 511,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "lc360_client_data_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "agent_street2",
+                "fieldType" : "CONNECTOR",
+                "label" : "agent_street2",
+                "nativeName" : "agent_street2",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 511,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "lc360_client_data_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "agent_zip_code",
+                "fieldType" : "CONNECTOR",
+                "label" : "agent_zip_code",
+                "nativeName" : "agent_zip_code",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "lc360_client_data_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "agent_latitude",
+                "fieldType" : "CONNECTOR",
+                "label" : "agent_latitude",
+                "nativeName" : "agent_latitude",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 15,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "lc360_client_data_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "agent_longitude",
+                "fieldType" : "CONNECTOR",
+                "label" : "agent_longitude",
+                "nativeName" : "agent_longitude",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 15,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "lc360_client_data_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "agent_agency_code",
+                "fieldType" : "CONNECTOR",
+                "label" : "agent_agency_code",
+                "nativeName" : "agent_agency_code",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 511,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "lc360_client_data_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "agent_agency_name",
+                "fieldType" : "CONNECTOR",
+                "label" : "agent_agency_name",
+                "nativeName" : "agent_agency_name",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 1023,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "lc360_client_data_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "agent_code",
+                "fieldType" : "CONNECTOR",
+                "label" : "agent_code",
+                "nativeName" : "agent_code",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 511,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "lc360_client_data_stg"
                   }
                 ]
               },
@@ -926,12 +1694,12 @@
                 "nativeName" : "agent_name",
                 "nativeType" : "varchar",
                 "original" : "false",
-                "precision" : 511,
+                "precision" : 1023,
                 "scale" : 0,
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "lc360_agent_data_stg"
+                    "value" : "lc360_client_data_stg"
                   }
                 ]
               },
@@ -947,15 +1715,15 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "lc360_agent_data_stg"
+                    "value" : "lc360_client_data_stg"
                   }
                 ]
               },
               {
-                "name" : "email",
+                "name" : "agent_email",
                 "fieldType" : "CONNECTOR",
-                "label" : "email",
-                "nativeName" : "email",
+                "label" : "agent_email",
+                "nativeName" : "agent_email",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 511,
@@ -963,71 +1731,71 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "lc360_agent_data_stg"
+                    "value" : "lc360_client_data_stg"
                   }
                 ]
               },
               {
-                "name" : "fax_number",
+                "name" : "agent_fax_number",
                 "fieldType" : "CONNECTOR",
-                "label" : "fax_number",
-                "nativeName" : "fax_number",
+                "label" : "agent_fax_number",
+                "nativeName" : "agent_fax_number",
                 "nativeType" : "varchar",
                 "original" : "false",
-                "precision" : 511,
+                "precision" : 63,
                 "scale" : 0,
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "lc360_agent_data_stg"
+                    "value" : "lc360_client_data_stg"
                   }
                 ]
               },
               {
-                "name" : "phone_number",
+                "name" : "agent_phone_number",
                 "fieldType" : "CONNECTOR",
-                "label" : "phone_number",
-                "nativeName" : "phone_number",
+                "label" : "agent_phone_number",
+                "nativeName" : "agent_phone_number",
                 "nativeType" : "varchar",
                 "original" : "false",
-                "precision" : 127,
+                "precision" : 63,
                 "scale" : 0,
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "lc360_agent_data_stg"
+                    "value" : "lc360_client_data_stg"
                   }
                 ]
               },
               {
-                "name" : "cell_phone_number",
+                "name" : "agent_cell_phone_number",
                 "fieldType" : "CONNECTOR",
-                "label" : "cell_phone_number",
-                "nativeName" : "cell_phone_number",
+                "label" : "agent_cell_phone_number",
+                "nativeName" : "agent_cell_phone_number",
                 "nativeType" : "varchar",
                 "original" : "false",
-                "precision" : 511,
+                "precision" : 63,
                 "scale" : 0,
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "lc360_agent_data_stg"
+                    "value" : "lc360_client_data_stg"
                   }
                 ]
               },
               {
-                "name" : "agent1_document_id",
+                "name" : "address_document_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "agent1_document_id",
-                "nativeName" : "agent1_document_id",
+                "label" : "address_document_id",
+                "nativeName" : "address_document_id",
                 "nativeType" : "varchar",
                 "original" : "false",
-                "precision" : 511,
+                "precision" : 63,
                 "scale" : 0,
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "lc360_agent_data_stg"
+                    "value" : "lc360_client_data_stg"
                   }
                 ]
               },
@@ -1043,7 +1811,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "lc360_agent_data_stg"
+                    "value" : "lc360_client_data_stg"
                   }
                 ]
               }
@@ -1155,121 +1923,30 @@
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "InspectionID",
+              "fromFieldName" : "group_Currency",
               "toField" : {
-                "name" : "inspection_id"
+                "name" : "currency"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "City",
+              "fromFieldName" : "group_Language",
               "toField" : {
-                "name" : "city"
+                "name" : "language"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "Country",
+              "fromFieldName" : "Agent2_documentId",
               "toField" : {
-                "name" : "country"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "Region1",
-              "toField" : {
-                "name" : "region1"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "Region2",
-              "toField" : {
-                "name" : "region2"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "Region3",
-              "toField" : {
-                "name" : "region3"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "Region4",
-              "toField" : {
-                "name" : "region4"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "Street1",
-              "toField" : {
-                "name" : "street1"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "Street2",
-              "toField" : {
-                "name" : "street2"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "ZipCode",
-              "toField" : {
-                "name" : "zip_code"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "Latitude",
-              "toField" : {
-                "name" : "latitude"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "Longitude",
-              "toField" : {
-                "name" : "longitude"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "AgencyCode",
-              "toField" : {
-                "name" : "agency_code"
+                "name" : "agent2_document_id"
               },
               "fromFieldNames" : null
             },
             {
               "fromFieldName" : "AgencyName",
               "toField" : {
-                "name" : "agency_name"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "AgentCode",
-              "toField" : {
-                "name" : "agent_code"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "AgentID",
-              "toField" : {
-                "name" : "agent_id"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "AgentName",
-              "toField" : {
-                "name" : "agent_name"
+                "name" : "agent_agency_name"
               },
               "fromFieldNames" : null
             },
@@ -1283,42 +1960,28 @@
             {
               "fromFieldName" : "Email",
               "toField" : {
-                "name" : "email"
+                "name" : "agent_email"
               },
               "fromFieldNames" : null
             },
             {
               "fromFieldName" : "FaxNumber",
               "toField" : {
-                "name" : "fax_number"
+                "name" : "agent_fax_number"
               },
               "fromFieldNames" : null
             },
             {
               "fromFieldName" : "PhoneNumber",
               "toField" : {
-                "name" : "phone_number"
+                "name" : "agent_phone_number"
               },
               "fromFieldNames" : null
             },
             {
               "fromFieldName" : "CellPhoneNumber",
               "toField" : {
-                "name" : "cell_phone_number"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "Agent1_documentId",
-              "toField" : {
-                "name" : "agent1_document_id"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "CurrentFile",
-              "toField" : {
-                "name" : "source_file_name"
+                "name" : "agent_cell_phone_number"
               },
               "fromFieldNames" : null
             },
@@ -1326,6 +1989,307 @@
               "fromFieldName" : "o_last_update_datetime",
               "toField" : {
                 "name" : "last_update_datetime"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "group_AgentID",
+              "toField" : {
+                "name" : "agent_id"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "group_ClientID",
+              "toField" : {
+                "name" : "client_id"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "group_IBCCode",
+              "toField" : {
+                "name" : "ibc_code"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "group_ICCCode",
+              "toField" : {
+                "name" : "icc_code"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "group_IsDeleted",
+              "toField" : {
+                "name" : "is_deleted"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "group_LookupID",
+              "toField" : {
+                "name" : "lookup_id"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "group_Name",
+              "toField" : {
+                "name" : "name"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "group_NAICSCode",
+              "toField" : {
+                "name" : "naics_code"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "group_PolicyEffectiveDate",
+              "toField" : {
+                "name" : "policy_effective_date"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "group_PolicyExpirationDate",
+              "toField" : {
+                "name" : "policy_expiration_date"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "group_PolicyNumber",
+              "toField" : {
+                "name" : "policy_number"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "group_PolicyRenewalDate",
+              "toField" : {
+                "name" : "policy_renewal_date"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "group_PrimaryAccountManager",
+              "toField" : {
+                "name" : "primary_account_manager"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "group_SICCode",
+              "toField" : {
+                "name" : "sic_code"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "group_UnderwriterID",
+              "toField" : {
+                "name" : "underwriter_id"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "group_group3_documentId",
+              "toField" : {
+                "name" : "group3_document_id"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "add_City",
+              "toField" : {
+                "name" : "client_city"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "add_Country",
+              "toField" : {
+                "name" : "client_country"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "add_Region1",
+              "toField" : {
+                "name" : "client_region1"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "add_Region2",
+              "toField" : {
+                "name" : "client_region2"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "add_Region3",
+              "toField" : {
+                "name" : "client_region3"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "add_Region4",
+              "toField" : {
+                "name" : "client_region4"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "add_Street1",
+              "toField" : {
+                "name" : "client_street1"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "add_Street2",
+              "toField" : {
+                "name" : "client_street2"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "add_ZipCode",
+              "toField" : {
+                "name" : "client_zip_code"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "add_Latitude",
+              "toField" : {
+                "name" : "client_latitude"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "add_Longitude",
+              "toField" : {
+                "name" : "client_longitude"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "add_Address1_documentId",
+              "toField" : {
+                "name" : "address_document_id"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "City",
+              "toField" : {
+                "name" : "agent_city"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "Country",
+              "toField" : {
+                "name" : "agent_country"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "Region1",
+              "toField" : {
+                "name" : "agent_region1"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "Region2",
+              "toField" : {
+                "name" : "agent_region2"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "Region3",
+              "toField" : {
+                "name" : "agent_region3"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "Region4",
+              "toField" : {
+                "name" : "agent_region4"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "Street1",
+              "toField" : {
+                "name" : "agent_street1"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "Street2",
+              "toField" : {
+                "name" : "agent_street2"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "ZipCode",
+              "toField" : {
+                "name" : "agent_zip_code"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "Latitude",
+              "toField" : {
+                "name" : "agent_latitude"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "Longitude",
+              "toField" : {
+                "name" : "agent_longitude"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "AgencyCode",
+              "toField" : {
+                "name" : "agent_agency_code"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "AgentCode",
+              "toField" : {
+                "name" : "agent_code"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "AgentName",
+              "toField" : {
+                "name" : "agent_name"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "CurrentFile",
+              "toField" : {
+                "name" : "source_file_name"
               },
               "fromFieldNames" : null
             }
@@ -1744,7 +2708,7 @@
         "outputGroups" : [
           {
             "name" : "Unidentified",
-            "passthrough" : "false",
+            "passthrough" : "true",
             "fields" : [
               {
                 "name" : "unidentified",
@@ -1759,7 +2723,7 @@
           },
           {
             "name" : "group1",
-            "passthrough" : "true",
+            "passthrough" : "false",
             "fields" : [
               {
                 "name" : "AgentID",
@@ -3076,7 +4040,7 @@
           },
           {
             "name" : "Agent1",
-            "passthrough" : "true",
+            "passthrough" : "false",
             "fields" : [
               {
                 "name" : "City",
@@ -4258,7 +5222,7 @@
           },
           {
             "name" : "group3",
-            "passthrough" : "false",
+            "passthrough" : "true",
             "fields" : [
               {
                 "name" : "AgentID",
@@ -4546,7 +5510,7 @@
           },
           {
             "name" : "Address1",
-            "passthrough" : "false",
+            "passthrough" : "true",
             "fields" : [
               {
                 "name" : "City",
@@ -4660,7 +5624,7 @@
           },
           {
             "name" : "Agent2",
-            "passthrough" : "false",
+            "passthrough" : "true",
             "fields" : [
               {
                 "name" : "City",
@@ -15662,7 +16626,35 @@
             "scale" : 0,
             "expFieldType" : "OUTPUT",
             "expression" : "SUBSTR(FileName,INSTR(FileName, '/', -1, 1) + 1, LENGTH(FileName)\n)"
-          },
+          }
+        ],
+        "windowSpec" : {
+          "allRowsFollowing" : "false",
+          "allRowsPreceding" : "false",
+          "endOffset" : 0,
+          "startOffset" : 0,
+          "partitionKeys" : null
+        }
+      },
+      {
+        "description" : "Defaulting source name and load type to their respective values",
+        "createTime" : "2025-08-04T18:37:24.374Z",
+        "name" : "exp_config",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "windowConfigurationEnabled" : "false",
+        "fields" : [
           {
             "defaultValue" : "ERROR('transformation error')",
             "name" : "o_source_name",
@@ -15706,67 +16698,8 @@
         }
       },
       {
-        "createTime" : "2025-07-17T20:51:42.822Z",
-        "name" : "Expression_group1",
-        "groups" : [
-          {
-            "input" : "true",
-            "name" : "DefaultGroup",
-            "output" : "true",
-            "rules" : [
-              {
-                "bulkRename" : "false",
-                "include" : "true",
-                "names" : [
-                  {
-                    "inputName" : "group1_documentId"
-                  },
-                  {
-                    "inputName" : "InspectionID"
-                  }
-                ]
-              }
-            ]
-          }
-        ],
-        "windowConfigurationEnabled" : "false",
-        "windowSpec" : {
-          "allRowsFollowing" : "false",
-          "allRowsPreceding" : "false",
-          "endOffset" : 0,
-          "startOffset" : 0,
-          "partitionKeys" : null
-        }
-      },
-      {
-        "createTime" : "2025-07-17T20:51:47.992Z",
-        "name" : "Expression_agent_passthru",
-        "groups" : [
-          {
-            "input" : "true",
-            "name" : "DefaultGroup",
-            "output" : "true",
-            "rules" : [
-              {
-                "bulkRename" : "false",
-                "include" : "true"
-              }
-            ]
-          }
-        ],
-        "windowConfigurationEnabled" : "false",
-        "windowSpec" : {
-          "allRowsFollowing" : "false",
-          "allRowsPreceding" : "false",
-          "endOffset" : 0,
-          "startOffset" : 0,
-          "partitionKeys" : null
-        }
-      },
-      {
-        "description" : "Used for Joining attributes from different groups coming from Intelligent Structure Model.\nJoin Condition : agent_documentId = group1_documentid; \nJoin type - Detail Outer",
-        "createTime" : "2025-07-17T20:54:47.472Z",
-        "name" : "Joiner",
+        "createTime" : "2025-08-05T03:47:49.203Z",
+        "name" : "jnr_grp_agent",
         "advancedProperties" : [
           {
             "name" : "Tracing Level",
@@ -15841,40 +16774,16 @@
         "joinType" : "Detail Outer Join",
         "joinConditions" : [
           {
-            "leftOperand" : "Agent1_documentId",
+            "leftOperand" : "group_group3_documentId",
             "operator" : "=",
-            "rightOperand" : "group1_documentId"
+            "rightOperand" : "Agent2_documentId"
           }
         ]
       },
       {
-        "description" : "Filtering out the null records of InspectionID",
-        "createTime" : "2025-07-17T20:57:09.388Z",
-        "name" : "filter_null",
-        "groups" : [
-          {
-            "input" : "true",
-            "name" : "DefaultGroup",
-            "output" : "true",
-            "rules" : [
-              {
-                "bulkRename" : "false",
-                "include" : "true"
-              }
-            ]
-          }
-        ],
-        "filterConditions" : [
-          {
-            "fieldName" : "InspectionID",
-            "filterValue" : "null",
-            "operator" : "!="
-          }
-        ]
-      },
-      {
-        "createTime" : "2025-08-05T14:40:21.671Z",
-        "name" : "Sorter",
+        "description" : "Sorting based on agent2_documentId",
+        "createTime" : "2025-08-05T03:50:11.841Z",
+        "name" : "Sorter_agent2",
         "groups" : [
           {
             "input" : "true",
@@ -15892,13 +16801,14 @@
         "sortEntries" : [
           {
             "ascending" : "true",
-            "fieldName" : "group1_documentId"
+            "fieldName" : "Agent2_documentId"
           }
         ]
       },
       {
-        "createTime" : "2025-08-05T14:40:44.068Z",
-        "name" : "Sorter1",
+        "description" : "Sorting based on group3_documentId",
+        "createTime" : "2025-08-05T03:53:10.523Z",
+        "name" : "Sorter_group",
         "groups" : [
           {
             "input" : "true",
@@ -15916,11 +16826,179 @@
         "sortEntries" : [
           {
             "ascending" : "true",
-            "fieldName" : "Agent1_documentId"
+            "fieldName" : "group3_documentId"
           }
         ]
+      },
+      {
+        "description" : "Renaming of the source fields coming from /root/Client/group3/\n",
+        "createTime" : "2025-08-05T03:54:55.680Z",
+        "name" : "exp_group",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "true",
+                "include" : "true",
+                "bulkRenameOption" : {
+                  "literal" : "group_",
+                  "suffix" : "false"
+                }
+              }
+            ]
+          }
+        ],
+        "windowConfigurationEnabled" : "false",
+        "windowSpec" : {
+          "allRowsFollowing" : "false",
+          "allRowsPreceding" : "false",
+          "endOffset" : 0,
+          "startOffset" : 0,
+          "partitionKeys" : null
+        }
+      },
+      {
+        "description" : "address_documentid",
+        "createTime" : "2025-08-05T04:01:46.416Z",
+        "name" : "Sorter_address1",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "sorterMode" : "SIMPLE",
+        "sortEntries" : [
+          {
+            "ascending" : "true",
+            "fieldName" : "Address1_documentId"
+          }
+        ]
+      },
+      {
+        "createTime" : "2025-08-05T04:03:41.664Z",
+        "name" : "jnr_grp_agent_add",
+        "advancedProperties" : [
+          {
+            "name" : "Tracing Level",
+            "value" : "Normal"
+          },
+          {
+            "name" : "Cache Directory",
+            "value" : "$PMCacheDir"
+          },
+          {
+            "name" : "Null ordering in master",
+            "value" : "Null is Highest Value"
+          },
+          {
+            "name" : "Null ordering in detail",
+            "value" : "Null is Higest Value"
+          },
+          {
+            "name" : "Joiner Data Cache Size",
+            "value" : "AUTO"
+          },
+          {
+            "name" : "Joiner Index Cache Size",
+            "value" : "AUTO"
+          },
+          {
+            "name" : "Sorted Input",
+            "value" : "true"
+          },
+          {
+            "name" : "Master Sort Order",
+            "value" : "AUTO"
+          },
+          {
+            "name" : "Transformation Scope",
+            "value" : "All Input"
+          },
+          {
+            "name" : "Optional",
+            "value" : "true"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "Master",
+            "output" : "false",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          },
+          {
+            "input" : "true",
+            "name" : "Detail",
+            "output" : "false",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          },
+          {
+            "input" : "false",
+            "name" : "OutputGroup",
+            "output" : "true"
+          }
+        ],
+        "joinType" : "Detail Outer Join",
+        "joinConditions" : [
+          {
+            "leftOperand" : "group_group3_documentId",
+            "operator" : "=",
+            "rightOperand" : "add_Address1_documentId"
+          }
+        ]
+      },
+      {
+        "description" : "Renaming of the source fields coming from /root/Client/Address1/\n",
+        "createTime" : "2025-08-05T04:04:32.989Z",
+        "name" : "exp_address",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "true",
+                "include" : "true",
+                "bulkRenameOption" : {
+                  "literal" : "add_",
+                  "suffix" : "false"
+                }
+              }
+            ]
+          }
+        ],
+        "windowConfigurationEnabled" : "false",
+        "windowSpec" : {
+          "allRowsFollowing" : "false",
+          "allRowsPreceding" : "false",
+          "endOffset" : 0,
+          "startOffset" : 0,
+          "partitionKeys" : null
+        }
       }
     ]
   },
-  "vcsExportTime" : "2025-08-05 12:59:27 PDT"
+  "vcsExportTime" : "2025-08-05 12:59:50 PDT"
 }
