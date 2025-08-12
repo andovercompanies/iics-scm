@@ -5,9 +5,10 @@
     "bigIntConvertType" : "ONLY_BIGINT",
     "documentType" : "MAPPING",
     "name" : "cdi_map_uw_silver_uw_dashboard_question_reply_details_ld",
+    "specialCharacterSupport" : "false",
     "links" : [
       {
-        "link" : "src_redshift_question_reply_stg -> Exp_Calc_Fields"
+        "link" : "src_redshift_questions_and_answers_stg -> Exp_Calc_Fields"
       },
       {
         "link" : "Exp_Calc_Fields -> Rtr_Insert_Update",
@@ -68,7 +69,7 @@
     "transformations" : [
       {
         "createTime" : "2025-03-24T14:45:32.756Z",
-        "name" : "src_redshift_question_reply_stg",
+        "name" : "src_redshift_questions_and_answers_stg",
         "advancedProperties" : [
           {
             "name" : "Tracing Level",
@@ -153,7 +154,7 @@
             "platformType" : {
               "name" : "string"
             },
-            "precision" : 120,
+            "precision" : 127,
             "scale" : 0
           },
           {
@@ -164,7 +165,7 @@
             "platformType" : {
               "name" : "string"
             },
-            "precision" : 120,
+            "precision" : 127,
             "scale" : 0
           },
           {
@@ -187,6 +188,50 @@
               "name" : "string"
             },
             "precision" : 512,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "parent_or_child_indicator"
+            },
+            "name" : "parent_or_child_indicator",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 7,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "parent_question_code_of_child_question"
+            },
+            "name" : "parent_question_code_of_child_question",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "question_and_answer_hierarchy"
+            },
+            "name" : "question_and_answer_hierarchy",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 10,
+            "scale" : 5
+          },
+          {
+            "adapterField" : {
+              "name" : "display_question_and_answer_indicator"
+            },
+            "name" : "display_question_and_answer_indicator",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 7,
             "scale" : 0
           },
           {
@@ -221,7 +266,7 @@
           "typeSystem" : "TOOLKIT",
           "useDynamicFileName" : "false",
           "object" : {
-            "customQuery" : "select\n\tdistinct prkr.policy_system_id,\n\tprkr.policy_number,\n\tprkr.policy_module_number,\n\tprkr.policy_key,\n\tq.system_id as question_reply_system_id,\n\tq.id as src_id,\n\tq.cmm_container as question_reply_record_type,\n\tq.name as uw_question,\n\tq.value as uw_answer,\n\tudqrd.uw_dashboard_question_reply_details_row_id as tgt_row_id,\n\tudqrd.uw_dashboard_question_reply_details_md5_hash_value as tgt_md5_hash_key\nfrom\n\tdbo.underwriting_dashboard_question_reply_stg q\nleft join dbo.policy_risk_key_reference prkr\non\n\tq.system_id = prkr.policy_system_id\n\tand q.cmm_container = prkr.policy_cmm_container\nleft join dbo.uw_dashboard_question_reply_details udqrd \non\n\tq.id = udqrd.question_reply_id\n\tand q.system_id = udqrd.question_reply_system_id\n\tand q.cmm_container = udqrd.question_reply_record_type\n\tand udqrd.uw_dashboard_question_reply_details_row_effective_end_datetime='9999-12-31'\nwhere\n\tprkr.policy_risk_key_reference_row_effective_end_date = '9999-12-31'\n\tand q.cmm_container = 'Application'\nunion\nselect\n\tdistinct prkr.policy_system_id,\n\tprkr.policy_number,\n\tprkr.policy_module_number,\n\tprkr.policy_key,\n\tq.system_id as question_reply_system_id,\n\tq.id as src_id,\n\tq.cmm_container as question_reply_record_type,\n\tq.name as uw_question,\n\tq.value as uw_answer,\n\tudqrd.uw_dashboard_question_reply_details_row_id as tgt_row_id,\n\tudqrd.uw_dashboard_question_reply_details_md5_hash_value as tgt_md5_hash_key\nfrom\n\tdbo.underwriting_dashboard_question_reply_stg q\nleft join dbo.policy_risk_key_reference prkr\non\n\tq.system_id = prkr.policy_system_id\n\tand q.cmm_container = prkr.policy_cmm_container\nleft join dbo.basicpolicy_stg bpas\non\n\tq.system_id = bpas.systemid\n\tand q.cmm_container = bpas.cmmcontainer\nleft join dbo.uw_dashboard_question_reply_details udqrd \non\n\tq.id = udqrd.question_reply_id\n\tand q.system_id = udqrd.question_reply_system_id\n\tand q.cmm_container = udqrd.question_reply_record_type\n\tand udqrd.uw_dashboard_question_reply_details_row_effective_end_datetime='9999-12-31'\nwhere\n\tprkr.policy_risk_key_reference_row_effective_end_date = '9999-12-31'\n\tand q.cmm_container = 'Policy'",
+            "customQuery" : "SELECT DISTINCT \nprkr.policy_system_id,\nprkr.policy_number,\nprkr.policy_module_number,\nprkr.policy_key,\nq.source_system_system_id AS question_reply_system_id,\nq.underwriting_question_and_answer_row_source_system_key AS src_id,\nq.underwriting_question_and_answer_type AS question_reply_record_type,\nq.underwriting_question_code AS uw_question,\nq.underwriting_answer AS uw_answer,\nq.parent_or_child_indicator,\nq.parent_question_code_of_child_question,\nq.question_and_answer_hierarchy,\nq.display_question_and_answer_indicator,\nudqrd.uw_dashboard_question_reply_details_row_id as  tgt_row_id,\nudqrd.uw_dashboard_question_reply_details_md5_hash_value as tgt_md5_hash_key\nFROM  silver.underwriting_questions_and_answers q\nLEFT JOIN dbo.policy_risk_key_reference prkr\nON q.source_system_system_id = prkr.policy_system_id\nAND q.underwriting_question_and_answer_type = prkr.policy_cmm_container \nLEFT JOIN dbo.basicpolicy_stg bpas\nON q.source_system_system_id = bpas.systemid\nAND q.underwriting_question_and_answer_type = bpas.cmmcontainer\nleft join dbo.uw_dashboard_question_reply_details udqrd \non q.underwriting_question_and_answer_row_source_system_key = udqrd.question_reply_id\nand q.source_system_system_id =  udqrd.question_reply_system_id\nand q.underwriting_question_and_answer_type = udqrd.question_reply_record_type\nand udqrd.uw_dashboard_question_reply_details_row_effective_end_datetime = '9999-12-31'\nWHERE prkr.policy_risk_key_reference_row_effective_end_date = '9999-12-31'\nand q.underwriting_question_and_answer_type = 'Policy'",
             "retainMetadata" : "false",
             "fields" : [
               {
@@ -311,7 +356,7 @@
                 "nativeName" : "src_id",
                 "nativeType" : "varchar",
                 "original" : "false",
-                "precision" : 120,
+                "precision" : 127,
                 "scale" : 0,
                 "properties" : [
                   {
@@ -327,7 +372,7 @@
                 "nativeName" : "question_reply_record_type",
                 "nativeType" : "varchar",
                 "original" : "false",
-                "precision" : 120,
+                "precision" : 127,
                 "scale" : 0,
                 "properties" : [
                   {
@@ -360,6 +405,70 @@
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 512,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "parent_or_child_indicator",
+                "fieldType" : "CONNECTOR",
+                "label" : "parent_or_child_indicator",
+                "nativeName" : "parent_or_child_indicator",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 7,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "parent_question_code_of_child_question",
+                "fieldType" : "CONNECTOR",
+                "label" : "parent_question_code_of_child_question",
+                "nativeName" : "parent_question_code_of_child_question",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "question_and_answer_hierarchy",
+                "fieldType" : "CONNECTOR",
+                "label" : "question_and_answer_hierarchy",
+                "nativeName" : "question_and_answer_hierarchy",
+                "nativeType" : "numeric",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 5,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "display_question_and_answer_indicator",
+                "fieldType" : "CONNECTOR",
+                "label" : "display_question_and_answer_indicator",
+                "nativeName" : "display_question_and_answer_indicator",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 7,
                 "scale" : 0,
                 "properties" : [
                   {
@@ -497,7 +606,7 @@
             "precision" : 255,
             "scale" : 0,
             "expFieldType" : "OUTPUT",
-            "expression" : "MD5('policy_system_id' || to_char(policy_system_id) || \n'policy_number' || policy_number || \n'policy_module_number' || policy_module_number || \n'policy_key' || policy_key || \n'question_reply_system_id' || question_reply_system_id ||\n'src_id' || src_id ||\n'question_reply_record_type' || question_reply_record_type || \n'uw_question' || uw_question || \n'uw_answer' || uw_answer)"
+            "expression" : "MD5('policy_system_id' || to_char(policy_system_id) || \n'policy_number' || policy_number || \n'policy_module_number' || policy_module_number || \n'policy_key' || policy_key || \n'question_reply_system_id' || question_reply_system_id ||\n'src_id' || src_id ||\n'question_reply_record_type' || question_reply_record_type || \n'uw_question' || uw_question || \n'uw_answer' || uw_answer ||\n'parent_or_child_indicator' || parent_or_child_indicator || \n'parent_question_code_of_child_question' || parent_question_code_of_child_question ||\n'question_and_answer_hierarchy' || to_char(question_and_answer_hierarchy) ||\n'display_question_and_answer_indicator' || display_question_and_answer_indicator)"
           },
           {
             "defaultValue" : "ERROR('transformation error')",
@@ -598,6 +707,7 @@
         "fieldMappingMode" : "MANUAL",
         "inputSorted" : "false",
         "schemaProviderType" : "SELECTED_OBJECT",
+        "targetFieldsOrdered" : "false",
         "updateColumns" : null,
         "useLabels" : "false",
         "useSequenceFields" : "false",
@@ -754,6 +864,50 @@
               "name" : "string"
             },
             "precision" : 1023,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "parent_or_child_indicator"
+            },
+            "name" : "parent_or_child_indicator",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 7,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "parent_question_code_of_child_question"
+            },
+            "name" : "parent_question_code_of_child_question",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "question_and_answer_hierarchy"
+            },
+            "name" : "question_and_answer_hierarchy",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 10,
+            "scale" : 5
+          },
+          {
+            "adapterField" : {
+              "name" : "display_question_and_answer_indicator"
+            },
+            "name" : "display_question_and_answer_indicator",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 7,
             "scale" : 0
           }
         ],
@@ -990,6 +1144,70 @@
                 "original" : "false",
                 "precision" : 29,
                 "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "uw_dashboard_question_reply_details"
+                  }
+                ]
+              },
+              {
+                "name" : "parent_or_child_indicator",
+                "fieldType" : "CONNECTOR",
+                "label" : "parent_or_child_indicator",
+                "nativeName" : "parent_or_child_indicator",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 7,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "uw_dashboard_question_reply_details"
+                  }
+                ]
+              },
+              {
+                "name" : "parent_question_code_of_child_question",
+                "fieldType" : "CONNECTOR",
+                "label" : "parent_question_code_of_child_question",
+                "nativeName" : "parent_question_code_of_child_question",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "uw_dashboard_question_reply_details"
+                  }
+                ]
+              },
+              {
+                "name" : "question_and_answer_hierarchy",
+                "fieldType" : "CONNECTOR",
+                "label" : "question_and_answer_hierarchy",
+                "nativeName" : "question_and_answer_hierarchy",
+                "nativeType" : "numeric",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 5,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "uw_dashboard_question_reply_details"
+                  }
+                ]
+              },
+              {
+                "name" : "display_question_and_answer_indicator",
+                "fieldType" : "CONNECTOR",
+                "label" : "display_question_and_answer_indicator",
+                "nativeName" : "display_question_and_answer_indicator",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 7,
+                "scale" : 0,
                 "properties" : [
                   {
                     "name" : "parentObject",
@@ -1180,6 +1398,34 @@
                 "name" : "uw_dashboard_question_reply_details_row_effective_end_datetime"
               },
               "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "parent_or_child_indicator",
+              "toField" : {
+                "name" : "parent_or_child_indicator"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "parent_question_code_of_child_question",
+              "toField" : {
+                "name" : "parent_question_code_of_child_question"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "question_and_answer_hierarchy",
+              "toField" : {
+                "name" : "question_and_answer_hierarchy"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "display_question_and_answer_indicator",
+              "toField" : {
+                "name" : "display_question_and_answer_indicator"
+              },
+              "fromFieldNames" : null
             }
           ]
         }
@@ -1210,6 +1456,7 @@
         "fieldMappingMode" : "MANUAL",
         "inputSorted" : "false",
         "schemaProviderType" : "SELECTED_OBJECT",
+        "targetFieldsOrdered" : "false",
         "updateColumns" : null,
         "useLabels" : "false",
         "useSequenceFields" : "false",
@@ -1366,6 +1613,50 @@
               "name" : "string"
             },
             "precision" : 1023,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "parent_or_child_indicator"
+            },
+            "name" : "parent_or_child_indicator",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 7,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "parent_question_code_of_child_question"
+            },
+            "name" : "parent_question_code_of_child_question",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "question_and_answer_hierarchy"
+            },
+            "name" : "question_and_answer_hierarchy",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 10,
+            "scale" : 5
+          },
+          {
+            "adapterField" : {
+              "name" : "display_question_and_answer_indicator"
+            },
+            "name" : "display_question_and_answer_indicator",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 7,
             "scale" : 0
           }
         ],
@@ -1602,6 +1893,70 @@
                 "original" : "false",
                 "precision" : 29,
                 "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "uw_dashboard_question_reply_details"
+                  }
+                ]
+              },
+              {
+                "name" : "parent_or_child_indicator",
+                "fieldType" : "CONNECTOR",
+                "label" : "parent_or_child_indicator",
+                "nativeName" : "parent_or_child_indicator",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 7,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "uw_dashboard_question_reply_details"
+                  }
+                ]
+              },
+              {
+                "name" : "parent_question_code_of_child_question",
+                "fieldType" : "CONNECTOR",
+                "label" : "parent_question_code_of_child_question",
+                "nativeName" : "parent_question_code_of_child_question",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "uw_dashboard_question_reply_details"
+                  }
+                ]
+              },
+              {
+                "name" : "question_and_answer_hierarchy",
+                "fieldType" : "CONNECTOR",
+                "label" : "question_and_answer_hierarchy",
+                "nativeName" : "question_and_answer_hierarchy",
+                "nativeType" : "numeric",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 5,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "uw_dashboard_question_reply_details"
+                  }
+                ]
+              },
+              {
+                "name" : "display_question_and_answer_indicator",
+                "fieldType" : "CONNECTOR",
+                "label" : "display_question_and_answer_indicator",
+                "nativeName" : "display_question_and_answer_indicator",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 7,
+                "scale" : 0,
                 "properties" : [
                   {
                     "name" : "parentObject",
@@ -1792,6 +2147,34 @@
                 "name" : "uw_dashboard_question_reply_details_row_effective_end_datetime"
               },
               "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "parent_or_child_indicator",
+              "toField" : {
+                "name" : "parent_or_child_indicator"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "parent_question_code_of_child_question",
+              "toField" : {
+                "name" : "parent_question_code_of_child_question"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "question_and_answer_hierarchy",
+              "toField" : {
+                "name" : "question_and_answer_hierarchy"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "display_question_and_answer_indicator",
+              "toField" : {
+                "name" : "display_question_and_answer_indicator"
+              },
+              "fromFieldNames" : null
             }
           ]
         }
@@ -1822,6 +2205,7 @@
         "fieldMappingMode" : "MANUAL",
         "inputSorted" : "false",
         "schemaProviderType" : "SELECTED_OBJECT",
+        "targetFieldsOrdered" : "false",
         "updateColumns" : [
           "uw_dashboard_question_reply_details_row_id"
         ],
@@ -1980,6 +2364,50 @@
               "name" : "string"
             },
             "precision" : 1023,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "parent_or_child_indicator"
+            },
+            "name" : "parent_or_child_indicator",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 7,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "parent_question_code_of_child_question"
+            },
+            "name" : "parent_question_code_of_child_question",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "question_and_answer_hierarchy"
+            },
+            "name" : "question_and_answer_hierarchy",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 10,
+            "scale" : 5
+          },
+          {
+            "adapterField" : {
+              "name" : "display_question_and_answer_indicator"
+            },
+            "name" : "display_question_and_answer_indicator",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 7,
             "scale" : 0
           }
         ],
@@ -2233,6 +2661,70 @@
                     "value" : "uw_dashboard_question_reply_details"
                   }
                 ]
+              },
+              {
+                "name" : "parent_or_child_indicator",
+                "fieldType" : "CONNECTOR",
+                "label" : "parent_or_child_indicator",
+                "nativeName" : "parent_or_child_indicator",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 7,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "uw_dashboard_question_reply_details"
+                  }
+                ]
+              },
+              {
+                "name" : "parent_question_code_of_child_question",
+                "fieldType" : "CONNECTOR",
+                "label" : "parent_question_code_of_child_question",
+                "nativeName" : "parent_question_code_of_child_question",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "uw_dashboard_question_reply_details"
+                  }
+                ]
+              },
+              {
+                "name" : "question_and_answer_hierarchy",
+                "fieldType" : "CONNECTOR",
+                "label" : "question_and_answer_hierarchy",
+                "nativeName" : "question_and_answer_hierarchy",
+                "nativeType" : "numeric",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 5,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "uw_dashboard_question_reply_details"
+                  }
+                ]
+              },
+              {
+                "name" : "display_question_and_answer_indicator",
+                "fieldType" : "CONNECTOR",
+                "label" : "display_question_and_answer_indicator",
+                "nativeName" : "display_question_and_answer_indicator",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 7,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "uw_dashboard_question_reply_details"
+                  }
+                ]
               }
             ],
             "objectAttributes" : [
@@ -2353,5 +2845,5 @@
       }
     ]
   },
-  "vcsExportTime" : "2025-05-13 13:46:41 EDT"
+  "vcsExportTime" : "2025-08-12 08:55:26 PDT"
 }
