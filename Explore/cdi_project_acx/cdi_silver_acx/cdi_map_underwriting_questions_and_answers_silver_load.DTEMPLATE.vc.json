@@ -234,6 +234,17 @@
           },
           {
             "adapterField" : {
+              "name" : "line_of_business"
+            },
+            "name" : "line_of_business",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 511,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
               "name" : "parent_or_child_indicator"
             },
             "name" : "parent_or_child_indicator",
@@ -252,6 +263,17 @@
               "name" : "string"
             },
             "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "parent_answer_of_child_question"
+            },
+            "name" : "parent_answer_of_child_question",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 512,
             "scale" : 0
           },
           {
@@ -286,6 +308,28 @@
             },
             "precision" : 1,
             "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "display_when_parent_reply_is_yes_or_not_null"
+            },
+            "name" : "display_when_parent_reply_is_yes_or_not_null",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 1,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "display_when_parent_reply_is_no_or_null"
+            },
+            "name" : "display_when_parent_reply_is_no_or_null",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 1,
+            "scale" : 0
           }
         ],
         "dataAdapter" : {
@@ -297,7 +341,7 @@
           "typeSystem" : "TOOLKIT",
           "useDynamicFileName" : "false",
           "object" : {
-            "customQuery" : "SELECT DISTINCT \nq.cmm_container AS underwriting_question_and_answer_type,\nq.id AS underwriting_question_and_answer_row_source_system_key,\nq.system_id AS source_system_system_id, \nq.id AS source_system_id,q.parent_id AS source_system_parent_id,\nq.name AS underwriting_question_code,\nq.value AS underwriting_answer,\nq.visible_ind AS question_visible_on_acx_ui_indicator ,\nq.text AS text,\nq.display_desc AS display_description,\nq.row_id AS source_system_row_id,\nqrpcr.parent_child_indicator AS parent_or_child_indicator,\nqrpcr.question AS parent_question_of_child_question,\nqrpcr.priority_order AS question_and_answer_hierarchy,\nqrpcr.display_when_reply_is_no_or_null as display_when_reply_is_no_or_null,\nqrpcr.display_when_reply_is_yes_or_not_null as display_when_reply_is_yes_or_not_null\nFROM bronze.acx_question_reply q\nLEFT JOIN dbo.policy_risk_key_reference prkr\nON q.system_id = prkr.policy_system_id\nAND q.cmm_container = prkr.policy_cmm_container \nLEFT JOIN bronze.question_reply_parent_child_reference_for_homeowners qrpcr\nON q.name = qrpcr.question\nWHERE prkr.line_of_business = 'Homeowners'\nAND prkr.policy_risk_key_reference_row_effective_end_date = '9999-12-31'\nAND qrpcr.question_reply_parent_child_reference_ho_row_effective_end_datetime  = '9999-12-31';",
+            "customQuery" : "select\n\tdistinct \nq.cmm_container as underwriting_question_and_answer_type,\n\tq.id as underwriting_question_and_answer_row_source_system_key,\n\tq.system_id as source_system_system_id,\n\tq.id as source_system_id,\n\tq.parent_id as source_system_parent_id,\n\tq.name as underwriting_question_code,\n\tq.value as underwriting_answer,\n\tq.visible_ind as question_visible_on_acx_ui_indicator ,\n\tq.text as text,\n\tq.display_desc as display_description,\n\tq.row_id as source_system_row_id,\n\tprkr.line_of_business,\n\tcase\n\t\twhen prkr.line_of_business = 'Homeowners' then qrpcr.parent_child_indicator\n\t\telse null \n\tend as parent_or_child_indicator,\n\tcase\n\t\twhen prkr.line_of_business = 'Homeowners' then pq.question\n\t\telse NULL\n\tend as parent_question_of_child_question,\n\t\tcase\n\t\twhen prkr.line_of_business = 'Homeowners' then pr.value\n\t\telse NULL\n\tend as parent_answer_of_child_question,\n\t\tcase\n\t\twhen prkr.line_of_business = 'Homeowners' then qrpcr.priority_order\n\t\telse NULL\n\tend as question_and_answer_hierarchy,\n\t\tcase\n\t\twhen prkr.line_of_business = 'Homeowners' then qrpcr.display_when_reply_is_no_or_null\n\t\telse NULL\n\tend as display_when_reply_is_no_or_null,\n\t\tcase\n\t\twhen prkr.line_of_business = 'Homeowners' then qrpcr.display_when_reply_is_yes_or_not_null\n\t\telse NULL\n\tend as display_when_reply_is_yes_or_not_null,\n\t\tcase\n\t\twhen prkr.line_of_business = 'Homeowners' then qrpcr.display_when_parent_reply_is_yes_or_not_null\n\t\telse NULL\n\tend as display_when_parent_reply_is_yes_or_not_null,\n\t\tcase\n\t\twhen prkr.line_of_business = 'Homeowners' then qrpcr.display_when_parent_reply_is_no_or_null\n\t\telse NULL\n\tend as display_when_parent_reply_is_no_or_null\n\nfrom\n\tbronze.acx_question_reply q\nleft join dbo.policy_risk_key_reference prkr\non\n\tq.system_id = prkr.policy_system_id\n\tand q.cmm_container = prkr.policy_cmm_container\nleft join bronze.question_reply_parent_child_reference_for_homeowners qrpcr\non\n\tq.name = qrpcr.question\nleft join bronze.question_reply_parent_child_reference_for_homeowners pq\non qrpcr.parent_question_id_of_child = pq.question_id\nleft join bronze.acx_question_reply pr\non q.system_id = pr.system_id \nand q.cmm_container = pr.cmm_container \nand pq.question = pr.name\nwhere\n\t prkr.policy_risk_key_reference_row_effective_end_date = '9999-12-31'\n\tand qrpcr.question_reply_parent_child_reference_ho_row_effective_end_datetime = '9999-12-31';",
             "retainMetadata" : "false",
             "fields" : [
               {
@@ -477,6 +521,22 @@
                 ]
               },
               {
+                "name" : "line_of_business",
+                "fieldType" : "CONNECTOR",
+                "label" : "line_of_business",
+                "nativeName" : "line_of_business",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 511,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
                 "name" : "parent_or_child_indicator",
                 "fieldType" : "CONNECTOR",
                 "label" : "parent_or_child_indicator",
@@ -500,6 +560,22 @@
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "parent_answer_of_child_question",
+                "fieldType" : "CONNECTOR",
+                "label" : "parent_answer_of_child_question",
+                "nativeName" : "parent_answer_of_child_question",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 512,
                 "scale" : 0,
                 "properties" : [
                   {
@@ -545,6 +621,38 @@
                 "fieldType" : "CONNECTOR",
                 "label" : "display_when_reply_is_yes_or_not_null",
                 "nativeName" : "display_when_reply_is_yes_or_not_null",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 1,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "display_when_parent_reply_is_yes_or_not_null",
+                "fieldType" : "CONNECTOR",
+                "label" : "display_when_parent_reply_is_yes_or_not_null",
+                "nativeName" : "display_when_parent_reply_is_yes_or_not_null",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 1,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "display_when_parent_reply_is_no_or_null",
+                "fieldType" : "CONNECTOR",
+                "label" : "display_when_parent_reply_is_no_or_null",
+                "nativeName" : "display_when_parent_reply_is_no_or_null",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 1,
@@ -1899,7 +2007,7 @@
             "precision" : 100,
             "scale" : 0,
             "expFieldType" : "OUTPUT",
-            "expression" : "decode(true,\nquestion_visible_on_acx_ui_indicator = 'Y','YES',\nquestion_visible_on_acx_ui_indicator = 'Yes','YES',\nquestion_visible_on_acx_ui_indicator = 'N','NO',\nquestion_visible_on_acx_ui_indicator = 'No','NO',\nquestion_visible_on_acx_ui_indicator = '',NULL,\nNULL)"
+            "expression" : "decode(true,\nquestion_visible_on_acx_ui_indicator = 'Y','YES',\nquestion_visible_on_acx_ui_indicator = 'Yes','YES',\nquestion_visible_on_acx_ui_indicator = 'YES','YES',\nquestion_visible_on_acx_ui_indicator = 'N','NO',\nquestion_visible_on_acx_ui_indicator = 'No','NO',\nquestion_visible_on_acx_ui_indicator = 'NO','NO',\nquestion_visible_on_acx_ui_indicator = '',NULL,\nquestion_visible_on_acx_ui_indicator)"
           },
           {
             "name" : "o_text",
@@ -1939,7 +2047,17 @@
             "precision" : 100,
             "scale" : 0,
             "expFieldType" : "OUTPUT",
-            "expression" : "IIF((ltrim(rtrim(parent_question_of_child_question))='' or parent_question_of_child_question = 'P'),NULL,parent_question_of_child_question)"
+            "expression" : "parent_answer_of_child_question"
+          },
+          {
+            "name" : "v_record_display_indicator_decode",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 100,
+            "scale" : 0,
+            "expFieldType" : "VARIABLE",
+            "expression" : "DECODE(TRUE,\nISNULL(underwriting_answer),display_when_reply_is_no_or_null,\nunderwriting_answer = 'No', display_when_reply_is_no_or_null,\nunderwriting_answer = 'NO',display_when_reply_is_no_or_null,\nunderwriting_answer = 'N', display_when_reply_is_no_or_null,\nunderwriting_answer = 'Yes', display_when_reply_is_yes_or_not_null,\nunderwriting_answer = 'YES', display_when_reply_is_yes_or_not_null,\nunderwriting_answer = 'Y', display_when_reply_is_yes_or_not_null,\ndisplay_when_reply_is_yes_or_not_null)"
           },
           {
             "name" : "v_record_display_indicator",
@@ -1949,7 +2067,7 @@
             "precision" : 100,
             "scale" : 0,
             "expFieldType" : "VARIABLE",
-            "expression" : "IIF(ISNULL(underwriting_answer) OR underwriting_answer = 'No', display_when_reply_is_no_or_null, display_when_reply_is_yes_or_not_null)"
+            "expression" : "IIF(parent_or_child_indicator = 'P' or parent_or_child_indicator = 'C',v_record_display_indicator_decode,NULL)"
           },
           {
             "name" : "o_record_display_indicator",
@@ -1959,7 +2077,17 @@
             "precision" : 100,
             "scale" : 0,
             "expFieldType" : "OUTPUT",
-            "expression" : "v_record_display_indicator"
+            "expression" : "upper(v_record_display_indicator)"
+          },
+          {
+            "name" : "v_parent_display_indicator_decode",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 100,
+            "scale" : 0,
+            "expFieldType" : "VARIABLE",
+            "expression" : "DECODE(TRUE,\nISNULL(parent_answer_of_child_question), display_when_parent_reply_is_no_or_null,\nparent_answer_of_child_question = 'No', display_when_parent_reply_is_no_or_null,\nparent_answer_of_child_question = 'NO', display_when_parent_reply_is_no_or_null,\nparent_answer_of_child_question = 'N', display_when_parent_reply_is_no_or_null,\nparent_answer_of_child_question = 'YES', display_when_parent_reply_is_yes_or_not_null,\nparent_answer_of_child_question = 'Yes', display_when_parent_reply_is_yes_or_not_null,\nparent_answer_of_child_question = 'Y', display_when_parent_reply_is_yes_or_not_null,\ndisplay_when_parent_reply_is_yes_or_not_null)"
           },
           {
             "name" : "v_parent_display_indicator",
@@ -1969,7 +2097,7 @@
             "precision" : 100,
             "scale" : 0,
             "expFieldType" : "VARIABLE",
-            "expression" : "IIF(parent_or_child_indicator='C' AND (ISNULL(underwriting_answer) OR underwriting_answer = 'No'), display_when_reply_is_no_or_null, display_when_reply_is_yes_or_not_null)"
+            "expression" : "IIF(parent_or_child_indicator = 'C',v_parent_display_indicator_decode,NULL)"
           },
           {
             "name" : "o_parent_display_indicator",
@@ -1979,7 +2107,7 @@
             "precision" : 100,
             "scale" : 0,
             "expFieldType" : "OUTPUT",
-            "expression" : "v_parent_display_indicator"
+            "expression" : "upper(v_parent_display_indicator)"
           },
           {
             "name" : "o_display_question_and_answer_indicator",
@@ -1989,7 +2117,7 @@
             "precision" : 100,
             "scale" : 0,
             "expFieldType" : "OUTPUT",
-            "expression" : "IIF(parent_or_child_indicator = 'P', v_record_display_indicator,\nIIF(v_parent_display_indicator = 'Y', v_record_display_indicator, 'N'))"
+            "expression" : "IIF(upper(parent_or_child_indicator) = 'P', v_record_display_indicator, IIF(upper(v_parent_display_indicator) = 'Y', v_record_display_indicator, 'N'))"
           },
           {
             "name" : "o_underwriting_question_and_answer_row_created_by",
@@ -2010,17 +2138,6 @@
             "scale" : 0,
             "expFieldType" : "OUTPUT",
             "expression" : "'prd_informatica'"
-          },
-          {
-            "defaultValue" : "ERROR('transformation error')",
-            "name" : "o_tst",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 10,
-            "scale" : 0,
-            "expFieldType" : "OUTPUT",
-            "expression" : "NULL"
           }
         ],
         "windowSpec" : {
@@ -4556,7 +4673,7 @@
             "precision" : 2000,
             "scale" : 0,
             "expFieldType" : "OUTPUT",
-            "expression" : "MD5(\n'underwriting_question_and_answer_type' || underwriting_question_and_answer_type ||\n'underwriting_question_and_answer_row_source_system_key' || underwriting_question_and_answer_row_source_system_key ||\n'source_system_system_id' || to_char(source_system_system_id) ||\n'source_system_id' || to_char(source_system_id) ||\n'source_system_parent_id' || source_system_parent_id ||\n'underwriting_question_code' || underwriting_question_code ||\n'underwriting_answer' || underwriting_answer ||\n'question_visible_on_acx_ui_indicator' || question_visible_on_acx_ui_indicator ||\n'text' || text ||\n'display_description' || display_description ||\n'source_system_row_id' || to_char(source_system_row_id) ||\n'parent_or_child_indicator' || parent_or_child_indicator ||\n'parent_question_of_child_question' || parent_question_of_child_question ||\n'question_and_answer_hierarchy' || to_char(question_and_answer_hierarchy) ||\n'display_when_reply_is_no_or_null' || display_when_reply_is_no_or_null ||\n'display_when_reply_is_yes_or_not_null' || display_when_reply_is_yes_or_not_null\n)"
+            "expression" : "MD5(\n'underwriting_question_and_answer_type' || underwriting_question_and_answer_type ||\n'underwriting_question_and_answer_row_source_system_key' || underwriting_question_and_answer_row_source_system_key ||\n'source_system_system_id' || to_char(source_system_system_id) ||\n'source_system_id' || to_char(source_system_id) ||\n'source_system_parent_id' || source_system_parent_id ||\n'underwriting_question_code' || underwriting_question_code ||\n'underwriting_answer' || underwriting_answer ||\n'question_visible_on_acx_ui_indicator' || question_visible_on_acx_ui_indicator ||\n'text' || text ||\n'display_description' || display_description ||\n'source_system_row_id' || to_char(source_system_row_id) ||\n'parent_or_child_indicator' || parent_or_child_indicator ||\n'parent_question_of_child_question' || parent_question_of_child_question ||\n'question_and_answer_hierarchy' || to_char(question_and_answer_hierarchy) ||\n'display_when_reply_is_no_or_null' || display_when_reply_is_no_or_null ||\n'display_when_reply_is_yes_or_not_null' || display_when_reply_is_yes_or_not_null ||\n'display_when_parent_reply_is_yes_or_not_null' || display_when_parent_reply_is_yes_or_not_null ||\n'display_when_parent_reply_is_no_or_null' || display_when_parent_reply_is_no_or_null ||\n'line_of_business' || line_of_business\n)"
           }
         ],
         "windowSpec" : {
@@ -4635,5 +4752,5 @@
       }
     ]
   },
-  "vcsExportTime" : "2025-08-05 15:21:58 PDT"
+  "vcsExportTime" : "2025-08-13 12:34:08 PDT"
 }
