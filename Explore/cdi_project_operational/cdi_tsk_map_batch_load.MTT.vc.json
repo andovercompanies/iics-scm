@@ -29,7 +29,7 @@
       "truncateTarget" : false,
       "bulkApiDBTarget" : false,
       "customFuncCfg" : { },
-      "customQuery" : "select count(*) as pilot_batch_count, source_system_code from metal.batch_load_summary\nwhere source_system_code = $$SourceSystemCode  and batch_id =0\ngroup by source_system_code",
+      "customQuery" : "select count(*) as pilot_batch_count, source_system_code from operations.batch_load_summary\nwhere source_system_code = '$$SourceSystemCode'  and batch_id =0 and target_schema_name = '$$bronze_schema'\ngroup by source_system_code",
       "commandType" : 0,
       "handleSpecialChars" : false,
       "handleDecimalRoundOff" : false,
@@ -41,7 +41,6 @@
       "objectName" : "DUMMY_src_batch_baseline_count",
       "useExactSrcNames" : false,
       "userUpdated" : true,
-      "fetchMode" : "ORIGINAL",
       "runtimeParameterData" : {
         "connectionParameterName" : "DBConnection_UDM_SRC",
         "connectionRuntimeParameter" : false,
@@ -76,7 +75,7 @@
       "truncateTarget" : false,
       "bulkApiDBTarget" : false,
       "customFuncCfg" : { },
-      "customQuery" : "select  count(*) as recent_batch_count, $$SourceSystemCode as source_system_id from (\nselect  source_system_code, MAX(recent_b_query.batch_id) as latest_batch, recent_b_query.target_table_name, recent_b_query.recent_b_status\nfrom (\nselect batch_id, target_table_name, batch_status,source_system_code, last_value(batch_status) over(partition by batch_id, target_table_name \norder by batch_status asc rows between unbounded preceding and unbounded following) as recent_b_status\nfrom (select * from metal.batch_load_summary\nwhere source_system_code = $$SourceSystemCode and batch_status in ('Success', 'Failure', 'Inprogress') \nand  batch_id !=0)\norder by batch_id) recent_b_query\ngroup by batch_id,target_table_name, recent_b_status, source_system_code\norder by batch_id desc ,target_table_name, recent_b_status\n)\nwhere latest_batch = (SELECT COALESCE(MAX(batch_id), 1) AS batch_id\n  FROM metal.batch_load_summary)",
+      "customQuery" : "select  count(*) as recent_batch_count, '$$SourceSystemCode' as source_system_id from (\nselect  source_system_code, MAX(recent_b_query.batch_id) as latest_batch, recent_b_query.target_table_name, recent_b_query.recent_b_status\nfrom (\nselect batch_id, target_table_name, batch_status,source_system_code, last_value(batch_status) over(partition by batch_id, target_table_name \norder by batch_status asc rows between unbounded preceding and unbounded following) as recent_b_status\nfrom (select * from operations.batch_load_summary\nwhere source_system_code = '$$SourceSystemCode' and batch_status in ('Success', 'Failure', 'Inprogress') \nand  batch_id !=0 and target_schema_name = '$$bronze_schema')\norder by batch_id) recent_b_query\ngroup by batch_id,target_table_name, recent_b_status, source_system_code\norder by batch_id desc ,target_table_name, recent_b_status\n)\nwhere latest_batch = (SELECT COALESCE(MAX(batch_id), 1) AS batch_id\n  FROM operations.batch_load_summary where target_schema_name = '$$bronze_schema')",
       "commandType" : 0,
       "handleSpecialChars" : false,
       "handleDecimalRoundOff" : false,
@@ -88,7 +87,6 @@
       "objectName" : "DUMMY_src_batch_latest",
       "useExactSrcNames" : false,
       "userUpdated" : true,
-      "fetchMode" : "ORIGINAL",
       "runtimeParameterData" : {
         "connectionParameterName" : "DBConnection_UDM_SRC",
         "connectionRuntimeParameter" : false,
@@ -108,7 +106,7 @@
         "paramName" : "DBConnection_UDM_TGT",
         "paramType-mapping" : "Connection",
         "logcnx" : "DBConnection_UDM_TGT",
-        "default" : "metal/batch_load_summary",
+        "default" : "operations/batch_load_summary",
         "objectParameterized" : "false",
         "visible" : "false",
         "supportApplyDDLChanges" : "false",
@@ -116,8 +114,8 @@
       },
       "targetConnectionId" : "@aYZ4ekzHgIPeKpiaoqDLKP",
       "connectionName" : "redshift_nonprod_andover_dw_dev",
-      "targetObject" : "metal/batch_load_summary",
-      "targetObjectLabel" : "metal/batch_load_summary",
+      "targetObject" : "operations/batch_load_summary",
+      "targetObjectLabel" : "operations/batch_load_summary",
       "newFlatFile" : false,
       "newObject" : false,
       "showBusinessNames" : true,
@@ -137,11 +135,10 @@
       "excludeDynamicFileNameField" : false,
       "currentlyProcessedFileName" : false,
       "retainFieldMetadata" : false,
-      "objectName" : "metal/batch_load_summary",
-      "objectLabel" : "metal/batch_load_summary",
+      "objectName" : "operations/batch_load_summary",
+      "objectLabel" : "operations/batch_load_summary",
       "useExactSrcNames" : false,
       "userUpdated" : true,
-      "fetchMode" : "ORIGINAL",
       "runtimeParameterData" : {
         "connectionParameterName" : "DBConnection_UDM_TGT",
         "connectionRuntimeParameter" : false,
@@ -161,7 +158,7 @@
         "paramName" : "DBConnection_UDM_TGT",
         "paramType-mapping" : "Connection",
         "logcnx" : "DBConnection_UDM_TGT",
-        "default" : "metal/batch_load_summary",
+        "default" : "operations/batch_load_summary",
         "objectParameterized" : "false",
         "visible" : "false",
         "supportApplyDDLChanges" : "false",
@@ -169,8 +166,8 @@
       },
       "targetConnectionId" : "@aYZ4ekzHgIPeKpiaoqDLKP",
       "connectionName" : "redshift_nonprod_andover_dw_dev",
-      "targetObject" : "metal/batch_load_summary",
-      "targetObjectLabel" : "metal/batch_load_summary",
+      "targetObject" : "operations/batch_load_summary",
+      "targetObjectLabel" : "operations/batch_load_summary",
       "newFlatFile" : false,
       "newObject" : false,
       "showBusinessNames" : true,
@@ -190,11 +187,10 @@
       "excludeDynamicFileNameField" : false,
       "currentlyProcessedFileName" : false,
       "retainFieldMetadata" : false,
-      "objectName" : "metal/batch_load_summary",
-      "objectLabel" : "metal/batch_load_summary",
+      "objectName" : "operations/batch_load_summary",
+      "objectLabel" : "operations/batch_load_summary",
       "useExactSrcNames" : false,
       "userUpdated" : true,
-      "fetchMode" : "ORIGINAL",
       "runtimeParameterData" : {
         "connectionParameterName" : "DBConnection_UDM_TGT",
         "connectionRuntimeParameter" : false,
@@ -214,7 +210,7 @@
         "paramName" : "DBConnection_UDM_TGT",
         "paramType-mapping" : "Connection",
         "logcnx" : "DBConnection_UDM_TGT",
-        "default" : "metal/batch_load_summary",
+        "default" : "operations/batch_load_summary",
         "objectParameterized" : "false",
         "visible" : "false",
         "supportApplyDDLChanges" : "false",
@@ -222,8 +218,8 @@
       },
       "targetConnectionId" : "@aYZ4ekzHgIPeKpiaoqDLKP",
       "connectionName" : "redshift_nonprod_andover_dw_dev",
-      "targetObject" : "metal/batch_load_summary",
-      "targetObjectLabel" : "metal/batch_load_summary",
+      "targetObject" : "operations/batch_load_summary",
+      "targetObjectLabel" : "operations/batch_load_summary",
       "newFlatFile" : false,
       "newObject" : false,
       "showBusinessNames" : true,
@@ -243,11 +239,10 @@
       "excludeDynamicFileNameField" : false,
       "currentlyProcessedFileName" : false,
       "retainFieldMetadata" : false,
-      "objectName" : "metal/batch_load_summary",
-      "objectLabel" : "metal/batch_load_summary",
+      "objectName" : "operations/batch_load_summary",
+      "objectLabel" : "operations/batch_load_summary",
       "useExactSrcNames" : false,
       "userUpdated" : true,
-      "fetchMode" : "ORIGINAL",
       "runtimeParameterData" : {
         "connectionParameterName" : "DBConnection_UDM_TGT",
         "connectionRuntimeParameter" : false,
@@ -260,13 +255,13 @@
     {
       "name" : "$Lkp_max_batchid$",
       "type" : "LOOKUP",
-      "label" : "DBConnection_UDM_SRC",
+      "label" : "DBConnection_UDM_TGT",
       "uiProperties" : {
         "cnxtype" : "Amazon Redshift v2",
         "connectionParameterized" : "true",
-        "paramName" : "DBConnection_UDM_SRC",
+        "paramName" : "DBConnection_UDM_TGT",
         "paramType-mapping" : "Connection",
-        "logcnx" : "DBConnection_UDM_SRC",
+        "logcnx" : "DBConnection_UDM_TGT",
         "isCachedLookup" : "true",
         "multipleMatchPolicy" : "Use Any Value",
         "objectParameterized" : "false",
@@ -302,7 +297,7 @@
         "Pre-build lookup cache" : "AUTO",
         "Include Only Required Fields" : "false"
       },
-      "customQuery" : "select * from (\nselect  source_system_code, MAX(recent_b_query.batch_id) as latest_batch,\nrecent_b_query.target_table_name, recent_b_query.recent_b_status\nfrom (\nselect batch_id, target_table_name, batch_status,source_system_code, \nlast_value(batch_status) over(partition by batch_id, target_table_name \norder by batch_status asc rows between unbounded preceding and unbounded following) as recent_b_status\nfrom (select * from metal.batch_load_summary\nwhere source_system_code = $$SourceSystemCode  and batch_status in ('Success', 'Failure', 'Inprogress') \nand  batch_id !=0\n)\norder by batch_id) recent_b_query\ngroup by batch_id,target_table_name, recent_b_status, source_system_code\norder by batch_id desc ,target_table_name, recent_b_status\n)\nwhere latest_batch = (SELECT COALESCE(MAX(batch_id), 0) AS batch_id\n  FROM metal.batch_load_summary)",
+      "customQuery" : "select * from (\nselect  source_system_code, MAX(recent_b_query.batch_id) as latest_batch,\nrecent_b_query.target_table_name, recent_b_query.recent_b_status\nfrom (\nselect batch_id, target_table_name, batch_status,source_system_code, \nlast_value(batch_status) over(partition by batch_id, target_table_name \norder by batch_status asc rows between unbounded preceding and unbounded following) as recent_b_status\nfrom (select * from operations.batch_load_summary\nwhere source_system_code = '$$SourceSystemCode'  and batch_status in ('Success', 'Failure', 'Inprogress') \nand  batch_id !=0 and target_schema_name = '$$bronze_schema'\n)\norder by batch_id) recent_b_query\ngroup by batch_id,target_table_name, recent_b_status, source_system_code\norder by batch_id desc ,target_table_name, recent_b_status\n)\nwhere latest_batch = (SELECT COALESCE(MAX(batch_id), 0) AS batch_id\n  FROM operations.batch_load_summary where target_schema_name = '$$bronze_schema')",
       "commandType" : 0,
       "handleSpecialChars" : false,
       "handleDecimalRoundOff" : false,
@@ -314,9 +309,8 @@
       "objectName" : "DUMMY_Lkp_max_batchid",
       "useExactSrcNames" : false,
       "userUpdated" : true,
-      "fetchMode" : "ORIGINAL",
       "runtimeParameterData" : {
-        "connectionParameterName" : "DBConnection_UDM_SRC",
+        "connectionParameterName" : "DBConnection_UDM_TGT",
         "connectionRuntimeParameter" : false,
         "objectRuntimeParameter" : false
       },
@@ -327,13 +321,13 @@
     {
       "name" : "$Unlkp_max_batchid$",
       "type" : "LOOKUP",
-      "label" : "DBConnection_UDM_SRC",
+      "label" : "DBConnection_UDM_TGT",
       "uiProperties" : {
         "cnxtype" : "Amazon Redshift v2",
         "connectionParameterized" : "true",
-        "paramName" : "DBConnection_UDM_SRC",
+        "paramName" : "DBConnection_UDM_TGT",
         "paramType-mapping" : "Connection",
-        "logcnx" : "DBConnection_UDM_SRC",
+        "logcnx" : "DBConnection_UDM_TGT",
         "isCachedLookup" : "true",
         "multipleMatchPolicy" : "Use Any Value",
         "objectParameterized" : "false",
@@ -369,7 +363,7 @@
         "Pre-build lookup cache" : "AUTO",
         "Include Only Required Fields" : "false"
       },
-      "customQuery" : "SELECT MAX(batch_id) AS batch_id, source_system_code\nfrom metal.batch_load_summary WHERE source_system_code = $$SourceSystemCode group by source_system_code",
+      "customQuery" : "SELECT MAX(batch_id) AS batch_id, source_system_code\nfrom operations.batch_load_summary WHERE source_system_code = '$$SourceSystemCode' and target_schema_name = '$$bronze_schema' group by source_system_code",
       "commandType" : 0,
       "handleSpecialChars" : false,
       "handleDecimalRoundOff" : false,
@@ -381,9 +375,8 @@
       "objectName" : "DUMMY_Unlkp_max_batchid",
       "useExactSrcNames" : false,
       "userUpdated" : true,
-      "fetchMode" : "ORIGINAL",
       "runtimeParameterData" : {
-        "connectionParameterName" : "DBConnection_UDM_SRC",
+        "connectionParameterName" : "DBConnection_UDM_TGT",
         "connectionRuntimeParameter" : false,
         "objectRuntimeParameter" : false
       },
@@ -394,13 +387,13 @@
     {
       "name" : "$unlkp_existing_batch_start_datetime$",
       "type" : "LOOKUP",
-      "label" : "DBConnection_UDM_SRC",
+      "label" : "DBConnection_UDM_TGT",
       "uiProperties" : {
         "cnxtype" : "Amazon Redshift v2",
         "connectionParameterized" : "true",
-        "paramName" : "DBConnection_UDM_SRC",
+        "paramName" : "DBConnection_UDM_TGT",
         "paramType-mapping" : "Connection",
-        "logcnx" : "DBConnection_UDM_SRC",
+        "logcnx" : "DBConnection_UDM_TGT",
         "isCachedLookup" : "true",
         "multipleMatchPolicy" : "Use Any Value",
         "objectParameterized" : "false",
@@ -436,7 +429,7 @@
         "Pre-build lookup cache" : "AUTO",
         "Include Only Required Fields" : "false"
       },
-      "customQuery" : "select source_system_code, batch_id, max(batch_start_datetime) as prev_batch_start_datetime from metal.batch_load_summary\nwhere source_system_code = $$SourceSystemCode group by source_system_code, batch_id order by source_system_code, batch_id  desc",
+      "customQuery" : "select source_system_code, batch_id, max(batch_start_datetime) as prev_batch_start_datetime from operations.batch_load_summary\nwhere source_system_code = '$$SourceSystemCode' and target_schema_name = '$$bronze_schema' group by source_system_code, batch_id order by source_system_code, batch_id  desc",
       "commandType" : 0,
       "handleSpecialChars" : false,
       "handleDecimalRoundOff" : false,
@@ -448,9 +441,8 @@
       "objectName" : "DUMMY_unlkp_existing_batch_start_datetime",
       "useExactSrcNames" : false,
       "userUpdated" : true,
-      "fetchMode" : "ORIGINAL",
       "runtimeParameterData" : {
-        "connectionParameterName" : "DBConnection_UDM_SRC",
+        "connectionParameterName" : "DBConnection_UDM_TGT",
         "connectionRuntimeParameter" : false,
         "objectRuntimeParameter" : false
       },
@@ -461,7 +453,7 @@
     {
       "name" : "$SourceSystemCode$",
       "type" : "STRING",
-      "text" : "'ADM'",
+      "text" : "ADM",
       "label" : "SourceSystemCode",
       "uiProperties" : {
         "paramName" : "SourceSystemCode",
@@ -485,7 +477,146 @@
       "retainFieldMetadata" : false,
       "useExactSrcNames" : false,
       "userUpdated" : true,
-      "fetchMode" : "ORIGINAL",
+      "runtimeParameterData" : {
+        "connectionRuntimeParameter" : false,
+        "objectRuntimeParameter" : false
+      },
+      "restmodernSource" : true,
+      "unspecified" : false,
+      "fileList" : false
+    },
+    {
+      "name" : "$batch_run_type$",
+      "type" : "STRING",
+      "text" : "'Daily'",
+      "label" : "batch_run_type",
+      "uiProperties" : {
+        "paramName" : "batch_run_type",
+        "paramType-mapping" : "String",
+        "originalPath" : "Exp_config_setups"
+      },
+      "newFlatFile" : false,
+      "newObject" : false,
+      "showBusinessNames" : true,
+      "naturalOrder" : true,
+      "truncateTarget" : false,
+      "bulkApiDBTarget" : false,
+      "customFuncCfg" : { },
+      "commandType" : 0,
+      "handleSpecialChars" : false,
+      "handleDecimalRoundOff" : false,
+      "frsAsset" : false,
+      "dynamicFileName" : false,
+      "excludeDynamicFileNameField" : false,
+      "currentlyProcessedFileName" : false,
+      "retainFieldMetadata" : false,
+      "useExactSrcNames" : false,
+      "userUpdated" : true,
+      "runtimeParameterData" : {
+        "connectionRuntimeParameter" : false,
+        "objectRuntimeParameter" : false
+      },
+      "restmodernSource" : true,
+      "unspecified" : false,
+      "fileList" : false
+    },
+    {
+      "name" : "$batch_status_inprogress$",
+      "type" : "STRING",
+      "text" : "'Inprogress'",
+      "label" : "batch_status_inprogress",
+      "uiProperties" : {
+        "paramName" : "batch_status_inprogress",
+        "paramType-mapping" : "String",
+        "originalPath" : "Exp_config_setups"
+      },
+      "newFlatFile" : false,
+      "newObject" : false,
+      "showBusinessNames" : true,
+      "naturalOrder" : true,
+      "truncateTarget" : false,
+      "bulkApiDBTarget" : false,
+      "customFuncCfg" : { },
+      "commandType" : 0,
+      "handleSpecialChars" : false,
+      "handleDecimalRoundOff" : false,
+      "frsAsset" : false,
+      "dynamicFileName" : false,
+      "excludeDynamicFileNameField" : false,
+      "currentlyProcessedFileName" : false,
+      "retainFieldMetadata" : false,
+      "useExactSrcNames" : false,
+      "userUpdated" : true,
+      "runtimeParameterData" : {
+        "connectionRuntimeParameter" : false,
+        "objectRuntimeParameter" : false
+      },
+      "restmodernSource" : true,
+      "unspecified" : false,
+      "fileList" : false
+    },
+    {
+      "name" : "$bronze_schema$",
+      "type" : "STRING",
+      "text" : "bronze",
+      "label" : "bronze_schema",
+      "uiProperties" : {
+        "paramName" : "bronze_schema",
+        "paramType-mapping" : "String",
+        "originalPath" : "Expression"
+      },
+      "newFlatFile" : false,
+      "newObject" : false,
+      "showBusinessNames" : true,
+      "naturalOrder" : true,
+      "truncateTarget" : false,
+      "bulkApiDBTarget" : false,
+      "customFuncCfg" : { },
+      "commandType" : 0,
+      "handleSpecialChars" : false,
+      "handleDecimalRoundOff" : false,
+      "frsAsset" : false,
+      "dynamicFileName" : false,
+      "excludeDynamicFileNameField" : false,
+      "currentlyProcessedFileName" : false,
+      "retainFieldMetadata" : false,
+      "useExactSrcNames" : false,
+      "userUpdated" : true,
+      "runtimeParameterData" : {
+        "connectionRuntimeParameter" : false,
+        "objectRuntimeParameter" : false
+      },
+      "restmodernSource" : true,
+      "unspecified" : false,
+      "fileList" : false
+    },
+    {
+      "name" : "$row_created_by$",
+      "type" : "STRING",
+      "text" : "'IICS_User'",
+      "label" : "row_created_by",
+      "uiProperties" : {
+        "paramName" : "row_created_by",
+        "paramType-mapping" : "String",
+        "originalPath" : "Exp_config_setups"
+      },
+      "newFlatFile" : false,
+      "newObject" : false,
+      "showBusinessNames" : true,
+      "naturalOrder" : true,
+      "truncateTarget" : false,
+      "bulkApiDBTarget" : false,
+      "customFuncCfg" : { },
+      "commandType" : 0,
+      "handleSpecialChars" : false,
+      "handleDecimalRoundOff" : false,
+      "frsAsset" : false,
+      "dynamicFileName" : false,
+      "excludeDynamicFileNameField" : false,
+      "currentlyProcessedFileName" : false,
+      "retainFieldMetadata" : false,
+      "useExactSrcNames" : false,
+      "userUpdated" : true,
       "runtimeParameterData" : {
         "connectionRuntimeParameter" : false,
         "objectRuntimeParameter" : false
@@ -496,7 +627,7 @@
     }
   ],
   "verbose" : false,
-  "mappingId" : "@3ZP0ruIQSNMkhOMiXiXo6Y",
+  "mappingId" : "@7WU6qzFiNMaellySto1Ikb",
   "mappingTemplateName" : "cdi_map_batch_load",
   "sessionPropertiesList" : [
     {
@@ -514,35 +645,11 @@
   ],
   "inOutParameters" : [
     {
-      "name" : "batch_run_type",
-      "datatype" : "STRING",
-      "precision" : "20",
-      "scale" : "0",
-      "retentionPolicy" : "ON_SUCCESS_OR_WARNING",
-      "aggregationType" : "MAX"
-    },
-    {
-      "name" : "row_created_by",
-      "datatype" : "STRING",
-      "precision" : "20",
-      "scale" : "0",
-      "retentionPolicy" : "ON_SUCCESS_OR_WARNING",
-      "aggregationType" : "MAX"
-    },
-    {
       "name" : "target_table_name",
       "datatype" : "STRING",
       "precision" : "100",
       "scale" : "0",
-      "retentionPolicy" : "ON_SUCCESS_OR_WARNING",
-      "aggregationType" : "MAX"
-    },
-    {
-      "name" : "batch_status_inprogress",
-      "datatype" : "STRING",
-      "precision" : "100",
-      "scale" : "0",
-      "retentionPolicy" : "ON_SUCCESS_OR_WARNING",
+      "retentionPolicy" : "NEVER",
       "aggregationType" : "MAX"
     }
   ],
@@ -560,5 +667,5 @@
   "allowMaxFieldLength" : false,
   "specialCharacterSupport" : false,
   "midstreamPreview" : false,
-  "vcsExportTime" : "2025-08-01 09:34:26 PDT"
+  "vcsExportTime" : "2025-08-13 22:47:00 PDT"
 }
