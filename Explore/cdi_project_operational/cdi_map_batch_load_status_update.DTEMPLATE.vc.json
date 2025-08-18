@@ -587,6 +587,10 @@
                 "value" : "5242880"
               },
               {
+                "name" : "Schema Name",
+                "value" : "$$operations_schema"
+              },
+              {
                 "name" : "Preserve record order on write",
                 "value" : "NO"
               },
@@ -596,7 +600,7 @@
               },
               {
                 "name" : "Post-Sql",
-                "value" : "update operations.batch_load_summary\n  set batch_end_datetime = (\n  select max(batch_end_datetime)\n    from  operations.batch_load_summary\n    where BATCH_ID = (SELECT MAX(batch_id) AS latest_batch_id from operations.batch_load_summary \n    WHERE source_system_code = '$$SourceSystemCode' and target_schema_name = '$$bronze_schema')\n\tand batch_status in ('Success', 'Failure') and source_system_code = '$$SourceSystemCode')\n   where \n\ttarget_schema_name = '$$bronze_schema' and batch_load_summary_row_id in (select batch_load_summary_row_id \n    from  operations.batch_load_summary \n    where BATCH_ID = (SELECT MAX(batch_id) AS latest_batch_id from \n    operations.batch_load_summary WHERE source_system_code = '$$SourceSystemCode' and target_schema_name = '$$bronze_schema')\n\tand batch_status in ('Success', 'Failure') and source_system_code = '$$SourceSystemCode' and target_schema_name = '$$bronze_schema');"
+                "value" : "update $$operations_schema.batch_load_summary\n  set batch_end_datetime = (\n  select max(batch_end_datetime)\n    from  $$operations_schema.batch_load_summary\n    where BATCH_ID = (SELECT MAX(batch_id) AS latest_batch_id from $$operations_schema.batch_load_summary \n    WHERE source_system_code = '$$SourceSystemCode' and target_schema_name = '$$bronze_schema')\n\tand batch_status in ('Success', 'Failure') and source_system_code = '$$SourceSystemCode')\n   where \n\ttarget_schema_name = '$$bronze_schema' and batch_load_summary_row_id in (select batch_load_summary_row_id \n    from  $$operations_schema.batch_load_summary \n    where BATCH_ID = (SELECT MAX(batch_id) AS latest_batch_id from \n    $$operations_schema.batch_load_summary WHERE source_system_code = '$$SourceSystemCode' and target_schema_name = '$$bronze_schema')\n\tand batch_status in ('Success', 'Failure') and source_system_code = '$$SourceSystemCode' and target_schema_name = '$$bronze_schema');"
               }
             ]
           },
@@ -750,8 +754,8 @@
           "typeSystem" : "TOOLKIT",
           "useDynamicFileName" : "false",
           "object" : {
-            "customQuery" : "select batch_load_summary_row_id,target_table_name,batch_id from operations.batch_load_summary where target_table_name = '$$target_table_name' and target_schema_name = '$$bronze_schema' AND batch_id in ( SELECT MAX(batch_id) AS batch_id from operations.batch_load_summary WHERE source_system_code = '$$SourceSystemCode' AND batch_status = 'Inprogress' AND target_table_name = '$$target_table_name' AND batch_end_Datetime IS NULL and target_schema_name = '$$bronze_schema' GROUP BY target_table_name ) and batch_end_Datetime IS NULL",
-            "retainMetadata" : "false",
+            "customQuery" : "select batch_load_summary_row_id,target_table_name,batch_id from $$operations_schema.batch_load_summary where target_table_name = '$$target_table_name' and target_schema_name = '$$bronze_schema' AND batch_id in ( SELECT MAX(batch_id) AS batch_id from $$operations_schema.batch_load_summary WHERE source_system_code = '$$SourceSystemCode' AND batch_status = 'Inprogress' AND target_table_name = '$$target_table_name' AND batch_end_Datetime IS NULL and target_schema_name = '$$bronze_schema' GROUP BY target_table_name ) and batch_end_Datetime IS NULL",
+            "retainMetadata" : "true",
             "fields" : [
               {
                 "name" : "batch_load_summary_row_id",
@@ -1105,8 +1109,8 @@
           "typeSystem" : "TOOLKIT",
           "useDynamicFileName" : "false",
           "object" : {
-            "customQuery" : "select batch_id, target_table_name, source_system_code , batch_status, row_created_datetime\nfrom  operations.batch_load_summary\nWHERE\nsource_system_code = '$$SourceSystemCode' AND batch_status = 'Success' AND  target_table_name = '$$target_table_name' and target_schema_name = '$$bronze_schema'\nand batch_id =\n(\nSELECT MAX(batch_id) AS batch_id\nfrom\noperations.batch_load_summary\nWHERE\nsource_system_code = '$$SourceSystemCode' AND batch_status = 'Success' AND  target_table_name = '$$target_table_name' and target_schema_name = '$$bronze_schema'\nGROUP BY target_table_name\n)",
-            "retainMetadata" : "false",
+            "customQuery" : "select batch_id, target_table_name, source_system_code , batch_status, row_created_datetime\nfrom  $$operations_schema.batch_load_summary\nWHERE\nsource_system_code = '$$SourceSystemCode' AND batch_status = 'Success' AND  target_table_name = '$$target_table_name' and target_schema_name = '$$bronze_schema'\nand batch_id =\n(\nSELECT MAX(batch_id) AS batch_id\nfrom\n$$operations_schema.batch_load_summary\nWHERE\nsource_system_code = '$$SourceSystemCode' AND batch_status = 'Success' AND  target_table_name = '$$target_table_name' and target_schema_name = '$$bronze_schema'\nGROUP BY target_table_name\n)",
+            "retainMetadata" : "true",
             "fields" : [
               {
                 "name" : "batch_id",
@@ -1266,8 +1270,20 @@
         "precision" : 100,
         "retentionPolicy" : "NEVER",
         "scale" : 0
+      },
+      {
+        "aggregationType" : "MAX",
+        "expressionVariable" : "false",
+        "name" : "operations_schema",
+        "platformType" : {
+          "name" : "string"
+        },
+        "precision" : 50,
+        "retentionPolicy" : "NEVER",
+        "scale" : 0,
+        "defaultValue" : "operations"
       }
     ]
   },
-  "vcsExportTime" : "2025-08-13 22:46:59 PDT"
+  "vcsExportTime" : "2025-08-14 09:49:55 PDT"
 }
