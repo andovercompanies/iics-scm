@@ -3,7 +3,7 @@
     "allowMaxFieldLength" : "false",
     "bigIntConvertType" : "ONLY_BIGINT",
     "documentType" : "MAPPING",
-    "name" : "cdi_map_batch_load_status_update_failure",
+    "name" : "cdi_map_batch_load_status_update",
     "specialCharacterSupport" : "false",
     "links" : [
       {
@@ -65,6 +65,42 @@
         "allowRuntimeOverride" : "false",
         "expressionVariable" : "false",
         "name" : "SourceSystemCode"
+      },
+      {
+        "input" : "true",
+        "output" : "false",
+        "precision" : 0,
+        "scale" : 0,
+        "allowRuntimeOverride" : "false",
+        "expressionVariable" : "false",
+        "name" : "batch_status_inprogress"
+      },
+      {
+        "input" : "true",
+        "output" : "false",
+        "precision" : 0,
+        "scale" : 0,
+        "allowRuntimeOverride" : "false",
+        "expressionVariable" : "false",
+        "name" : "batch_run_type"
+      },
+      {
+        "input" : "true",
+        "output" : "false",
+        "precision" : 0,
+        "scale" : 0,
+        "allowRuntimeOverride" : "false",
+        "expressionVariable" : "false",
+        "name" : "row_created_by"
+      },
+      {
+        "input" : "true",
+        "output" : "false",
+        "precision" : 0,
+        "scale" : 0,
+        "allowRuntimeOverride" : "false",
+        "expressionVariable" : "false",
+        "name" : "bronze_schema"
       }
     ],
     "transformations" : [
@@ -98,7 +134,9 @@
         "updateColumns" : [
           "batch_id",
           "target_table_name",
-          "batch_load_summary_row_id"
+          "batch_load_summary_row_id",
+          "target_schema_name",
+          "source_system_code"
         ],
         "useLabels" : "false",
         "useSequenceFields" : "false",
@@ -130,6 +168,17 @@
               "name" : "target_table_name"
             },
             "name" : "target_table_name",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "target_schema_name"
+            },
+            "name" : "target_schema_name",
             "platformType" : {
               "name" : "string"
             },
@@ -256,11 +305,11 @@
             "useBulkApiV2" : "false"
           },
           "object" : {
-            "name" : "metal/batch_load_summary",
-            "label" : "metal/batch_load_summary",
+            "name" : "operations/batch_load_summary",
+            "label" : "operations/batch_load_summary",
             "objectName" : "batch_load_summary",
             "objectType" : "amazonredshift",
-            "path" : "metal/batch_load_summary",
+            "path" : "operations/batch_load_summary",
             "retainMetadata" : "false",
             "fields" : [
               {
@@ -300,6 +349,22 @@
                 "fieldType" : "CONNECTOR",
                 "label" : "target_table_name",
                 "nativeName" : "target_table_name",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "batch_load_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "target_schema_name",
+                "fieldType" : "CONNECTOR",
+                "label" : "target_schema_name",
+                "nativeName" : "target_schema_name",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 63,
@@ -522,6 +587,10 @@
                 "value" : "5242880"
               },
               {
+                "name" : "Schema Name",
+                "value" : "$$operations_schema"
+              },
+              {
                 "name" : "Preserve record order on write",
                 "value" : "NO"
               },
@@ -531,7 +600,7 @@
               },
               {
                 "name" : "Post-Sql",
-                "value" : "\nupdate metal.batch_load_summary\n  set batch_end_datetime = (\n  select max(batch_end_datetime)\n    from  metal.batch_load_summary\n    where BATCH_ID = (SELECT MAX(batch_id) AS latest_batch_id from metal.batch_load_summary \n    WHERE source_system_code = $$SourceSystemCode)\n\tand batch_status in ('Success', 'Failure') and source_system_code = $$SourceSystemCode)\n   where \n\tbatch_load_summary_row_id in (select batch_load_summary_row_id \n    from  metal.batch_load_summary \n    where BATCH_ID = (SELECT MAX(batch_id) AS latest_batch_id from \n    metal.batch_load_summary WHERE source_system_code = $$SourceSystemCode)\n\tand batch_status in ('Success', 'Failure') and source_system_code = $$SourceSystemCode);"
+                "value" : "update $$operations_schema.batch_load_summary\n  set batch_end_datetime = (\n  select max(batch_end_datetime)\n    from  $$operations_schema.batch_load_summary\n    where BATCH_ID = (SELECT MAX(batch_id) AS latest_batch_id from $$operations_schema.batch_load_summary \n    WHERE source_system_code = '$$SourceSystemCode' and target_schema_name = '$$bronze_schema')\n\tand batch_status in ('Success', 'Failure') and source_system_code = '$$SourceSystemCode')\n   where \n\ttarget_schema_name = '$$bronze_schema' and batch_load_summary_row_id in (select batch_load_summary_row_id \n    from  $$operations_schema.batch_load_summary \n    where BATCH_ID = (SELECT MAX(batch_id) AS latest_batch_id from \n    $$operations_schema.batch_load_summary WHERE source_system_code = '$$SourceSystemCode' and target_schema_name = '$$bronze_schema')\n\tand batch_status in ('Success', 'Failure') and source_system_code = '$$SourceSystemCode' and target_schema_name = '$$bronze_schema');"
               }
             ]
           },
@@ -553,6 +622,13 @@
         "manualMappings" : {
           "mappingList" : [
             {
+              "fromFieldName" : "batch_load_summary_row_id",
+              "toField" : {
+                "name" : "batch_load_summary_row_id"
+              },
+              "fromFieldNames" : null
+            },
+            {
               "fromFieldName" : "batch_id",
               "toField" : {
                 "name" : "batch_id"
@@ -563,6 +639,13 @@
               "fromFieldName" : "target_table_name",
               "toField" : {
                 "name" : "target_table_name"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_target_schema_name",
+              "toField" : {
+                "name" : "target_schema_name"
               },
               "fromFieldNames" : null
             },
@@ -595,9 +678,9 @@
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "batch_load_summary_row_id",
+              "fromFieldName" : "o_Source_System_Code",
               "toField" : {
-                "name" : "batch_load_summary_row_id"
+                "name" : "source_system_code"
               },
               "fromFieldNames" : null
             }
@@ -671,8 +754,8 @@
           "typeSystem" : "TOOLKIT",
           "useDynamicFileName" : "false",
           "object" : {
-            "customQuery" : "select batch_load_summary_row_id,target_table_name,batch_id from metal.batch_load_summary where target_table_name = '$$target_table_name' AND batch_id in ( SELECT MAX(batch_id) AS batch_id from metal.batch_load_summary WHERE source_system_code = $$SourceSystemCode AND batch_status = 'Inprogress' AND target_table_name = '$$target_table_name' AND batch_end_Datetime IS NULL GROUP BY target_table_name ) and batch_end_Datetime IS NULL",
-            "retainMetadata" : "false",
+            "customQuery" : "select batch_load_summary_row_id,target_table_name,batch_id from $$operations_schema.batch_load_summary where target_table_name = '$$target_table_name' and target_schema_name = '$$bronze_schema' AND batch_id in ( SELECT MAX(batch_id) AS batch_id from $$operations_schema.batch_load_summary WHERE source_system_code = '$$SourceSystemCode' AND batch_status = 'Inprogress' AND target_table_name = '$$target_table_name' AND batch_end_Datetime IS NULL and target_schema_name = '$$bronze_schema' GROUP BY target_table_name ) and batch_end_Datetime IS NULL",
+            "retainMetadata" : "true",
             "fields" : [
               {
                 "name" : "batch_load_summary_row_id",
@@ -805,7 +888,7 @@
             "precision" : 50,
             "scale" : 0,
             "expFieldType" : "OUTPUT",
-            "expression" : "$$batch_status_failure"
+            "expression" : "$$batch_status"
           },
           {
             "defaultValue" : "ERROR('transformation error')",
@@ -826,7 +909,7 @@
             "precision" : 29,
             "scale" : 9,
             "expFieldType" : "OUTPUT",
-            "expression" : ":LKP.lkp_last_sucessful_run_time(target_table_name,$SourceSystemCode$)"
+            "expression" : ":LKP.lkp_last_sucessful_run_time(target_table_name,'$SourceSystemCode$')"
           },
           {
             "name" : "o_source_end_cutoff_datetime",
@@ -837,6 +920,26 @@
             "scale" : 9,
             "expFieldType" : "OUTPUT",
             "expression" : "SESSSTARTTIME"
+          },
+          {
+            "name" : "o_target_schema_name",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 100,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "'$bronze_schema$'"
+          },
+          {
+            "name" : "o_Source_System_Code",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 50,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "'$SourceSystemCode$'"
           }
         ],
         "windowSpec" : {
@@ -999,15 +1102,15 @@
         ],
         "dataAdapter" : {
           "connectionId$" : {
-            "name" : "DBConnection_UDM_SRC"
+            "name" : "DBConnection_UDM_TGT"
           },
           "excludeDynamicFileNameField" : "false",
           "objectType" : "QUERY",
           "typeSystem" : "TOOLKIT",
           "useDynamicFileName" : "false",
           "object" : {
-            "customQuery" : "select batch_id, target_table_name, source_system_code , batch_status, row_created_datetime\nfrom  metal.batch_load_summary\nWHERE\nsource_system_code = $$SourceSystemCode AND batch_status = 'Success' AND target_table_name = '$$target_table_name'\nand batch_id =\n(\nSELECT MAX(batch_id) AS batch_id\nfrom\nmetal.batch_load_summary\nWHERE\nsource_system_code = $$SourceSystemCode AND batch_status = 'Success' AND target_table_name = '$$target_table_name'\nGROUP BY target_table_name\n);",
-            "retainMetadata" : "false",
+            "customQuery" : "select batch_id, target_table_name, source_system_code , batch_status, row_created_datetime\nfrom  $$operations_schema.batch_load_summary\nWHERE\nsource_system_code = '$$SourceSystemCode' AND batch_status = 'Success' AND  target_table_name = '$$target_table_name' and target_schema_name = '$$bronze_schema'\nand batch_id =\n(\nSELECT MAX(batch_id) AS batch_id\nfrom\n$$operations_schema.batch_load_summary\nWHERE\nsource_system_code = '$$SourceSystemCode' AND batch_status = 'Success' AND  target_table_name = '$$target_table_name' and target_schema_name = '$$bronze_schema'\nGROUP BY target_table_name\n)",
+            "retainMetadata" : "true",
             "fields" : [
               {
                 "name" : "batch_id",
@@ -1154,7 +1257,7 @@
           "name" : "string"
         },
         "precision" : 100,
-        "retentionPolicy" : "ON_SUCCESS_OR_WARNING",
+        "retentionPolicy" : "NEVER",
         "scale" : 0
       },
       {
@@ -1165,54 +1268,22 @@
           "name" : "string"
         },
         "precision" : 100,
-        "retentionPolicy" : "ON_SUCCESS_OR_WARNING",
+        "retentionPolicy" : "NEVER",
         "scale" : 0
       },
       {
         "aggregationType" : "MAX",
         "expressionVariable" : "false",
-        "name" : "batch_run_type",
+        "name" : "operations_schema",
         "platformType" : {
           "name" : "string"
         },
-        "precision" : 100,
-        "retentionPolicy" : "ON_SUCCESS_OR_WARNING",
-        "scale" : 0
-      },
-      {
-        "aggregationType" : "MAX",
-        "expressionVariable" : "false",
-        "name" : "row_created_by",
-        "platformType" : {
-          "name" : "string"
-        },
-        "precision" : 100,
-        "retentionPolicy" : "ON_SUCCESS_OR_WARNING",
-        "scale" : 0
-      },
-      {
-        "aggregationType" : "MAX",
-        "expressionVariable" : "false",
-        "name" : "batch_status_inprogress",
-        "platformType" : {
-          "name" : "string"
-        },
-        "precision" : 100,
-        "retentionPolicy" : "ON_SUCCESS_OR_WARNING",
-        "scale" : 0
-      },
-      {
-        "aggregationType" : "MAX",
-        "expressionVariable" : "false",
-        "name" : "batch_status_failure",
-        "platformType" : {
-          "name" : "string"
-        },
-        "precision" : 100,
-        "retentionPolicy" : "ON_SUCCESS_OR_WARNING",
-        "scale" : 0
+        "precision" : 50,
+        "retentionPolicy" : "NEVER",
+        "scale" : 0,
+        "defaultValue" : "operations"
       }
     ]
   },
-  "vcsExportTime" : "2025-08-01 09:34:25 PDT"
+  "vcsExportTime" : "2025-08-14 09:49:55 PDT"
 }
