@@ -1,0 +1,267 @@
+{
+  "name" : "s_m_ClaimTransaction_Soft_Delete",
+  "description" : "Session pushed from PC to ICS : s_m_ClaimTransaction_Soft_Delete",
+  "runtimeEnvironmentId" : "@3pADNCV9u0PcgrXjM7rx0t",
+  "runtimeEnvironmentName" : "sag_aws_linux",
+  "maxLogs" : 10,
+  "parameters" : [
+    {
+      "name" : "$SQ_ClaimTransaction_mismatch$",
+      "type" : "SOURCE",
+      "label" : "DBConnection_SRC",
+      "uiProperties" : {
+        "cnxtype" : "Amazon Redshift v2",
+        "connectionParameterized" : "true",
+        "paramName" : "DBConnection_SRC",
+        "paramType-mapping" : "Connection",
+        "logcnx" : "DBConnection_SRC",
+        "isSelectDistinct" : "false",
+        "objectParameterized" : "false",
+        "visible" : "false",
+        "originalPath" : "SQ_ClaimTransaction_mismatch"
+      },
+      "sourceConnectionId" : "@aYZ4ekzHgIPeKpiaoqDLKP",
+      "connectionName" : "redshift_nonprod_andover_dw_dev",
+      "sourceObject" : "DUMMY_SQ_ClaimTransaction_mismatch",
+      "newFlatFile" : false,
+      "newObject" : false,
+      "showBusinessNames" : true,
+      "naturalOrder" : true,
+      "truncateTarget" : false,
+      "bulkApiDBTarget" : false,
+      "customFuncCfg" : { },
+      "customQuery" : "SELECT distinct ClaimTransaction.StatSequence, ClaimTransaction.ClaimsTransactionKey,\nClaimTransaction.ClaimStatSystemId \nFROM\n dbo.ClaimTransaction\n inner join\n dbo.ClaimStats_Stg\n on ClaimTransaction.PolicyKey = ClaimStats_Stg.PolicyNumber + ClaimStats_Stg.PolicyVersion\n and ClaimTransaction.ClaimNumber = Claimstats_Stg.ClaimNumber\n and ClaimTransaction.CoverageCd = Claimstats_Stg.CoverageCd\n and ClaimTransaction.FeatureCd = Claimstats_Stg.FeatureCd\n and ClaimTransaction.ClaimantTransactionNumber = Claimstats_Stg.ClaimantTransactionNumber\n and ClaimTransaction.TransactionNumber = Claimstats_Stg.TransactionNumber\nwhere RowEffEndDt = '9999-12-31'",
+      "commandType" : 0,
+      "handleSpecialChars" : false,
+      "handleDecimalRoundOff" : false,
+      "frsAsset" : false,
+      "dynamicFileName" : false,
+      "excludeDynamicFileNameField" : false,
+      "currentlyProcessedFileName" : false,
+      "retainFieldMetadata" : false,
+      "objectName" : "DUMMY_SQ_ClaimTransaction_mismatch",
+      "useExactSrcNames" : false,
+      "userUpdated" : true,
+      "fetchMode" : "ORIGINAL",
+      "runtimeParameterData" : {
+        "connectionParameterName" : "DBConnection_SRC",
+        "connectionRuntimeParameter" : true,
+        "objectRuntimeParameter" : false
+      },
+      "restmodernSource" : true,
+      "unspecified" : false,
+      "fileList" : false
+    },
+    {
+      "name" : "$ClaimTransaction1$",
+      "type" : "TARGET",
+      "label" : "DBConnection_TGT",
+      "uiProperties" : {
+        "cnxtype" : "Amazon Redshift v2",
+        "connectionParameterized" : "true",
+        "paramName" : "DBConnection_TGT",
+        "paramType-mapping" : "Connection",
+        "logcnx" : "DBConnection_TGT",
+        "default" : "dbo/claimtransaction",
+        "objectParameterized" : "false",
+        "visible" : "false",
+        "defaultTargetUpdateColumns" : "ClaimsTransactionKey",
+        "supportApplyDDLChanges" : "false",
+        "originalPath" : "ClaimTransaction1"
+      },
+      "targetConnectionId" : "@aYZ4ekzHgIPeKpiaoqDLKP",
+      "connectionName" : "redshift_nonprod_andover_dw_dev",
+      "targetObject" : "dbo/claimtransaction",
+      "targetObjectLabel" : "claimtransaction",
+      "newFlatFile" : false,
+      "newObject" : false,
+      "showBusinessNames" : true,
+      "naturalOrder" : true,
+      "truncateTarget" : false,
+      "bulkApiDBTarget" : false,
+      "operationType" : "Rowbased",
+      "customFuncCfg" : { },
+      "targetUpdateColumns" : [
+        "ClaimsTransactionKey"
+      ],
+      "extendedObject" : {
+        "singleMode" : true
+      },
+      "commandType" : 0,
+      "handleSpecialChars" : false,
+      "handleDecimalRoundOff" : false,
+      "frsAsset" : false,
+      "dynamicFileName" : false,
+      "excludeDynamicFileNameField" : false,
+      "currentlyProcessedFileName" : false,
+      "retainFieldMetadata" : false,
+      "objectName" : "dbo/claimtransaction",
+      "objectLabel" : "claimtransaction",
+      "useExactSrcNames" : false,
+      "userUpdated" : true,
+      "fetchMode" : "ORIGINAL",
+      "runtimeParameterData" : {
+        "connectionParameterName" : "DBConnection_TGT",
+        "connectionRuntimeParameter" : true,
+        "objectRuntimeParameter" : false
+      },
+      "restmodernSource" : true,
+      "unspecified" : false,
+      "fileList" : false
+    },
+    {
+      "name" : "$lkp_ClaimStats_Sequence$",
+      "type" : "LOOKUP",
+      "label" : "DBConnection_TGT",
+      "uiProperties" : {
+        "cnxtype" : "Amazon Redshift v2",
+        "connectionParameterized" : "true",
+        "paramName" : "DBConnection_TGT",
+        "paramType-mapping" : "Connection",
+        "logcnx" : "DBConnection_TGT",
+        "isCachedLookup" : "true",
+        "multipleMatchPolicy" : "Use Any Value",
+        "default" : "dbo/claimstats_stg",
+        "objectParameterized" : "false",
+        "visible" : "false",
+        "originalPath" : "lkp_ClaimStats_Sequence"
+      },
+      "lookupConnectionId" : "@aYZ4ekzHgIPeKpiaoqDLKP",
+      "connectionName" : "redshift_nonprod_andover_dw_dev",
+      "lookupObject" : "dbo/claimstats_stg",
+      "lookupObjectLabel" : "claimstats_stg",
+      "newFlatFile" : false,
+      "newObject" : false,
+      "showBusinessNames" : true,
+      "naturalOrder" : true,
+      "truncateTarget" : false,
+      "bulkApiDBTarget" : false,
+      "customFuncCfg" : { },
+      "runtimeAttrs" : {
+        "Thousand Separator" : "None",
+        "Lookup Index Cache Size" : "AUTO",
+        "Optional" : "true",
+        "Lookup cache persistent" : "false",
+        "Lookup source is static" : "false",
+        "Case Sensitive String Comparison" : "false",
+        "Decimal Separator" : ".",
+        "Re-cache from lookup source" : "false",
+        "Insert Else Update" : "false",
+        "Lookup caching enabled" : "true",
+        "Lookup Data Cache Size" : "AUTO",
+        "Tracing Level" : "Normal",
+        "Subsecond Precision" : "6",
+        "Sorted Input" : "false",
+        "Lookup cache directory name" : "$PMCacheDir",
+        "Output Old Value On Update" : "false",
+        "Dynamic Lookup Cache" : "false",
+        "Pre-build lookup cache" : "AUTO",
+        "Synchronize dynamic cache" : "false",
+        "Null ordering" : "Null Is Highest Value"
+      },
+      "commandType" : 0,
+      "handleSpecialChars" : false,
+      "handleDecimalRoundOff" : false,
+      "frsAsset" : false,
+      "dynamicFileName" : false,
+      "excludeDynamicFileNameField" : false,
+      "currentlyProcessedFileName" : false,
+      "retainFieldMetadata" : false,
+      "objectName" : "dbo/claimstats_stg",
+      "objectLabel" : "claimstats_stg",
+      "useExactSrcNames" : false,
+      "userUpdated" : true,
+      "fetchMode" : "ORIGINAL",
+      "runtimeParameterData" : {
+        "connectionParameterName" : "DBConnection_TGT",
+        "connectionRuntimeParameter" : true,
+        "objectRuntimeParameter" : false
+      },
+      "restmodernSource" : true,
+      "unspecified" : false,
+      "fileList" : false
+    }
+  ],
+  "verbose" : false,
+  "lastRunTime" : 1726276245000,
+  "mappingId" : "@0btNyE6ZKUrbfYLjzZEYGn",
+  "mappingTemplateName" : "m_ClaimTransaction_Soft_Delete",
+  "sessionPropertiesList" : [
+    {
+      "name" : "Allow Temporary Sequence for Pushdown",
+      "value" : "NO"
+    },
+    {
+      "name" : "Allow Temporary View for Pushdown",
+      "value" : "NO"
+    },
+    {
+      "name" : "Commit On End Of File",
+      "value" : "YES"
+    },
+    {
+      "name" : "Commit Type",
+      "value" : "Target"
+    },
+    {
+      "name" : "Data Column Delimiter",
+      "value" : "|"
+    },
+    {
+      "name" : "Error Log File Directory",
+      "value" : "$PMBadFileDir\\"
+    },
+    {
+      "name" : "Error Log File Name",
+      "value" : "PMError.log"
+    },
+    {
+      "name" : "Log Row Data",
+      "value" : "YES"
+    },
+    {
+      "name" : "Override tracing",
+      "value" : "Normal"
+    },
+    {
+      "name" : "Pushdown Optimization",
+      "value" : "None"
+    },
+    {
+      "name" : "Pushdown Optimization Context",
+      "value" : "None"
+    },
+    {
+      "name" : "Pushdown Optimization Fallback Option",
+      "value" : "Partial PDO"
+    },
+    {
+      "name" : "Session Log File directory",
+      "value" : "$PMSessionLogDir\\"
+    },
+    {
+      "name" : "Session Log File Name",
+      "value" : "s_m_ClaimTransaction_Soft_Delete.log"
+    },
+    {
+      "name" : "Treat source rows as",
+      "value" : "Data driven"
+    }
+  ],
+  "hidden" : false,
+  "enableCrossSchemaPushdown" : false,
+  "enableParallelRun" : false,
+  "autoTunedApplied" : false,
+  "autoTunedAppliedType" : "NONE",
+  "parameterFileName" : "Andover_Param_GW.param",
+  "parameterFileDir" : "$PMRootDir/andover/parameters",
+  "paramFileType" : "PARAM_FILE_LOCAL",
+  "schemaMode" : "async",
+  "valid" : true,
+  "jobPriority" : "MEDIUM",
+  "optimizationPlan" : "NONE",
+  "allowMaxFieldLength" : false,
+  "specialCharacterSupport" : false,
+  "midstreamPreview" : false,
+  "vcsExportTime" : "2025-08-18 12:08:23 PDT"
+}
