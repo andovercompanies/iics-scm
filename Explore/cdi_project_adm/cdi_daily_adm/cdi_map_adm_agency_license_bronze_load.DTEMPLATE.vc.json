@@ -85,6 +85,18 @@
         "allowRuntimeOverride" : "false",
         "expressionVariable" : "false",
         "name" : "S3_Staging_Bucket"
+      },
+      {
+        "input" : "true",
+        "output" : "false",
+        "precision" : 0,
+        "scale" : 0,
+        "allowRuntimeOverride" : "false",
+        "expressionVariable" : "false",
+        "name" : "sourcesystemcode",
+        "defaultValue" : {
+          "valueLiteral" : "ADM"
+        }
       }
     ],
     "transformations" : [
@@ -309,7 +321,7 @@
           "typeSystem" : "TOOLKIT",
           "useDynamicFileName" : "false",
           "object" : {
-            "customQuery" : "with current_batch as (\nselect\n\tbls.batch_id,\n\tbls.source_start_cutoff_datetime,\n\tbls.source_end_cutoff_datetime\nfrom\n\tmetal.batch_load_summary bls\nwhere\n\tbls.source_system_code = 'ADM'\n\tand bls.batch_status = 'Inprogress'\n\tand bls.batch_id = (\n\tselect\n\t\tMAX(batch_id)\n\tfrom\n\t\tmetal.batch_load_summary\n\twhere\n\t\tsource_system_code = 'ADM'\n\t\tand batch_status = 'Inprogress' ) )\nselect\n\tdistinct\n\tmetal_aal.source_name,\n\tmetal_aal.load_type,\n\tmetal_aal.agency_id,\n\tmetal_aal.bs_appointed_date,\n\tmetal_aal.ca_appointed_date,\n\tmetal_aal.created,\n\tmetal_aal.delete_flag,\n\tmetal_aal.expiration_date,\n\tmetal_aal.id,\n\tmetal_aal.license_number,\n\tmetal_aal.lob,\n\tmetal_aal.mk_appointed_date,\n\tmetal_aal.modified,\n\tmetal_aal.state,\n\tmetal_aal.term_id,\nmetal_aal.license_class,\n       current_batch.batch_id\nfrom\n\tmetal.adm_agency_license metal_aal\ncross join current_batch\norder by\n\tmetal_aal.id,\n\tmetal_aal.created,\n\tmetal_aal.modified;",
+            "customQuery" : "with current_batch as (\nselect\n\tbls.batch_id,\n\tbls.source_start_cutoff_datetime,\n\tbls.source_end_cutoff_datetime\nfrom\n\t$$operational_schema.batch_load_summary bls\nwhere\n\tbls.source_system_code ='$$sourcesystemcode'\n\tand bls.batch_status = 'Inprogress'\n\tand bls.batch_id = (\n\tselect\n\t\tMAX(batch_id)\n\tfrom\n\t\t$$operational_schema.batch_load_summary\n\twhere\n\t\tsource_system_code ='$$sourcesystemcode'\n\t\tand batch_status = 'Inprogress' ) )\nselect\n\tdistinct\n\tmetal_aal.source_name,\n\tmetal_aal.load_type,\n\tmetal_aal.agency_id,\n\tmetal_aal.bs_appointed_date,\n\tmetal_aal.ca_appointed_date,\n\tmetal_aal.created,\n\tmetal_aal.delete_flag,\n\tmetal_aal.expiration_date,\n\tmetal_aal.id,\n\tmetal_aal.license_number,\n\tmetal_aal.lob,\n\tmetal_aal.mk_appointed_date,\n\tmetal_aal.modified,\n\tmetal_aal.state,\n\tmetal_aal.term_id,\n       metal_aal.license_class,\n       current_batch.batch_id\nfrom\n\t$$raw_schema.adm_agency_license metal_aal\ncross join current_batch\norder by\n\tmetal_aal.id,\n\tmetal_aal.created,\n\tmetal_aal.modified;",
             "retainMetadata" : "false",
             "fields" : [
               {
@@ -744,7 +756,7 @@
           },
           {
             "defaultValue" : "ERROR('transformation error')",
-            "name" : "o_agency_license_id",
+            "name" : "o_id",
             "platformType" : {
               "name" : "integer"
             },
@@ -811,7 +823,7 @@
             "precision" : 255,
             "scale" : 0,
             "expFieldType" : "OUTPUT",
-            "expression" : "MD5(\n'source_name'||source_name|| \n'load_type'||load_type||\n'o_agency_id'||to_char(o_agency_id)||\n'o_bay_state_appointed_date'|| to_char(o_bay_state_appointed_date)|| \n'o_cambridge_mutual_appointed_date'|| to_char(o_cambridge_mutual_appointed_date)||\n'o_adm_agency_license_datetime_created'|| to_char(o_adm_agency_license_datetime_created)||\n'o_agency_license_delete_flag'||to_char(o_agency_license_delete_flag)||\n'o_agency_license_expiration_date'|| to_char(o_agency_license_expiration_date)||\n'o_agency_license_id'|| to_char(o_agency_license_id)||\n'license_number'||to_char(license_number)||\n'lob'||lob||\n'o_merrimack_mutual_appointed_date'|| to_char(o_merrimack_mutual_appointed_date)||\n'o_adm_agency_license_datetime_modified'|| to_char(o_adm_agency_license_datetime_modified)|| \n'state'||state||\n'o_agency_license_termination_id'||to_char(o_agency_license_termination_id) || 'license_class' || license_class\n)"
+            "expression" : "MD5(\n'source_name'||source_name|| \n'load_type'||load_type||\n'o_agency_id'||to_char(o_agency_id)||\n'o_bay_state_appointed_date'|| to_char(o_bay_state_appointed_date)|| \n'o_cambridge_mutual_appointed_date'|| to_char(o_cambridge_mutual_appointed_date)||\n'o_adm_agency_license_datetime_created'|| to_char(o_adm_agency_license_datetime_created)||\n'o_agency_license_delete_flag'||to_char(o_agency_license_delete_flag)||\n'o_agency_license_expiration_date'|| to_char(o_agency_license_expiration_date)||\n'o_id'|| to_char(o_id)||\n'license_number'||to_char(license_number)||\n'lob'||lob||\n'o_merrimack_mutual_appointed_date'|| to_char(o_merrimack_mutual_appointed_date)||\n'o_adm_agency_license_datetime_modified'|| to_char(o_adm_agency_license_datetime_modified)|| \n'state'||state||\n'o_agency_license_termination_id'||to_char(o_agency_license_termination_id) || 'license_class' || license_class\n)"
           }
         ],
         "windowSpec" : {
@@ -881,9 +893,9 @@
           },
           {
             "adapterField" : {
-              "name" : "agency_license_id"
+              "name" : "id"
             },
-            "name" : "agency_license_id",
+            "name" : "id",
             "platformType" : {
               "name" : "integer"
             },
@@ -892,9 +904,9 @@
           },
           {
             "adapterField" : {
-              "name" : "adm_agency_license_datetime_modified"
+              "name" : "modified"
             },
-            "name" : "adm_agency_license_datetime_modified",
+            "name" : "modified",
             "platformType" : {
               "name" : "date/time"
             },
@@ -915,14 +927,14 @@
         ],
         "dataAdapter" : {
           "connectionId$" : {
-            "name" : "DBConnection_UDM_SRC"
+            "name" : "DBConnection_UDM_TGT"
           },
           "excludeDynamicFileNameField" : "false",
           "objectType" : "QUERY",
           "typeSystem" : "TOOLKIT",
           "useDynamicFileName" : "false",
           "object" : {
-            "customQuery" : "select\n\tadm_agency_license_row_id,\n\tadm_agency_license_batch_id,\n\tadm_agency_license_row_md5checksum,\n\tagency_license_id,\n\tadm_agency_license_datetime_modified,\n\tadm_agency_license_row_effective_end_datetime\nfrom\n\tbronze.adm_agency_license\nwhere\n\tadm_agency_license_row_effective_end_datetime = '9999-12-31 00:00:00.000'",
+            "customQuery" : "select\n\tadm_agency_license_row_id,\n\tadm_agency_license_batch_id,\n\tadm_agency_license_row_md5checksum,\n        id,\n\tmodified,\n\tadm_agency_license_row_effective_end_datetime\nfrom\n\t$$staging_schema.adm_agency_license\nwhere\n\tadm_agency_license_row_effective_end_datetime = '9999-12-31 00:00:00.000'",
             "retainMetadata" : "false",
             "fields" : [
               {
@@ -974,10 +986,10 @@
                 ]
               },
               {
-                "name" : "agency_license_id",
+                "name" : "id",
                 "fieldType" : "CONNECTOR",
-                "label" : "agency_license_id",
-                "nativeName" : "agency_license_id",
+                "label" : "id",
+                "nativeName" : "id",
                 "nativeType" : "int4",
                 "original" : "false",
                 "precision" : 10,
@@ -990,10 +1002,10 @@
                 ]
               },
               {
-                "name" : "adm_agency_license_datetime_modified",
+                "name" : "modified",
                 "fieldType" : "CONNECTOR",
-                "label" : "adm_agency_license_datetime_modified",
-                "nativeName" : "adm_agency_license_datetime_modified",
+                "label" : "modified",
+                "nativeName" : "modified",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 29,
@@ -1095,14 +1107,13 @@
         "windowConfigurationEnabled" : "false",
         "fields" : [
           {
-            "defaultValue" : "ERROR('transformation error')",
-            "name" : "o_insert_flag",
+            "name" : "v_insert_flag",
             "platformType" : {
               "name" : "string"
             },
             "precision" : 10,
             "scale" : 0,
-            "expFieldType" : "OUTPUT",
+            "expFieldType" : "VARIABLE",
             "expression" : "IIF(ISNULL(adm_agency_license_row_id),'I','X')"
           },
           {
@@ -1128,6 +1139,27 @@
             "expression" : "TO_DATE('9999-12-31', 'YYYY-MM-DD')"
           },
           {
+            "name" : "v_update_flag",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 10,
+            "scale" : 0,
+            "expFieldType" : "VARIABLE",
+            "expression" : "IIF(NOT ISNULL(adm_agency_license_row_id) AND adm_agency_license_row_md5checksum <> o_src_md5_hash_value, 'U','X')"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_insert_flag",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 10,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "v_insert_flag"
+          },
+          {
             "defaultValue" : "ERROR('transformation error')",
             "name" : "o_update_flag",
             "platformType" : {
@@ -1136,7 +1168,29 @@
             "precision" : 10,
             "scale" : 0,
             "expFieldType" : "OUTPUT",
-            "expression" : "IIF(NOT ISNULL(adm_agency_license_row_id) AND adm_agency_license_row_md5checksum <> o_src_md5_hash_value, 'U','X')"
+            "expression" : "v_update_flag"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_row_status_expired",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 100,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "'Expired'"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_row_status_active",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 100,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "'Active'"
           }
         ],
         "windowSpec" : {
@@ -1213,6 +1267,15 @@
               {
                 "bulkRename" : "false",
                 "include" : "true"
+              },
+              {
+                "bulkRename" : "false",
+                "include" : "false",
+                "names" : [
+                  {
+                    "inputName" : "o_row_status_active"
+                  }
+                ]
               }
             ]
           }
@@ -1294,9 +1357,9 @@
           },
           {
             "adapterField" : {
-              "name" : "source_name"
+              "name" : "originating_source_name"
             },
-            "name" : "source_name",
+            "name" : "originating_source_name",
             "platformType" : {
               "name" : "string"
             },
@@ -1305,9 +1368,9 @@
           },
           {
             "adapterField" : {
-              "name" : "load_type"
+              "name" : "originating_load_type"
             },
-            "name" : "load_type",
+            "name" : "originating_load_type",
             "platformType" : {
               "name" : "string"
             },
@@ -1327,9 +1390,20 @@
           },
           {
             "adapterField" : {
-              "name" : "adm_agency_license_datetime_created"
+              "name" : "adm_agency_license_row_status"
             },
-            "name" : "adm_agency_license_datetime_created",
+            "name" : "adm_agency_license_row_status",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "bs_appointed_date"
+            },
+            "name" : "bs_appointed_date",
             "platformType" : {
               "name" : "date/time"
             },
@@ -1338,14 +1412,135 @@
           },
           {
             "adapterField" : {
-              "name" : "adm_agency_license_datetime_modified"
+              "name" : "ca_appointed_date"
             },
-            "name" : "adm_agency_license_datetime_modified",
+            "name" : "ca_appointed_date",
             "platformType" : {
               "name" : "date/time"
             },
             "precision" : 29,
             "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "created"
+            },
+            "name" : "created",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "delete_flag"
+            },
+            "name" : "delete_flag",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "expiration_date"
+            },
+            "name" : "expiration_date",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "id"
+            },
+            "name" : "id",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "license_number"
+            },
+            "name" : "license_number",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 31,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "lob"
+            },
+            "name" : "lob",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "mk_appointed_date"
+            },
+            "name" : "mk_appointed_date",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "modified"
+            },
+            "name" : "modified",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "state"
+            },
+            "name" : "state",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 7,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "term_id"
+            },
+            "name" : "term_id",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "license_class"
+            },
+            "name" : "license_class",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
           },
           {
             "adapterField" : {
@@ -1378,127 +1573,6 @@
               "name" : "integer"
             },
             "precision" : 10,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "bay_state_appointed_date"
-            },
-            "name" : "bay_state_appointed_date",
-            "platformType" : {
-              "name" : "date/time"
-            },
-            "precision" : 29,
-            "scale" : 9
-          },
-          {
-            "adapterField" : {
-              "name" : "cambridge_mutual_appointed_date"
-            },
-            "name" : "cambridge_mutual_appointed_date",
-            "platformType" : {
-              "name" : "date/time"
-            },
-            "precision" : 29,
-            "scale" : 9
-          },
-          {
-            "adapterField" : {
-              "name" : "agency_license_delete_flag"
-            },
-            "name" : "agency_license_delete_flag",
-            "platformType" : {
-              "name" : "integer"
-            },
-            "precision" : 10,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "agency_license_expiration_date"
-            },
-            "name" : "agency_license_expiration_date",
-            "platformType" : {
-              "name" : "date/time"
-            },
-            "precision" : 29,
-            "scale" : 9
-          },
-          {
-            "adapterField" : {
-              "name" : "agency_license_id"
-            },
-            "name" : "agency_license_id",
-            "platformType" : {
-              "name" : "integer"
-            },
-            "precision" : 10,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "state_issued_agency_license_number"
-            },
-            "name" : "state_issued_agency_license_number",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 31,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "line_of_business"
-            },
-            "name" : "line_of_business",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 63,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "merrimack_mutual_appointed_date"
-            },
-            "name" : "merrimack_mutual_appointed_date",
-            "platformType" : {
-              "name" : "date/time"
-            },
-            "precision" : 29,
-            "scale" : 9
-          },
-          {
-            "adapterField" : {
-              "name" : "agency_license_issued_state_abbreviation"
-            },
-            "name" : "agency_license_issued_state_abbreviation",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 7,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "agency_license_termination_id"
-            },
-            "name" : "agency_license_termination_id",
-            "platformType" : {
-              "name" : "integer"
-            },
-            "precision" : 10,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "agency_license_class"
-            },
-            "name" : "agency_license_class",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 63,
             "scale" : 0
           }
         ],
@@ -1551,38 +1625,6 @@
                 ]
               },
               {
-                "name" : "source_name",
-                "fieldType" : "CONNECTOR",
-                "label" : "source_name",
-                "nativeName" : "source_name",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 127,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_agency_license"
-                  }
-                ]
-              },
-              {
-                "name" : "load_type",
-                "fieldType" : "CONNECTOR",
-                "label" : "load_type",
-                "nativeName" : "load_type",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 63,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_agency_license"
-                  }
-                ]
-              },
-              {
                 "name" : "adm_agency_license_row_md5checksum",
                 "fieldType" : "CONNECTOR",
                 "label" : "adm_agency_license_row_md5checksum",
@@ -1591,38 +1633,6 @@
                 "original" : "false",
                 "precision" : 255,
                 "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_agency_license"
-                  }
-                ]
-              },
-              {
-                "name" : "adm_agency_license_datetime_created",
-                "fieldType" : "CONNECTOR",
-                "label" : "adm_agency_license_datetime_created",
-                "nativeName" : "adm_agency_license_datetime_created",
-                "nativeType" : "timestamp",
-                "original" : "false",
-                "precision" : 29,
-                "scale" : 6,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_agency_license"
-                  }
-                ]
-              },
-              {
-                "name" : "adm_agency_license_datetime_modified",
-                "fieldType" : "CONNECTOR",
-                "label" : "adm_agency_license_datetime_modified",
-                "nativeName" : "adm_agency_license_datetime_modified",
-                "nativeType" : "timestamp",
-                "original" : "false",
-                "precision" : 29,
-                "scale" : 6,
                 "properties" : [
                   {
                     "name" : "parentObject",
@@ -1679,93 +1689,13 @@
                 ]
               },
               {
-                "name" : "bay_state_appointed_date",
+                "name" : "originating_source_name",
                 "fieldType" : "CONNECTOR",
-                "label" : "bay_state_appointed_date",
-                "nativeName" : "bay_state_appointed_date",
-                "nativeType" : "date",
-                "original" : "false",
-                "precision" : 13,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_agency_license"
-                  }
-                ]
-              },
-              {
-                "name" : "cambridge_mutual_appointed_date",
-                "fieldType" : "CONNECTOR",
-                "label" : "cambridge_mutual_appointed_date",
-                "nativeName" : "cambridge_mutual_appointed_date",
-                "nativeType" : "date",
-                "original" : "false",
-                "precision" : 13,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_agency_license"
-                  }
-                ]
-              },
-              {
-                "name" : "agency_license_delete_flag",
-                "fieldType" : "CONNECTOR",
-                "label" : "agency_license_delete_flag",
-                "nativeName" : "agency_license_delete_flag",
-                "nativeType" : "int4",
-                "original" : "false",
-                "precision" : 10,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_agency_license"
-                  }
-                ]
-              },
-              {
-                "name" : "agency_license_expiration_date",
-                "fieldType" : "CONNECTOR",
-                "label" : "agency_license_expiration_date",
-                "nativeName" : "agency_license_expiration_date",
-                "nativeType" : "date",
-                "original" : "false",
-                "precision" : 13,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_agency_license"
-                  }
-                ]
-              },
-              {
-                "name" : "agency_license_id",
-                "fieldType" : "CONNECTOR",
-                "label" : "agency_license_id",
-                "nativeName" : "agency_license_id",
-                "nativeType" : "int4",
-                "original" : "false",
-                "precision" : 10,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_agency_license"
-                  }
-                ]
-              },
-              {
-                "name" : "state_issued_agency_license_number",
-                "fieldType" : "CONNECTOR",
-                "label" : "state_issued_agency_license_number",
-                "nativeName" : "state_issued_agency_license_number",
+                "label" : "originating_source_name",
+                "nativeName" : "originating_source_name",
                 "nativeType" : "varchar",
                 "original" : "false",
-                "precision" : 31,
+                "precision" : 127,
                 "scale" : 0,
                 "properties" : [
                   {
@@ -1775,10 +1705,10 @@
                 ]
               },
               {
-                "name" : "line_of_business",
+                "name" : "originating_load_type",
                 "fieldType" : "CONNECTOR",
-                "label" : "line_of_business",
-                "nativeName" : "line_of_business",
+                "label" : "originating_load_type",
+                "nativeName" : "originating_load_type",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 63,
@@ -1791,10 +1721,26 @@
                 ]
               },
               {
-                "name" : "merrimack_mutual_appointed_date",
+                "name" : "adm_agency_license_row_status",
                 "fieldType" : "CONNECTOR",
-                "label" : "merrimack_mutual_appointed_date",
-                "nativeName" : "merrimack_mutual_appointed_date",
+                "label" : "adm_agency_license_row_status",
+                "nativeName" : "adm_agency_license_row_status",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_agency_license"
+                  }
+                ]
+              },
+              {
+                "name" : "bs_appointed_date",
+                "fieldType" : "CONNECTOR",
+                "label" : "bs_appointed_date",
+                "nativeName" : "bs_appointed_date",
                 "nativeType" : "date",
                 "original" : "false",
                 "precision" : 13,
@@ -1807,13 +1753,13 @@
                 ]
               },
               {
-                "name" : "agency_license_issued_state_abbreviation",
+                "name" : "ca_appointed_date",
                 "fieldType" : "CONNECTOR",
-                "label" : "agency_license_issued_state_abbreviation",
-                "nativeName" : "agency_license_issued_state_abbreviation",
-                "nativeType" : "varchar",
+                "label" : "ca_appointed_date",
+                "nativeName" : "ca_appointed_date",
+                "nativeType" : "date",
                 "original" : "false",
-                "precision" : 7,
+                "precision" : 13,
                 "scale" : 0,
                 "properties" : [
                   {
@@ -1823,10 +1769,26 @@
                 ]
               },
               {
-                "name" : "agency_license_termination_id",
+                "name" : "created",
                 "fieldType" : "CONNECTOR",
-                "label" : "agency_license_termination_id",
-                "nativeName" : "agency_license_termination_id",
+                "label" : "created",
+                "nativeName" : "created",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_agency_license"
+                  }
+                ]
+              },
+              {
+                "name" : "delete_flag",
+                "fieldType" : "CONNECTOR",
+                "label" : "delete_flag",
+                "nativeName" : "delete_flag",
                 "nativeType" : "int4",
                 "original" : "false",
                 "precision" : 10,
@@ -1839,10 +1801,138 @@
                 ]
               },
               {
-                "name" : "agency_license_class",
+                "name" : "expiration_date",
                 "fieldType" : "CONNECTOR",
-                "label" : "agency_license_class",
-                "nativeName" : "agency_license_class",
+                "label" : "expiration_date",
+                "nativeName" : "expiration_date",
+                "nativeType" : "date",
+                "original" : "false",
+                "precision" : 13,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_agency_license"
+                  }
+                ]
+              },
+              {
+                "name" : "id",
+                "fieldType" : "CONNECTOR",
+                "label" : "id",
+                "nativeName" : "id",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_agency_license"
+                  }
+                ]
+              },
+              {
+                "name" : "license_number",
+                "fieldType" : "CONNECTOR",
+                "label" : "license_number",
+                "nativeName" : "license_number",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 31,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_agency_license"
+                  }
+                ]
+              },
+              {
+                "name" : "lob",
+                "fieldType" : "CONNECTOR",
+                "label" : "lob",
+                "nativeName" : "lob",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_agency_license"
+                  }
+                ]
+              },
+              {
+                "name" : "mk_appointed_date",
+                "fieldType" : "CONNECTOR",
+                "label" : "mk_appointed_date",
+                "nativeName" : "mk_appointed_date",
+                "nativeType" : "date",
+                "original" : "false",
+                "precision" : 13,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_agency_license"
+                  }
+                ]
+              },
+              {
+                "name" : "modified",
+                "fieldType" : "CONNECTOR",
+                "label" : "modified",
+                "nativeName" : "modified",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_agency_license"
+                  }
+                ]
+              },
+              {
+                "name" : "state",
+                "fieldType" : "CONNECTOR",
+                "label" : "state",
+                "nativeName" : "state",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 7,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_agency_license"
+                  }
+                ]
+              },
+              {
+                "name" : "term_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "term_id",
+                "nativeName" : "term_id",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_agency_license"
+                  }
+                ]
+              },
+              {
+                "name" : "license_class",
+                "fieldType" : "CONNECTOR",
+                "label" : "license_class",
+                "nativeName" : "license_class",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 63,
@@ -1921,6 +2011,10 @@
                 "value" : "5242880"
               },
               {
+                "name" : "Schema Name",
+                "value" : "$$staging_schema"
+              },
+              {
                 "name" : "Preserve record order on write",
                 "value" : "NO"
               },
@@ -1955,37 +2049,9 @@
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "source_name",
-              "toField" : {
-                "name" : "source_name"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "load_type",
-              "toField" : {
-                "name" : "load_type"
-              },
-              "fromFieldNames" : null
-            },
-            {
               "fromFieldName" : "o_src_md5_hash_value",
               "toField" : {
                 "name" : "adm_agency_license_row_md5checksum"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "o_adm_agency_license_datetime_created",
-              "toField" : {
-                "name" : "adm_agency_license_datetime_created"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "o_adm_agency_license_datetime_modified",
-              "toField" : {
-                "name" : "adm_agency_license_datetime_modified"
               },
               "fromFieldNames" : null
             },
@@ -2011,79 +2077,114 @@
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "o_bay_state_appointed_date",
+              "fromFieldName" : "source_name",
               "toField" : {
-                "name" : "bay_state_appointed_date"
+                "name" : "originating_source_name"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "o_cambridge_mutual_appointed_date",
+              "fromFieldName" : "load_type",
               "toField" : {
-                "name" : "cambridge_mutual_appointed_date"
+                "name" : "originating_load_type"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "o_agency_license_delete_flag",
+              "fromFieldName" : "o_adm_agency_license_datetime_created",
               "toField" : {
-                "name" : "agency_license_delete_flag"
+                "name" : "created"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "o_agency_license_expiration_date",
+              "fromFieldName" : "delete_flag",
               "toField" : {
-                "name" : "agency_license_expiration_date"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "o_agency_license_id",
-              "toField" : {
-                "name" : "agency_license_id"
+                "name" : "delete_flag"
               },
               "fromFieldNames" : null
             },
             {
               "fromFieldName" : "license_number",
               "toField" : {
-                "name" : "state_issued_agency_license_number"
+                "name" : "license_number"
               },
               "fromFieldNames" : null
             },
             {
               "fromFieldName" : "lob",
               "toField" : {
-                "name" : "line_of_business"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "o_merrimack_mutual_appointed_date",
-              "toField" : {
-                "name" : "merrimack_mutual_appointed_date"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "state",
-              "toField" : {
-                "name" : "agency_license_issued_state_abbreviation"
+                "name" : "lob"
               },
               "fromFieldNames" : null
             },
             {
               "fromFieldName" : "license_class",
               "toField" : {
-                "name" : "agency_license_class"
+                "name" : "license_class"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "state",
+              "toField" : {
+                "name" : "state"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_id",
+              "toField" : {
+                "name" : "id"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_bay_state_appointed_date",
+              "toField" : {
+                "name" : "bs_appointed_date"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_cambridge_mutual_appointed_date",
+              "toField" : {
+                "name" : "ca_appointed_date"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_merrimack_mutual_appointed_date",
+              "toField" : {
+                "name" : "mk_appointed_date"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_agency_license_expiration_date",
+              "toField" : {
+                "name" : "expiration_date"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_adm_agency_license_datetime_modified",
+              "toField" : {
+                "name" : "modified"
               },
               "fromFieldNames" : null
             },
             {
               "fromFieldName" : "o_agency_license_termination_id",
               "toField" : {
-                "name" : "agency_license_termination_id"
+                "name" : "term_id"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_row_status_active",
+              "toField" : {
+                "name" : "adm_agency_license_row_status"
               },
               "fromFieldNames" : null
             }
@@ -2148,9 +2249,9 @@
           },
           {
             "adapterField" : {
-              "name" : "source_name"
+              "name" : "originating_source_name"
             },
-            "name" : "source_name",
+            "name" : "originating_source_name",
             "platformType" : {
               "name" : "string"
             },
@@ -2159,9 +2260,9 @@
           },
           {
             "adapterField" : {
-              "name" : "load_type"
+              "name" : "originating_load_type"
             },
-            "name" : "load_type",
+            "name" : "originating_load_type",
             "platformType" : {
               "name" : "string"
             },
@@ -2181,9 +2282,20 @@
           },
           {
             "adapterField" : {
-              "name" : "adm_agency_license_datetime_created"
+              "name" : "adm_agency_license_row_status"
             },
-            "name" : "adm_agency_license_datetime_created",
+            "name" : "adm_agency_license_row_status",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "bs_appointed_date"
+            },
+            "name" : "bs_appointed_date",
             "platformType" : {
               "name" : "date/time"
             },
@@ -2192,14 +2304,135 @@
           },
           {
             "adapterField" : {
-              "name" : "adm_agency_license_datetime_modified"
+              "name" : "ca_appointed_date"
             },
-            "name" : "adm_agency_license_datetime_modified",
+            "name" : "ca_appointed_date",
             "platformType" : {
               "name" : "date/time"
             },
             "precision" : 29,
             "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "created"
+            },
+            "name" : "created",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "delete_flag"
+            },
+            "name" : "delete_flag",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "expiration_date"
+            },
+            "name" : "expiration_date",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "id"
+            },
+            "name" : "id",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "license_number"
+            },
+            "name" : "license_number",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 31,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "lob"
+            },
+            "name" : "lob",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "mk_appointed_date"
+            },
+            "name" : "mk_appointed_date",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "modified"
+            },
+            "name" : "modified",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "state"
+            },
+            "name" : "state",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 7,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "term_id"
+            },
+            "name" : "term_id",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "license_class"
+            },
+            "name" : "license_class",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
           },
           {
             "adapterField" : {
@@ -2232,127 +2465,6 @@
               "name" : "integer"
             },
             "precision" : 10,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "bay_state_appointed_date"
-            },
-            "name" : "bay_state_appointed_date",
-            "platformType" : {
-              "name" : "date/time"
-            },
-            "precision" : 29,
-            "scale" : 9
-          },
-          {
-            "adapterField" : {
-              "name" : "cambridge_mutual_appointed_date"
-            },
-            "name" : "cambridge_mutual_appointed_date",
-            "platformType" : {
-              "name" : "date/time"
-            },
-            "precision" : 29,
-            "scale" : 9
-          },
-          {
-            "adapterField" : {
-              "name" : "agency_license_delete_flag"
-            },
-            "name" : "agency_license_delete_flag",
-            "platformType" : {
-              "name" : "integer"
-            },
-            "precision" : 10,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "agency_license_expiration_date"
-            },
-            "name" : "agency_license_expiration_date",
-            "platformType" : {
-              "name" : "date/time"
-            },
-            "precision" : 29,
-            "scale" : 9
-          },
-          {
-            "adapterField" : {
-              "name" : "agency_license_id"
-            },
-            "name" : "agency_license_id",
-            "platformType" : {
-              "name" : "integer"
-            },
-            "precision" : 10,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "state_issued_agency_license_number"
-            },
-            "name" : "state_issued_agency_license_number",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 31,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "line_of_business"
-            },
-            "name" : "line_of_business",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 63,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "merrimack_mutual_appointed_date"
-            },
-            "name" : "merrimack_mutual_appointed_date",
-            "platformType" : {
-              "name" : "date/time"
-            },
-            "precision" : 29,
-            "scale" : 9
-          },
-          {
-            "adapterField" : {
-              "name" : "agency_license_issued_state_abbreviation"
-            },
-            "name" : "agency_license_issued_state_abbreviation",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 7,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "agency_license_termination_id"
-            },
-            "name" : "agency_license_termination_id",
-            "platformType" : {
-              "name" : "integer"
-            },
-            "precision" : 10,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "agency_license_class"
-            },
-            "name" : "agency_license_class",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 63,
             "scale" : 0
           }
         ],
@@ -2416,38 +2528,6 @@
                 ]
               },
               {
-                "name" : "source_name",
-                "fieldType" : "CONNECTOR",
-                "label" : "source_name",
-                "nativeName" : "source_name",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 127,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_agency_license"
-                  }
-                ]
-              },
-              {
-                "name" : "load_type",
-                "fieldType" : "CONNECTOR",
-                "label" : "load_type",
-                "nativeName" : "load_type",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 63,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_agency_license"
-                  }
-                ]
-              },
-              {
                 "name" : "adm_agency_license_row_md5checksum",
                 "fieldType" : "CONNECTOR",
                 "label" : "adm_agency_license_row_md5checksum",
@@ -2456,38 +2536,6 @@
                 "original" : "false",
                 "precision" : 255,
                 "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_agency_license"
-                  }
-                ]
-              },
-              {
-                "name" : "adm_agency_license_datetime_created",
-                "fieldType" : "CONNECTOR",
-                "label" : "adm_agency_license_datetime_created",
-                "nativeName" : "adm_agency_license_datetime_created",
-                "nativeType" : "timestamp",
-                "original" : "false",
-                "precision" : 29,
-                "scale" : 6,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_agency_license"
-                  }
-                ]
-              },
-              {
-                "name" : "adm_agency_license_datetime_modified",
-                "fieldType" : "CONNECTOR",
-                "label" : "adm_agency_license_datetime_modified",
-                "nativeName" : "adm_agency_license_datetime_modified",
-                "nativeType" : "timestamp",
-                "original" : "false",
-                "precision" : 29,
-                "scale" : 6,
                 "properties" : [
                   {
                     "name" : "parentObject",
@@ -2544,93 +2592,13 @@
                 ]
               },
               {
-                "name" : "bay_state_appointed_date",
+                "name" : "originating_source_name",
                 "fieldType" : "CONNECTOR",
-                "label" : "bay_state_appointed_date",
-                "nativeName" : "bay_state_appointed_date",
-                "nativeType" : "date",
-                "original" : "false",
-                "precision" : 13,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_agency_license"
-                  }
-                ]
-              },
-              {
-                "name" : "cambridge_mutual_appointed_date",
-                "fieldType" : "CONNECTOR",
-                "label" : "cambridge_mutual_appointed_date",
-                "nativeName" : "cambridge_mutual_appointed_date",
-                "nativeType" : "date",
-                "original" : "false",
-                "precision" : 13,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_agency_license"
-                  }
-                ]
-              },
-              {
-                "name" : "agency_license_delete_flag",
-                "fieldType" : "CONNECTOR",
-                "label" : "agency_license_delete_flag",
-                "nativeName" : "agency_license_delete_flag",
-                "nativeType" : "int4",
-                "original" : "false",
-                "precision" : 10,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_agency_license"
-                  }
-                ]
-              },
-              {
-                "name" : "agency_license_expiration_date",
-                "fieldType" : "CONNECTOR",
-                "label" : "agency_license_expiration_date",
-                "nativeName" : "agency_license_expiration_date",
-                "nativeType" : "date",
-                "original" : "false",
-                "precision" : 13,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_agency_license"
-                  }
-                ]
-              },
-              {
-                "name" : "agency_license_id",
-                "fieldType" : "CONNECTOR",
-                "label" : "agency_license_id",
-                "nativeName" : "agency_license_id",
-                "nativeType" : "int4",
-                "original" : "false",
-                "precision" : 10,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_agency_license"
-                  }
-                ]
-              },
-              {
-                "name" : "state_issued_agency_license_number",
-                "fieldType" : "CONNECTOR",
-                "label" : "state_issued_agency_license_number",
-                "nativeName" : "state_issued_agency_license_number",
+                "label" : "originating_source_name",
+                "nativeName" : "originating_source_name",
                 "nativeType" : "varchar",
                 "original" : "false",
-                "precision" : 31,
+                "precision" : 127,
                 "scale" : 0,
                 "properties" : [
                   {
@@ -2640,10 +2608,10 @@
                 ]
               },
               {
-                "name" : "line_of_business",
+                "name" : "originating_load_type",
                 "fieldType" : "CONNECTOR",
-                "label" : "line_of_business",
-                "nativeName" : "line_of_business",
+                "label" : "originating_load_type",
+                "nativeName" : "originating_load_type",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 63,
@@ -2656,10 +2624,26 @@
                 ]
               },
               {
-                "name" : "merrimack_mutual_appointed_date",
+                "name" : "adm_agency_license_row_status",
                 "fieldType" : "CONNECTOR",
-                "label" : "merrimack_mutual_appointed_date",
-                "nativeName" : "merrimack_mutual_appointed_date",
+                "label" : "adm_agency_license_row_status",
+                "nativeName" : "adm_agency_license_row_status",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_agency_license"
+                  }
+                ]
+              },
+              {
+                "name" : "bs_appointed_date",
+                "fieldType" : "CONNECTOR",
+                "label" : "bs_appointed_date",
+                "nativeName" : "bs_appointed_date",
                 "nativeType" : "date",
                 "original" : "false",
                 "precision" : 13,
@@ -2672,13 +2656,13 @@
                 ]
               },
               {
-                "name" : "agency_license_issued_state_abbreviation",
+                "name" : "ca_appointed_date",
                 "fieldType" : "CONNECTOR",
-                "label" : "agency_license_issued_state_abbreviation",
-                "nativeName" : "agency_license_issued_state_abbreviation",
-                "nativeType" : "varchar",
+                "label" : "ca_appointed_date",
+                "nativeName" : "ca_appointed_date",
+                "nativeType" : "date",
                 "original" : "false",
-                "precision" : 7,
+                "precision" : 13,
                 "scale" : 0,
                 "properties" : [
                   {
@@ -2688,10 +2672,26 @@
                 ]
               },
               {
-                "name" : "agency_license_termination_id",
+                "name" : "created",
                 "fieldType" : "CONNECTOR",
-                "label" : "agency_license_termination_id",
-                "nativeName" : "agency_license_termination_id",
+                "label" : "created",
+                "nativeName" : "created",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_agency_license"
+                  }
+                ]
+              },
+              {
+                "name" : "delete_flag",
+                "fieldType" : "CONNECTOR",
+                "label" : "delete_flag",
+                "nativeName" : "delete_flag",
                 "nativeType" : "int4",
                 "original" : "false",
                 "precision" : 10,
@@ -2704,10 +2704,138 @@
                 ]
               },
               {
-                "name" : "agency_license_class",
+                "name" : "expiration_date",
                 "fieldType" : "CONNECTOR",
-                "label" : "agency_license_class",
-                "nativeName" : "agency_license_class",
+                "label" : "expiration_date",
+                "nativeName" : "expiration_date",
+                "nativeType" : "date",
+                "original" : "false",
+                "precision" : 13,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_agency_license"
+                  }
+                ]
+              },
+              {
+                "name" : "id",
+                "fieldType" : "CONNECTOR",
+                "label" : "id",
+                "nativeName" : "id",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_agency_license"
+                  }
+                ]
+              },
+              {
+                "name" : "license_number",
+                "fieldType" : "CONNECTOR",
+                "label" : "license_number",
+                "nativeName" : "license_number",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 31,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_agency_license"
+                  }
+                ]
+              },
+              {
+                "name" : "lob",
+                "fieldType" : "CONNECTOR",
+                "label" : "lob",
+                "nativeName" : "lob",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_agency_license"
+                  }
+                ]
+              },
+              {
+                "name" : "mk_appointed_date",
+                "fieldType" : "CONNECTOR",
+                "label" : "mk_appointed_date",
+                "nativeName" : "mk_appointed_date",
+                "nativeType" : "date",
+                "original" : "false",
+                "precision" : 13,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_agency_license"
+                  }
+                ]
+              },
+              {
+                "name" : "modified",
+                "fieldType" : "CONNECTOR",
+                "label" : "modified",
+                "nativeName" : "modified",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_agency_license"
+                  }
+                ]
+              },
+              {
+                "name" : "state",
+                "fieldType" : "CONNECTOR",
+                "label" : "state",
+                "nativeName" : "state",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 7,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_agency_license"
+                  }
+                ]
+              },
+              {
+                "name" : "term_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "term_id",
+                "nativeName" : "term_id",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_agency_license"
+                  }
+                ]
+              },
+              {
+                "name" : "license_class",
+                "fieldType" : "CONNECTOR",
+                "label" : "license_class",
+                "nativeName" : "license_class",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 63,
@@ -2786,6 +2914,10 @@
                 "value" : "5242880"
               },
               {
+                "name" : "Schema Name",
+                "value" : "$$staging_schema"
+              },
+              {
                 "name" : "Preserve record order on write",
                 "value" : "NO"
               },
@@ -2825,6 +2957,13 @@
                 "name" : "adm_agency_license_row_effective_end_datetime"
               },
               "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_row_status_expired",
+              "toField" : {
+                "name" : "adm_agency_license_row_status"
+              },
+              "fromFieldNames" : null
             }
           ]
         }
@@ -2841,6 +2980,45 @@
               {
                 "bulkRename" : "false",
                 "include" : "true"
+              },
+              {
+                "bulkRename" : "false",
+                "include" : "false",
+                "names" : [
+                  {
+                    "inputName" : "id"
+                  }
+                ]
+              },
+              {
+                "bulkRename" : "false",
+                "include" : "false",
+                "names" : [
+                  {
+                    "inputName" : "agency_id"
+                  },
+                  {
+                    "inputName" : "bs_appointed_date"
+                  },
+                  {
+                    "inputName" : "ca_appointed_date"
+                  },
+                  {
+                    "inputName" : "created"
+                  },
+                  {
+                    "inputName" : "expiration_date"
+                  },
+                  {
+                    "inputName" : "mk_appointed_date"
+                  },
+                  {
+                    "inputName" : "modified"
+                  },
+                  {
+                    "inputName" : "term_id"
+                  }
+                ]
               }
             ]
           },
@@ -2856,6 +3034,20 @@
                   "literal" : "tgt_",
                   "suffix" : "false"
                 }
+              },
+              {
+                "bulkRename" : "false",
+                "include" : "true",
+                "names" : [
+                  {
+                    "inputName" : "id",
+                    "outputName" : "tgt_id"
+                  },
+                  {
+                    "inputName" : "modified",
+                    "outputName" : "tgt_modified_dt"
+                  }
+                ]
               }
             ]
           },
@@ -2868,9 +3060,9 @@
         "joinType" : "Detail Outer Join",
         "joinConditions" : [
           {
-            "leftOperand" : "o_agency_license_id",
+            "leftOperand" : "o_id",
             "operator" : "=",
-            "rightOperand" : "agency_license_id"
+            "rightOperand" : "tgt_id"
           }
         ]
       },
@@ -2954,9 +3146,9 @@
           },
           {
             "adapterField" : {
-              "name" : "source_name"
+              "name" : "originating_source_name"
             },
-            "name" : "source_name",
+            "name" : "originating_source_name",
             "platformType" : {
               "name" : "string"
             },
@@ -2965,9 +3157,9 @@
           },
           {
             "adapterField" : {
-              "name" : "load_type"
+              "name" : "originating_load_type"
             },
-            "name" : "load_type",
+            "name" : "originating_load_type",
             "platformType" : {
               "name" : "string"
             },
@@ -2987,9 +3179,20 @@
           },
           {
             "adapterField" : {
-              "name" : "adm_agency_license_datetime_created"
+              "name" : "adm_agency_license_row_status"
             },
-            "name" : "adm_agency_license_datetime_created",
+            "name" : "adm_agency_license_row_status",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "bs_appointed_date"
+            },
+            "name" : "bs_appointed_date",
             "platformType" : {
               "name" : "date/time"
             },
@@ -2998,14 +3201,135 @@
           },
           {
             "adapterField" : {
-              "name" : "adm_agency_license_datetime_modified"
+              "name" : "ca_appointed_date"
             },
-            "name" : "adm_agency_license_datetime_modified",
+            "name" : "ca_appointed_date",
             "platformType" : {
               "name" : "date/time"
             },
             "precision" : 29,
             "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "created"
+            },
+            "name" : "created",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "delete_flag"
+            },
+            "name" : "delete_flag",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "expiration_date"
+            },
+            "name" : "expiration_date",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "id"
+            },
+            "name" : "id",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "license_number"
+            },
+            "name" : "license_number",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 31,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "lob"
+            },
+            "name" : "lob",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "mk_appointed_date"
+            },
+            "name" : "mk_appointed_date",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "modified"
+            },
+            "name" : "modified",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "state"
+            },
+            "name" : "state",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 7,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "term_id"
+            },
+            "name" : "term_id",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "license_class"
+            },
+            "name" : "license_class",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
           },
           {
             "adapterField" : {
@@ -3038,127 +3362,6 @@
               "name" : "integer"
             },
             "precision" : 10,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "bay_state_appointed_date"
-            },
-            "name" : "bay_state_appointed_date",
-            "platformType" : {
-              "name" : "date/time"
-            },
-            "precision" : 29,
-            "scale" : 9
-          },
-          {
-            "adapterField" : {
-              "name" : "cambridge_mutual_appointed_date"
-            },
-            "name" : "cambridge_mutual_appointed_date",
-            "platformType" : {
-              "name" : "date/time"
-            },
-            "precision" : 29,
-            "scale" : 9
-          },
-          {
-            "adapterField" : {
-              "name" : "agency_license_delete_flag"
-            },
-            "name" : "agency_license_delete_flag",
-            "platformType" : {
-              "name" : "integer"
-            },
-            "precision" : 10,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "agency_license_expiration_date"
-            },
-            "name" : "agency_license_expiration_date",
-            "platformType" : {
-              "name" : "date/time"
-            },
-            "precision" : 29,
-            "scale" : 9
-          },
-          {
-            "adapterField" : {
-              "name" : "agency_license_id"
-            },
-            "name" : "agency_license_id",
-            "platformType" : {
-              "name" : "integer"
-            },
-            "precision" : 10,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "state_issued_agency_license_number"
-            },
-            "name" : "state_issued_agency_license_number",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 31,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "line_of_business"
-            },
-            "name" : "line_of_business",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 63,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "merrimack_mutual_appointed_date"
-            },
-            "name" : "merrimack_mutual_appointed_date",
-            "platformType" : {
-              "name" : "date/time"
-            },
-            "precision" : 29,
-            "scale" : 9
-          },
-          {
-            "adapterField" : {
-              "name" : "agency_license_issued_state_abbreviation"
-            },
-            "name" : "agency_license_issued_state_abbreviation",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 7,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "agency_license_termination_id"
-            },
-            "name" : "agency_license_termination_id",
-            "platformType" : {
-              "name" : "integer"
-            },
-            "precision" : 10,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "agency_license_class"
-            },
-            "name" : "agency_license_class",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 63,
             "scale" : 0
           }
         ],
@@ -3211,38 +3414,6 @@
                 ]
               },
               {
-                "name" : "source_name",
-                "fieldType" : "CONNECTOR",
-                "label" : "source_name",
-                "nativeName" : "source_name",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 127,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_agency_license"
-                  }
-                ]
-              },
-              {
-                "name" : "load_type",
-                "fieldType" : "CONNECTOR",
-                "label" : "load_type",
-                "nativeName" : "load_type",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 63,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_agency_license"
-                  }
-                ]
-              },
-              {
                 "name" : "adm_agency_license_row_md5checksum",
                 "fieldType" : "CONNECTOR",
                 "label" : "adm_agency_license_row_md5checksum",
@@ -3251,38 +3422,6 @@
                 "original" : "false",
                 "precision" : 255,
                 "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_agency_license"
-                  }
-                ]
-              },
-              {
-                "name" : "adm_agency_license_datetime_created",
-                "fieldType" : "CONNECTOR",
-                "label" : "adm_agency_license_datetime_created",
-                "nativeName" : "adm_agency_license_datetime_created",
-                "nativeType" : "timestamp",
-                "original" : "false",
-                "precision" : 29,
-                "scale" : 6,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_agency_license"
-                  }
-                ]
-              },
-              {
-                "name" : "adm_agency_license_datetime_modified",
-                "fieldType" : "CONNECTOR",
-                "label" : "adm_agency_license_datetime_modified",
-                "nativeName" : "adm_agency_license_datetime_modified",
-                "nativeType" : "timestamp",
-                "original" : "false",
-                "precision" : 29,
-                "scale" : 6,
                 "properties" : [
                   {
                     "name" : "parentObject",
@@ -3339,93 +3478,13 @@
                 ]
               },
               {
-                "name" : "bay_state_appointed_date",
+                "name" : "originating_source_name",
                 "fieldType" : "CONNECTOR",
-                "label" : "bay_state_appointed_date",
-                "nativeName" : "bay_state_appointed_date",
-                "nativeType" : "date",
-                "original" : "false",
-                "precision" : 13,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_agency_license"
-                  }
-                ]
-              },
-              {
-                "name" : "cambridge_mutual_appointed_date",
-                "fieldType" : "CONNECTOR",
-                "label" : "cambridge_mutual_appointed_date",
-                "nativeName" : "cambridge_mutual_appointed_date",
-                "nativeType" : "date",
-                "original" : "false",
-                "precision" : 13,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_agency_license"
-                  }
-                ]
-              },
-              {
-                "name" : "agency_license_delete_flag",
-                "fieldType" : "CONNECTOR",
-                "label" : "agency_license_delete_flag",
-                "nativeName" : "agency_license_delete_flag",
-                "nativeType" : "int4",
-                "original" : "false",
-                "precision" : 10,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_agency_license"
-                  }
-                ]
-              },
-              {
-                "name" : "agency_license_expiration_date",
-                "fieldType" : "CONNECTOR",
-                "label" : "agency_license_expiration_date",
-                "nativeName" : "agency_license_expiration_date",
-                "nativeType" : "date",
-                "original" : "false",
-                "precision" : 13,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_agency_license"
-                  }
-                ]
-              },
-              {
-                "name" : "agency_license_id",
-                "fieldType" : "CONNECTOR",
-                "label" : "agency_license_id",
-                "nativeName" : "agency_license_id",
-                "nativeType" : "int4",
-                "original" : "false",
-                "precision" : 10,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_agency_license"
-                  }
-                ]
-              },
-              {
-                "name" : "state_issued_agency_license_number",
-                "fieldType" : "CONNECTOR",
-                "label" : "state_issued_agency_license_number",
-                "nativeName" : "state_issued_agency_license_number",
+                "label" : "originating_source_name",
+                "nativeName" : "originating_source_name",
                 "nativeType" : "varchar",
                 "original" : "false",
-                "precision" : 31,
+                "precision" : 127,
                 "scale" : 0,
                 "properties" : [
                   {
@@ -3435,10 +3494,10 @@
                 ]
               },
               {
-                "name" : "line_of_business",
+                "name" : "originating_load_type",
                 "fieldType" : "CONNECTOR",
-                "label" : "line_of_business",
-                "nativeName" : "line_of_business",
+                "label" : "originating_load_type",
+                "nativeName" : "originating_load_type",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 63,
@@ -3451,10 +3510,26 @@
                 ]
               },
               {
-                "name" : "merrimack_mutual_appointed_date",
+                "name" : "adm_agency_license_row_status",
                 "fieldType" : "CONNECTOR",
-                "label" : "merrimack_mutual_appointed_date",
-                "nativeName" : "merrimack_mutual_appointed_date",
+                "label" : "adm_agency_license_row_status",
+                "nativeName" : "adm_agency_license_row_status",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_agency_license"
+                  }
+                ]
+              },
+              {
+                "name" : "bs_appointed_date",
+                "fieldType" : "CONNECTOR",
+                "label" : "bs_appointed_date",
+                "nativeName" : "bs_appointed_date",
                 "nativeType" : "date",
                 "original" : "false",
                 "precision" : 13,
@@ -3467,13 +3542,13 @@
                 ]
               },
               {
-                "name" : "agency_license_issued_state_abbreviation",
+                "name" : "ca_appointed_date",
                 "fieldType" : "CONNECTOR",
-                "label" : "agency_license_issued_state_abbreviation",
-                "nativeName" : "agency_license_issued_state_abbreviation",
-                "nativeType" : "varchar",
+                "label" : "ca_appointed_date",
+                "nativeName" : "ca_appointed_date",
+                "nativeType" : "date",
                 "original" : "false",
-                "precision" : 7,
+                "precision" : 13,
                 "scale" : 0,
                 "properties" : [
                   {
@@ -3483,10 +3558,26 @@
                 ]
               },
               {
-                "name" : "agency_license_termination_id",
+                "name" : "created",
                 "fieldType" : "CONNECTOR",
-                "label" : "agency_license_termination_id",
-                "nativeName" : "agency_license_termination_id",
+                "label" : "created",
+                "nativeName" : "created",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_agency_license"
+                  }
+                ]
+              },
+              {
+                "name" : "delete_flag",
+                "fieldType" : "CONNECTOR",
+                "label" : "delete_flag",
+                "nativeName" : "delete_flag",
                 "nativeType" : "int4",
                 "original" : "false",
                 "precision" : 10,
@@ -3499,10 +3590,138 @@
                 ]
               },
               {
-                "name" : "agency_license_class",
+                "name" : "expiration_date",
                 "fieldType" : "CONNECTOR",
-                "label" : "agency_license_class",
-                "nativeName" : "agency_license_class",
+                "label" : "expiration_date",
+                "nativeName" : "expiration_date",
+                "nativeType" : "date",
+                "original" : "false",
+                "precision" : 13,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_agency_license"
+                  }
+                ]
+              },
+              {
+                "name" : "id",
+                "fieldType" : "CONNECTOR",
+                "label" : "id",
+                "nativeName" : "id",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_agency_license"
+                  }
+                ]
+              },
+              {
+                "name" : "license_number",
+                "fieldType" : "CONNECTOR",
+                "label" : "license_number",
+                "nativeName" : "license_number",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 31,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_agency_license"
+                  }
+                ]
+              },
+              {
+                "name" : "lob",
+                "fieldType" : "CONNECTOR",
+                "label" : "lob",
+                "nativeName" : "lob",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_agency_license"
+                  }
+                ]
+              },
+              {
+                "name" : "mk_appointed_date",
+                "fieldType" : "CONNECTOR",
+                "label" : "mk_appointed_date",
+                "nativeName" : "mk_appointed_date",
+                "nativeType" : "date",
+                "original" : "false",
+                "precision" : 13,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_agency_license"
+                  }
+                ]
+              },
+              {
+                "name" : "modified",
+                "fieldType" : "CONNECTOR",
+                "label" : "modified",
+                "nativeName" : "modified",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_agency_license"
+                  }
+                ]
+              },
+              {
+                "name" : "state",
+                "fieldType" : "CONNECTOR",
+                "label" : "state",
+                "nativeName" : "state",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 7,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_agency_license"
+                  }
+                ]
+              },
+              {
+                "name" : "term_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "term_id",
+                "nativeName" : "term_id",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_agency_license"
+                  }
+                ]
+              },
+              {
+                "name" : "license_class",
+                "fieldType" : "CONNECTOR",
+                "label" : "license_class",
+                "nativeName" : "license_class",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 63,
@@ -3581,6 +3800,10 @@
                 "value" : "5242880"
               },
               {
+                "name" : "Schema Name",
+                "value" : "$$staging_schema"
+              },
+              {
                 "name" : "Preserve record order on write",
                 "value" : "NO"
               },
@@ -3615,37 +3838,9 @@
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "source_name",
-              "toField" : {
-                "name" : "source_name"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "load_type",
-              "toField" : {
-                "name" : "load_type"
-              },
-              "fromFieldNames" : null
-            },
-            {
               "fromFieldName" : "o_src_md5_hash_value",
               "toField" : {
                 "name" : "adm_agency_license_row_md5checksum"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "o_adm_agency_license_datetime_created",
-              "toField" : {
-                "name" : "adm_agency_license_datetime_created"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "o_adm_agency_license_datetime_modified",
-              "toField" : {
-                "name" : "adm_agency_license_datetime_modified"
               },
               "fromFieldNames" : null
             },
@@ -3671,86 +3866,159 @@
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "o_bay_state_appointed_date",
+              "fromFieldName" : "source_name",
               "toField" : {
-                "name" : "bay_state_appointed_date"
+                "name" : "originating_source_name"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "o_cambridge_mutual_appointed_date",
+              "fromFieldName" : "load_type",
               "toField" : {
-                "name" : "cambridge_mutual_appointed_date"
+                "name" : "originating_load_type"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "o_agency_license_delete_flag",
+              "fromFieldName" : "delete_flag",
               "toField" : {
-                "name" : "agency_license_delete_flag"
+                "name" : "delete_flag"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "o_agency_license_expiration_date",
+              "fromFieldName" : "o_id",
               "toField" : {
-                "name" : "agency_license_expiration_date"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "o_agency_license_id",
-              "toField" : {
-                "name" : "agency_license_id"
+                "name" : "id"
               },
               "fromFieldNames" : null
             },
             {
               "fromFieldName" : "license_number",
               "toField" : {
-                "name" : "state_issued_agency_license_number"
+                "name" : "license_number"
               },
               "fromFieldNames" : null
             },
             {
               "fromFieldName" : "lob",
               "toField" : {
-                "name" : "line_of_business"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "o_merrimack_mutual_appointed_date",
-              "toField" : {
-                "name" : "merrimack_mutual_appointed_date"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "o_agency_license_termination_id",
-              "toField" : {
-                "name" : "agency_license_termination_id"
+                "name" : "lob"
               },
               "fromFieldNames" : null
             },
             {
               "fromFieldName" : "state",
               "toField" : {
-                "name" : "agency_license_issued_state_abbreviation"
+                "name" : "state"
               },
               "fromFieldNames" : null
             },
             {
               "fromFieldName" : "license_class",
               "toField" : {
-                "name" : "agency_license_class"
+                "name" : "license_class"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_bay_state_appointed_date",
+              "toField" : {
+                "name" : "bs_appointed_date"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_cambridge_mutual_appointed_date",
+              "toField" : {
+                "name" : "ca_appointed_date"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_adm_agency_license_datetime_created",
+              "toField" : {
+                "name" : "created"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_adm_agency_license_datetime_modified",
+              "toField" : {
+                "name" : "modified"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_merrimack_mutual_appointed_date",
+              "toField" : {
+                "name" : "mk_appointed_date"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_agency_license_termination_id",
+              "toField" : {
+                "name" : "term_id"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_agency_license_expiration_date",
+              "toField" : {
+                "name" : "expiration_date"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_row_status_active",
+              "toField" : {
+                "name" : "adm_agency_license_row_status"
               },
               "fromFieldNames" : null
             }
           ]
         }
       }
+    ],
+    "variables" : [
+      {
+        "aggregationType" : "MAX",
+        "expressionVariable" : "false",
+        "name" : "raw_schema",
+        "platformType" : {
+          "name" : "string"
+        },
+        "precision" : 100,
+        "retentionPolicy" : "NEVER",
+        "scale" : 0,
+        "defaultValue" : "metal"
+      },
+      {
+        "aggregationType" : "MAX",
+        "expressionVariable" : "false",
+        "name" : "staging_schema",
+        "platformType" : {
+          "name" : "string"
+        },
+        "precision" : 100,
+        "retentionPolicy" : "NEVER",
+        "scale" : 0,
+        "defaultValue" : "bronze"
+      },
+      {
+        "aggregationType" : "MAX",
+        "expressionVariable" : "false",
+        "name" : "operational_schema",
+        "platformType" : {
+          "name" : "string"
+        },
+        "precision" : 100,
+        "retentionPolicy" : "NEVER",
+        "scale" : 0,
+        "defaultValue" : "operations"
+      }
     ]
   },
-  "vcsExportTime" : "2025-08-01 12:56:00 PDT"
+  "vcsExportTime" : "2025-08-22 13:57:08 PDT"
 }
