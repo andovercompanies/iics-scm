@@ -22,17 +22,6 @@
         "groupLink" : "Update -> DefaultGroup"
       },
       {
-        "link" : "Expression -> jnr_src_tgt",
-        "groupLink" : "DefaultGroup -> Detail"
-      },
-      {
-        "link" : "src_tgt_silver_uw_questions_and_answers -> Expression"
-      },
-      {
-        "link" : "exp_MD5_calc -> jnr_src_tgt",
-        "groupLink" : "DefaultGroup -> Master"
-      },
-      {
         "link" : "exp_uw_qna_default_values -> exp_MD5_calc"
       },
       {
@@ -43,8 +32,7 @@
         "link" : "Sequence -> Exp_calc_GUID"
       },
       {
-        "link" : "jnr_src_tgt -> Sequence",
-        "groupLink" : "OutputGroup -> DefaultGroup"
+        "link" : "exp_MD5_calc -> Sequence"
       }
     ],
     "parameters" : [
@@ -330,6 +318,28 @@
             },
             "precision" : 1,
             "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "underwriting_question_and_answer_id"
+            },
+            "name" : "underwriting_question_and_answer_id",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "underwriting_question_and_answer_row_md5checksum"
+            },
+            "name" : "underwriting_question_and_answer_row_md5checksum",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 1023,
+            "scale" : 0
           }
         ],
         "dataAdapter" : {
@@ -341,7 +351,7 @@
           "typeSystem" : "TOOLKIT",
           "useDynamicFileName" : "false",
           "object" : {
-            "customQuery" : "select\n\tdistinct \nq.cmm_container as underwriting_question_and_answer_type,\n\tq.id as underwriting_question_and_answer_row_source_system_key,\n\tq.system_id as source_system_system_id,\n\tq.id as source_system_id,\n\tq.parent_id as source_system_parent_id,\n\tq.name as underwriting_question_code,\n\tq.value as underwriting_answer,\n\tq.visible_ind as question_visible_on_acx_ui_indicator ,\n\tq.text as text,\n\tq.display_desc as display_description,\n\tq.row_id as source_system_row_id,\n\tprkr.line_of_business,\n\tcase\n\t\twhen prkr.line_of_business = 'Homeowners' then qrpcr.parent_child_indicator\n\t\telse null \n\tend as parent_or_child_indicator,\n\tcase\n\t\twhen prkr.line_of_business = 'Homeowners' then pq.question\n\t\telse NULL\n\tend as parent_question_code_of_child_question,\n\t\tcase\n\t\twhen prkr.line_of_business = 'Homeowners' then pr.value\n\t\telse NULL\n\tend as parent_answer_of_child_question,\n\t\tcase\n\t\twhen prkr.line_of_business = 'Homeowners' then qrpcr.priority_order\n\t\telse NULL\n\tend as question_and_answer_hierarchy,\n\t\tcase\n\t\twhen prkr.line_of_business = 'Homeowners' then qrpcr.display_when_reply_is_no_or_null\n\t\telse NULL\n\tend as display_when_reply_is_no_or_null,\n\t\tcase\n\t\twhen prkr.line_of_business = 'Homeowners' then qrpcr.display_when_reply_is_yes_or_not_null\n\t\telse NULL\n\tend as display_when_reply_is_yes_or_not_null,\n\t\tcase\n\t\twhen prkr.line_of_business = 'Homeowners' then qrpcr.display_when_parent_reply_is_yes_or_not_null\n\t\telse NULL\n\tend as display_when_parent_reply_is_yes_or_not_null,\n\t\tcase\n\t\twhen prkr.line_of_business = 'Homeowners' then qrpcr.display_when_parent_reply_is_no_or_null\n\t\telse NULL\n\tend as display_when_parent_reply_is_no_or_null\n\nfrom\n\tbronze.acx_question_reply q\nleft join dbo.policy_risk_key_reference prkr\non\n\tq.system_id = prkr.policy_system_id\n\tand q.cmm_container = prkr.policy_cmm_container\nleft join bronze.question_reply_parent_child_reference_for_homeowners qrpcr\non\n\tq.name = qrpcr.question\nleft join bronze.question_reply_parent_child_reference_for_homeowners pq\non qrpcr.parent_question_id_of_child = pq.question_id\nleft join bronze.acx_question_reply pr\non q.system_id = pr.system_id \nand q.cmm_container = pr.cmm_container \nand pq.question = pr.name\nwhere\n\t prkr.policy_risk_key_reference_row_effective_end_date = '9999-12-31'\n\tand qrpcr.question_reply_parent_child_reference_ho_row_effective_end_datetime = '9999-12-31';",
+            "customQuery" : "select\n\tdistinct \nq.cmm_container as underwriting_question_and_answer_type,\n\tq.id as underwriting_question_and_answer_row_source_system_key,\n\tq.system_id as source_system_system_id,\n\tq.id as source_system_id,\n\tq.parent_id as source_system_parent_id,\n\tq.name as underwriting_question_code,\n\tq.value as underwriting_answer,\n\tq.visible_ind as question_visible_on_acx_ui_indicator ,\n\tq.text as text,\n\tq.display_desc as display_description,\n\tq.row_id as source_system_row_id,\n\tprkr.line_of_business,\n\tcase\n\t\twhen prkr.line_of_business = 'Homeowners' then qrpcr.parent_child_indicator\n\t\telse null \n\tend as parent_or_child_indicator,\n\tcase\n\t\twhen prkr.line_of_business = 'Homeowners' then pq.question\n\t\telse NULL\n\tend as parent_question_code_of_child_question,\n\t\tcase\n\t\twhen prkr.line_of_business = 'Homeowners' then pr.value\n\t\telse NULL\n\tend as parent_answer_of_child_question,\n\t\tcase\n\t\twhen prkr.line_of_business = 'Homeowners' then qrpcr.priority_order\n\t\telse NULL\n\tend as question_and_answer_hierarchy,\n\t\tcase\n\t\twhen prkr.line_of_business = 'Homeowners' then qrpcr.display_when_reply_is_no_or_null\n\t\telse NULL\n\tend as display_when_reply_is_no_or_null,\n\t\tcase\n\t\twhen prkr.line_of_business = 'Homeowners' then qrpcr.display_when_reply_is_yes_or_not_null\n\t\telse NULL\n\tend as display_when_reply_is_yes_or_not_null,\n\t\tcase\n\t\twhen prkr.line_of_business = 'Homeowners' then qrpcr.display_when_parent_reply_is_yes_or_not_null\n\t\telse NULL\n\tend as display_when_parent_reply_is_yes_or_not_null,\n\t\tcase\n\t\twhen prkr.line_of_business = 'Homeowners' then qrpcr.display_when_parent_reply_is_no_or_null\n\t\telse NULL\n\tend as display_when_parent_reply_is_no_or_null,\n\ttgt.underwriting_question_and_answer_id,\n\ttgt.underwriting_question_and_answer_row_md5checksum \nfrom\n\tbronze.acx_question_reply q\nleft join dbo.policy_risk_key_reference prkr\non\n\tq.system_id = prkr.policy_system_id\n\tand q.cmm_container = prkr.policy_cmm_container\nleft join bronze.question_reply_parent_child_reference_for_homeowners qrpcr\non\n\tq.name = qrpcr.question\nleft join bronze.question_reply_parent_child_reference_for_homeowners pq\non qrpcr.parent_question_id_of_child = pq.question_id\nleft join bronze.acx_question_reply pr\non q.system_id = pr.system_id \nand q.cmm_container = pr.cmm_container \nand pq.question = pr.name\nleft join silver.underwriting_questions_and_answers tgt \non q.system_id = tgt.source_system_system_id \nand q.cmm_container = tgt.underwriting_question_and_answer_type \nand q.id = tgt.underwriting_question_and_answer_row_source_system_key \nand tgt.underwriting_question_and_answer_row_effective_end_datetime = '9999-12-31'\nwhere\n\t prkr.policy_risk_key_reference_row_effective_end_date = '9999-12-31'\n\tand qrpcr.question_reply_parent_child_reference_ho_row_effective_end_datetime = '9999-12-31'\n    and q.acx_question_reply_row_effective_end_datetime = '9999-12-31';",
             "retainMetadata" : "false",
             "fields" : [
               {
@@ -656,6 +666,38 @@
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 1,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "underwriting_question_and_answer_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "underwriting_question_and_answer_id",
+                "nativeName" : "underwriting_question_and_answer_id",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "underwriting_question_and_answer_row_md5checksum",
+                "fieldType" : "CONNECTOR",
+                "label" : "underwriting_question_and_answer_row_md5checksum",
+                "nativeName" : "underwriting_question_and_answer_row_md5checksum",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 1023,
                 "scale" : 0,
                 "properties" : [
                   {
@@ -2181,11 +2223,11 @@
         ],
         "groupFilterConditions" : [
           {
-            "advancedFilterCondition" : "ISNULL(tgt_underwriting_question_and_answer_id)",
+            "advancedFilterCondition" : "ISNULL(underwriting_question_and_answer_id)",
             "name" : "Insert"
           },
           {
-            "advancedFilterCondition" : "NOT ISNULL(tgt_underwriting_question_and_answer_id)\nAND src_md5_hash_value <> tgt_underwriting_question_and_answer_row_md5checksum",
+            "advancedFilterCondition" : "NOT ISNULL(underwriting_question_and_answer_id)\nAND src_md5_hash_value <> underwriting_question_and_answer_row_md5checksum",
             "name" : "Update"
           }
         ]
@@ -4276,375 +4318,13 @@
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "tgt_underwriting_question_and_answer_id",
+              "fromFieldName" : "underwriting_question_and_answer_id",
               "toField" : {
                 "name" : "underwriting_question_and_answer_id"
               },
               "fromFieldNames" : null
             }
           ]
-        }
-      },
-      {
-        "createTime" : "2025-07-30T16:28:50.987Z",
-        "name" : "src_tgt_silver_uw_questions_and_answers",
-        "advancedProperties" : [
-          {
-            "name" : "Tracing Level",
-            "value" : "Normal"
-          },
-          {
-            "name" : "Output is deterministic",
-            "value" : "false"
-          }
-        ],
-        "groups" : [
-          {
-            "input" : "false",
-            "name" : "DefaultGroup",
-            "output" : "true"
-          }
-        ],
-        "generateFilenamePort" : "false",
-        "useLabels" : "false",
-        "useSequenceFields" : "false",
-        "fields" : [
-          {
-            "adapterField" : {
-              "name" : "underwriting_question_and_answer_id"
-            },
-            "name" : "underwriting_question_and_answer_id",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 63,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "underwriting_question_and_answer_row_md5checksum"
-            },
-            "name" : "underwriting_question_and_answer_row_md5checksum",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 1023,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "underwriting_question_and_answer_row_effective_end_datetime"
-            },
-            "name" : "underwriting_question_and_answer_row_effective_end_datetime",
-            "platformType" : {
-              "name" : "date/time"
-            },
-            "precision" : 29,
-            "scale" : 9
-          },
-          {
-            "adapterField" : {
-              "name" : "underwriting_question_and_answer_row_source_system_key"
-            },
-            "name" : "underwriting_question_and_answer_row_source_system_key",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 127,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "source_system_system_id"
-            },
-            "name" : "source_system_system_id",
-            "platformType" : {
-              "name" : "integer"
-            },
-            "precision" : 10,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "underwriting_question_and_answer_type"
-            },
-            "name" : "underwriting_question_and_answer_type",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 127,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "underwriting_question_code"
-            },
-            "name" : "underwriting_question_code",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 120,
-            "scale" : 0
-          }
-        ],
-        "dataAdapter" : {
-          "connectionId$" : {
-            "name" : "DBConnection_SRC"
-          },
-          "excludeDynamicFileNameField" : "false",
-          "objectType" : "QUERY",
-          "typeSystem" : "TOOLKIT",
-          "useDynamicFileName" : "false",
-          "object" : {
-            "customQuery" : "select \n\tunderwriting_question_and_answer_id as underwriting_question_and_answer_id,\n\tunderwriting_question_and_answer_row_md5checksum,\n\tunderwriting_question_and_answer_row_effective_end_datetime,\n\tunderwriting_question_and_answer_row_source_system_key,\n\tsource_system_system_id,\n\tunderwriting_question_and_answer_type,\n\tunderwriting_question_code\nfrom\n\tsilver.underwriting_questions_and_answers\nwhere\n\tunderwriting_question_and_answer_row_effective_end_datetime = '9999-12-31 00:00:00.000'\norder by source_system_system_id, underwriting_question_and_answer_type ;",
-            "retainMetadata" : "false",
-            "fields" : [
-              {
-                "name" : "underwriting_question_and_answer_id",
-                "fieldType" : "CONNECTOR",
-                "label" : "underwriting_question_and_answer_id",
-                "nativeName" : "underwriting_question_and_answer_id",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 63,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "INFARS_CUSTOM_SCHEMA"
-                  }
-                ]
-              },
-              {
-                "name" : "underwriting_question_and_answer_row_md5checksum",
-                "fieldType" : "CONNECTOR",
-                "label" : "underwriting_question_and_answer_row_md5checksum",
-                "nativeName" : "underwriting_question_and_answer_row_md5checksum",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 1023,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "INFARS_CUSTOM_SCHEMA"
-                  }
-                ]
-              },
-              {
-                "name" : "underwriting_question_and_answer_row_effective_end_datetime",
-                "fieldType" : "CONNECTOR",
-                "label" : "underwriting_question_and_answer_row_effective_end_datetime",
-                "nativeName" : "underwriting_question_and_answer_row_effective_end_datetime",
-                "nativeType" : "timestamp",
-                "original" : "false",
-                "precision" : 29,
-                "scale" : 6,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "INFARS_CUSTOM_SCHEMA"
-                  }
-                ]
-              },
-              {
-                "name" : "underwriting_question_and_answer_row_source_system_key",
-                "fieldType" : "CONNECTOR",
-                "label" : "underwriting_question_and_answer_row_source_system_key",
-                "nativeName" : "underwriting_question_and_answer_row_source_system_key",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 127,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "INFARS_CUSTOM_SCHEMA"
-                  }
-                ]
-              },
-              {
-                "name" : "source_system_system_id",
-                "fieldType" : "CONNECTOR",
-                "label" : "source_system_system_id",
-                "nativeName" : "source_system_system_id",
-                "nativeType" : "int4",
-                "original" : "false",
-                "precision" : 10,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "INFARS_CUSTOM_SCHEMA"
-                  }
-                ]
-              },
-              {
-                "name" : "underwriting_question_and_answer_type",
-                "fieldType" : "CONNECTOR",
-                "label" : "underwriting_question_and_answer_type",
-                "nativeName" : "underwriting_question_and_answer_type",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 127,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "INFARS_CUSTOM_SCHEMA"
-                  }
-                ]
-              },
-              {
-                "name" : "underwriting_question_code",
-                "fieldType" : "CONNECTOR",
-                "label" : "underwriting_question_code",
-                "nativeName" : "underwriting_question_code",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 120,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "INFARS_CUSTOM_SCHEMA"
-                  }
-                ]
-              }
-            ]
-          },
-          "readOptions" : {
-            "commandType" : 0,
-            "descending" : "false",
-            "queryAll" : "false",
-            "rowLimit" : 0,
-            "selectDistinct" : "false"
-          },
-          "runtimeAttributes" : {
-            "attributes" : [
-              {
-                "name" : "Read Mode",
-                "value" : "Direct"
-              },
-              {
-                "name" : "Fetch Size",
-                "value" : "10000"
-              },
-              {
-                "name" : "Enable Compression",
-                "value" : "YES"
-              },
-              {
-                "name" : "Temporary Credential Duration",
-                "value" : "900"
-              },
-              {
-                "name" : "Treat NULL Value as NULL",
-                "value" : "NO"
-              },
-              {
-                "name" : "Encryption Type",
-                "value" : "None"
-              },
-              {
-                "name" : "Download S3 Files In Multiple Parts",
-                "value" : "NO"
-              },
-              {
-                "name" : "Multipart Download Threshold Size",
-                "value" : "5242880"
-              },
-              {
-                "name" : "Select Distinct",
-                "value" : "NO"
-              }
-            ]
-          }
-        }
-      },
-      {
-        "createTime" : "2025-07-30T16:59:03.767Z",
-        "name" : "jnr_src_tgt",
-        "groups" : [
-          {
-            "input" : "true",
-            "name" : "Master",
-            "output" : "false",
-            "rules" : [
-              {
-                "bulkRename" : "false",
-                "include" : "true"
-              }
-            ]
-          },
-          {
-            "input" : "true",
-            "name" : "Detail",
-            "output" : "false",
-            "rules" : [
-              {
-                "bulkRename" : "false",
-                "include" : "true"
-              }
-            ]
-          },
-          {
-            "input" : "false",
-            "name" : "OutputGroup",
-            "output" : "true"
-          }
-        ],
-        "joinType" : "Detail Outer Join",
-        "joinConditions" : [
-          {
-            "leftOperand" : "o_underwriting_question_and_answer_row_source_system_key",
-            "operator" : "=",
-            "rightOperand" : "tgt_underwriting_question_and_answer_row_source_system_key"
-          },
-          {
-            "leftOperand" : "source_system_system_id",
-            "operator" : "=",
-            "rightOperand" : "tgt_source_system_system_id"
-          },
-          {
-            "leftOperand" : "o_underwriting_question_and_answer_type",
-            "operator" : "=",
-            "rightOperand" : "tgt_underwriting_question_and_answer_type"
-          },
-          {
-            "leftOperand" : "o_underwriting_question_code",
-            "operator" : "=",
-            "rightOperand" : "tgt_underwriting_question_code"
-          }
-        ]
-      },
-      {
-        "createTime" : "2025-07-30T16:59:39.283Z",
-        "name" : "Expression",
-        "groups" : [
-          {
-            "input" : "true",
-            "name" : "DefaultGroup",
-            "output" : "true",
-            "rules" : [
-              {
-                "bulkRename" : "true",
-                "include" : "true",
-                "bulkRenameOption" : {
-                  "literal" : "tgt_",
-                  "suffix" : "false"
-                }
-              }
-            ]
-          }
-        ],
-        "windowConfigurationEnabled" : "false",
-        "windowSpec" : {
-          "allRowsFollowing" : "false",
-          "allRowsPreceding" : "false",
-          "endOffset" : 0,
-          "startOffset" : 0,
-          "partitionKeys" : null
         }
       },
       {
@@ -4752,5 +4432,5 @@
       }
     ]
   },
-  "vcsExportTime" : "2025-08-15 13:46:36 PDT"
+  "vcsExportTime" : "2025-08-26 10:54:57 PDT"
 }
