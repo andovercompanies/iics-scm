@@ -1,28 +1,27 @@
 {
-  "name" : "cdi_tsk_map_adm_group_guidewire_bronze_load",
-  "description" : "This job is responsible for reading data from the Metal staging layer and loading it into the Bronze SCD Type 2 tables. It ensures historical tracking of changes by identifying new, changed, and unchanged records, applying the appropriate logic to insert new versions or retire old ones with end dates as part of the SCD2 process.",
+  "name" : "cdi_tsk_map_acx_coverage_item_bronze_load",
   "runtimeEnvironmentId" : "@3pADNCV9u0PcgrXjM7rx0t",
   "runtimeEnvironmentName" : "sag_aws_linux",
   "maxLogs" : 10,
   "parameters" : [
     {
-      "name" : "$src_delta_changes_agency$",
+      "name" : "$src_coverage_item_stg$",
       "type" : "SOURCE",
-      "label" : "DBConnection_UDM_SRC",
+      "label" : "DBConnection_ACX_SRC",
       "uiProperties" : {
         "cnxtype" : "Amazon Redshift v2",
         "connectionParameterized" : "true",
-        "paramName" : "DBConnection_UDM_SRC",
+        "paramName" : "DBConnection_ACX_SRC",
         "paramType-mapping" : "Connection",
-        "logcnx" : "DBConnection_UDM_SRC",
+        "logcnx" : "DBConnection_ACX_SRC",
         "isSelectDistinct" : "false",
         "objectParameterized" : "false",
         "visible" : "false",
-        "originalPath" : "src_delta_changes_agency"
+        "originalPath" : "src_coverage_item_stg"
       },
       "sourceConnectionId" : "@aYZ4ekzHgIPeKpiaoqDLKP",
       "connectionName" : "redshift_nonprod_andover_dw_dev",
-      "sourceObject" : "DUMMY_src_delta_changes_agency",
+      "sourceObject" : "DUMMY_src_coverage_item_stg",
       "newFlatFile" : false,
       "newObject" : false,
       "showBusinessNames" : true,
@@ -30,7 +29,7 @@
       "truncateTarget" : false,
       "bulkApiDBTarget" : false,
       "customFuncCfg" : { },
-      "customQuery" : "WITH current_batch AS (\n    SELECT \n        bls.batch_id,\n        bls.source_start_cutoff_datetime,\n        bls.source_end_cutoff_datetime\n    FROM $$raw_schema.batch_load_summary bls\n    WHERE bls.source_system_code = '$$sourcesystemcode'\n      AND bls.batch_status = 'Inprogress'\n      AND bls.batch_id = (\n          SELECT MAX(batch_id)\n          FROM metal.batch_load_summary\n          WHERE source_system_code = '$$sourcesystemcode'\n            AND batch_status = 'Inprogress'\n      )\n)\nSELECT DISTINCT\nmetal_agg.source_name, \nmetal_agg.load_type,\nmetal_agg.combined,\nmetal_agg.agencies_transferable,\nmetal_agg.ach_accountnum,\nmetal_agg.ach_accounttype1,\nmetal_agg.ach_accounttype2,\nmetal_agg.ach_routingnum,\nmetal_agg.contingent_group_name1,\nmetal_agg.contingent_group_name2,\nmetal_agg.contingent_paymentby,\nmetal_agg.created, \nmetal_agg.fieldrep,\nmetal_agg.fieldrep_state,\nmetal_agg.groups_nup,\nmetal_agg.groups_number,\nmetal_agg.modified,\nmetal_agg.qualifyingamount,\nmetal_agg.share,\nmetal_agg.status_date, \nmetal_agg.super_group_id,\nmetal_agg.user_gw,\nmetal_agg.transfer_status,\ncurrent_batch.batch_id\nFROM $$raw_schema.adm_group_guidewire metal_agg\nCROSS JOIN current_batch\nORDER BY \nmetal_agg.groups_nup,\nmetal_agg.created,\nmetal_agg.modified;",
+      "customQuery" : "select\n\tsource_name,\n\tload_type,\n\tsystem_id,\n\tparent_id,\n\tcmm_container,\n\tid,\n\tstatus,\n\tcoverage_item_cd,\n\tfull_term_amt,\n\tfull_term_manual_amt,\n\tfinal_premium_amt,\n\twritten_premium_amt,\n\tearned_amt,\n\tsequence_number,\n\titem_desc,\n\tprev_final_amt,\n\tprev_written_amt,\n\ttransaction_commission_amt,\n\tshort_rate_amt,\n\tfuture_status_cd,\n\tdriver_id_ref,\n\tnum_families,\n\tadditional_plan_charge_pct,\n\tnum_of_units,\n\tmanufacturer,\n\t\"model\",\n\tmodel_yr,\n\tveh_body_type_cd,\n\tengine_type,\n\tengine_desc,\n\tstated_amt,\n\tbreakage_cov_ind,\n\toutboard_motor_val,\n\ttrailer_type,\n\ttrailer_value,\n\tunattached_equip_type,\n\tunattached_equip_value,\n\tengine_cc,\n\tin_exp_oper,\n\tvehicle_vin,\n\tresidency_det,\n\tschool_name,\n\titem_type,\n\thorsepower,\n\tlength,\n\toperating_area,\n\tpb_hull_ded,\n\tpb_hull_value,\n\tpb_motor_value,\n\tpb_personal_effect_value,\n\tmore_than_1_eng,\n\tidentical_2nd_eng,\n\tpb_liability,\n\tpb_med_payment,\n\tpb_agreed_amount,\n\tpb_dt_last_survey,\n\tpb_hull_material,\n\tpb_max_speed,\n\tpb_water_nav,\n\tpb_ai_count,\n\tpb_engine_year1,\n\tpb_engine_model1,\n\tpb_engine_hp1,\n\tpb_engine_fuel1,\n\tpb_engine_year2,\n\tpb_engine_model2,\n\tpb_engine_hp2,\n\tpb_engine_fuel2,\n\tpb_ai1,\n\tpb_ai_name1,\n\tpb_ai_street1,\n\tpb_ai_city1,\n\tpb_ai_state1,\n\tpb_ai_zip1,\n\tpb_ai_loan_num1,\n\tpb_ai2,\n\tpb_ai_name2,\n\tpb_ai_street2,\n\tpb_ai_city2,\n\tpb_ai_state2,\n\tpb_ai_zip2,\n\tpb_ai_loan_num2,\n\tcommercial_towing_ind,\n\tagreed_amount_out_ind,\n\tcoast_guard_cert_ind,\n\teducational_exp_ind,\n\tship_to_shore_ind,\n\tmarine_compass_ind,\n\tdepth_finder_ind,\n\tvapor_detect_ind,\n\tco2_halon_fire_ind,\n\tradar_system_ind,\n\tloran_gps_ind,\n\thull_ded,\n\tdiesel,\n\thull_value,\n\tout_board_mot_val,\n\ttrailer_desc,\n\ttrailer_val,\n\tunattach_equip_desc,\n\tunattach_equip_value,\n\tparent_item_number,\n\trating_ind,\n\tcast(row_id as BIGINT) as row_id, \n\tclass_cd\nfrom\n\t$$raw_schema.acx_coverage_item\norder by system_id,\n\tcmm_container;",
       "commandType" : 0,
       "handleSpecialChars" : false,
       "handleDecimalRoundOff" : false,
@@ -39,11 +38,11 @@
       "excludeDynamicFileNameField" : false,
       "currentlyProcessedFileName" : false,
       "retainFieldMetadata" : false,
-      "objectName" : "DUMMY_src_delta_changes_agency",
+      "objectName" : "DUMMY_src_coverage_item_stg",
       "useExactSrcNames" : false,
       "userUpdated" : true,
       "runtimeParameterData" : {
-        "connectionParameterName" : "DBConnection_UDM_SRC",
+        "connectionParameterName" : "DBConnection_ACX_SRC",
         "connectionRuntimeParameter" : false,
         "objectRuntimeParameter" : false
       },
@@ -52,23 +51,23 @@
       "fileList" : false
     },
     {
-      "name" : "$src_tgt_bronze_adm_group_guidewire_Query$",
+      "name" : "$src_tgt_query$",
       "type" : "SOURCE",
-      "label" : "DBConnection_UDM_TGT",
+      "label" : "DBConnection_ACX_SRC",
       "uiProperties" : {
         "cnxtype" : "Amazon Redshift v2",
         "connectionParameterized" : "true",
-        "paramName" : "DBConnection_UDM_TGT",
+        "paramName" : "DBConnection_ACX_SRC",
         "paramType-mapping" : "Connection",
-        "logcnx" : "DBConnection_UDM_TGT",
+        "logcnx" : "DBConnection_ACX_SRC",
         "isSelectDistinct" : "false",
         "objectParameterized" : "false",
         "visible" : "false",
-        "originalPath" : "src_tgt_bronze_adm_group_guidewire_Query"
+        "originalPath" : "src_tgt_query"
       },
       "sourceConnectionId" : "@aYZ4ekzHgIPeKpiaoqDLKP",
       "connectionName" : "redshift_nonprod_andover_dw_dev",
-      "sourceObject" : "DUMMY_src_tgt_bronze_adm_group_guidewire_Query",
+      "sourceObject" : "DUMMY_src_tgt_query",
       "newFlatFile" : false,
       "newObject" : false,
       "showBusinessNames" : true,
@@ -76,7 +75,7 @@
       "truncateTarget" : false,
       "bulkApiDBTarget" : false,
       "customFuncCfg" : { },
-      "customQuery" : "SELECT \n    adm_group_guidewire_row_id, \n    adm_group_guidewire_row_md5checksum, \n    adm_group_guidewire_batch_id,  \n    modified,\n    adm_group_guidewire_row_effective_end_datetime,\n    groups_nup\nFROM $$staging_schema.adm_group_guidewire \nWHERE  adm_group_guidewire_row_effective_end_datetime = '9999-12-31 00:00:00.000'",
+      "customQuery" : "select\n\trow_id,\n\tacx_coverage_item_row_id,\n\tacx_coverage_item_row_md5checksum,\n\tacx_coverage_item_row_effective_end_datetime \nfrom\n\tbronze.acx_coverage_item\nwhere\n\tacx_coverage_item_row_effective_end_datetime = '9999-12-31 00:00:00.000'\norder by system_id, cmm_container ;",
       "commandType" : 0,
       "handleSpecialChars" : false,
       "handleDecimalRoundOff" : false,
@@ -85,11 +84,11 @@
       "excludeDynamicFileNameField" : false,
       "currentlyProcessedFileName" : false,
       "retainFieldMetadata" : false,
-      "objectName" : "DUMMY_src_tgt_bronze_adm_group_guidewire_Query",
+      "objectName" : "DUMMY_src_tgt_query",
       "useExactSrcNames" : false,
       "userUpdated" : true,
       "runtimeParameterData" : {
-        "connectionParameterName" : "DBConnection_UDM_TGT",
+        "connectionParameterName" : "DBConnection_ACX_SRC",
         "connectionRuntimeParameter" : false,
         "objectRuntimeParameter" : false
       },
@@ -98,25 +97,25 @@
       "fileList" : false
     },
     {
-      "name" : "$tgt_bronze_adm_group_guidewire_insrt$",
+      "name" : "$tgt_insert_records$",
       "type" : "TARGET",
-      "label" : "DBConnection_UDM_TGT",
+      "label" : "DBConnection_ACX_TGT",
       "uiProperties" : {
         "cnxtype" : "Amazon Redshift v2",
         "connectionParameterized" : "true",
-        "paramName" : "DBConnection_UDM_TGT",
+        "paramName" : "DBConnection_ACX_TGT",
         "paramType-mapping" : "Connection",
-        "logcnx" : "DBConnection_UDM_TGT",
-        "default" : "bronze/adm_group_guidewire",
+        "logcnx" : "DBConnection_ACX_TGT",
+        "default" : "bronze/acx_coverage_item",
         "objectParameterized" : "false",
         "visible" : "false",
         "supportApplyDDLChanges" : "false",
-        "originalPath" : "tgt_bronze_adm_group_guidewire_insrt"
+        "originalPath" : "tgt_insert_records"
       },
       "targetConnectionId" : "@aYZ4ekzHgIPeKpiaoqDLKP",
       "connectionName" : "redshift_nonprod_andover_dw_dev",
-      "targetObject" : "bronze/adm_group_guidewire",
-      "targetObjectLabel" : "bronze/adm_group_guidewire",
+      "targetObject" : "bronze/acx_coverage_item",
+      "targetObjectLabel" : "bronze/acx_coverage_item",
       "newFlatFile" : false,
       "newObject" : false,
       "showBusinessNames" : true,
@@ -136,12 +135,12 @@
       "excludeDynamicFileNameField" : false,
       "currentlyProcessedFileName" : false,
       "retainFieldMetadata" : false,
-      "objectName" : "bronze/adm_group_guidewire",
-      "objectLabel" : "bronze/adm_group_guidewire",
+      "objectName" : "bronze/acx_coverage_item",
+      "objectLabel" : "bronze/acx_coverage_item",
       "useExactSrcNames" : false,
       "userUpdated" : true,
       "runtimeParameterData" : {
-        "connectionParameterName" : "DBConnection_UDM_TGT",
+        "connectionParameterName" : "DBConnection_ACX_TGT",
         "connectionRuntimeParameter" : false,
         "objectRuntimeParameter" : false
       },
@@ -150,78 +149,26 @@
       "fileList" : false
     },
     {
-      "name" : "$tgt_bronze_adm_group_guidewire_updt$",
+      "name" : "$tgt_update_closeout$",
       "type" : "TARGET",
-      "label" : "DBConnection_UDM_TGT",
+      "label" : "DBConnection_ACX_TGT",
       "uiProperties" : {
         "cnxtype" : "Amazon Redshift v2",
         "connectionParameterized" : "true",
-        "paramName" : "DBConnection_UDM_TGT",
+        "paramName" : "DBConnection_ACX_TGT",
         "paramType-mapping" : "Connection",
-        "logcnx" : "DBConnection_UDM_TGT",
-        "default" : "bronze/adm_group_guidewire",
+        "logcnx" : "DBConnection_ACX_TGT",
+        "default" : "bronze/acx_coverage_item",
         "objectParameterized" : "false",
         "visible" : "false",
+        "defaultTargetUpdateColumns" : "acx_coverage_item_row_id",
         "supportApplyDDLChanges" : "false",
-        "originalPath" : "tgt_bronze_adm_group_guidewire_updt"
+        "originalPath" : "tgt_update_closeout"
       },
       "targetConnectionId" : "@aYZ4ekzHgIPeKpiaoqDLKP",
       "connectionName" : "redshift_nonprod_andover_dw_dev",
-      "targetObject" : "bronze/adm_group_guidewire",
-      "targetObjectLabel" : "bronze/adm_group_guidewire",
-      "newFlatFile" : false,
-      "newObject" : false,
-      "showBusinessNames" : true,
-      "naturalOrder" : true,
-      "truncateTarget" : false,
-      "bulkApiDBTarget" : false,
-      "operationType" : "Insert",
-      "customFuncCfg" : { },
-      "extendedObject" : {
-        "singleMode" : true
-      },
-      "commandType" : 0,
-      "handleSpecialChars" : false,
-      "handleDecimalRoundOff" : false,
-      "frsAsset" : false,
-      "dynamicFileName" : false,
-      "excludeDynamicFileNameField" : false,
-      "currentlyProcessedFileName" : false,
-      "retainFieldMetadata" : false,
-      "objectName" : "bronze/adm_group_guidewire",
-      "objectLabel" : "bronze/adm_group_guidewire",
-      "useExactSrcNames" : false,
-      "userUpdated" : true,
-      "runtimeParameterData" : {
-        "connectionParameterName" : "DBConnection_UDM_TGT",
-        "connectionRuntimeParameter" : false,
-        "objectRuntimeParameter" : false
-      },
-      "restmodernSource" : true,
-      "unspecified" : false,
-      "fileList" : false
-    },
-    {
-      "name" : "$tgt_bronze_adm_group_guidewire_updt_endate$",
-      "type" : "TARGET",
-      "label" : "DBConnection_UDM_TGT",
-      "uiProperties" : {
-        "cnxtype" : "Amazon Redshift v2",
-        "connectionParameterized" : "true",
-        "paramName" : "DBConnection_UDM_TGT",
-        "paramType-mapping" : "Connection",
-        "logcnx" : "DBConnection_UDM_TGT",
-        "default" : "bronze/adm_group_guidewire",
-        "objectParameterized" : "false",
-        "visible" : "false",
-        "defaultTargetUpdateColumns" : "adm_group_guidewire_row_id",
-        "supportApplyDDLChanges" : "false",
-        "originalPath" : "tgt_bronze_adm_group_guidewire_updt_endate"
-      },
-      "targetConnectionId" : "@aYZ4ekzHgIPeKpiaoqDLKP",
-      "connectionName" : "redshift_nonprod_andover_dw_dev",
-      "targetObject" : "bronze/adm_group_guidewire",
-      "targetObjectLabel" : "bronze/adm_group_guidewire",
+      "targetObject" : "bronze/acx_coverage_item",
+      "targetObjectLabel" : "bronze/acx_coverage_item",
       "newFlatFile" : false,
       "newObject" : false,
       "showBusinessNames" : true,
@@ -231,7 +178,7 @@
       "operationType" : "Update",
       "customFuncCfg" : { },
       "targetUpdateColumns" : [
-        "adm_group_guidewire_row_id"
+        "acx_coverage_item_row_id"
       ],
       "extendedObject" : {
         "singleMode" : true
@@ -244,12 +191,64 @@
       "excludeDynamicFileNameField" : false,
       "currentlyProcessedFileName" : false,
       "retainFieldMetadata" : false,
-      "objectName" : "bronze/adm_group_guidewire",
-      "objectLabel" : "bronze/adm_group_guidewire",
+      "objectName" : "bronze/acx_coverage_item",
+      "objectLabel" : "bronze/acx_coverage_item",
       "useExactSrcNames" : false,
       "userUpdated" : true,
       "runtimeParameterData" : {
-        "connectionParameterName" : "DBConnection_UDM_TGT",
+        "connectionParameterName" : "DBConnection_ACX_TGT",
+        "connectionRuntimeParameter" : false,
+        "objectRuntimeParameter" : false
+      },
+      "restmodernSource" : true,
+      "unspecified" : false,
+      "fileList" : false
+    },
+    {
+      "name" : "$tgt_update_records$",
+      "type" : "TARGET",
+      "label" : "DBConnection_ACX_TGT",
+      "uiProperties" : {
+        "cnxtype" : "Amazon Redshift v2",
+        "connectionParameterized" : "true",
+        "paramName" : "DBConnection_ACX_TGT",
+        "paramType-mapping" : "Connection",
+        "logcnx" : "DBConnection_ACX_TGT",
+        "default" : "bronze/acx_coverage_item",
+        "objectParameterized" : "false",
+        "visible" : "false",
+        "supportApplyDDLChanges" : "false",
+        "originalPath" : "tgt_update_records"
+      },
+      "targetConnectionId" : "@aYZ4ekzHgIPeKpiaoqDLKP",
+      "connectionName" : "redshift_nonprod_andover_dw_dev",
+      "targetObject" : "bronze/acx_coverage_item",
+      "targetObjectLabel" : "bronze/acx_coverage_item",
+      "newFlatFile" : false,
+      "newObject" : false,
+      "showBusinessNames" : true,
+      "naturalOrder" : true,
+      "truncateTarget" : false,
+      "bulkApiDBTarget" : false,
+      "operationType" : "Insert",
+      "customFuncCfg" : { },
+      "extendedObject" : {
+        "singleMode" : true
+      },
+      "commandType" : 0,
+      "handleSpecialChars" : false,
+      "handleDecimalRoundOff" : false,
+      "frsAsset" : false,
+      "dynamicFileName" : false,
+      "excludeDynamicFileNameField" : false,
+      "currentlyProcessedFileName" : false,
+      "retainFieldMetadata" : false,
+      "objectName" : "bronze/acx_coverage_item",
+      "objectLabel" : "bronze/acx_coverage_item",
+      "useExactSrcNames" : false,
+      "userUpdated" : true,
+      "runtimeParameterData" : {
+        "connectionParameterName" : "DBConnection_ACX_TGT",
         "connectionRuntimeParameter" : false,
         "objectRuntimeParameter" : false
       },
@@ -259,9 +258,9 @@
     }
   ],
   "verbose" : false,
-  "lastRunTime" : 1756300972000,
-  "mappingId" : "@jKCAKm5DMuFexzPbR31GAE",
-  "mappingTemplateName" : "cdi_map_adm_group_guidewire_bronze_load",
+  "lastRunTime" : 1756205283000,
+  "mappingId" : "@5VJbssPk0mvhZ1FVx1WtCj",
+  "mappingTemplateName" : "cdi_map_acx_coverage_item_bronze_load",
   "sessionPropertiesList" : [
     {
       "name" : "Pushdown Optimization",
@@ -278,44 +277,22 @@
   ],
   "inOutParameters" : [
     {
-      "name" : "sourcesystemcode",
-      "initialValue" : "ADM",
-      "datatype" : "STRING",
-      "precision" : "30",
-      "scale" : "0",
-      "retentionPolicy" : "ON_SUCCESS_OR_WARNING",
-      "aggregationType" : "MAX",
-      "currentValue" : "ADM"
-    },
-    {
       "name" : "raw_schema",
       "initialValue" : "metal",
       "datatype" : "STRING",
-      "precision" : "30",
+      "precision" : "100",
       "scale" : "0",
-      "retentionPolicy" : "ON_SUCCESS_OR_WARNING",
+      "retentionPolicy" : "NEVER",
       "aggregationType" : "MAX",
       "currentValue" : "metal"
     },
     {
       "name" : "staging_schema",
-      "initialValue" : "bronze",
       "datatype" : "STRING",
-      "precision" : "30",
+      "precision" : "100",
       "scale" : "0",
-      "retentionPolicy" : "ON_SUCCESS_OR_WARNING",
-      "aggregationType" : "MAX",
-      "currentValue" : "bronze"
-    },
-    {
-      "name" : "operational_schema",
-      "initialValue" : "metal",
-      "datatype" : "STRING",
-      "precision" : "30",
-      "scale" : "0",
-      "retentionPolicy" : "ON_SUCCESS_OR_WARNING",
-      "aggregationType" : "MAX",
-      "currentValue" : "operations"
+      "retentionPolicy" : "NEVER",
+      "aggregationType" : "MAX"
     }
   ],
   "hidden" : false,
@@ -323,7 +300,7 @@
   "enableParallelRun" : false,
   "autoTunedApplied" : false,
   "autoTunedAppliedType" : "NONE",
-  "parameterFileName" : "Andover_Param_ADM.param",
+  "parameterFileName" : "Andover_Param_ACX.param",
   "parameterFileDir" : "$PMRootDir/andover/parameters",
   "paramFileType" : "PARAM_FILE_LOCAL",
   "schemaMode" : "async",
@@ -332,5 +309,5 @@
   "allowMaxFieldLength" : false,
   "specialCharacterSupport" : false,
   "midstreamPreview" : false,
-  "vcsExportTime" : "2025-08-27 06:28:11 PDT"
+  "vcsExportTime" : "2025-08-26 13:34:27 EDT"
 }
