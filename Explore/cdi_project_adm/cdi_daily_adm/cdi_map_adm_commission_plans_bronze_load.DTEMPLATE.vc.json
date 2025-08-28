@@ -112,6 +112,18 @@
         "allowRuntimeOverride" : "false",
         "expressionVariable" : "false",
         "name" : "S3_Staging_Bucket"
+      },
+      {
+        "input" : "true",
+        "output" : "false",
+        "precision" : 0,
+        "scale" : 0,
+        "allowRuntimeOverride" : "false",
+        "expressionVariable" : "false",
+        "name" : "sourcesystemcode",
+        "defaultValue" : {
+          "valueLiteral" : "ADM"
+        }
       }
     ],
     "transformations" : [
@@ -325,7 +337,7 @@
           "typeSystem" : "TOOLKIT",
           "useDynamicFileName" : "false",
           "object" : {
-            "customQuery" : "WITH current_batch AS (\n    SELECT \n        bls.batch_id,\n        bls.source_start_cutoff_datetime,\n        bls.source_end_cutoff_datetime\n    FROM metal.batch_load_summary bls\n    WHERE bls.source_system_code = 'ADM'\n      AND bls.batch_status = 'Inprogress'\n      AND bls.batch_id = (\n          SELECT MAX(batch_id)\n          FROM metal.batch_load_summary\n          WHERE source_system_code = 'ADM'\n            AND batch_status = 'Inprogress'\n      )\n)\nSELECT DISTINCT \nmetal_acp.source_name, \nmetal_acp.load_type, \nmetal_acp.agency_nup, \nmetal_acp.bs_appoint_dt, \nmetal_acp.bs_cancel_dt, \nmetal_acp.ca_appoint_dt, \nmetal_acp.ca_cancel_dt, \nmetal_acp.create_user_nup, \nmetal_acp.created, \nmetal_acp.id, \nmetal_acp.mk_appoint_dt, \nmetal_acp.mk_cancel_dt, \nmetal_acp.modified, modify_user_nup, \nmetal_acp.state,\ncurrent_batch.batch_id\nFROM metal.adm_commission_plans metal_acp\nCROSS JOIN current_batch\nORDER BY \nmetal_acp.id,\nmetal_acp.created,\nmetal_acp.modified",
+            "customQuery" : "with current_batch as (\nselect\n\tbls.batch_id,\n\tbls.source_start_cutoff_datetime,\n\tbls.source_end_cutoff_datetime\nfrom\n\t$$operational_schema.batch_load_summary bls\nwhere\n\tbls.source_system_code ='$$sourcesystemcode'\n\tand bls.batch_status = 'Inprogress'\n\tand bls.batch_id = (\n\tselect\n\t\tMAX(batch_id)\n\tfrom\n\t\t$$operational_schema.batch_load_summary\n\twhere\n\t\tsource_system_code ='$$sourcesystemcode'\n\t\tand batch_status = 'Inprogress' ) )\nSELECT \n    DISTINCT \n    acp.source_name, \n    acp.load_type, \n    acp.agency_nup, \n    acp.bs_appoint_dt, \n    acp.bs_cancel_dt, \n    acp.ca_appoint_dt, \n    acp.ca_cancel_dt, \n    acp.create_user_nup, \n    acp.created, \n    acp.id, \n    acp.mk_appoint_dt, \n    acp.mk_cancel_dt, \n    acp.modified, \n    acp.modify_user_nup, \n    acp.state,\n    cb.batch_id\nFROM \n    $$raw_schema.adm_commission_plans acp\nCROSS JOIN current_batch cb\nORDER BY \n    acp.id,\n    acp.created,\n    acp.modified;",
             "retainMetadata" : "false",
             "fields" : [
               {
@@ -597,7 +609,7 @@
             "attributes" : [
               {
                 "name" : "Read Mode",
-                "value" : "Staging"
+                "value" : "Direct"
               },
               {
                 "name" : "Fetch Size",
@@ -672,9 +684,9 @@
         "fields" : [
           {
             "adapterField" : {
-              "name" : "commission_plans_row_id"
+              "name" : "adm_commission_plans_row_id"
             },
-            "name" : "commission_plans_row_id",
+            "name" : "adm_commission_plans_row_id",
             "platformType" : {
               "name" : "bigint"
             },
@@ -683,9 +695,9 @@
           },
           {
             "adapterField" : {
-              "name" : "commission_plans_batch_id"
+              "name" : "adm_commission_plans_batch_id"
             },
-            "name" : "commission_plans_batch_id",
+            "name" : "adm_commission_plans_batch_id",
             "platformType" : {
               "name" : "bigint"
             },
@@ -694,9 +706,9 @@
           },
           {
             "adapterField" : {
-              "name" : "source_name"
+              "name" : "originating_source_name"
             },
-            "name" : "source_name",
+            "name" : "originating_source_name",
             "platformType" : {
               "name" : "string"
             },
@@ -705,9 +717,9 @@
           },
           {
             "adapterField" : {
-              "name" : "load_type"
+              "name" : "originating_load_type"
             },
-            "name" : "load_type",
+            "name" : "originating_load_type",
             "platformType" : {
               "name" : "string"
             },
@@ -716,9 +728,9 @@
           },
           {
             "adapterField" : {
-              "name" : "commission_plans_md5checksum"
+              "name" : "adm_commission_plans_md5checksum"
             },
-            "name" : "commission_plans_md5checksum",
+            "name" : "adm_commission_plans_md5checksum",
             "platformType" : {
               "name" : "string"
             },
@@ -727,9 +739,9 @@
           },
           {
             "adapterField" : {
-              "name" : "commission_plans_datetime_created"
+              "name" : "adm_commission_plans_row_effective_start_datetime"
             },
-            "name" : "commission_plans_datetime_created",
+            "name" : "adm_commission_plans_row_effective_start_datetime",
             "platformType" : {
               "name" : "date/time"
             },
@@ -738,9 +750,9 @@
           },
           {
             "adapterField" : {
-              "name" : "commission_plans_datetime_modified"
+              "name" : "adm_commission_plans_row_effective_end_datetime"
             },
-            "name" : "commission_plans_datetime_modified",
+            "name" : "adm_commission_plans_row_effective_end_datetime",
             "platformType" : {
               "name" : "date/time"
             },
@@ -749,31 +761,20 @@
           },
           {
             "adapterField" : {
-              "name" : "commission_plans_row_effective_start_datetime"
+              "name" : "adm_commission_plans_row_status"
             },
-            "name" : "commission_plans_row_effective_start_datetime",
+            "name" : "adm_commission_plans_row_status",
             "platformType" : {
-              "name" : "date/time"
+              "name" : "string"
             },
-            "precision" : 29,
-            "scale" : 9
+            "precision" : 63,
+            "scale" : 0
           },
           {
             "adapterField" : {
-              "name" : "commission_plans_row_effective_end_datetime"
+              "name" : "agency_nup"
             },
-            "name" : "commission_plans_row_effective_end_datetime",
-            "platformType" : {
-              "name" : "date/time"
-            },
-            "precision" : 29,
-            "scale" : 9
-          },
-          {
-            "adapterField" : {
-              "name" : "agency_id"
-            },
-            "name" : "agency_id",
+            "name" : "agency_nup",
             "platformType" : {
               "name" : "integer"
             },
@@ -782,9 +783,9 @@
           },
           {
             "adapterField" : {
-              "name" : "bay_state_appointed_date"
+              "name" : "bs_appoint_dt"
             },
-            "name" : "bay_state_appointed_date",
+            "name" : "bs_appoint_dt",
             "platformType" : {
               "name" : "date/time"
             },
@@ -793,9 +794,9 @@
           },
           {
             "adapterField" : {
-              "name" : "bay_state_cancelled_date"
+              "name" : "bs_cancel_dt"
             },
-            "name" : "bay_state_cancelled_date",
+            "name" : "bs_cancel_dt",
             "platformType" : {
               "name" : "date/time"
             },
@@ -804,9 +805,9 @@
           },
           {
             "adapterField" : {
-              "name" : "cambridge_mutual_appointed_date"
+              "name" : "ca_appoint_dt"
             },
-            "name" : "cambridge_mutual_appointed_date",
+            "name" : "ca_appoint_dt",
             "platformType" : {
               "name" : "date/time"
             },
@@ -815,9 +816,9 @@
           },
           {
             "adapterField" : {
-              "name" : "cambridge_mutual_cancelled_date"
+              "name" : "ca_cancel_dt"
             },
-            "name" : "cambridge_mutual_cancelled_date",
+            "name" : "ca_cancel_dt",
             "platformType" : {
               "name" : "date/time"
             },
@@ -826,9 +827,20 @@
           },
           {
             "adapterField" : {
-              "name" : "commission_plan_id"
+              "name" : "created"
             },
-            "name" : "commission_plan_id",
+            "name" : "created",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "create_user_nup"
+            },
+            "name" : "create_user_nup",
             "platformType" : {
               "name" : "integer"
             },
@@ -837,57 +849,68 @@
           },
           {
             "adapterField" : {
-              "name" : "commission_plan_state_abbreviation"
+              "name" : "id"
             },
-            "name" : "commission_plan_state_abbreviation",
+            "name" : "id",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "mk_appoint_dt"
+            },
+            "name" : "mk_appoint_dt",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "mk_cancel_dt"
+            },
+            "name" : "mk_cancel_dt",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "modified"
+            },
+            "name" : "modified",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "modify_user_nup"
+            },
+            "name" : "modify_user_nup",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "state"
+            },
+            "name" : "state",
             "platformType" : {
               "name" : "string"
             },
             "precision" : 7,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "merrimack_mutual_appointed_date"
-            },
-            "name" : "merrimack_mutual_appointed_date",
-            "platformType" : {
-              "name" : "date/time"
-            },
-            "precision" : 29,
-            "scale" : 9
-          },
-          {
-            "adapterField" : {
-              "name" : "merrimack_mutual_cancelled_date"
-            },
-            "name" : "merrimack_mutual_cancelled_date",
-            "platformType" : {
-              "name" : "date/time"
-            },
-            "precision" : 29,
-            "scale" : 9
-          },
-          {
-            "adapterField" : {
-              "name" : "user_id_created_commission_plan"
-            },
-            "name" : "user_id_created_commission_plan",
-            "platformType" : {
-              "name" : "integer"
-            },
-            "precision" : 10,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "user_id_last_modified_commission_plan"
-            },
-            "name" : "user_id_last_modified_commission_plan",
-            "platformType" : {
-              "name" : "integer"
-            },
-            "precision" : 10,
             "scale" : 0
           }
         ],
@@ -908,10 +931,10 @@
             "retainMetadata" : "false",
             "fields" : [
               {
-                "name" : "commission_plans_row_id",
+                "name" : "adm_commission_plans_row_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "commission_plans_row_id",
-                "nativeName" : "commission_plans_row_id",
+                "label" : "adm_commission_plans_row_id",
+                "nativeName" : "adm_commission_plans_row_id",
                 "nativeType" : "int8",
                 "original" : "false",
                 "precision" : 19,
@@ -924,10 +947,10 @@
                 ]
               },
               {
-                "name" : "commission_plans_batch_id",
+                "name" : "adm_commission_plans_batch_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "commission_plans_batch_id",
-                "nativeName" : "commission_plans_batch_id",
+                "label" : "adm_commission_plans_batch_id",
+                "nativeName" : "adm_commission_plans_batch_id",
                 "nativeType" : "int8",
                 "original" : "false",
                 "precision" : 19,
@@ -940,10 +963,10 @@
                 ]
               },
               {
-                "name" : "source_name",
+                "name" : "originating_source_name",
                 "fieldType" : "CONNECTOR",
-                "label" : "source_name",
-                "nativeName" : "source_name",
+                "label" : "originating_source_name",
+                "nativeName" : "originating_source_name",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 127,
@@ -956,10 +979,10 @@
                 ]
               },
               {
-                "name" : "load_type",
+                "name" : "originating_load_type",
                 "fieldType" : "CONNECTOR",
-                "label" : "load_type",
-                "nativeName" : "load_type",
+                "label" : "originating_load_type",
+                "nativeName" : "originating_load_type",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 63,
@@ -972,10 +995,10 @@
                 ]
               },
               {
-                "name" : "commission_plans_md5checksum",
+                "name" : "adm_commission_plans_md5checksum",
                 "fieldType" : "CONNECTOR",
-                "label" : "commission_plans_md5checksum",
-                "nativeName" : "commission_plans_md5checksum",
+                "label" : "adm_commission_plans_md5checksum",
+                "nativeName" : "adm_commission_plans_md5checksum",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 255,
@@ -988,10 +1011,10 @@
                 ]
               },
               {
-                "name" : "commission_plans_datetime_created",
+                "name" : "adm_commission_plans_row_effective_start_datetime",
                 "fieldType" : "CONNECTOR",
-                "label" : "commission_plans_datetime_created",
-                "nativeName" : "commission_plans_datetime_created",
+                "label" : "adm_commission_plans_row_effective_start_datetime",
+                "nativeName" : "adm_commission_plans_row_effective_start_datetime",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 29,
@@ -1004,10 +1027,10 @@
                 ]
               },
               {
-                "name" : "commission_plans_datetime_modified",
+                "name" : "adm_commission_plans_row_effective_end_datetime",
                 "fieldType" : "CONNECTOR",
-                "label" : "commission_plans_datetime_modified",
-                "nativeName" : "commission_plans_datetime_modified",
+                "label" : "adm_commission_plans_row_effective_end_datetime",
+                "nativeName" : "adm_commission_plans_row_effective_end_datetime",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 29,
@@ -1020,14 +1043,14 @@
                 ]
               },
               {
-                "name" : "commission_plans_row_effective_start_datetime",
+                "name" : "adm_commission_plans_row_status",
                 "fieldType" : "CONNECTOR",
-                "label" : "commission_plans_row_effective_start_datetime",
-                "nativeName" : "commission_plans_row_effective_start_datetime",
-                "nativeType" : "timestamp",
+                "label" : "adm_commission_plans_row_status",
+                "nativeName" : "adm_commission_plans_row_status",
+                "nativeType" : "varchar",
                 "original" : "false",
-                "precision" : 29,
-                "scale" : 6,
+                "precision" : 63,
+                "scale" : 0,
                 "properties" : [
                   {
                     "name" : "parentObject",
@@ -1036,26 +1059,10 @@
                 ]
               },
               {
-                "name" : "commission_plans_row_effective_end_datetime",
+                "name" : "agency_nup",
                 "fieldType" : "CONNECTOR",
-                "label" : "commission_plans_row_effective_end_datetime",
-                "nativeName" : "commission_plans_row_effective_end_datetime",
-                "nativeType" : "timestamp",
-                "original" : "false",
-                "precision" : 29,
-                "scale" : 6,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_commission_plans"
-                  }
-                ]
-              },
-              {
-                "name" : "agency_id",
-                "fieldType" : "CONNECTOR",
-                "label" : "agency_id",
-                "nativeName" : "agency_id",
+                "label" : "agency_nup",
+                "nativeName" : "agency_nup",
                 "nativeType" : "int4",
                 "original" : "false",
                 "precision" : 10,
@@ -1068,10 +1075,10 @@
                 ]
               },
               {
-                "name" : "bay_state_appointed_date",
+                "name" : "bs_appoint_dt",
                 "fieldType" : "CONNECTOR",
-                "label" : "bay_state_appointed_date",
-                "nativeName" : "bay_state_appointed_date",
+                "label" : "bs_appoint_dt",
+                "nativeName" : "bs_appoint_dt",
                 "nativeType" : "date",
                 "original" : "false",
                 "precision" : 13,
@@ -1084,10 +1091,10 @@
                 ]
               },
               {
-                "name" : "bay_state_cancelled_date",
+                "name" : "bs_cancel_dt",
                 "fieldType" : "CONNECTOR",
-                "label" : "bay_state_cancelled_date",
-                "nativeName" : "bay_state_cancelled_date",
+                "label" : "bs_cancel_dt",
+                "nativeName" : "bs_cancel_dt",
                 "nativeType" : "date",
                 "original" : "false",
                 "precision" : 13,
@@ -1100,10 +1107,10 @@
                 ]
               },
               {
-                "name" : "cambridge_mutual_appointed_date",
+                "name" : "ca_appoint_dt",
                 "fieldType" : "CONNECTOR",
-                "label" : "cambridge_mutual_appointed_date",
-                "nativeName" : "cambridge_mutual_appointed_date",
+                "label" : "ca_appoint_dt",
+                "nativeName" : "ca_appoint_dt",
                 "nativeType" : "date",
                 "original" : "false",
                 "precision" : 13,
@@ -1116,10 +1123,10 @@
                 ]
               },
               {
-                "name" : "cambridge_mutual_cancelled_date",
+                "name" : "ca_cancel_dt",
                 "fieldType" : "CONNECTOR",
-                "label" : "cambridge_mutual_cancelled_date",
-                "nativeName" : "cambridge_mutual_cancelled_date",
+                "label" : "ca_cancel_dt",
+                "nativeName" : "ca_cancel_dt",
                 "nativeType" : "date",
                 "original" : "false",
                 "precision" : 13,
@@ -1132,10 +1139,26 @@
                 ]
               },
               {
-                "name" : "commission_plan_id",
+                "name" : "created",
                 "fieldType" : "CONNECTOR",
-                "label" : "commission_plan_id",
-                "nativeName" : "commission_plan_id",
+                "label" : "created",
+                "nativeName" : "created",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_commission_plans"
+                  }
+                ]
+              },
+              {
+                "name" : "create_user_nup",
+                "fieldType" : "CONNECTOR",
+                "label" : "create_user_nup",
+                "nativeName" : "create_user_nup",
                 "nativeType" : "int4",
                 "original" : "false",
                 "precision" : 10,
@@ -1148,77 +1171,93 @@
                 ]
               },
               {
-                "name" : "commission_plan_state_abbreviation",
+                "name" : "id",
                 "fieldType" : "CONNECTOR",
-                "label" : "commission_plan_state_abbreviation",
-                "nativeName" : "commission_plan_state_abbreviation",
+                "label" : "id",
+                "nativeName" : "id",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_commission_plans"
+                  }
+                ]
+              },
+              {
+                "name" : "mk_appoint_dt",
+                "fieldType" : "CONNECTOR",
+                "label" : "mk_appoint_dt",
+                "nativeName" : "mk_appoint_dt",
+                "nativeType" : "date",
+                "original" : "false",
+                "precision" : 13,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_commission_plans"
+                  }
+                ]
+              },
+              {
+                "name" : "mk_cancel_dt",
+                "fieldType" : "CONNECTOR",
+                "label" : "mk_cancel_dt",
+                "nativeName" : "mk_cancel_dt",
+                "nativeType" : "date",
+                "original" : "false",
+                "precision" : 13,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_commission_plans"
+                  }
+                ]
+              },
+              {
+                "name" : "modified",
+                "fieldType" : "CONNECTOR",
+                "label" : "modified",
+                "nativeName" : "modified",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_commission_plans"
+                  }
+                ]
+              },
+              {
+                "name" : "modify_user_nup",
+                "fieldType" : "CONNECTOR",
+                "label" : "modify_user_nup",
+                "nativeName" : "modify_user_nup",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_commission_plans"
+                  }
+                ]
+              },
+              {
+                "name" : "state",
+                "fieldType" : "CONNECTOR",
+                "label" : "state",
+                "nativeName" : "state",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 7,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_commission_plans"
-                  }
-                ]
-              },
-              {
-                "name" : "merrimack_mutual_appointed_date",
-                "fieldType" : "CONNECTOR",
-                "label" : "merrimack_mutual_appointed_date",
-                "nativeName" : "merrimack_mutual_appointed_date",
-                "nativeType" : "date",
-                "original" : "false",
-                "precision" : 13,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_commission_plans"
-                  }
-                ]
-              },
-              {
-                "name" : "merrimack_mutual_cancelled_date",
-                "fieldType" : "CONNECTOR",
-                "label" : "merrimack_mutual_cancelled_date",
-                "nativeName" : "merrimack_mutual_cancelled_date",
-                "nativeType" : "date",
-                "original" : "false",
-                "precision" : 13,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_commission_plans"
-                  }
-                ]
-              },
-              {
-                "name" : "user_id_created_commission_plan",
-                "fieldType" : "CONNECTOR",
-                "label" : "user_id_created_commission_plan",
-                "nativeName" : "user_id_created_commission_plan",
-                "nativeType" : "int4",
-                "original" : "false",
-                "precision" : 10,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_commission_plans"
-                  }
-                ]
-              },
-              {
-                "name" : "user_id_last_modified_commission_plan",
-                "fieldType" : "CONNECTOR",
-                "label" : "user_id_last_modified_commission_plan",
-                "nativeName" : "user_id_last_modified_commission_plan",
-                "nativeType" : "int4",
-                "original" : "false",
-                "precision" : 10,
                 "scale" : 0,
                 "properties" : [
                   {
@@ -1294,6 +1333,10 @@
                 "value" : "5242880"
               },
               {
+                "name" : "Schema Name",
+                "value" : "$$staging_schema"
+              },
+              {
                 "name" : "Preserve record order on write",
                 "value" : "NO"
               },
@@ -1323,133 +1366,140 @@
             {
               "fromFieldName" : "source_name",
               "toField" : {
-                "name" : "source_name"
+                "name" : "originating_source_name"
               },
               "fromFieldNames" : null
             },
             {
               "fromFieldName" : "load_type",
               "toField" : {
-                "name" : "load_type"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "o_commission_plans_row_effective_start_datetime",
-              "toField" : {
-                "name" : "commission_plans_row_effective_start_datetime"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "state",
-              "toField" : {
-                "name" : "commission_plan_state_abbreviation"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "o_ca_appoint_dt",
-              "toField" : {
-                "name" : "cambridge_mutual_appointed_date"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "o_ca_cancel_dt",
-              "toField" : {
-                "name" : "cambridge_mutual_cancelled_date"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "src_MD5_Hash_Value",
-              "toField" : {
-                "name" : "commission_plans_md5checksum"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "o_commission_plans_row_effective_end_datetime",
-              "toField" : {
-                "name" : "commission_plans_row_effective_end_datetime"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "o_bs_appoint_dt",
-              "toField" : {
-                "name" : "bay_state_appointed_date"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "o_bs_cancel_dt",
-              "toField" : {
-                "name" : "bay_state_cancelled_date"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "o_mk_appoint_dt",
-              "toField" : {
-                "name" : "merrimack_mutual_appointed_date"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "o_mk_cancel_dt",
-              "toField" : {
-                "name" : "merrimack_mutual_cancelled_date"
+                "name" : "originating_load_type"
               },
               "fromFieldNames" : null
             },
             {
               "fromFieldName" : "o_agency_nup",
               "toField" : {
-                "name" : "agency_id"
+                "name" : "agency_nup"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "o_id",
+              "fromFieldName" : "o_bs_appoint_dt",
               "toField" : {
-                "name" : "commission_plan_id"
+                "name" : "bs_appoint_dt"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_bs_cancel_dt",
+              "toField" : {
+                "name" : "bs_cancel_dt"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_ca_appoint_dt",
+              "toField" : {
+                "name" : "ca_appoint_dt"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_ca_cancel_dt",
+              "toField" : {
+                "name" : "ca_cancel_dt"
               },
               "fromFieldNames" : null
             },
             {
               "fromFieldName" : "o_created",
               "toField" : {
-                "name" : "commission_plans_datetime_created"
+                "name" : "created"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "create_user_nup",
+              "toField" : {
+                "name" : "create_user_nup"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "id",
+              "toField" : {
+                "name" : "id"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_mk_appoint_dt",
+              "toField" : {
+                "name" : "mk_appoint_dt"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_mk_cancel_dt",
+              "toField" : {
+                "name" : "mk_cancel_dt"
               },
               "fromFieldNames" : null
             },
             {
               "fromFieldName" : "o_modified",
               "toField" : {
-                "name" : "commission_plans_datetime_modified"
+                "name" : "modified"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "modify_user_nup",
+              "toField" : {
+                "name" : "modify_user_nup"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "state",
+              "toField" : {
+                "name" : "state"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_row_status_active",
+              "toField" : {
+                "name" : "adm_commission_plans_row_status"
               },
               "fromFieldNames" : null
             },
             {
               "fromFieldName" : "batch_id",
               "toField" : {
-                "name" : "commission_plans_batch_id"
+                "name" : "adm_commission_plans_batch_id"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "o_create_user_nop",
+              "fromFieldName" : "src_MD5_Hash_Value",
               "toField" : {
-                "name" : "user_id_created_commission_plan"
+                "name" : "adm_commission_plans_md5checksum"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "o_modified_user_nup",
+              "fromFieldName" : "o_commission_plans_row_effective_start_datetime",
               "toField" : {
-                "name" : "user_id_last_modified_commission_plan"
+                "name" : "adm_commission_plans_row_effective_start_datetime"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_commission_plans_row_effective_end_datetime",
+              "toField" : {
+                "name" : "adm_commission_plans_row_effective_end_datetime"
               },
               "fromFieldNames" : null
             }
@@ -1482,9 +1532,9 @@
         "fields" : [
           {
             "adapterField" : {
-              "name" : "commission_plans_row_id"
+              "name" : "adm_commission_plans_row_id"
             },
-            "name" : "commission_plans_row_id",
+            "name" : "adm_commission_plans_row_id",
             "platformType" : {
               "name" : "bigint"
             },
@@ -1493,20 +1543,9 @@
           },
           {
             "adapterField" : {
-              "name" : "commission_plans_batch_id"
+              "name" : "agency_nup"
             },
-            "name" : "commission_plans_batch_id",
-            "platformType" : {
-              "name" : "bigint"
-            },
-            "precision" : 19,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "agency_id"
-            },
-            "name" : "agency_id",
+            "name" : "agency_nup",
             "platformType" : {
               "name" : "integer"
             },
@@ -1515,9 +1554,9 @@
           },
           {
             "adapterField" : {
-              "name" : "commission_plan_id"
+              "name" : "id"
             },
-            "name" : "commission_plan_id",
+            "name" : "id",
             "platformType" : {
               "name" : "integer"
             },
@@ -1526,55 +1565,33 @@
           },
           {
             "adapterField" : {
-              "name" : "commission_plans_md5checksum"
+              "name" : "adm_commission_plans_md5checksum"
             },
-            "name" : "commission_plans_md5checksum",
+            "name" : "adm_commission_plans_md5checksum",
             "platformType" : {
               "name" : "string"
             },
             "precision" : 255,
             "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "commission_plans_datetime_modified"
-            },
-            "name" : "commission_plans_datetime_modified",
-            "platformType" : {
-              "name" : "date/time"
-            },
-            "precision" : 29,
-            "scale" : 9
-          },
-          {
-            "adapterField" : {
-              "name" : "commission_plans_row_effective_end_datetime"
-            },
-            "name" : "commission_plans_row_effective_end_datetime",
-            "platformType" : {
-              "name" : "date/time"
-            },
-            "precision" : 29,
-            "scale" : 9
           }
         ],
         "dataAdapter" : {
           "connectionId$" : {
-            "name" : "DBConnection_UDM_SRC"
+            "name" : "DBConnection_UDM_TGT"
           },
           "excludeDynamicFileNameField" : "false",
           "objectType" : "QUERY",
           "typeSystem" : "TOOLKIT",
           "useDynamicFileName" : "false",
           "object" : {
-            "customQuery" : "SELECT \n\tcommission_plans_row_id, \n\tcommission_plans_batch_id, \n\tagency_id,\n\tcommission_plan_id,\n\tcommission_plans_md5checksum, \n\tcommission_plans_datetime_modified, \n\tcommission_plans_row_effective_end_datetime\nFROM bronze.adm_commission_plans\nWHERE commission_plans_row_effective_end_datetime = '9999-12-31 00:00:00.000'",
+            "customQuery" : "SELECT \n\tadm_commission_plans_row_id, \n\tagency_nup,\n\tid,\n        adm_commission_plans_md5checksum\nFROM $$staging_schema.adm_commission_plans\nWHERE adm_commission_plans_row_effective_end_datetime = '9999-12-31 00:00:00.000'",
             "retainMetadata" : "false",
             "fields" : [
               {
-                "name" : "commission_plans_row_id",
+                "name" : "adm_commission_plans_row_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "commission_plans_row_id",
-                "nativeName" : "commission_plans_row_id",
+                "label" : "adm_commission_plans_row_id",
+                "nativeName" : "adm_commission_plans_row_id",
                 "nativeType" : "int8",
                 "original" : "false",
                 "precision" : 19,
@@ -1587,26 +1604,10 @@
                 ]
               },
               {
-                "name" : "commission_plans_batch_id",
+                "name" : "agency_nup",
                 "fieldType" : "CONNECTOR",
-                "label" : "commission_plans_batch_id",
-                "nativeName" : "commission_plans_batch_id",
-                "nativeType" : "int8",
-                "original" : "false",
-                "precision" : 19,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "INFARS_CUSTOM_SCHEMA"
-                  }
-                ]
-              },
-              {
-                "name" : "agency_id",
-                "fieldType" : "CONNECTOR",
-                "label" : "agency_id",
-                "nativeName" : "agency_id",
+                "label" : "agency_nup",
+                "nativeName" : "agency_nup",
                 "nativeType" : "int4",
                 "original" : "false",
                 "precision" : 10,
@@ -1619,10 +1620,10 @@
                 ]
               },
               {
-                "name" : "commission_plan_id",
+                "name" : "id",
                 "fieldType" : "CONNECTOR",
-                "label" : "commission_plan_id",
-                "nativeName" : "commission_plan_id",
+                "label" : "id",
+                "nativeName" : "id",
                 "nativeType" : "int4",
                 "original" : "false",
                 "precision" : 10,
@@ -1635,46 +1636,14 @@
                 ]
               },
               {
-                "name" : "commission_plans_md5checksum",
+                "name" : "adm_commission_plans_md5checksum",
                 "fieldType" : "CONNECTOR",
-                "label" : "commission_plans_md5checksum",
-                "nativeName" : "commission_plans_md5checksum",
+                "label" : "adm_commission_plans_md5checksum",
+                "nativeName" : "adm_commission_plans_md5checksum",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 255,
                 "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "INFARS_CUSTOM_SCHEMA"
-                  }
-                ]
-              },
-              {
-                "name" : "commission_plans_datetime_modified",
-                "fieldType" : "CONNECTOR",
-                "label" : "commission_plans_datetime_modified",
-                "nativeName" : "commission_plans_datetime_modified",
-                "nativeType" : "timestamp",
-                "original" : "false",
-                "precision" : 29,
-                "scale" : 6,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "INFARS_CUSTOM_SCHEMA"
-                  }
-                ]
-              },
-              {
-                "name" : "commission_plans_row_effective_end_datetime",
-                "fieldType" : "CONNECTOR",
-                "label" : "commission_plans_row_effective_end_datetime",
-                "nativeName" : "commission_plans_row_effective_end_datetime",
-                "nativeType" : "timestamp",
-                "original" : "false",
-                "precision" : 29,
-                "scale" : 6,
                 "properties" : [
                   {
                     "name" : "parentObject",
@@ -1695,7 +1664,7 @@
             "attributes" : [
               {
                 "name" : "Read Mode",
-                "value" : "Staging"
+                "value" : "Direct"
               },
               {
                 "name" : "Fetch Size",
@@ -1944,6 +1913,28 @@
               {
                 "bulkRename" : "false",
                 "include" : "true"
+              },
+              {
+                "bulkRename" : "false",
+                "include" : "true",
+                "names" : [
+                  {
+                    "inputName" : "adm_commission_plans_md5checksum",
+                    "outputName" : "tgt_adm_commission_plans_md5checksum"
+                  },
+                  {
+                    "inputName" : "adm_commission_plans_row_id",
+                    "outputName" : "tgt_adm_commission_plans_row_id"
+                  },
+                  {
+                    "inputName" : "agency_nup",
+                    "outputName" : "tgt_agency_nup"
+                  },
+                  {
+                    "inputName" : "id",
+                    "outputName" : "tgt_id"
+                  }
+                ]
               }
             ]
           },
@@ -1958,12 +1949,12 @@
           {
             "leftOperand" : "o_agency_nup",
             "operator" : "=",
-            "rightOperand" : "agency_id"
+            "rightOperand" : "tgt_agency_nup"
           },
           {
             "leftOperand" : "o_id",
             "operator" : "=",
-            "rightOperand" : "commission_plan_id"
+            "rightOperand" : "tgt_id"
           }
         ]
       },
@@ -2032,7 +2023,7 @@
             "precision" : 5,
             "scale" : 0,
             "expFieldType" : "OUTPUT",
-            "expression" : "iif (isnull(commission_plans_row_id),'I','X')"
+            "expression" : "iif (isnull(tgt_adm_commission_plans_row_id),'I','X')"
           },
           {
             "defaultValue" : "ERROR('transformation error')",
@@ -2043,7 +2034,7 @@
             "precision" : 5,
             "scale" : 0,
             "expFieldType" : "OUTPUT",
-            "expression" : "iif (not IsNull(commission_plans_row_id)and src_MD5_Hash_Value != commission_plans_md5checksum, 'U','X')"
+            "expression" : "iif (not IsNull(tgt_adm_commission_plans_row_id)and src_MD5_Hash_Value != tgt_adm_commission_plans_md5checksum, 'U','X')"
           },
           {
             "defaultValue" : "ERROR('transformation error')",
@@ -2066,6 +2057,28 @@
             "scale" : 9,
             "expFieldType" : "OUTPUT",
             "expression" : "to_date('9999-12-31','YYYY-MM-DD')"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_row_status_expired",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 100,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "'Expired'"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_row_status_active",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 100,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "'Active'"
           }
         ],
         "windowSpec" : {
@@ -2184,9 +2197,9 @@
         "fields" : [
           {
             "adapterField" : {
-              "name" : "commission_plans_row_id"
+              "name" : "adm_commission_plans_row_id"
             },
-            "name" : "commission_plans_row_id",
+            "name" : "adm_commission_plans_row_id",
             "platformType" : {
               "name" : "bigint"
             },
@@ -2195,9 +2208,9 @@
           },
           {
             "adapterField" : {
-              "name" : "commission_plans_batch_id"
+              "name" : "adm_commission_plans_batch_id"
             },
-            "name" : "commission_plans_batch_id",
+            "name" : "adm_commission_plans_batch_id",
             "platformType" : {
               "name" : "bigint"
             },
@@ -2206,9 +2219,9 @@
           },
           {
             "adapterField" : {
-              "name" : "source_name"
+              "name" : "originating_source_name"
             },
-            "name" : "source_name",
+            "name" : "originating_source_name",
             "platformType" : {
               "name" : "string"
             },
@@ -2217,9 +2230,9 @@
           },
           {
             "adapterField" : {
-              "name" : "load_type"
+              "name" : "originating_load_type"
             },
-            "name" : "load_type",
+            "name" : "originating_load_type",
             "platformType" : {
               "name" : "string"
             },
@@ -2228,9 +2241,9 @@
           },
           {
             "adapterField" : {
-              "name" : "commission_plans_md5checksum"
+              "name" : "adm_commission_plans_md5checksum"
             },
-            "name" : "commission_plans_md5checksum",
+            "name" : "adm_commission_plans_md5checksum",
             "platformType" : {
               "name" : "string"
             },
@@ -2239,9 +2252,9 @@
           },
           {
             "adapterField" : {
-              "name" : "commission_plans_datetime_created"
+              "name" : "adm_commission_plans_row_effective_start_datetime"
             },
-            "name" : "commission_plans_datetime_created",
+            "name" : "adm_commission_plans_row_effective_start_datetime",
             "platformType" : {
               "name" : "date/time"
             },
@@ -2250,9 +2263,9 @@
           },
           {
             "adapterField" : {
-              "name" : "commission_plans_datetime_modified"
+              "name" : "adm_commission_plans_row_effective_end_datetime"
             },
-            "name" : "commission_plans_datetime_modified",
+            "name" : "adm_commission_plans_row_effective_end_datetime",
             "platformType" : {
               "name" : "date/time"
             },
@@ -2261,31 +2274,20 @@
           },
           {
             "adapterField" : {
-              "name" : "commission_plans_row_effective_start_datetime"
+              "name" : "adm_commission_plans_row_status"
             },
-            "name" : "commission_plans_row_effective_start_datetime",
+            "name" : "adm_commission_plans_row_status",
             "platformType" : {
-              "name" : "date/time"
+              "name" : "string"
             },
-            "precision" : 29,
-            "scale" : 9
+            "precision" : 63,
+            "scale" : 0
           },
           {
             "adapterField" : {
-              "name" : "commission_plans_row_effective_end_datetime"
+              "name" : "agency_nup"
             },
-            "name" : "commission_plans_row_effective_end_datetime",
-            "platformType" : {
-              "name" : "date/time"
-            },
-            "precision" : 29,
-            "scale" : 9
-          },
-          {
-            "adapterField" : {
-              "name" : "agency_id"
-            },
-            "name" : "agency_id",
+            "name" : "agency_nup",
             "platformType" : {
               "name" : "integer"
             },
@@ -2294,9 +2296,9 @@
           },
           {
             "adapterField" : {
-              "name" : "bay_state_appointed_date"
+              "name" : "bs_appoint_dt"
             },
-            "name" : "bay_state_appointed_date",
+            "name" : "bs_appoint_dt",
             "platformType" : {
               "name" : "date/time"
             },
@@ -2305,9 +2307,9 @@
           },
           {
             "adapterField" : {
-              "name" : "bay_state_cancelled_date"
+              "name" : "bs_cancel_dt"
             },
-            "name" : "bay_state_cancelled_date",
+            "name" : "bs_cancel_dt",
             "platformType" : {
               "name" : "date/time"
             },
@@ -2316,9 +2318,9 @@
           },
           {
             "adapterField" : {
-              "name" : "cambridge_mutual_appointed_date"
+              "name" : "ca_appoint_dt"
             },
-            "name" : "cambridge_mutual_appointed_date",
+            "name" : "ca_appoint_dt",
             "platformType" : {
               "name" : "date/time"
             },
@@ -2327,9 +2329,9 @@
           },
           {
             "adapterField" : {
-              "name" : "cambridge_mutual_cancelled_date"
+              "name" : "ca_cancel_dt"
             },
-            "name" : "cambridge_mutual_cancelled_date",
+            "name" : "ca_cancel_dt",
             "platformType" : {
               "name" : "date/time"
             },
@@ -2338,9 +2340,20 @@
           },
           {
             "adapterField" : {
-              "name" : "commission_plan_id"
+              "name" : "created"
             },
-            "name" : "commission_plan_id",
+            "name" : "created",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "create_user_nup"
+            },
+            "name" : "create_user_nup",
             "platformType" : {
               "name" : "integer"
             },
@@ -2349,57 +2362,68 @@
           },
           {
             "adapterField" : {
-              "name" : "commission_plan_state_abbreviation"
+              "name" : "id"
             },
-            "name" : "commission_plan_state_abbreviation",
+            "name" : "id",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "mk_appoint_dt"
+            },
+            "name" : "mk_appoint_dt",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "mk_cancel_dt"
+            },
+            "name" : "mk_cancel_dt",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "modified"
+            },
+            "name" : "modified",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "modify_user_nup"
+            },
+            "name" : "modify_user_nup",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "state"
+            },
+            "name" : "state",
             "platformType" : {
               "name" : "string"
             },
             "precision" : 7,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "merrimack_mutual_appointed_date"
-            },
-            "name" : "merrimack_mutual_appointed_date",
-            "platformType" : {
-              "name" : "date/time"
-            },
-            "precision" : 29,
-            "scale" : 9
-          },
-          {
-            "adapterField" : {
-              "name" : "merrimack_mutual_cancelled_date"
-            },
-            "name" : "merrimack_mutual_cancelled_date",
-            "platformType" : {
-              "name" : "date/time"
-            },
-            "precision" : 29,
-            "scale" : 9
-          },
-          {
-            "adapterField" : {
-              "name" : "user_id_created_commission_plan"
-            },
-            "name" : "user_id_created_commission_plan",
-            "platformType" : {
-              "name" : "integer"
-            },
-            "precision" : 10,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "user_id_last_modified_commission_plan"
-            },
-            "name" : "user_id_last_modified_commission_plan",
-            "platformType" : {
-              "name" : "integer"
-            },
-            "precision" : 10,
             "scale" : 0
           }
         ],
@@ -2431,10 +2455,10 @@
             "retainMetadata" : "false",
             "fields" : [
               {
-                "name" : "commission_plans_row_id",
+                "name" : "adm_commission_plans_row_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "commission_plans_row_id",
-                "nativeName" : "commission_plans_row_id",
+                "label" : "adm_commission_plans_row_id",
+                "nativeName" : "adm_commission_plans_row_id",
                 "nativeType" : "int8",
                 "original" : "false",
                 "precision" : 19,
@@ -2447,10 +2471,10 @@
                 ]
               },
               {
-                "name" : "commission_plans_batch_id",
+                "name" : "adm_commission_plans_batch_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "commission_plans_batch_id",
-                "nativeName" : "commission_plans_batch_id",
+                "label" : "adm_commission_plans_batch_id",
+                "nativeName" : "adm_commission_plans_batch_id",
                 "nativeType" : "int8",
                 "original" : "false",
                 "precision" : 19,
@@ -2463,10 +2487,10 @@
                 ]
               },
               {
-                "name" : "source_name",
+                "name" : "originating_source_name",
                 "fieldType" : "CONNECTOR",
-                "label" : "source_name",
-                "nativeName" : "source_name",
+                "label" : "originating_source_name",
+                "nativeName" : "originating_source_name",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 127,
@@ -2479,10 +2503,10 @@
                 ]
               },
               {
-                "name" : "load_type",
+                "name" : "originating_load_type",
                 "fieldType" : "CONNECTOR",
-                "label" : "load_type",
-                "nativeName" : "load_type",
+                "label" : "originating_load_type",
+                "nativeName" : "originating_load_type",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 63,
@@ -2495,10 +2519,10 @@
                 ]
               },
               {
-                "name" : "commission_plans_md5checksum",
+                "name" : "adm_commission_plans_md5checksum",
                 "fieldType" : "CONNECTOR",
-                "label" : "commission_plans_md5checksum",
-                "nativeName" : "commission_plans_md5checksum",
+                "label" : "adm_commission_plans_md5checksum",
+                "nativeName" : "adm_commission_plans_md5checksum",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 255,
@@ -2511,10 +2535,10 @@
                 ]
               },
               {
-                "name" : "commission_plans_datetime_created",
+                "name" : "adm_commission_plans_row_effective_start_datetime",
                 "fieldType" : "CONNECTOR",
-                "label" : "commission_plans_datetime_created",
-                "nativeName" : "commission_plans_datetime_created",
+                "label" : "adm_commission_plans_row_effective_start_datetime",
+                "nativeName" : "adm_commission_plans_row_effective_start_datetime",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 29,
@@ -2527,10 +2551,10 @@
                 ]
               },
               {
-                "name" : "commission_plans_datetime_modified",
+                "name" : "adm_commission_plans_row_effective_end_datetime",
                 "fieldType" : "CONNECTOR",
-                "label" : "commission_plans_datetime_modified",
-                "nativeName" : "commission_plans_datetime_modified",
+                "label" : "adm_commission_plans_row_effective_end_datetime",
+                "nativeName" : "adm_commission_plans_row_effective_end_datetime",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 29,
@@ -2543,14 +2567,14 @@
                 ]
               },
               {
-                "name" : "commission_plans_row_effective_start_datetime",
+                "name" : "adm_commission_plans_row_status",
                 "fieldType" : "CONNECTOR",
-                "label" : "commission_plans_row_effective_start_datetime",
-                "nativeName" : "commission_plans_row_effective_start_datetime",
-                "nativeType" : "timestamp",
+                "label" : "adm_commission_plans_row_status",
+                "nativeName" : "adm_commission_plans_row_status",
+                "nativeType" : "varchar",
                 "original" : "false",
-                "precision" : 29,
-                "scale" : 6,
+                "precision" : 63,
+                "scale" : 0,
                 "properties" : [
                   {
                     "name" : "parentObject",
@@ -2559,26 +2583,10 @@
                 ]
               },
               {
-                "name" : "commission_plans_row_effective_end_datetime",
+                "name" : "agency_nup",
                 "fieldType" : "CONNECTOR",
-                "label" : "commission_plans_row_effective_end_datetime",
-                "nativeName" : "commission_plans_row_effective_end_datetime",
-                "nativeType" : "timestamp",
-                "original" : "false",
-                "precision" : 29,
-                "scale" : 6,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_commission_plans"
-                  }
-                ]
-              },
-              {
-                "name" : "agency_id",
-                "fieldType" : "CONNECTOR",
-                "label" : "agency_id",
-                "nativeName" : "agency_id",
+                "label" : "agency_nup",
+                "nativeName" : "agency_nup",
                 "nativeType" : "int4",
                 "original" : "false",
                 "precision" : 10,
@@ -2591,10 +2599,10 @@
                 ]
               },
               {
-                "name" : "bay_state_appointed_date",
+                "name" : "bs_appoint_dt",
                 "fieldType" : "CONNECTOR",
-                "label" : "bay_state_appointed_date",
-                "nativeName" : "bay_state_appointed_date",
+                "label" : "bs_appoint_dt",
+                "nativeName" : "bs_appoint_dt",
                 "nativeType" : "date",
                 "original" : "false",
                 "precision" : 13,
@@ -2607,10 +2615,10 @@
                 ]
               },
               {
-                "name" : "bay_state_cancelled_date",
+                "name" : "bs_cancel_dt",
                 "fieldType" : "CONNECTOR",
-                "label" : "bay_state_cancelled_date",
-                "nativeName" : "bay_state_cancelled_date",
+                "label" : "bs_cancel_dt",
+                "nativeName" : "bs_cancel_dt",
                 "nativeType" : "date",
                 "original" : "false",
                 "precision" : 13,
@@ -2623,10 +2631,10 @@
                 ]
               },
               {
-                "name" : "cambridge_mutual_appointed_date",
+                "name" : "ca_appoint_dt",
                 "fieldType" : "CONNECTOR",
-                "label" : "cambridge_mutual_appointed_date",
-                "nativeName" : "cambridge_mutual_appointed_date",
+                "label" : "ca_appoint_dt",
+                "nativeName" : "ca_appoint_dt",
                 "nativeType" : "date",
                 "original" : "false",
                 "precision" : 13,
@@ -2639,10 +2647,10 @@
                 ]
               },
               {
-                "name" : "cambridge_mutual_cancelled_date",
+                "name" : "ca_cancel_dt",
                 "fieldType" : "CONNECTOR",
-                "label" : "cambridge_mutual_cancelled_date",
-                "nativeName" : "cambridge_mutual_cancelled_date",
+                "label" : "ca_cancel_dt",
+                "nativeName" : "ca_cancel_dt",
                 "nativeType" : "date",
                 "original" : "false",
                 "precision" : 13,
@@ -2655,10 +2663,26 @@
                 ]
               },
               {
-                "name" : "commission_plan_id",
+                "name" : "created",
                 "fieldType" : "CONNECTOR",
-                "label" : "commission_plan_id",
-                "nativeName" : "commission_plan_id",
+                "label" : "created",
+                "nativeName" : "created",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_commission_plans"
+                  }
+                ]
+              },
+              {
+                "name" : "create_user_nup",
+                "fieldType" : "CONNECTOR",
+                "label" : "create_user_nup",
+                "nativeName" : "create_user_nup",
                 "nativeType" : "int4",
                 "original" : "false",
                 "precision" : 10,
@@ -2671,77 +2695,93 @@
                 ]
               },
               {
-                "name" : "commission_plan_state_abbreviation",
+                "name" : "id",
                 "fieldType" : "CONNECTOR",
-                "label" : "commission_plan_state_abbreviation",
-                "nativeName" : "commission_plan_state_abbreviation",
+                "label" : "id",
+                "nativeName" : "id",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_commission_plans"
+                  }
+                ]
+              },
+              {
+                "name" : "mk_appoint_dt",
+                "fieldType" : "CONNECTOR",
+                "label" : "mk_appoint_dt",
+                "nativeName" : "mk_appoint_dt",
+                "nativeType" : "date",
+                "original" : "false",
+                "precision" : 13,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_commission_plans"
+                  }
+                ]
+              },
+              {
+                "name" : "mk_cancel_dt",
+                "fieldType" : "CONNECTOR",
+                "label" : "mk_cancel_dt",
+                "nativeName" : "mk_cancel_dt",
+                "nativeType" : "date",
+                "original" : "false",
+                "precision" : 13,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_commission_plans"
+                  }
+                ]
+              },
+              {
+                "name" : "modified",
+                "fieldType" : "CONNECTOR",
+                "label" : "modified",
+                "nativeName" : "modified",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_commission_plans"
+                  }
+                ]
+              },
+              {
+                "name" : "modify_user_nup",
+                "fieldType" : "CONNECTOR",
+                "label" : "modify_user_nup",
+                "nativeName" : "modify_user_nup",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_commission_plans"
+                  }
+                ]
+              },
+              {
+                "name" : "state",
+                "fieldType" : "CONNECTOR",
+                "label" : "state",
+                "nativeName" : "state",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 7,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_commission_plans"
-                  }
-                ]
-              },
-              {
-                "name" : "merrimack_mutual_appointed_date",
-                "fieldType" : "CONNECTOR",
-                "label" : "merrimack_mutual_appointed_date",
-                "nativeName" : "merrimack_mutual_appointed_date",
-                "nativeType" : "date",
-                "original" : "false",
-                "precision" : 13,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_commission_plans"
-                  }
-                ]
-              },
-              {
-                "name" : "merrimack_mutual_cancelled_date",
-                "fieldType" : "CONNECTOR",
-                "label" : "merrimack_mutual_cancelled_date",
-                "nativeName" : "merrimack_mutual_cancelled_date",
-                "nativeType" : "date",
-                "original" : "false",
-                "precision" : 13,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_commission_plans"
-                  }
-                ]
-              },
-              {
-                "name" : "user_id_created_commission_plan",
-                "fieldType" : "CONNECTOR",
-                "label" : "user_id_created_commission_plan",
-                "nativeName" : "user_id_created_commission_plan",
-                "nativeType" : "int4",
-                "original" : "false",
-                "precision" : 10,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_commission_plans"
-                  }
-                ]
-              },
-              {
-                "name" : "user_id_last_modified_commission_plan",
-                "fieldType" : "CONNECTOR",
-                "label" : "user_id_last_modified_commission_plan",
-                "nativeName" : "user_id_last_modified_commission_plan",
-                "nativeType" : "int4",
-                "original" : "false",
-                "precision" : 10,
                 "scale" : 0,
                 "properties" : [
                   {
@@ -2817,6 +2857,10 @@
                 "value" : "5242880"
               },
               {
+                "name" : "Schema Name",
+                "value" : "$$staging_schema"
+              },
+              {
                 "name" : "Preserve record order on write",
                 "value" : "NO"
               },
@@ -2844,135 +2888,142 @@
         "manualMappings" : {
           "mappingList" : [
             {
+              "fromFieldName" : "batch_id",
+              "toField" : {
+                "name" : "adm_commission_plans_batch_id"
+              },
+              "fromFieldNames" : null
+            },
+            {
               "fromFieldName" : "source_name",
               "toField" : {
-                "name" : "source_name"
+                "name" : "originating_source_name"
               },
               "fromFieldNames" : null
             },
             {
               "fromFieldName" : "load_type",
               "toField" : {
-                "name" : "load_type"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "state",
-              "toField" : {
-                "name" : "commission_plan_state_abbreviation"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "o_commission_plans_row_effective_start_datetime",
-              "toField" : {
-                "name" : "commission_plans_row_effective_start_datetime"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "o_bs_appoint_dt",
-              "toField" : {
-                "name" : "bay_state_appointed_date"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "o_bs_cancel_dt",
-              "toField" : {
-                "name" : "bay_state_cancelled_date"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "o_ca_appoint_dt",
-              "toField" : {
-                "name" : "cambridge_mutual_appointed_date"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "o_ca_cancel_dt",
-              "toField" : {
-                "name" : "cambridge_mutual_cancelled_date"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "o_mk_appoint_dt",
-              "toField" : {
-                "name" : "merrimack_mutual_appointed_date"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "o_mk_cancel_dt",
-              "toField" : {
-                "name" : "merrimack_mutual_cancelled_date"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "o_id",
-              "toField" : {
-                "name" : "commission_plan_id"
+                "name" : "originating_load_type"
               },
               "fromFieldNames" : null
             },
             {
               "fromFieldName" : "o_agency_nup",
               "toField" : {
-                "name" : "agency_id"
+                "name" : "agency_nup"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_bs_appoint_dt",
+              "toField" : {
+                "name" : "bs_appoint_dt"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_bs_cancel_dt",
+              "toField" : {
+                "name" : "bs_cancel_dt"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_ca_appoint_dt",
+              "toField" : {
+                "name" : "ca_appoint_dt"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_ca_cancel_dt",
+              "toField" : {
+                "name" : "ca_cancel_dt"
               },
               "fromFieldNames" : null
             },
             {
               "fromFieldName" : "o_created",
               "toField" : {
-                "name" : "commission_plans_datetime_created"
+                "name" : "created"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "create_user_nup",
+              "toField" : {
+                "name" : "create_user_nup"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "id",
+              "toField" : {
+                "name" : "id"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_mk_appoint_dt",
+              "toField" : {
+                "name" : "mk_appoint_dt"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_mk_cancel_dt",
+              "toField" : {
+                "name" : "mk_cancel_dt"
               },
               "fromFieldNames" : null
             },
             {
               "fromFieldName" : "o_modified",
               "toField" : {
-                "name" : "commission_plans_datetime_modified"
+                "name" : "modified"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "batch_id",
+              "fromFieldName" : "modify_user_nup",
               "toField" : {
-                "name" : "commission_plans_batch_id"
+                "name" : "modify_user_nup"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "o_commission_plans_row_effective_end_datetime",
+              "fromFieldName" : "state",
               "toField" : {
-                "name" : "commission_plans_row_effective_end_datetime"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "o_create_user_nop",
-              "toField" : {
-                "name" : "user_id_created_commission_plan"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "o_modified_user_nup",
-              "toField" : {
-                "name" : "user_id_last_modified_commission_plan"
+                "name" : "state"
               },
               "fromFieldNames" : null
             },
             {
               "fromFieldName" : "src_MD5_Hash_Value",
               "toField" : {
-                "name" : "commission_plans_md5checksum"
+                "name" : "adm_commission_plans_md5checksum"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_commission_plans_row_effective_start_datetime",
+              "toField" : {
+                "name" : "adm_commission_plans_row_effective_start_datetime"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_commission_plans_row_effective_end_datetime",
+              "toField" : {
+                "name" : "adm_commission_plans_row_effective_end_datetime"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_row_status_active",
+              "toField" : {
+                "name" : "adm_commission_plans_row_status"
               },
               "fromFieldNames" : null
             }
@@ -3007,16 +3058,16 @@
         "schemaProviderType" : "SELECTED_OBJECT",
         "targetFieldsOrdered" : "false",
         "updateColumns" : [
-          "commission_plans_row_id"
+          "adm_commission_plans_row_id"
         ],
         "useLabels" : "false",
         "useSequenceFields" : "false",
         "fields" : [
           {
             "adapterField" : {
-              "name" : "commission_plans_row_id"
+              "name" : "adm_commission_plans_row_id"
             },
-            "name" : "commission_plans_row_id",
+            "name" : "adm_commission_plans_row_id",
             "platformType" : {
               "name" : "bigint"
             },
@@ -3025,9 +3076,9 @@
           },
           {
             "adapterField" : {
-              "name" : "commission_plans_batch_id"
+              "name" : "adm_commission_plans_batch_id"
             },
-            "name" : "commission_plans_batch_id",
+            "name" : "adm_commission_plans_batch_id",
             "platformType" : {
               "name" : "bigint"
             },
@@ -3036,9 +3087,9 @@
           },
           {
             "adapterField" : {
-              "name" : "source_name"
+              "name" : "originating_source_name"
             },
-            "name" : "source_name",
+            "name" : "originating_source_name",
             "platformType" : {
               "name" : "string"
             },
@@ -3047,9 +3098,9 @@
           },
           {
             "adapterField" : {
-              "name" : "load_type"
+              "name" : "originating_load_type"
             },
-            "name" : "load_type",
+            "name" : "originating_load_type",
             "platformType" : {
               "name" : "string"
             },
@@ -3058,9 +3109,9 @@
           },
           {
             "adapterField" : {
-              "name" : "commission_plans_md5checksum"
+              "name" : "adm_commission_plans_md5checksum"
             },
-            "name" : "commission_plans_md5checksum",
+            "name" : "adm_commission_plans_md5checksum",
             "platformType" : {
               "name" : "string"
             },
@@ -3069,9 +3120,9 @@
           },
           {
             "adapterField" : {
-              "name" : "commission_plans_datetime_created"
+              "name" : "adm_commission_plans_row_effective_start_datetime"
             },
-            "name" : "commission_plans_datetime_created",
+            "name" : "adm_commission_plans_row_effective_start_datetime",
             "platformType" : {
               "name" : "date/time"
             },
@@ -3080,9 +3131,9 @@
           },
           {
             "adapterField" : {
-              "name" : "commission_plans_datetime_modified"
+              "name" : "adm_commission_plans_row_effective_end_datetime"
             },
-            "name" : "commission_plans_datetime_modified",
+            "name" : "adm_commission_plans_row_effective_end_datetime",
             "platformType" : {
               "name" : "date/time"
             },
@@ -3091,31 +3142,20 @@
           },
           {
             "adapterField" : {
-              "name" : "commission_plans_row_effective_start_datetime"
+              "name" : "adm_commission_plans_row_status"
             },
-            "name" : "commission_plans_row_effective_start_datetime",
+            "name" : "adm_commission_plans_row_status",
             "platformType" : {
-              "name" : "date/time"
+              "name" : "string"
             },
-            "precision" : 29,
-            "scale" : 9
+            "precision" : 63,
+            "scale" : 0
           },
           {
             "adapterField" : {
-              "name" : "commission_plans_row_effective_end_datetime"
+              "name" : "agency_nup"
             },
-            "name" : "commission_plans_row_effective_end_datetime",
-            "platformType" : {
-              "name" : "date/time"
-            },
-            "precision" : 29,
-            "scale" : 9
-          },
-          {
-            "adapterField" : {
-              "name" : "agency_id"
-            },
-            "name" : "agency_id",
+            "name" : "agency_nup",
             "platformType" : {
               "name" : "integer"
             },
@@ -3124,9 +3164,9 @@
           },
           {
             "adapterField" : {
-              "name" : "bay_state_appointed_date"
+              "name" : "bs_appoint_dt"
             },
-            "name" : "bay_state_appointed_date",
+            "name" : "bs_appoint_dt",
             "platformType" : {
               "name" : "date/time"
             },
@@ -3135,9 +3175,9 @@
           },
           {
             "adapterField" : {
-              "name" : "bay_state_cancelled_date"
+              "name" : "bs_cancel_dt"
             },
-            "name" : "bay_state_cancelled_date",
+            "name" : "bs_cancel_dt",
             "platformType" : {
               "name" : "date/time"
             },
@@ -3146,9 +3186,9 @@
           },
           {
             "adapterField" : {
-              "name" : "cambridge_mutual_appointed_date"
+              "name" : "ca_appoint_dt"
             },
-            "name" : "cambridge_mutual_appointed_date",
+            "name" : "ca_appoint_dt",
             "platformType" : {
               "name" : "date/time"
             },
@@ -3157,9 +3197,9 @@
           },
           {
             "adapterField" : {
-              "name" : "cambridge_mutual_cancelled_date"
+              "name" : "ca_cancel_dt"
             },
-            "name" : "cambridge_mutual_cancelled_date",
+            "name" : "ca_cancel_dt",
             "platformType" : {
               "name" : "date/time"
             },
@@ -3168,9 +3208,20 @@
           },
           {
             "adapterField" : {
-              "name" : "commission_plan_id"
+              "name" : "created"
             },
-            "name" : "commission_plan_id",
+            "name" : "created",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "create_user_nup"
+            },
+            "name" : "create_user_nup",
             "platformType" : {
               "name" : "integer"
             },
@@ -3179,57 +3230,68 @@
           },
           {
             "adapterField" : {
-              "name" : "commission_plan_state_abbreviation"
+              "name" : "id"
             },
-            "name" : "commission_plan_state_abbreviation",
+            "name" : "id",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "mk_appoint_dt"
+            },
+            "name" : "mk_appoint_dt",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "mk_cancel_dt"
+            },
+            "name" : "mk_cancel_dt",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "modified"
+            },
+            "name" : "modified",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "modify_user_nup"
+            },
+            "name" : "modify_user_nup",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "state"
+            },
+            "name" : "state",
             "platformType" : {
               "name" : "string"
             },
             "precision" : 7,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "merrimack_mutual_appointed_date"
-            },
-            "name" : "merrimack_mutual_appointed_date",
-            "platformType" : {
-              "name" : "date/time"
-            },
-            "precision" : 29,
-            "scale" : 9
-          },
-          {
-            "adapterField" : {
-              "name" : "merrimack_mutual_cancelled_date"
-            },
-            "name" : "merrimack_mutual_cancelled_date",
-            "platformType" : {
-              "name" : "date/time"
-            },
-            "precision" : 29,
-            "scale" : 9
-          },
-          {
-            "adapterField" : {
-              "name" : "user_id_created_commission_plan"
-            },
-            "name" : "user_id_created_commission_plan",
-            "platformType" : {
-              "name" : "integer"
-            },
-            "precision" : 10,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "user_id_last_modified_commission_plan"
-            },
-            "name" : "user_id_last_modified_commission_plan",
-            "platformType" : {
-              "name" : "integer"
-            },
-            "precision" : 10,
             "scale" : 0
           }
         ],
@@ -3261,10 +3323,10 @@
             "retainMetadata" : "false",
             "fields" : [
               {
-                "name" : "commission_plans_row_id",
+                "name" : "adm_commission_plans_row_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "commission_plans_row_id",
-                "nativeName" : "commission_plans_row_id",
+                "label" : "adm_commission_plans_row_id",
+                "nativeName" : "adm_commission_plans_row_id",
                 "nativeType" : "int8",
                 "original" : "false",
                 "precision" : 19,
@@ -3277,10 +3339,10 @@
                 ]
               },
               {
-                "name" : "commission_plans_batch_id",
+                "name" : "adm_commission_plans_batch_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "commission_plans_batch_id",
-                "nativeName" : "commission_plans_batch_id",
+                "label" : "adm_commission_plans_batch_id",
+                "nativeName" : "adm_commission_plans_batch_id",
                 "nativeType" : "int8",
                 "original" : "false",
                 "precision" : 19,
@@ -3293,10 +3355,10 @@
                 ]
               },
               {
-                "name" : "source_name",
+                "name" : "originating_source_name",
                 "fieldType" : "CONNECTOR",
-                "label" : "source_name",
-                "nativeName" : "source_name",
+                "label" : "originating_source_name",
+                "nativeName" : "originating_source_name",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 127,
@@ -3309,10 +3371,10 @@
                 ]
               },
               {
-                "name" : "load_type",
+                "name" : "originating_load_type",
                 "fieldType" : "CONNECTOR",
-                "label" : "load_type",
-                "nativeName" : "load_type",
+                "label" : "originating_load_type",
+                "nativeName" : "originating_load_type",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 63,
@@ -3325,10 +3387,10 @@
                 ]
               },
               {
-                "name" : "commission_plans_md5checksum",
+                "name" : "adm_commission_plans_md5checksum",
                 "fieldType" : "CONNECTOR",
-                "label" : "commission_plans_md5checksum",
-                "nativeName" : "commission_plans_md5checksum",
+                "label" : "adm_commission_plans_md5checksum",
+                "nativeName" : "adm_commission_plans_md5checksum",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 255,
@@ -3341,10 +3403,10 @@
                 ]
               },
               {
-                "name" : "commission_plans_datetime_created",
+                "name" : "adm_commission_plans_row_effective_start_datetime",
                 "fieldType" : "CONNECTOR",
-                "label" : "commission_plans_datetime_created",
-                "nativeName" : "commission_plans_datetime_created",
+                "label" : "adm_commission_plans_row_effective_start_datetime",
+                "nativeName" : "adm_commission_plans_row_effective_start_datetime",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 29,
@@ -3357,10 +3419,10 @@
                 ]
               },
               {
-                "name" : "commission_plans_datetime_modified",
+                "name" : "adm_commission_plans_row_effective_end_datetime",
                 "fieldType" : "CONNECTOR",
-                "label" : "commission_plans_datetime_modified",
-                "nativeName" : "commission_plans_datetime_modified",
+                "label" : "adm_commission_plans_row_effective_end_datetime",
+                "nativeName" : "adm_commission_plans_row_effective_end_datetime",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 29,
@@ -3373,14 +3435,14 @@
                 ]
               },
               {
-                "name" : "commission_plans_row_effective_start_datetime",
+                "name" : "adm_commission_plans_row_status",
                 "fieldType" : "CONNECTOR",
-                "label" : "commission_plans_row_effective_start_datetime",
-                "nativeName" : "commission_plans_row_effective_start_datetime",
-                "nativeType" : "timestamp",
+                "label" : "adm_commission_plans_row_status",
+                "nativeName" : "adm_commission_plans_row_status",
+                "nativeType" : "varchar",
                 "original" : "false",
-                "precision" : 29,
-                "scale" : 6,
+                "precision" : 63,
+                "scale" : 0,
                 "properties" : [
                   {
                     "name" : "parentObject",
@@ -3389,26 +3451,10 @@
                 ]
               },
               {
-                "name" : "commission_plans_row_effective_end_datetime",
+                "name" : "agency_nup",
                 "fieldType" : "CONNECTOR",
-                "label" : "commission_plans_row_effective_end_datetime",
-                "nativeName" : "commission_plans_row_effective_end_datetime",
-                "nativeType" : "timestamp",
-                "original" : "false",
-                "precision" : 29,
-                "scale" : 6,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_commission_plans"
-                  }
-                ]
-              },
-              {
-                "name" : "agency_id",
-                "fieldType" : "CONNECTOR",
-                "label" : "agency_id",
-                "nativeName" : "agency_id",
+                "label" : "agency_nup",
+                "nativeName" : "agency_nup",
                 "nativeType" : "int4",
                 "original" : "false",
                 "precision" : 10,
@@ -3421,10 +3467,10 @@
                 ]
               },
               {
-                "name" : "bay_state_appointed_date",
+                "name" : "bs_appoint_dt",
                 "fieldType" : "CONNECTOR",
-                "label" : "bay_state_appointed_date",
-                "nativeName" : "bay_state_appointed_date",
+                "label" : "bs_appoint_dt",
+                "nativeName" : "bs_appoint_dt",
                 "nativeType" : "date",
                 "original" : "false",
                 "precision" : 13,
@@ -3437,10 +3483,10 @@
                 ]
               },
               {
-                "name" : "bay_state_cancelled_date",
+                "name" : "bs_cancel_dt",
                 "fieldType" : "CONNECTOR",
-                "label" : "bay_state_cancelled_date",
-                "nativeName" : "bay_state_cancelled_date",
+                "label" : "bs_cancel_dt",
+                "nativeName" : "bs_cancel_dt",
                 "nativeType" : "date",
                 "original" : "false",
                 "precision" : 13,
@@ -3453,10 +3499,10 @@
                 ]
               },
               {
-                "name" : "cambridge_mutual_appointed_date",
+                "name" : "ca_appoint_dt",
                 "fieldType" : "CONNECTOR",
-                "label" : "cambridge_mutual_appointed_date",
-                "nativeName" : "cambridge_mutual_appointed_date",
+                "label" : "ca_appoint_dt",
+                "nativeName" : "ca_appoint_dt",
                 "nativeType" : "date",
                 "original" : "false",
                 "precision" : 13,
@@ -3469,10 +3515,10 @@
                 ]
               },
               {
-                "name" : "cambridge_mutual_cancelled_date",
+                "name" : "ca_cancel_dt",
                 "fieldType" : "CONNECTOR",
-                "label" : "cambridge_mutual_cancelled_date",
-                "nativeName" : "cambridge_mutual_cancelled_date",
+                "label" : "ca_cancel_dt",
+                "nativeName" : "ca_cancel_dt",
                 "nativeType" : "date",
                 "original" : "false",
                 "precision" : 13,
@@ -3485,10 +3531,26 @@
                 ]
               },
               {
-                "name" : "commission_plan_id",
+                "name" : "created",
                 "fieldType" : "CONNECTOR",
-                "label" : "commission_plan_id",
-                "nativeName" : "commission_plan_id",
+                "label" : "created",
+                "nativeName" : "created",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_commission_plans"
+                  }
+                ]
+              },
+              {
+                "name" : "create_user_nup",
+                "fieldType" : "CONNECTOR",
+                "label" : "create_user_nup",
+                "nativeName" : "create_user_nup",
                 "nativeType" : "int4",
                 "original" : "false",
                 "precision" : 10,
@@ -3501,77 +3563,93 @@
                 ]
               },
               {
-                "name" : "commission_plan_state_abbreviation",
+                "name" : "id",
                 "fieldType" : "CONNECTOR",
-                "label" : "commission_plan_state_abbreviation",
-                "nativeName" : "commission_plan_state_abbreviation",
+                "label" : "id",
+                "nativeName" : "id",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_commission_plans"
+                  }
+                ]
+              },
+              {
+                "name" : "mk_appoint_dt",
+                "fieldType" : "CONNECTOR",
+                "label" : "mk_appoint_dt",
+                "nativeName" : "mk_appoint_dt",
+                "nativeType" : "date",
+                "original" : "false",
+                "precision" : 13,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_commission_plans"
+                  }
+                ]
+              },
+              {
+                "name" : "mk_cancel_dt",
+                "fieldType" : "CONNECTOR",
+                "label" : "mk_cancel_dt",
+                "nativeName" : "mk_cancel_dt",
+                "nativeType" : "date",
+                "original" : "false",
+                "precision" : 13,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_commission_plans"
+                  }
+                ]
+              },
+              {
+                "name" : "modified",
+                "fieldType" : "CONNECTOR",
+                "label" : "modified",
+                "nativeName" : "modified",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_commission_plans"
+                  }
+                ]
+              },
+              {
+                "name" : "modify_user_nup",
+                "fieldType" : "CONNECTOR",
+                "label" : "modify_user_nup",
+                "nativeName" : "modify_user_nup",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_commission_plans"
+                  }
+                ]
+              },
+              {
+                "name" : "state",
+                "fieldType" : "CONNECTOR",
+                "label" : "state",
+                "nativeName" : "state",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 7,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_commission_plans"
-                  }
-                ]
-              },
-              {
-                "name" : "merrimack_mutual_appointed_date",
-                "fieldType" : "CONNECTOR",
-                "label" : "merrimack_mutual_appointed_date",
-                "nativeName" : "merrimack_mutual_appointed_date",
-                "nativeType" : "date",
-                "original" : "false",
-                "precision" : 13,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_commission_plans"
-                  }
-                ]
-              },
-              {
-                "name" : "merrimack_mutual_cancelled_date",
-                "fieldType" : "CONNECTOR",
-                "label" : "merrimack_mutual_cancelled_date",
-                "nativeName" : "merrimack_mutual_cancelled_date",
-                "nativeType" : "date",
-                "original" : "false",
-                "precision" : 13,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_commission_plans"
-                  }
-                ]
-              },
-              {
-                "name" : "user_id_created_commission_plan",
-                "fieldType" : "CONNECTOR",
-                "label" : "user_id_created_commission_plan",
-                "nativeName" : "user_id_created_commission_plan",
-                "nativeType" : "int4",
-                "original" : "false",
-                "precision" : 10,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_commission_plans"
-                  }
-                ]
-              },
-              {
-                "name" : "user_id_last_modified_commission_plan",
-                "fieldType" : "CONNECTOR",
-                "label" : "user_id_last_modified_commission_plan",
-                "nativeName" : "user_id_last_modified_commission_plan",
-                "nativeType" : "int4",
-                "original" : "false",
-                "precision" : 10,
                 "scale" : 0,
                 "properties" : [
                   {
@@ -3647,6 +3725,10 @@
                 "value" : "5242880"
               },
               {
+                "name" : "Schema Name",
+                "value" : "$$staging_schema"
+              },
+              {
                 "name" : "Preserve record order on write",
                 "value" : "NO"
               },
@@ -3674,16 +3756,23 @@
         "manualMappings" : {
           "mappingList" : [
             {
-              "fromFieldName" : "commission_plans_row_id",
+              "fromFieldName" : "o_end_date",
               "toField" : {
-                "name" : "commission_plans_row_id"
+                "name" : "adm_commission_plans_row_effective_end_datetime"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "o_end_date",
+              "fromFieldName" : "o_row_status_expired",
               "toField" : {
-                "name" : "commission_plans_row_effective_end_datetime"
+                "name" : "adm_commission_plans_row_status"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "tgt_adm_commission_plans_row_id",
+              "toField" : {
+                "name" : "adm_commission_plans_row_id"
               },
               "fromFieldNames" : null
             }
@@ -3778,7 +3867,45 @@
           "partitionKeys" : null
         }
       }
+    ],
+    "variables" : [
+      {
+        "aggregationType" : "MAX",
+        "expressionVariable" : "false",
+        "name" : "raw_schema",
+        "platformType" : {
+          "name" : "string"
+        },
+        "precision" : 100,
+        "retentionPolicy" : "NEVER",
+        "scale" : 0,
+        "defaultValue" : "metal"
+      },
+      {
+        "aggregationType" : "MAX",
+        "expressionVariable" : "false",
+        "name" : "staging_schema",
+        "platformType" : {
+          "name" : "string"
+        },
+        "precision" : 100,
+        "retentionPolicy" : "NEVER",
+        "scale" : 0,
+        "defaultValue" : "bronze"
+      },
+      {
+        "aggregationType" : "MAX",
+        "expressionVariable" : "false",
+        "name" : "operational_schema",
+        "platformType" : {
+          "name" : "string"
+        },
+        "precision" : 100,
+        "retentionPolicy" : "NEVER",
+        "scale" : 0,
+        "defaultValue" : "operations"
+      }
     ]
   },
-  "vcsExportTime" : "2025-08-22 13:57:08 PDT"
+  "vcsExportTime" : "2025-08-28 13:31:13 PDT"
 }
