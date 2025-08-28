@@ -5,6 +5,7 @@
     "bigIntConvertType" : "ONLY_BIGINT",
     "documentType" : "MAPPING",
     "name" : "cdi_map_adm_group_guidewire_bronze_load",
+    "specialCharacterSupport" : "false",
     "links" : [
       {
         "link" : "src_delta_changes_agency -> exp_datatype_conversion"
@@ -147,6 +148,61 @@
           },
           {
             "adapterField" : {
+              "name" : "agencies_transferable"
+            },
+            "name" : "agencies_transferable",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 15,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "ach_accountnum"
+            },
+            "name" : "ach_accountnum",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 2047,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "ach_accounttype1"
+            },
+            "name" : "ach_accounttype1",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 7,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "ach_accounttype2"
+            },
+            "name" : "ach_accounttype2",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 7,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "ach_routingnum"
+            },
+            "name" : "ach_routingnum",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 2047,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
               "name" : "contingent_group_name1"
             },
             "name" : "contingent_group_name1",
@@ -165,6 +221,17 @@
               "name" : "string"
             },
             "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "contingent_paymentby"
+            },
+            "name" : "contingent_paymentby",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 7,
             "scale" : 0
           },
           {
@@ -290,6 +357,17 @@
           },
           {
             "adapterField" : {
+              "name" : "transfer_status"
+            },
+            "name" : "transfer_status",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 15,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
               "name" : "batch_id"
             },
             "name" : "batch_id",
@@ -309,7 +387,7 @@
           "typeSystem" : "TOOLKIT",
           "useDynamicFileName" : "false",
           "object" : {
-            "customQuery" : "WITH current_batch AS (\n    SELECT \n        bls.batch_id,\n        bls.source_start_cutoff_datetime,\n        bls.source_end_cutoff_datetime\n    FROM metal.batch_load_summary bls\n    WHERE bls.source_system_code = 'ADM'\n      AND bls.batch_status = 'Inprogress'\n      AND bls.batch_id = (\n          SELECT MAX(batch_id)\n          FROM metal.batch_load_summary\n          WHERE source_system_code = 'ADM'\n            AND batch_status = 'Inprogress'\n      )\n)\n\nSELECT DISTINCT\nmetal_agg.source_name, \nmetal_agg.load_type,\nmetal_agg.combined,\nmetal_agg.contingent_group_name1,\nmetal_agg.contingent_group_name2,\nmetal_agg.created, \nmetal_agg.fieldrep,\nmetal_agg.fieldrep_state,\nmetal_agg.groups_nup,\nmetal_agg.groups_number,\nmetal_agg.modified,\nmetal_agg.qualifyingamount,\nmetal_agg.share,\nmetal_agg.status_date, \nmetal_agg.super_group_id,\nmetal_agg.user_gw,\ncurrent_batch.batch_id\nFROM metal.adm_group_guidewire metal_agg\nCROSS JOIN current_batch\nORDER BY \nmetal_agg.groups_nup,\n    metal_agg.created,\n    metal_agg.modified;",
+            "customQuery" : "WITH current_batch AS (\n    SELECT \n        bls.batch_id,\n        bls.source_start_cutoff_datetime,\n        bls.source_end_cutoff_datetime\n    FROM $$raw_schema.batch_load_summary bls\n    WHERE bls.source_system_code = '$$sourcesystemcode'\n      AND bls.batch_status = 'Inprogress'\n      AND bls.batch_id = (\n          SELECT MAX(batch_id)\n          FROM metal.batch_load_summary\n          WHERE source_system_code = '$$sourcesystemcode'\n            AND batch_status = 'Inprogress'\n      )\n)\nSELECT DISTINCT\nmetal_agg.source_name, \nmetal_agg.load_type,\nmetal_agg.combined,\nmetal_agg.agencies_transferable,\nmetal_agg.ach_accountnum,\nmetal_agg.ach_accounttype1,\nmetal_agg.ach_accounttype2,\nmetal_agg.ach_routingnum,\nmetal_agg.contingent_group_name1,\nmetal_agg.contingent_group_name2,\nmetal_agg.contingent_paymentby,\nmetal_agg.created, \nmetal_agg.fieldrep,\nmetal_agg.fieldrep_state,\nmetal_agg.groups_nup,\nmetal_agg.groups_number,\nmetal_agg.modified,\nmetal_agg.qualifyingamount,\nmetal_agg.share,\nmetal_agg.status_date, \nmetal_agg.super_group_id,\nmetal_agg.user_gw,\nmetal_agg.transfer_status,\ncurrent_batch.batch_id\nFROM $$raw_schema.adm_group_guidewire metal_agg\nCROSS JOIN current_batch\nORDER BY \nmetal_agg.groups_nup,\nmetal_agg.created,\nmetal_agg.modified;",
             "retainMetadata" : "false",
             "fields" : [
               {
@@ -361,6 +439,86 @@
                 ]
               },
               {
+                "name" : "agencies_transferable",
+                "fieldType" : "CONNECTOR",
+                "label" : "agencies_transferable",
+                "nativeName" : "agencies_transferable",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 15,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "ach_accountnum",
+                "fieldType" : "CONNECTOR",
+                "label" : "ach_accountnum",
+                "nativeName" : "ach_accountnum",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 2047,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "ach_accounttype1",
+                "fieldType" : "CONNECTOR",
+                "label" : "ach_accounttype1",
+                "nativeName" : "ach_accounttype1",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 7,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "ach_accounttype2",
+                "fieldType" : "CONNECTOR",
+                "label" : "ach_accounttype2",
+                "nativeName" : "ach_accounttype2",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 7,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "ach_routingnum",
+                "fieldType" : "CONNECTOR",
+                "label" : "ach_routingnum",
+                "nativeName" : "ach_routingnum",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 2047,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
                 "name" : "contingent_group_name1",
                 "fieldType" : "CONNECTOR",
                 "label" : "contingent_group_name1",
@@ -384,6 +542,22 @@
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "contingent_paymentby",
+                "fieldType" : "CONNECTOR",
+                "label" : "contingent_paymentby",
+                "nativeName" : "contingent_paymentby",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 7,
                 "scale" : 0,
                 "properties" : [
                   {
@@ -569,6 +743,22 @@
                 ]
               },
               {
+                "name" : "transfer_status",
+                "fieldType" : "CONNECTOR",
+                "label" : "transfer_status",
+                "nativeName" : "transfer_status",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 15,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
                 "name" : "batch_id",
                 "fieldType" : "CONNECTOR",
                 "label" : "batch_id",
@@ -613,7 +803,7 @@
               },
               {
                 "name" : "Temporary Credential Duration",
-                "value" : "900"
+                "value" : "43200"
               },
               {
                 "name" : "Treat NULL Value as NULL",
@@ -681,7 +871,7 @@
             "precision" : 10,
             "scale" : 0,
             "expFieldType" : "OUTPUT",
-            "expression" : "IIF(isnull(group_guidewire_row_id),'I','X')"
+            "expression" : "IIF(isnull(adm_group_guidewire_row_id),'I','X')"
           },
           {
             "defaultValue" : "ERROR('transformation error')",
@@ -714,7 +904,29 @@
             "precision" : 10,
             "scale" : 0,
             "expFieldType" : "OUTPUT",
-            "expression" : "iif(NOT ISNULL(group_guidewire_row_id) AND MD5_hash_value <> group_guidewire_row_md5checksum,'U','X')"
+            "expression" : "iif(NOT ISNULL(adm_group_guidewire_row_id) AND MD5_hash_value <> adm_group_guidewire_row_md5checksum,'U','X')"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_row_status_active",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 30,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "'Active'"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_row_status_expired",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 30,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "'Expired'"
           }
         ],
         "windowSpec" : {
@@ -752,7 +964,7 @@
             "precision" : 29,
             "scale" : 9,
             "expFieldType" : "OUTPUT",
-            "expression" : "TO_DATE(to_char(created), 'YYYY-MM-DD HH24:MI:SS')"
+            "expression" : "TO_DATE(created, 'YYYY-MM-DD HH24:MI:SS')"
           },
           {
             "name" : "o_modified",
@@ -762,7 +974,7 @@
             "precision" : 29,
             "scale" : 9,
             "expFieldType" : "OUTPUT",
-            "expression" : "TO_DATE(to_char(modified), 'YYYY-MM-DD HH24:MI:SS')"
+            "expression" : "TO_DATE(modified, 'YYYY-MM-DD HH24:MI:SS')"
           },
           {
             "name" : "o_status_date",
@@ -874,15 +1086,16 @@
         "fieldMappingMode" : "MANUAL",
         "inputSorted" : "false",
         "schemaProviderType" : "SELECTED_OBJECT",
+        "targetFieldsOrdered" : "false",
         "updateColumns" : null,
         "useLabels" : "false",
         "useSequenceFields" : "false",
         "fields" : [
           {
             "adapterField" : {
-              "name" : "group_guidewire_row_id"
+              "name" : "adm_group_guidewire_row_id"
             },
-            "name" : "group_guidewire_row_id",
+            "name" : "adm_group_guidewire_row_id",
             "platformType" : {
               "name" : "bigint"
             },
@@ -891,9 +1104,9 @@
           },
           {
             "adapterField" : {
-              "name" : "group_guidewire_batch_id"
+              "name" : "adm_group_guidewire_batch_id"
             },
-            "name" : "group_guidewire_batch_id",
+            "name" : "adm_group_guidewire_batch_id",
             "platformType" : {
               "name" : "bigint"
             },
@@ -902,9 +1115,9 @@
           },
           {
             "adapterField" : {
-              "name" : "source_name"
+              "name" : "originating_source_name"
             },
-            "name" : "source_name",
+            "name" : "originating_source_name",
             "platformType" : {
               "name" : "string"
             },
@@ -913,9 +1126,9 @@
           },
           {
             "adapterField" : {
-              "name" : "load_type"
+              "name" : "originating_load_type"
             },
-            "name" : "load_type",
+            "name" : "originating_load_type",
             "platformType" : {
               "name" : "string"
             },
@@ -924,9 +1137,9 @@
           },
           {
             "adapterField" : {
-              "name" : "group_guidewire_row_md5checksum"
+              "name" : "adm_group_guidewire_row_md5checksum"
             },
-            "name" : "group_guidewire_row_md5checksum",
+            "name" : "adm_group_guidewire_row_md5checksum",
             "platformType" : {
               "name" : "string"
             },
@@ -935,9 +1148,9 @@
           },
           {
             "adapterField" : {
-              "name" : "group_guidewire_datetime_created"
+              "name" : "adm_group_guidewire_row_effective_start_datetime"
             },
-            "name" : "group_guidewire_datetime_created",
+            "name" : "adm_group_guidewire_row_effective_start_datetime",
             "platformType" : {
               "name" : "date/time"
             },
@@ -946,9 +1159,9 @@
           },
           {
             "adapterField" : {
-              "name" : "group_guidewire_datetime_modified"
+              "name" : "adm_group_guidewire_row_effective_end_datetime"
             },
-            "name" : "group_guidewire_datetime_modified",
+            "name" : "adm_group_guidewire_row_effective_end_datetime",
             "platformType" : {
               "name" : "date/time"
             },
@@ -957,35 +1170,200 @@
           },
           {
             "adapterField" : {
-              "name" : "group_guidewire_row_effective_start_datetime"
+              "name" : "adm_group_guidewire_row_status"
             },
-            "name" : "group_guidewire_row_effective_start_datetime",
+            "name" : "adm_group_guidewire_row_status",
             "platformType" : {
-              "name" : "date/time"
+              "name" : "string"
             },
-            "precision" : 29,
-            "scale" : 9
+            "precision" : 63,
+            "scale" : 0
           },
           {
             "adapterField" : {
-              "name" : "group_guidewire_row_effective_end_datetime"
+              "name" : "ach_accountnum"
             },
-            "name" : "group_guidewire_row_effective_end_datetime",
+            "name" : "ach_accountnum",
             "platformType" : {
-              "name" : "date/time"
+              "name" : "string"
             },
-            "precision" : 29,
-            "scale" : 9
+            "precision" : 2047,
+            "scale" : 0
           },
           {
             "adapterField" : {
-              "name" : "if_information_combined_in_reports"
+              "name" : "ach_accounttype1"
             },
-            "name" : "if_information_combined_in_reports",
+            "name" : "ach_accounttype1",
             "platformType" : {
               "name" : "string"
             },
             "precision" : 7,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "ach_accounttype2"
+            },
+            "name" : "ach_accounttype2",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 7,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "ach_routingnum"
+            },
+            "name" : "ach_routingnum",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 2047,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "agencies_transferable"
+            },
+            "name" : "agencies_transferable",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "combined"
+            },
+            "name" : "combined",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 7,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "contingent_paymentby"
+            },
+            "name" : "contingent_paymentby",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 7,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "created"
+            },
+            "name" : "created",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "fieldrep"
+            },
+            "name" : "fieldrep",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "fieldrep_state"
+            },
+            "name" : "fieldrep_state",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 7,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "groups_nup"
+            },
+            "name" : "groups_nup",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "modified"
+            },
+            "name" : "modified",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "qualifyingamount"
+            },
+            "name" : "qualifyingamount",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 10,
+            "scale" : 2
+          },
+          {
+            "adapterField" : {
+              "name" : "share"
+            },
+            "name" : "share",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "status_date"
+            },
+            "name" : "status_date",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "user_gw"
+            },
+            "name" : "user_gw",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "transfer_status"
+            },
+            "name" : "transfer_status",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 15,
             "scale" : 0
           },
           {
@@ -1012,39 +1390,6 @@
           },
           {
             "adapterField" : {
-              "name" : "field_representative_id"
-            },
-            "name" : "field_representative_id",
-            "platformType" : {
-              "name" : "integer"
-            },
-            "precision" : 10,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "field_representative_state"
-            },
-            "name" : "field_representative_state",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 7,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "group_id"
-            },
-            "name" : "group_id",
-            "platformType" : {
-              "name" : "integer"
-            },
-            "precision" : 10,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
               "name" : "groups_number"
             },
             "name" : "groups_number",
@@ -1056,53 +1401,9 @@
           },
           {
             "adapterField" : {
-              "name" : "qualifying_amount"
-            },
-            "name" : "qualifying_amount",
-            "platformType" : {
-              "name" : "decimal"
-            },
-            "precision" : 10,
-            "scale" : 2
-          },
-          {
-            "adapterField" : {
-              "name" : "if_group_shares_information"
-            },
-            "name" : "if_group_shares_information",
-            "platformType" : {
-              "name" : "integer"
-            },
-            "precision" : 10,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "acx_data_change_status_date"
-            },
-            "name" : "acx_data_change_status_date",
-            "platformType" : {
-              "name" : "date/time"
-            },
-            "precision" : 29,
-            "scale" : 9
-          },
-          {
-            "adapterField" : {
               "name" : "super_group_id"
             },
             "name" : "super_group_id",
-            "platformType" : {
-              "name" : "integer"
-            },
-            "precision" : 10,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "if_send_user_data_to_acx"
-            },
-            "name" : "if_send_user_data_to_acx",
             "platformType" : {
               "name" : "integer"
             },
@@ -1126,134 +1427,6 @@
             "path" : "bronze/adm_group_guidewire",
             "retainMetadata" : "false",
             "fields" : [
-              {
-                "name" : "group_guidewire_row_id",
-                "fieldType" : "CONNECTOR",
-                "label" : "group_guidewire_row_id",
-                "nativeName" : "group_guidewire_row_id",
-                "nativeType" : "int8",
-                "original" : "false",
-                "precision" : 19,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_group_guidewire"
-                  }
-                ]
-              },
-              {
-                "name" : "group_guidewire_batch_id",
-                "fieldType" : "CONNECTOR",
-                "label" : "group_guidewire_batch_id",
-                "nativeName" : "group_guidewire_batch_id",
-                "nativeType" : "int8",
-                "original" : "false",
-                "precision" : 19,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_group_guidewire"
-                  }
-                ]
-              },
-              {
-                "name" : "group_guidewire_row_md5checksum",
-                "fieldType" : "CONNECTOR",
-                "label" : "group_guidewire_row_md5checksum",
-                "nativeName" : "group_guidewire_row_md5checksum",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 255,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_group_guidewire"
-                  }
-                ]
-              },
-              {
-                "name" : "group_guidewire_datetime_created",
-                "fieldType" : "CONNECTOR",
-                "label" : "group_guidewire_datetime_created",
-                "nativeName" : "group_guidewire_datetime_created",
-                "nativeType" : "timestamp",
-                "original" : "false",
-                "precision" : 29,
-                "scale" : 6,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_group_guidewire"
-                  }
-                ]
-              },
-              {
-                "name" : "group_guidewire_datetime_modified",
-                "fieldType" : "CONNECTOR",
-                "label" : "group_guidewire_datetime_modified",
-                "nativeName" : "group_guidewire_datetime_modified",
-                "nativeType" : "timestamp",
-                "original" : "false",
-                "precision" : 29,
-                "scale" : 6,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_group_guidewire"
-                  }
-                ]
-              },
-              {
-                "name" : "group_guidewire_row_effective_start_datetime",
-                "fieldType" : "CONNECTOR",
-                "label" : "group_guidewire_row_effective_start_datetime",
-                "nativeName" : "group_guidewire_row_effective_start_datetime",
-                "nativeType" : "timestamp",
-                "original" : "false",
-                "precision" : 29,
-                "scale" : 6,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_group_guidewire"
-                  }
-                ]
-              },
-              {
-                "name" : "group_guidewire_row_effective_end_datetime",
-                "fieldType" : "CONNECTOR",
-                "label" : "group_guidewire_row_effective_end_datetime",
-                "nativeName" : "group_guidewire_row_effective_end_datetime",
-                "nativeType" : "timestamp",
-                "original" : "false",
-                "precision" : 29,
-                "scale" : 6,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_group_guidewire"
-                  }
-                ]
-              },
-              {
-                "name" : "if_information_combined_in_reports",
-                "fieldType" : "CONNECTOR",
-                "label" : "if_information_combined_in_reports",
-                "nativeName" : "if_information_combined_in_reports",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 7,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_group_guidewire"
-                  }
-                ]
-              },
               {
                 "name" : "contingent_group_name1",
                 "fieldType" : "CONNECTOR",
@@ -1287,54 +1460,6 @@
                 ]
               },
               {
-                "name" : "field_representative_id",
-                "fieldType" : "CONNECTOR",
-                "label" : "field_representative_id",
-                "nativeName" : "field_representative_id",
-                "nativeType" : "int4",
-                "original" : "false",
-                "precision" : 10,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_group_guidewire"
-                  }
-                ]
-              },
-              {
-                "name" : "field_representative_state",
-                "fieldType" : "CONNECTOR",
-                "label" : "field_representative_state",
-                "nativeName" : "field_representative_state",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 7,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_group_guidewire"
-                  }
-                ]
-              },
-              {
-                "name" : "group_id",
-                "fieldType" : "CONNECTOR",
-                "label" : "group_id",
-                "nativeName" : "group_id",
-                "nativeType" : "int4",
-                "original" : "false",
-                "precision" : 10,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_group_guidewire"
-                  }
-                ]
-              },
-              {
                 "name" : "groups_number",
                 "fieldType" : "CONNECTOR",
                 "label" : "groups_number",
@@ -1342,54 +1467,6 @@
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 7,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_group_guidewire"
-                  }
-                ]
-              },
-              {
-                "name" : "qualifying_amount",
-                "fieldType" : "CONNECTOR",
-                "label" : "qualifying_amount",
-                "nativeName" : "qualifying_amount",
-                "nativeType" : "numeric",
-                "original" : "false",
-                "precision" : 10,
-                "scale" : 2,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_group_guidewire"
-                  }
-                ]
-              },
-              {
-                "name" : "if_group_shares_information",
-                "fieldType" : "CONNECTOR",
-                "label" : "if_group_shares_information",
-                "nativeName" : "if_group_shares_information",
-                "nativeType" : "int4",
-                "original" : "false",
-                "precision" : 10,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_group_guidewire"
-                  }
-                ]
-              },
-              {
-                "name" : "acx_data_change_status_date",
-                "fieldType" : "CONNECTOR",
-                "label" : "acx_data_change_status_date",
-                "nativeName" : "acx_data_change_status_date",
-                "nativeType" : "date",
-                "original" : "false",
-                "precision" : 13,
                 "scale" : 0,
                 "properties" : [
                   {
@@ -1415,13 +1492,13 @@
                 ]
               },
               {
-                "name" : "if_send_user_data_to_acx",
+                "name" : "adm_group_guidewire_row_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "if_send_user_data_to_acx",
-                "nativeName" : "if_send_user_data_to_acx",
-                "nativeType" : "int4",
+                "label" : "adm_group_guidewire_row_id",
+                "nativeName" : "adm_group_guidewire_row_id",
+                "nativeType" : "int8",
                 "original" : "false",
-                "precision" : 10,
+                "precision" : 19,
                 "scale" : 0,
                 "properties" : [
                   {
@@ -1431,10 +1508,26 @@
                 ]
               },
               {
-                "name" : "source_name",
+                "name" : "adm_group_guidewire_batch_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "source_name",
-                "nativeName" : "source_name",
+                "label" : "adm_group_guidewire_batch_id",
+                "nativeName" : "adm_group_guidewire_batch_id",
+                "nativeType" : "int8",
+                "original" : "false",
+                "precision" : 19,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_group_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "originating_source_name",
+                "fieldType" : "CONNECTOR",
+                "label" : "originating_source_name",
+                "nativeName" : "originating_source_name",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 127,
@@ -1447,13 +1540,349 @@
                 ]
               },
               {
-                "name" : "load_type",
+                "name" : "originating_load_type",
                 "fieldType" : "CONNECTOR",
-                "label" : "load_type",
-                "nativeName" : "load_type",
+                "label" : "originating_load_type",
+                "nativeName" : "originating_load_type",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_group_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "adm_group_guidewire_row_md5checksum",
+                "fieldType" : "CONNECTOR",
+                "label" : "adm_group_guidewire_row_md5checksum",
+                "nativeName" : "adm_group_guidewire_row_md5checksum",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 255,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_group_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "adm_group_guidewire_row_effective_start_datetime",
+                "fieldType" : "CONNECTOR",
+                "label" : "adm_group_guidewire_row_effective_start_datetime",
+                "nativeName" : "adm_group_guidewire_row_effective_start_datetime",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_group_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "adm_group_guidewire_row_effective_end_datetime",
+                "fieldType" : "CONNECTOR",
+                "label" : "adm_group_guidewire_row_effective_end_datetime",
+                "nativeName" : "adm_group_guidewire_row_effective_end_datetime",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_group_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "adm_group_guidewire_row_status",
+                "fieldType" : "CONNECTOR",
+                "label" : "adm_group_guidewire_row_status",
+                "nativeName" : "adm_group_guidewire_row_status",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_group_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "ach_accountnum",
+                "fieldType" : "CONNECTOR",
+                "label" : "ach_accountnum",
+                "nativeName" : "ach_accountnum",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 2047,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_group_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "ach_accounttype1",
+                "fieldType" : "CONNECTOR",
+                "label" : "ach_accounttype1",
+                "nativeName" : "ach_accounttype1",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 7,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_group_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "ach_accounttype2",
+                "fieldType" : "CONNECTOR",
+                "label" : "ach_accounttype2",
+                "nativeName" : "ach_accounttype2",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 7,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_group_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "ach_routingnum",
+                "fieldType" : "CONNECTOR",
+                "label" : "ach_routingnum",
+                "nativeName" : "ach_routingnum",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 2047,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_group_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "agencies_transferable",
+                "fieldType" : "CONNECTOR",
+                "label" : "agencies_transferable",
+                "nativeName" : "agencies_transferable",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_group_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "combined",
+                "fieldType" : "CONNECTOR",
+                "label" : "combined",
+                "nativeName" : "combined",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 7,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_group_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "contingent_paymentby",
+                "fieldType" : "CONNECTOR",
+                "label" : "contingent_paymentby",
+                "nativeName" : "contingent_paymentby",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 7,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_group_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "created",
+                "fieldType" : "CONNECTOR",
+                "label" : "created",
+                "nativeName" : "created",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_group_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "fieldrep",
+                "fieldType" : "CONNECTOR",
+                "label" : "fieldrep",
+                "nativeName" : "fieldrep",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_group_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "fieldrep_state",
+                "fieldType" : "CONNECTOR",
+                "label" : "fieldrep_state",
+                "nativeName" : "fieldrep_state",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 7,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_group_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "groups_nup",
+                "fieldType" : "CONNECTOR",
+                "label" : "groups_nup",
+                "nativeName" : "groups_nup",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_group_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "modified",
+                "fieldType" : "CONNECTOR",
+                "label" : "modified",
+                "nativeName" : "modified",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_group_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "qualifyingamount",
+                "fieldType" : "CONNECTOR",
+                "label" : "qualifyingamount",
+                "nativeName" : "qualifyingamount",
+                "nativeType" : "numeric",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 2,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_group_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "share",
+                "fieldType" : "CONNECTOR",
+                "label" : "share",
+                "nativeName" : "share",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_group_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "status_date",
+                "fieldType" : "CONNECTOR",
+                "label" : "status_date",
+                "nativeName" : "status_date",
+                "nativeType" : "date",
+                "original" : "false",
+                "precision" : 13,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_group_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "user_gw",
+                "fieldType" : "CONNECTOR",
+                "label" : "user_gw",
+                "nativeName" : "user_gw",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_group_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "transfer_status",
+                "fieldType" : "CONNECTOR",
+                "label" : "transfer_status",
+                "nativeName" : "transfer_status",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 15,
                 "scale" : 0,
                 "properties" : [
                   {
@@ -1498,7 +1927,7 @@
               },
               {
                 "name" : "Temporary Credential Duration",
-                "value" : "900"
+                "value" : "43200"
               },
               {
                 "name" : "S3 Server Side Encryption",
@@ -1529,6 +1958,10 @@
                 "value" : "5242880"
               },
               {
+                "name" : "Schema Name",
+                "value" : "$$staging_schema"
+              },
+              {
                 "name" : "Preserve record order on write",
                 "value" : "NO"
               },
@@ -1556,13 +1989,6 @@
         "manualMappings" : {
           "mappingList" : [
             {
-              "fromFieldName" : "combined",
-              "toField" : {
-                "name" : "if_information_combined_in_reports"
-              },
-              "fromFieldNames" : null
-            },
-            {
               "fromFieldName" : "contingent_group_name1",
               "toField" : {
                 "name" : "contingent_group_name1"
@@ -1577,30 +2003,9 @@
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "fieldrep_state",
-              "toField" : {
-                "name" : "field_representative_state"
-              },
-              "fromFieldNames" : null
-            },
-            {
               "fromFieldName" : "groups_number",
               "toField" : {
                 "name" : "groups_number"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "qualifyingamount",
-              "toField" : {
-                "name" : "qualifying_amount"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "share",
-              "toField" : {
-                "name" : "if_group_shares_information"
               },
               "fromFieldNames" : null
             },
@@ -1612,86 +2017,170 @@
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "batch_id",
+              "fromFieldName" : "adm_group_guidewire_batch_id",
               "toField" : {
-                "name" : "group_guidewire_batch_id"
+                "name" : "adm_group_guidewire_batch_id"
               },
               "fromFieldNames" : null
             },
             {
               "fromFieldName" : "source_name",
               "toField" : {
-                "name" : "source_name"
+                "name" : "originating_source_name"
               },
               "fromFieldNames" : null
             },
             {
               "fromFieldName" : "load_type",
               "toField" : {
-                "name" : "load_type"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "o_created",
-              "toField" : {
-                "name" : "group_guidewire_datetime_created"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "o_modified",
-              "toField" : {
-                "name" : "group_guidewire_datetime_modified"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "fieldrep",
-              "toField" : {
-                "name" : "field_representative_id"
+                "name" : "originating_load_type"
               },
               "fromFieldNames" : null
             },
             {
               "fromFieldName" : "o_agency_guidewire_row_effective_start_datetime",
               "toField" : {
-                "name" : "group_guidewire_row_effective_start_datetime"
+                "name" : "adm_group_guidewire_row_effective_start_datetime"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "o_agency_guidewire_row_effective_end_datetime",
+              "fromFieldName" : "ach_accountnum",
               "toField" : {
-                "name" : "group_guidewire_row_effective_end_datetime"
+                "name" : "ach_accountnum"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "o_status_date",
+              "fromFieldName" : "ach_accounttype1",
               "toField" : {
-                "name" : "acx_data_change_status_date"
+                "name" : "ach_accounttype1"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "user_gw",
+              "fromFieldName" : "ach_accounttype2",
               "toField" : {
-                "name" : "if_send_user_data_to_acx"
+                "name" : "ach_accounttype2"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "MD5_hash_value",
+              "fromFieldName" : "ach_routingnum",
               "toField" : {
-                "name" : "group_guidewire_row_md5checksum"
+                "name" : "ach_routingnum"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "agencies_transferable",
+              "toField" : {
+                "name" : "agencies_transferable"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "combined",
+              "toField" : {
+                "name" : "combined"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "contingent_paymentby",
+              "toField" : {
+                "name" : "contingent_paymentby"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "fieldrep",
+              "toField" : {
+                "name" : "fieldrep"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "fieldrep_state",
+              "toField" : {
+                "name" : "fieldrep_state"
               },
               "fromFieldNames" : null
             },
             {
               "fromFieldName" : "groups_nup",
               "toField" : {
-                "name" : "group_id"
+                "name" : "groups_nup"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "qualifyingamount",
+              "toField" : {
+                "name" : "qualifyingamount"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "share",
+              "toField" : {
+                "name" : "share"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "user_gw",
+              "toField" : {
+                "name" : "user_gw"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "transfer_status",
+              "toField" : {
+                "name" : "transfer_status"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_agency_guidewire_row_effective_end_datetime",
+              "toField" : {
+                "name" : "adm_group_guidewire_row_effective_end_datetime"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "MD5_hash_value",
+              "toField" : {
+                "name" : "adm_group_guidewire_row_md5checksum"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_modified",
+              "toField" : {
+                "name" : "modified"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_created",
+              "toField" : {
+                "name" : "created"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_status_date",
+              "toField" : {
+                "name" : "status_date"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_row_status_active",
+              "toField" : {
+                "name" : "adm_group_guidewire_row_status"
               },
               "fromFieldNames" : null
             }
@@ -1724,15 +2213,16 @@
         "fieldMappingMode" : "MANUAL",
         "inputSorted" : "false",
         "schemaProviderType" : "SELECTED_OBJECT",
+        "targetFieldsOrdered" : "false",
         "updateColumns" : null,
         "useLabels" : "false",
         "useSequenceFields" : "false",
         "fields" : [
           {
             "adapterField" : {
-              "name" : "group_guidewire_row_id"
+              "name" : "adm_group_guidewire_row_id"
             },
-            "name" : "group_guidewire_row_id",
+            "name" : "adm_group_guidewire_row_id",
             "platformType" : {
               "name" : "bigint"
             },
@@ -1741,9 +2231,9 @@
           },
           {
             "adapterField" : {
-              "name" : "group_guidewire_batch_id"
+              "name" : "adm_group_guidewire_batch_id"
             },
-            "name" : "group_guidewire_batch_id",
+            "name" : "adm_group_guidewire_batch_id",
             "platformType" : {
               "name" : "bigint"
             },
@@ -1752,9 +2242,9 @@
           },
           {
             "adapterField" : {
-              "name" : "source_name"
+              "name" : "originating_source_name"
             },
-            "name" : "source_name",
+            "name" : "originating_source_name",
             "platformType" : {
               "name" : "string"
             },
@@ -1763,9 +2253,9 @@
           },
           {
             "adapterField" : {
-              "name" : "load_type"
+              "name" : "originating_load_type"
             },
-            "name" : "load_type",
+            "name" : "originating_load_type",
             "platformType" : {
               "name" : "string"
             },
@@ -1774,9 +2264,9 @@
           },
           {
             "adapterField" : {
-              "name" : "group_guidewire_row_md5checksum"
+              "name" : "adm_group_guidewire_row_md5checksum"
             },
-            "name" : "group_guidewire_row_md5checksum",
+            "name" : "adm_group_guidewire_row_md5checksum",
             "platformType" : {
               "name" : "string"
             },
@@ -1785,9 +2275,9 @@
           },
           {
             "adapterField" : {
-              "name" : "group_guidewire_datetime_created"
+              "name" : "adm_group_guidewire_row_effective_start_datetime"
             },
-            "name" : "group_guidewire_datetime_created",
+            "name" : "adm_group_guidewire_row_effective_start_datetime",
             "platformType" : {
               "name" : "date/time"
             },
@@ -1796,9 +2286,9 @@
           },
           {
             "adapterField" : {
-              "name" : "group_guidewire_datetime_modified"
+              "name" : "adm_group_guidewire_row_effective_end_datetime"
             },
-            "name" : "group_guidewire_datetime_modified",
+            "name" : "adm_group_guidewire_row_effective_end_datetime",
             "platformType" : {
               "name" : "date/time"
             },
@@ -1807,35 +2297,200 @@
           },
           {
             "adapterField" : {
-              "name" : "group_guidewire_row_effective_start_datetime"
+              "name" : "adm_group_guidewire_row_status"
             },
-            "name" : "group_guidewire_row_effective_start_datetime",
+            "name" : "adm_group_guidewire_row_status",
             "platformType" : {
-              "name" : "date/time"
+              "name" : "string"
             },
-            "precision" : 29,
-            "scale" : 9
+            "precision" : 63,
+            "scale" : 0
           },
           {
             "adapterField" : {
-              "name" : "group_guidewire_row_effective_end_datetime"
+              "name" : "ach_accountnum"
             },
-            "name" : "group_guidewire_row_effective_end_datetime",
+            "name" : "ach_accountnum",
             "platformType" : {
-              "name" : "date/time"
+              "name" : "string"
             },
-            "precision" : 29,
-            "scale" : 9
+            "precision" : 2047,
+            "scale" : 0
           },
           {
             "adapterField" : {
-              "name" : "if_information_combined_in_reports"
+              "name" : "ach_accounttype1"
             },
-            "name" : "if_information_combined_in_reports",
+            "name" : "ach_accounttype1",
             "platformType" : {
               "name" : "string"
             },
             "precision" : 7,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "ach_accounttype2"
+            },
+            "name" : "ach_accounttype2",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 7,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "ach_routingnum"
+            },
+            "name" : "ach_routingnum",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 2047,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "agencies_transferable"
+            },
+            "name" : "agencies_transferable",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "combined"
+            },
+            "name" : "combined",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 7,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "contingent_paymentby"
+            },
+            "name" : "contingent_paymentby",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 7,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "created"
+            },
+            "name" : "created",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "fieldrep"
+            },
+            "name" : "fieldrep",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "fieldrep_state"
+            },
+            "name" : "fieldrep_state",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 7,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "groups_nup"
+            },
+            "name" : "groups_nup",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "modified"
+            },
+            "name" : "modified",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "qualifyingamount"
+            },
+            "name" : "qualifyingamount",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 10,
+            "scale" : 2
+          },
+          {
+            "adapterField" : {
+              "name" : "share"
+            },
+            "name" : "share",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "status_date"
+            },
+            "name" : "status_date",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "user_gw"
+            },
+            "name" : "user_gw",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "transfer_status"
+            },
+            "name" : "transfer_status",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 15,
             "scale" : 0
           },
           {
@@ -1862,39 +2517,6 @@
           },
           {
             "adapterField" : {
-              "name" : "field_representative_id"
-            },
-            "name" : "field_representative_id",
-            "platformType" : {
-              "name" : "integer"
-            },
-            "precision" : 10,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "field_representative_state"
-            },
-            "name" : "field_representative_state",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 7,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "group_id"
-            },
-            "name" : "group_id",
-            "platformType" : {
-              "name" : "integer"
-            },
-            "precision" : 10,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
               "name" : "groups_number"
             },
             "name" : "groups_number",
@@ -1906,53 +2528,9 @@
           },
           {
             "adapterField" : {
-              "name" : "qualifying_amount"
-            },
-            "name" : "qualifying_amount",
-            "platformType" : {
-              "name" : "decimal"
-            },
-            "precision" : 10,
-            "scale" : 2
-          },
-          {
-            "adapterField" : {
-              "name" : "if_group_shares_information"
-            },
-            "name" : "if_group_shares_information",
-            "platformType" : {
-              "name" : "integer"
-            },
-            "precision" : 10,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "acx_data_change_status_date"
-            },
-            "name" : "acx_data_change_status_date",
-            "platformType" : {
-              "name" : "date/time"
-            },
-            "precision" : 29,
-            "scale" : 9
-          },
-          {
-            "adapterField" : {
               "name" : "super_group_id"
             },
             "name" : "super_group_id",
-            "platformType" : {
-              "name" : "integer"
-            },
-            "precision" : 10,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "if_send_user_data_to_acx"
-            },
-            "name" : "if_send_user_data_to_acx",
             "platformType" : {
               "name" : "integer"
             },
@@ -1988,134 +2566,6 @@
             "retainMetadata" : "false",
             "fields" : [
               {
-                "name" : "group_guidewire_row_id",
-                "fieldType" : "CONNECTOR",
-                "label" : "group_guidewire_row_id",
-                "nativeName" : "group_guidewire_row_id",
-                "nativeType" : "int8",
-                "original" : "false",
-                "precision" : 19,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_group_guidewire"
-                  }
-                ]
-              },
-              {
-                "name" : "group_guidewire_batch_id",
-                "fieldType" : "CONNECTOR",
-                "label" : "group_guidewire_batch_id",
-                "nativeName" : "group_guidewire_batch_id",
-                "nativeType" : "int8",
-                "original" : "false",
-                "precision" : 19,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_group_guidewire"
-                  }
-                ]
-              },
-              {
-                "name" : "group_guidewire_row_md5checksum",
-                "fieldType" : "CONNECTOR",
-                "label" : "group_guidewire_row_md5checksum",
-                "nativeName" : "group_guidewire_row_md5checksum",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 255,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_group_guidewire"
-                  }
-                ]
-              },
-              {
-                "name" : "group_guidewire_datetime_created",
-                "fieldType" : "CONNECTOR",
-                "label" : "group_guidewire_datetime_created",
-                "nativeName" : "group_guidewire_datetime_created",
-                "nativeType" : "timestamp",
-                "original" : "false",
-                "precision" : 29,
-                "scale" : 6,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_group_guidewire"
-                  }
-                ]
-              },
-              {
-                "name" : "group_guidewire_datetime_modified",
-                "fieldType" : "CONNECTOR",
-                "label" : "group_guidewire_datetime_modified",
-                "nativeName" : "group_guidewire_datetime_modified",
-                "nativeType" : "timestamp",
-                "original" : "false",
-                "precision" : 29,
-                "scale" : 6,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_group_guidewire"
-                  }
-                ]
-              },
-              {
-                "name" : "group_guidewire_row_effective_start_datetime",
-                "fieldType" : "CONNECTOR",
-                "label" : "group_guidewire_row_effective_start_datetime",
-                "nativeName" : "group_guidewire_row_effective_start_datetime",
-                "nativeType" : "timestamp",
-                "original" : "false",
-                "precision" : 29,
-                "scale" : 6,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_group_guidewire"
-                  }
-                ]
-              },
-              {
-                "name" : "group_guidewire_row_effective_end_datetime",
-                "fieldType" : "CONNECTOR",
-                "label" : "group_guidewire_row_effective_end_datetime",
-                "nativeName" : "group_guidewire_row_effective_end_datetime",
-                "nativeType" : "timestamp",
-                "original" : "false",
-                "precision" : 29,
-                "scale" : 6,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_group_guidewire"
-                  }
-                ]
-              },
-              {
-                "name" : "if_information_combined_in_reports",
-                "fieldType" : "CONNECTOR",
-                "label" : "if_information_combined_in_reports",
-                "nativeName" : "if_information_combined_in_reports",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 7,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_group_guidewire"
-                  }
-                ]
-              },
-              {
                 "name" : "contingent_group_name1",
                 "fieldType" : "CONNECTOR",
                 "label" : "contingent_group_name1",
@@ -2148,54 +2598,6 @@
                 ]
               },
               {
-                "name" : "field_representative_id",
-                "fieldType" : "CONNECTOR",
-                "label" : "field_representative_id",
-                "nativeName" : "field_representative_id",
-                "nativeType" : "int4",
-                "original" : "false",
-                "precision" : 10,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_group_guidewire"
-                  }
-                ]
-              },
-              {
-                "name" : "field_representative_state",
-                "fieldType" : "CONNECTOR",
-                "label" : "field_representative_state",
-                "nativeName" : "field_representative_state",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 7,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_group_guidewire"
-                  }
-                ]
-              },
-              {
-                "name" : "group_id",
-                "fieldType" : "CONNECTOR",
-                "label" : "group_id",
-                "nativeName" : "group_id",
-                "nativeType" : "int4",
-                "original" : "false",
-                "precision" : 10,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_group_guidewire"
-                  }
-                ]
-              },
-              {
                 "name" : "groups_number",
                 "fieldType" : "CONNECTOR",
                 "label" : "groups_number",
@@ -2203,54 +2605,6 @@
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 7,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_group_guidewire"
-                  }
-                ]
-              },
-              {
-                "name" : "qualifying_amount",
-                "fieldType" : "CONNECTOR",
-                "label" : "qualifying_amount",
-                "nativeName" : "qualifying_amount",
-                "nativeType" : "numeric",
-                "original" : "false",
-                "precision" : 10,
-                "scale" : 2,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_group_guidewire"
-                  }
-                ]
-              },
-              {
-                "name" : "if_group_shares_information",
-                "fieldType" : "CONNECTOR",
-                "label" : "if_group_shares_information",
-                "nativeName" : "if_group_shares_information",
-                "nativeType" : "int4",
-                "original" : "false",
-                "precision" : 10,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_group_guidewire"
-                  }
-                ]
-              },
-              {
-                "name" : "acx_data_change_status_date",
-                "fieldType" : "CONNECTOR",
-                "label" : "acx_data_change_status_date",
-                "nativeName" : "acx_data_change_status_date",
-                "nativeType" : "date",
-                "original" : "false",
-                "precision" : 13,
                 "scale" : 0,
                 "properties" : [
                   {
@@ -2276,13 +2630,13 @@
                 ]
               },
               {
-                "name" : "if_send_user_data_to_acx",
+                "name" : "adm_group_guidewire_row_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "if_send_user_data_to_acx",
-                "nativeName" : "if_send_user_data_to_acx",
-                "nativeType" : "int4",
+                "label" : "adm_group_guidewire_row_id",
+                "nativeName" : "adm_group_guidewire_row_id",
+                "nativeType" : "int8",
                 "original" : "false",
-                "precision" : 10,
+                "precision" : 19,
                 "scale" : 0,
                 "properties" : [
                   {
@@ -2292,10 +2646,26 @@
                 ]
               },
               {
-                "name" : "source_name",
+                "name" : "adm_group_guidewire_batch_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "source_name",
-                "nativeName" : "source_name",
+                "label" : "adm_group_guidewire_batch_id",
+                "nativeName" : "adm_group_guidewire_batch_id",
+                "nativeType" : "int8",
+                "original" : "false",
+                "precision" : 19,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_group_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "originating_source_name",
+                "fieldType" : "CONNECTOR",
+                "label" : "originating_source_name",
+                "nativeName" : "originating_source_name",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 127,
@@ -2308,13 +2678,349 @@
                 ]
               },
               {
-                "name" : "load_type",
+                "name" : "originating_load_type",
                 "fieldType" : "CONNECTOR",
-                "label" : "load_type",
-                "nativeName" : "load_type",
+                "label" : "originating_load_type",
+                "nativeName" : "originating_load_type",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_group_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "adm_group_guidewire_row_md5checksum",
+                "fieldType" : "CONNECTOR",
+                "label" : "adm_group_guidewire_row_md5checksum",
+                "nativeName" : "adm_group_guidewire_row_md5checksum",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 255,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_group_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "adm_group_guidewire_row_effective_start_datetime",
+                "fieldType" : "CONNECTOR",
+                "label" : "adm_group_guidewire_row_effective_start_datetime",
+                "nativeName" : "adm_group_guidewire_row_effective_start_datetime",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_group_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "adm_group_guidewire_row_effective_end_datetime",
+                "fieldType" : "CONNECTOR",
+                "label" : "adm_group_guidewire_row_effective_end_datetime",
+                "nativeName" : "adm_group_guidewire_row_effective_end_datetime",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_group_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "adm_group_guidewire_row_status",
+                "fieldType" : "CONNECTOR",
+                "label" : "adm_group_guidewire_row_status",
+                "nativeName" : "adm_group_guidewire_row_status",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_group_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "ach_accountnum",
+                "fieldType" : "CONNECTOR",
+                "label" : "ach_accountnum",
+                "nativeName" : "ach_accountnum",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 2047,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_group_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "ach_accounttype1",
+                "fieldType" : "CONNECTOR",
+                "label" : "ach_accounttype1",
+                "nativeName" : "ach_accounttype1",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 7,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_group_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "ach_accounttype2",
+                "fieldType" : "CONNECTOR",
+                "label" : "ach_accounttype2",
+                "nativeName" : "ach_accounttype2",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 7,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_group_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "ach_routingnum",
+                "fieldType" : "CONNECTOR",
+                "label" : "ach_routingnum",
+                "nativeName" : "ach_routingnum",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 2047,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_group_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "agencies_transferable",
+                "fieldType" : "CONNECTOR",
+                "label" : "agencies_transferable",
+                "nativeName" : "agencies_transferable",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_group_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "combined",
+                "fieldType" : "CONNECTOR",
+                "label" : "combined",
+                "nativeName" : "combined",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 7,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_group_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "contingent_paymentby",
+                "fieldType" : "CONNECTOR",
+                "label" : "contingent_paymentby",
+                "nativeName" : "contingent_paymentby",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 7,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_group_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "created",
+                "fieldType" : "CONNECTOR",
+                "label" : "created",
+                "nativeName" : "created",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_group_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "fieldrep",
+                "fieldType" : "CONNECTOR",
+                "label" : "fieldrep",
+                "nativeName" : "fieldrep",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_group_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "fieldrep_state",
+                "fieldType" : "CONNECTOR",
+                "label" : "fieldrep_state",
+                "nativeName" : "fieldrep_state",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 7,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_group_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "groups_nup",
+                "fieldType" : "CONNECTOR",
+                "label" : "groups_nup",
+                "nativeName" : "groups_nup",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_group_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "modified",
+                "fieldType" : "CONNECTOR",
+                "label" : "modified",
+                "nativeName" : "modified",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_group_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "qualifyingamount",
+                "fieldType" : "CONNECTOR",
+                "label" : "qualifyingamount",
+                "nativeName" : "qualifyingamount",
+                "nativeType" : "numeric",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 2,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_group_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "share",
+                "fieldType" : "CONNECTOR",
+                "label" : "share",
+                "nativeName" : "share",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_group_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "status_date",
+                "fieldType" : "CONNECTOR",
+                "label" : "status_date",
+                "nativeName" : "status_date",
+                "nativeType" : "date",
+                "original" : "false",
+                "precision" : 13,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_group_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "user_gw",
+                "fieldType" : "CONNECTOR",
+                "label" : "user_gw",
+                "nativeName" : "user_gw",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_group_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "transfer_status",
+                "fieldType" : "CONNECTOR",
+                "label" : "transfer_status",
+                "nativeName" : "transfer_status",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 15,
                 "scale" : 0,
                 "properties" : [
                   {
@@ -2359,7 +3065,7 @@
               },
               {
                 "name" : "Temporary Credential Duration",
-                "value" : "900"
+                "value" : "43200"
               },
               {
                 "name" : "S3 Server Side Encryption",
@@ -2390,6 +3096,10 @@
                 "value" : "5242880"
               },
               {
+                "name" : "Schema Name",
+                "value" : "$$staging_schema"
+              },
+              {
                 "name" : "Preserve record order on write",
                 "value" : "NO"
               },
@@ -2417,27 +3127,6 @@
         "manualMappings" : {
           "mappingList" : [
             {
-              "fromFieldName" : "source_name",
-              "toField" : {
-                "name" : "source_name"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "load_type",
-              "toField" : {
-                "name" : "load_type"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "combined",
-              "toField" : {
-                "name" : "if_information_combined_in_reports"
-              },
-              "fromFieldNames" : null
-            },
-            {
               "fromFieldName" : "contingent_group_name1",
               "toField" : {
                 "name" : "contingent_group_name1"
@@ -2452,30 +3141,9 @@
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "fieldrep_state",
-              "toField" : {
-                "name" : "field_representative_state"
-              },
-              "fromFieldNames" : null
-            },
-            {
               "fromFieldName" : "groups_number",
               "toField" : {
                 "name" : "groups_number"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "qualifyingamount",
-              "toField" : {
-                "name" : "qualifying_amount"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "share",
-              "toField" : {
-                "name" : "if_group_shares_information"
               },
               "fromFieldNames" : null
             },
@@ -2487,72 +3155,170 @@
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "fieldrep",
+              "fromFieldName" : "adm_group_guidewire_batch_id",
               "toField" : {
-                "name" : "field_representative_id"
+                "name" : "adm_group_guidewire_batch_id"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "user_gw",
+              "fromFieldName" : "source_name",
               "toField" : {
-                "name" : "if_send_user_data_to_acx"
+                "name" : "originating_source_name"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "load_type",
+              "toField" : {
+                "name" : "originating_load_type"
               },
               "fromFieldNames" : null
             },
             {
               "fromFieldName" : "o_agency_guidewire_row_effective_start_datetime",
               "toField" : {
-                "name" : "group_guidewire_row_effective_start_datetime"
+                "name" : "adm_group_guidewire_row_effective_start_datetime"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "o_agency_guidewire_row_effective_end_datetime",
+              "fromFieldName" : "ach_accountnum",
               "toField" : {
-                "name" : "group_guidewire_row_effective_end_datetime"
+                "name" : "ach_accountnum"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "o_created",
+              "fromFieldName" : "ach_accounttype1",
               "toField" : {
-                "name" : "group_guidewire_datetime_created"
+                "name" : "ach_accounttype1"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "o_modified",
+              "fromFieldName" : "ach_accounttype2",
               "toField" : {
-                "name" : "group_guidewire_datetime_modified"
+                "name" : "ach_accounttype2"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "o_status_date",
+              "fromFieldName" : "ach_routingnum",
               "toField" : {
-                "name" : "acx_data_change_status_date"
+                "name" : "ach_routingnum"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "MD5_hash_value",
+              "fromFieldName" : "agencies_transferable",
               "toField" : {
-                "name" : "group_guidewire_row_md5checksum"
+                "name" : "agencies_transferable"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "combined",
+              "toField" : {
+                "name" : "combined"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "contingent_paymentby",
+              "toField" : {
+                "name" : "contingent_paymentby"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "fieldrep",
+              "toField" : {
+                "name" : "fieldrep"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "fieldrep_state",
+              "toField" : {
+                "name" : "fieldrep_state"
               },
               "fromFieldNames" : null
             },
             {
               "fromFieldName" : "groups_nup",
               "toField" : {
-                "name" : "group_id"
+                "name" : "groups_nup"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "batch_id",
+              "fromFieldName" : "qualifyingamount",
               "toField" : {
-                "name" : "group_guidewire_batch_id"
+                "name" : "qualifyingamount"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "share",
+              "toField" : {
+                "name" : "share"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "user_gw",
+              "toField" : {
+                "name" : "user_gw"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "transfer_status",
+              "toField" : {
+                "name" : "transfer_status"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_agency_guidewire_row_effective_end_datetime",
+              "toField" : {
+                "name" : "adm_group_guidewire_row_effective_end_datetime"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "MD5_hash_value",
+              "toField" : {
+                "name" : "adm_group_guidewire_row_md5checksum"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_created",
+              "toField" : {
+                "name" : "created"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_modified",
+              "toField" : {
+                "name" : "modified"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_status_date",
+              "toField" : {
+                "name" : "status_date"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_row_status_active",
+              "toField" : {
+                "name" : "adm_group_guidewire_row_status"
               },
               "fromFieldNames" : null
             }
@@ -2585,9 +3351,9 @@
         "fields" : [
           {
             "adapterField" : {
-              "name" : "group_guidewire_row_id"
+              "name" : "adm_group_guidewire_row_id"
             },
-            "name" : "group_guidewire_row_id",
+            "name" : "adm_group_guidewire_row_id",
             "platformType" : {
               "name" : "bigint"
             },
@@ -2596,9 +3362,9 @@
           },
           {
             "adapterField" : {
-              "name" : "group_guidewire_row_md5checksum"
+              "name" : "adm_group_guidewire_row_md5checksum"
             },
-            "name" : "group_guidewire_row_md5checksum",
+            "name" : "adm_group_guidewire_row_md5checksum",
             "platformType" : {
               "name" : "string"
             },
@@ -2607,9 +3373,9 @@
           },
           {
             "adapterField" : {
-              "name" : "group_guidewire_batch_id"
+              "name" : "adm_group_guidewire_batch_id"
             },
-            "name" : "group_guidewire_batch_id",
+            "name" : "adm_group_guidewire_batch_id",
             "platformType" : {
               "name" : "bigint"
             },
@@ -2618,9 +3384,9 @@
           },
           {
             "adapterField" : {
-              "name" : "group_guidewire_datetime_modified"
+              "name" : "modified"
             },
-            "name" : "group_guidewire_datetime_modified",
+            "name" : "modified",
             "platformType" : {
               "name" : "date/time"
             },
@@ -2629,9 +3395,9 @@
           },
           {
             "adapterField" : {
-              "name" : "group_guidewire_row_effective_end_datetime"
+              "name" : "adm_group_guidewire_row_effective_end_datetime"
             },
-            "name" : "group_guidewire_row_effective_end_datetime",
+            "name" : "adm_group_guidewire_row_effective_end_datetime",
             "platformType" : {
               "name" : "date/time"
             },
@@ -2640,9 +3406,9 @@
           },
           {
             "adapterField" : {
-              "name" : "group_id"
+              "name" : "groups_nup"
             },
-            "name" : "group_id",
+            "name" : "groups_nup",
             "platformType" : {
               "name" : "integer"
             },
@@ -2652,21 +3418,21 @@
         ],
         "dataAdapter" : {
           "connectionId$" : {
-            "name" : "DBConnection_UDM_SRC"
+            "name" : "DBConnection_UDM_TGT"
           },
           "excludeDynamicFileNameField" : "false",
           "objectType" : "QUERY",
           "typeSystem" : "TOOLKIT",
           "useDynamicFileName" : "false",
           "object" : {
-            "customQuery" : "SELECT \n        group_guidewire_row_id, \n        group_guidewire_row_md5checksum, \n        group_guidewire_batch_id,  \n  group_guidewire_datetime_modified,\n  group_guidewire_row_effective_end_datetime,\ngroup_id\n    FROM bronze.adm_group_guidewire \n    where  group_guidewire_row_effective_end_datetime = '9999-12-31 00:00:00.000'",
+            "customQuery" : "SELECT \n    adm_group_guidewire_row_id, \n    adm_group_guidewire_row_md5checksum, \n    adm_group_guidewire_batch_id,  \n    modified,\n    adm_group_guidewire_row_effective_end_datetime,\n    groups_nup\nFROM $$staging_schema.adm_group_guidewire \nWHERE  adm_group_guidewire_row_effective_end_datetime = '9999-12-31 00:00:00.000'",
             "retainMetadata" : "false",
             "fields" : [
               {
-                "name" : "group_guidewire_row_id",
+                "name" : "adm_group_guidewire_row_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "group_guidewire_row_id",
-                "nativeName" : "group_guidewire_row_id",
+                "label" : "adm_group_guidewire_row_id",
+                "nativeName" : "adm_group_guidewire_row_id",
                 "nativeType" : "int8",
                 "original" : "false",
                 "precision" : 19,
@@ -2679,10 +3445,10 @@
                 ]
               },
               {
-                "name" : "group_guidewire_row_md5checksum",
+                "name" : "adm_group_guidewire_row_md5checksum",
                 "fieldType" : "CONNECTOR",
-                "label" : "group_guidewire_row_md5checksum",
-                "nativeName" : "group_guidewire_row_md5checksum",
+                "label" : "adm_group_guidewire_row_md5checksum",
+                "nativeName" : "adm_group_guidewire_row_md5checksum",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 255,
@@ -2695,10 +3461,10 @@
                 ]
               },
               {
-                "name" : "group_guidewire_batch_id",
+                "name" : "adm_group_guidewire_batch_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "group_guidewire_batch_id",
-                "nativeName" : "group_guidewire_batch_id",
+                "label" : "adm_group_guidewire_batch_id",
+                "nativeName" : "adm_group_guidewire_batch_id",
                 "nativeType" : "int8",
                 "original" : "false",
                 "precision" : 19,
@@ -2711,10 +3477,10 @@
                 ]
               },
               {
-                "name" : "group_guidewire_datetime_modified",
+                "name" : "modified",
                 "fieldType" : "CONNECTOR",
-                "label" : "group_guidewire_datetime_modified",
-                "nativeName" : "group_guidewire_datetime_modified",
+                "label" : "modified",
+                "nativeName" : "modified",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 29,
@@ -2727,10 +3493,10 @@
                 ]
               },
               {
-                "name" : "group_guidewire_row_effective_end_datetime",
+                "name" : "adm_group_guidewire_row_effective_end_datetime",
                 "fieldType" : "CONNECTOR",
-                "label" : "group_guidewire_row_effective_end_datetime",
-                "nativeName" : "group_guidewire_row_effective_end_datetime",
+                "label" : "adm_group_guidewire_row_effective_end_datetime",
+                "nativeName" : "adm_group_guidewire_row_effective_end_datetime",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 29,
@@ -2743,10 +3509,10 @@
                 ]
               },
               {
-                "name" : "group_id",
+                "name" : "groups_nup",
                 "fieldType" : "CONNECTOR",
-                "label" : "group_id",
-                "nativeName" : "group_id",
+                "label" : "groups_nup",
+                "nativeName" : "groups_nup",
                 "nativeType" : "int4",
                 "original" : "false",
                 "precision" : 10,
@@ -2771,7 +3537,7 @@
             "attributes" : [
               {
                 "name" : "Read Mode",
-                "value" : "Staging"
+                "value" : "Direct"
               },
               {
                 "name" : "Fetch Size",
@@ -2787,7 +3553,7 @@
               },
               {
                 "name" : "Temporary Credential Duration",
-                "value" : "900"
+                "value" : "43200"
               },
               {
                 "name" : "Treat NULL Value as NULL",
@@ -2863,6 +3629,20 @@
               {
                 "bulkRename" : "false",
                 "include" : "true"
+              },
+              {
+                "bulkRename" : "false",
+                "include" : "true",
+                "names" : [
+                  {
+                    "inputName" : "groups_nup",
+                    "outputName" : "tgt_groups_nup"
+                  },
+                  {
+                    "inputName" : "modified",
+                    "outputName" : "tgt_modified"
+                  }
+                ]
               }
             ]
           },
@@ -2877,7 +3657,7 @@
           {
             "leftOperand" : "o_group_nup",
             "operator" : "=",
-            "rightOperand" : "group_id"
+            "rightOperand" : "tgt_groups_nup"
           }
         ]
       },
@@ -2909,7 +3689,7 @@
             "precision" : 1000,
             "scale" : 0,
             "expFieldType" : "OUTPUT",
-            "expression" : "MD5('source_name' || source_name ||\n'load_type' || load_type ||\n'combined' || combined ||\n'contingent_group_name1' || contingent_group_name1 ||\n'contingent_group_name2' || contingent_group_name2 ||\n'created' || o_created ||\n'fieldrep' || fieldrep ||\n'fieldrep_state' || fieldrep_state ||\n'groups_nup' || groups_nup ||\n'groups_number' || groups_number ||\n'modified' || o_modified ||\n'qualifyingamount' || qualifyingamount ||\n'share' || share ||\n'status_date' || o_status_date ||\n'super_group_id' || super_group_id ||\n'user_gw' || user_gw\n)"
+            "expression" : "MD5('source_name' || source_name ||\n'load_type' || load_type ||\n'ach_accountnum' || ach_accountnum ||\n'ach_accounttype1' || ach_accounttype1 ||\n'ach_accounttype2' || ach_accounttype2 ||\n'ach_routingnum' || ach_routingnum ||\n'agencies_transferable' || agencies_transferable ||\n'combined' || combined ||\n'contingent_group_name1' || contingent_group_name1 ||\n'contingent_group_name2' || contingent_group_name2 ||\n'contingent_paymentby' || contingent_paymentby ||\n'created' || created ||\n'fieldrep' || fieldrep ||\n'fieldrep_state' || fieldrep_state ||\n'groups_nup' || groups_nup ||\n'groups_number' || groups_number ||\n'modified' || modified ||\n'qualifyingamount' || qualifyingamount ||\n'share' || share ||\n'status_date' || status_date ||\n'super_group_id' || super_group_id ||\n'user_gw' || user_gw ||\n'transfer_status' || transfer_status\n)"
           }
         ],
         "windowSpec" : {
@@ -2985,17 +3765,18 @@
         "fieldMappingMode" : "MANUAL",
         "inputSorted" : "false",
         "schemaProviderType" : "SELECTED_OBJECT",
+        "targetFieldsOrdered" : "false",
         "updateColumns" : [
-          "group_guidewire_row_id"
+          "adm_group_guidewire_row_id"
         ],
         "useLabels" : "false",
         "useSequenceFields" : "false",
         "fields" : [
           {
             "adapterField" : {
-              "name" : "group_guidewire_row_id"
+              "name" : "adm_group_guidewire_row_id"
             },
-            "name" : "group_guidewire_row_id",
+            "name" : "adm_group_guidewire_row_id",
             "platformType" : {
               "name" : "bigint"
             },
@@ -3004,9 +3785,9 @@
           },
           {
             "adapterField" : {
-              "name" : "group_guidewire_batch_id"
+              "name" : "adm_group_guidewire_batch_id"
             },
-            "name" : "group_guidewire_batch_id",
+            "name" : "adm_group_guidewire_batch_id",
             "platformType" : {
               "name" : "bigint"
             },
@@ -3015,9 +3796,9 @@
           },
           {
             "adapterField" : {
-              "name" : "source_name"
+              "name" : "originating_source_name"
             },
-            "name" : "source_name",
+            "name" : "originating_source_name",
             "platformType" : {
               "name" : "string"
             },
@@ -3026,9 +3807,9 @@
           },
           {
             "adapterField" : {
-              "name" : "load_type"
+              "name" : "originating_load_type"
             },
-            "name" : "load_type",
+            "name" : "originating_load_type",
             "platformType" : {
               "name" : "string"
             },
@@ -3037,9 +3818,9 @@
           },
           {
             "adapterField" : {
-              "name" : "group_guidewire_row_md5checksum"
+              "name" : "adm_group_guidewire_row_md5checksum"
             },
-            "name" : "group_guidewire_row_md5checksum",
+            "name" : "adm_group_guidewire_row_md5checksum",
             "platformType" : {
               "name" : "string"
             },
@@ -3048,9 +3829,9 @@
           },
           {
             "adapterField" : {
-              "name" : "group_guidewire_datetime_created"
+              "name" : "adm_group_guidewire_row_effective_start_datetime"
             },
-            "name" : "group_guidewire_datetime_created",
+            "name" : "adm_group_guidewire_row_effective_start_datetime",
             "platformType" : {
               "name" : "date/time"
             },
@@ -3059,9 +3840,9 @@
           },
           {
             "adapterField" : {
-              "name" : "group_guidewire_datetime_modified"
+              "name" : "adm_group_guidewire_row_effective_end_datetime"
             },
-            "name" : "group_guidewire_datetime_modified",
+            "name" : "adm_group_guidewire_row_effective_end_datetime",
             "platformType" : {
               "name" : "date/time"
             },
@@ -3070,35 +3851,200 @@
           },
           {
             "adapterField" : {
-              "name" : "group_guidewire_row_effective_start_datetime"
+              "name" : "adm_group_guidewire_row_status"
             },
-            "name" : "group_guidewire_row_effective_start_datetime",
+            "name" : "adm_group_guidewire_row_status",
             "platformType" : {
-              "name" : "date/time"
+              "name" : "string"
             },
-            "precision" : 29,
-            "scale" : 9
+            "precision" : 63,
+            "scale" : 0
           },
           {
             "adapterField" : {
-              "name" : "group_guidewire_row_effective_end_datetime"
+              "name" : "ach_accountnum"
             },
-            "name" : "group_guidewire_row_effective_end_datetime",
+            "name" : "ach_accountnum",
             "platformType" : {
-              "name" : "date/time"
+              "name" : "string"
             },
-            "precision" : 29,
-            "scale" : 9
+            "precision" : 2047,
+            "scale" : 0
           },
           {
             "adapterField" : {
-              "name" : "if_information_combined_in_reports"
+              "name" : "ach_accounttype1"
             },
-            "name" : "if_information_combined_in_reports",
+            "name" : "ach_accounttype1",
             "platformType" : {
               "name" : "string"
             },
             "precision" : 7,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "ach_accounttype2"
+            },
+            "name" : "ach_accounttype2",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 7,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "ach_routingnum"
+            },
+            "name" : "ach_routingnum",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 2047,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "agencies_transferable"
+            },
+            "name" : "agencies_transferable",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "combined"
+            },
+            "name" : "combined",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 7,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "contingent_paymentby"
+            },
+            "name" : "contingent_paymentby",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 7,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "created"
+            },
+            "name" : "created",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "fieldrep"
+            },
+            "name" : "fieldrep",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "fieldrep_state"
+            },
+            "name" : "fieldrep_state",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 7,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "groups_nup"
+            },
+            "name" : "groups_nup",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "modified"
+            },
+            "name" : "modified",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "qualifyingamount"
+            },
+            "name" : "qualifyingamount",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 10,
+            "scale" : 2
+          },
+          {
+            "adapterField" : {
+              "name" : "share"
+            },
+            "name" : "share",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "status_date"
+            },
+            "name" : "status_date",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "user_gw"
+            },
+            "name" : "user_gw",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "transfer_status"
+            },
+            "name" : "transfer_status",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 15,
             "scale" : 0
           },
           {
@@ -3125,39 +4071,6 @@
           },
           {
             "adapterField" : {
-              "name" : "field_representative_id"
-            },
-            "name" : "field_representative_id",
-            "platformType" : {
-              "name" : "integer"
-            },
-            "precision" : 10,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "field_representative_state"
-            },
-            "name" : "field_representative_state",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 7,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "group_id"
-            },
-            "name" : "group_id",
-            "platformType" : {
-              "name" : "integer"
-            },
-            "precision" : 10,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
               "name" : "groups_number"
             },
             "name" : "groups_number",
@@ -3169,53 +4082,9 @@
           },
           {
             "adapterField" : {
-              "name" : "qualifying_amount"
-            },
-            "name" : "qualifying_amount",
-            "platformType" : {
-              "name" : "decimal"
-            },
-            "precision" : 10,
-            "scale" : 2
-          },
-          {
-            "adapterField" : {
-              "name" : "if_group_shares_information"
-            },
-            "name" : "if_group_shares_information",
-            "platformType" : {
-              "name" : "integer"
-            },
-            "precision" : 10,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "acx_data_change_status_date"
-            },
-            "name" : "acx_data_change_status_date",
-            "platformType" : {
-              "name" : "date/time"
-            },
-            "precision" : 29,
-            "scale" : 9
-          },
-          {
-            "adapterField" : {
               "name" : "super_group_id"
             },
             "name" : "super_group_id",
-            "platformType" : {
-              "name" : "integer"
-            },
-            "precision" : 10,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "if_send_user_data_to_acx"
-            },
-            "name" : "if_send_user_data_to_acx",
             "platformType" : {
               "name" : "integer"
             },
@@ -3251,134 +4120,6 @@
             "retainMetadata" : "false",
             "fields" : [
               {
-                "name" : "group_guidewire_row_id",
-                "fieldType" : "CONNECTOR",
-                "label" : "group_guidewire_row_id",
-                "nativeName" : "group_guidewire_row_id",
-                "nativeType" : "int8",
-                "original" : "false",
-                "precision" : 19,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_group_guidewire"
-                  }
-                ]
-              },
-              {
-                "name" : "group_guidewire_batch_id",
-                "fieldType" : "CONNECTOR",
-                "label" : "group_guidewire_batch_id",
-                "nativeName" : "group_guidewire_batch_id",
-                "nativeType" : "int8",
-                "original" : "false",
-                "precision" : 19,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_group_guidewire"
-                  }
-                ]
-              },
-              {
-                "name" : "group_guidewire_row_md5checksum",
-                "fieldType" : "CONNECTOR",
-                "label" : "group_guidewire_row_md5checksum",
-                "nativeName" : "group_guidewire_row_md5checksum",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 255,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_group_guidewire"
-                  }
-                ]
-              },
-              {
-                "name" : "group_guidewire_datetime_created",
-                "fieldType" : "CONNECTOR",
-                "label" : "group_guidewire_datetime_created",
-                "nativeName" : "group_guidewire_datetime_created",
-                "nativeType" : "timestamp",
-                "original" : "false",
-                "precision" : 29,
-                "scale" : 6,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_group_guidewire"
-                  }
-                ]
-              },
-              {
-                "name" : "group_guidewire_datetime_modified",
-                "fieldType" : "CONNECTOR",
-                "label" : "group_guidewire_datetime_modified",
-                "nativeName" : "group_guidewire_datetime_modified",
-                "nativeType" : "timestamp",
-                "original" : "false",
-                "precision" : 29,
-                "scale" : 6,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_group_guidewire"
-                  }
-                ]
-              },
-              {
-                "name" : "group_guidewire_row_effective_start_datetime",
-                "fieldType" : "CONNECTOR",
-                "label" : "group_guidewire_row_effective_start_datetime",
-                "nativeName" : "group_guidewire_row_effective_start_datetime",
-                "nativeType" : "timestamp",
-                "original" : "false",
-                "precision" : 29,
-                "scale" : 6,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_group_guidewire"
-                  }
-                ]
-              },
-              {
-                "name" : "group_guidewire_row_effective_end_datetime",
-                "fieldType" : "CONNECTOR",
-                "label" : "group_guidewire_row_effective_end_datetime",
-                "nativeName" : "group_guidewire_row_effective_end_datetime",
-                "nativeType" : "timestamp",
-                "original" : "false",
-                "precision" : 29,
-                "scale" : 6,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_group_guidewire"
-                  }
-                ]
-              },
-              {
-                "name" : "if_information_combined_in_reports",
-                "fieldType" : "CONNECTOR",
-                "label" : "if_information_combined_in_reports",
-                "nativeName" : "if_information_combined_in_reports",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 7,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_group_guidewire"
-                  }
-                ]
-              },
-              {
                 "name" : "contingent_group_name1",
                 "fieldType" : "CONNECTOR",
                 "label" : "contingent_group_name1",
@@ -3411,54 +4152,6 @@
                 ]
               },
               {
-                "name" : "field_representative_id",
-                "fieldType" : "CONNECTOR",
-                "label" : "field_representative_id",
-                "nativeName" : "field_representative_id",
-                "nativeType" : "int4",
-                "original" : "false",
-                "precision" : 10,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_group_guidewire"
-                  }
-                ]
-              },
-              {
-                "name" : "field_representative_state",
-                "fieldType" : "CONNECTOR",
-                "label" : "field_representative_state",
-                "nativeName" : "field_representative_state",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 7,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_group_guidewire"
-                  }
-                ]
-              },
-              {
-                "name" : "group_id",
-                "fieldType" : "CONNECTOR",
-                "label" : "group_id",
-                "nativeName" : "group_id",
-                "nativeType" : "int4",
-                "original" : "false",
-                "precision" : 10,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_group_guidewire"
-                  }
-                ]
-              },
-              {
                 "name" : "groups_number",
                 "fieldType" : "CONNECTOR",
                 "label" : "groups_number",
@@ -3466,54 +4159,6 @@
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 7,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_group_guidewire"
-                  }
-                ]
-              },
-              {
-                "name" : "qualifying_amount",
-                "fieldType" : "CONNECTOR",
-                "label" : "qualifying_amount",
-                "nativeName" : "qualifying_amount",
-                "nativeType" : "numeric",
-                "original" : "false",
-                "precision" : 10,
-                "scale" : 2,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_group_guidewire"
-                  }
-                ]
-              },
-              {
-                "name" : "if_group_shares_information",
-                "fieldType" : "CONNECTOR",
-                "label" : "if_group_shares_information",
-                "nativeName" : "if_group_shares_information",
-                "nativeType" : "int4",
-                "original" : "false",
-                "precision" : 10,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_group_guidewire"
-                  }
-                ]
-              },
-              {
-                "name" : "acx_data_change_status_date",
-                "fieldType" : "CONNECTOR",
-                "label" : "acx_data_change_status_date",
-                "nativeName" : "acx_data_change_status_date",
-                "nativeType" : "date",
-                "original" : "false",
-                "precision" : 13,
                 "scale" : 0,
                 "properties" : [
                   {
@@ -3539,13 +4184,13 @@
                 ]
               },
               {
-                "name" : "if_send_user_data_to_acx",
+                "name" : "adm_group_guidewire_row_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "if_send_user_data_to_acx",
-                "nativeName" : "if_send_user_data_to_acx",
-                "nativeType" : "int4",
+                "label" : "adm_group_guidewire_row_id",
+                "nativeName" : "adm_group_guidewire_row_id",
+                "nativeType" : "int8",
                 "original" : "false",
-                "precision" : 10,
+                "precision" : 19,
                 "scale" : 0,
                 "properties" : [
                   {
@@ -3555,10 +4200,26 @@
                 ]
               },
               {
-                "name" : "source_name",
+                "name" : "adm_group_guidewire_batch_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "source_name",
-                "nativeName" : "source_name",
+                "label" : "adm_group_guidewire_batch_id",
+                "nativeName" : "adm_group_guidewire_batch_id",
+                "nativeType" : "int8",
+                "original" : "false",
+                "precision" : 19,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_group_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "originating_source_name",
+                "fieldType" : "CONNECTOR",
+                "label" : "originating_source_name",
+                "nativeName" : "originating_source_name",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 127,
@@ -3571,13 +4232,349 @@
                 ]
               },
               {
-                "name" : "load_type",
+                "name" : "originating_load_type",
                 "fieldType" : "CONNECTOR",
-                "label" : "load_type",
-                "nativeName" : "load_type",
+                "label" : "originating_load_type",
+                "nativeName" : "originating_load_type",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_group_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "adm_group_guidewire_row_md5checksum",
+                "fieldType" : "CONNECTOR",
+                "label" : "adm_group_guidewire_row_md5checksum",
+                "nativeName" : "adm_group_guidewire_row_md5checksum",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 255,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_group_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "adm_group_guidewire_row_effective_start_datetime",
+                "fieldType" : "CONNECTOR",
+                "label" : "adm_group_guidewire_row_effective_start_datetime",
+                "nativeName" : "adm_group_guidewire_row_effective_start_datetime",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_group_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "adm_group_guidewire_row_effective_end_datetime",
+                "fieldType" : "CONNECTOR",
+                "label" : "adm_group_guidewire_row_effective_end_datetime",
+                "nativeName" : "adm_group_guidewire_row_effective_end_datetime",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_group_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "adm_group_guidewire_row_status",
+                "fieldType" : "CONNECTOR",
+                "label" : "adm_group_guidewire_row_status",
+                "nativeName" : "adm_group_guidewire_row_status",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_group_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "ach_accountnum",
+                "fieldType" : "CONNECTOR",
+                "label" : "ach_accountnum",
+                "nativeName" : "ach_accountnum",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 2047,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_group_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "ach_accounttype1",
+                "fieldType" : "CONNECTOR",
+                "label" : "ach_accounttype1",
+                "nativeName" : "ach_accounttype1",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 7,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_group_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "ach_accounttype2",
+                "fieldType" : "CONNECTOR",
+                "label" : "ach_accounttype2",
+                "nativeName" : "ach_accounttype2",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 7,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_group_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "ach_routingnum",
+                "fieldType" : "CONNECTOR",
+                "label" : "ach_routingnum",
+                "nativeName" : "ach_routingnum",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 2047,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_group_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "agencies_transferable",
+                "fieldType" : "CONNECTOR",
+                "label" : "agencies_transferable",
+                "nativeName" : "agencies_transferable",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_group_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "combined",
+                "fieldType" : "CONNECTOR",
+                "label" : "combined",
+                "nativeName" : "combined",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 7,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_group_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "contingent_paymentby",
+                "fieldType" : "CONNECTOR",
+                "label" : "contingent_paymentby",
+                "nativeName" : "contingent_paymentby",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 7,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_group_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "created",
+                "fieldType" : "CONNECTOR",
+                "label" : "created",
+                "nativeName" : "created",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_group_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "fieldrep",
+                "fieldType" : "CONNECTOR",
+                "label" : "fieldrep",
+                "nativeName" : "fieldrep",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_group_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "fieldrep_state",
+                "fieldType" : "CONNECTOR",
+                "label" : "fieldrep_state",
+                "nativeName" : "fieldrep_state",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 7,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_group_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "groups_nup",
+                "fieldType" : "CONNECTOR",
+                "label" : "groups_nup",
+                "nativeName" : "groups_nup",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_group_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "modified",
+                "fieldType" : "CONNECTOR",
+                "label" : "modified",
+                "nativeName" : "modified",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_group_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "qualifyingamount",
+                "fieldType" : "CONNECTOR",
+                "label" : "qualifyingamount",
+                "nativeName" : "qualifyingamount",
+                "nativeType" : "numeric",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 2,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_group_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "share",
+                "fieldType" : "CONNECTOR",
+                "label" : "share",
+                "nativeName" : "share",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_group_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "status_date",
+                "fieldType" : "CONNECTOR",
+                "label" : "status_date",
+                "nativeName" : "status_date",
+                "nativeType" : "date",
+                "original" : "false",
+                "precision" : 13,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_group_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "user_gw",
+                "fieldType" : "CONNECTOR",
+                "label" : "user_gw",
+                "nativeName" : "user_gw",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_group_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "transfer_status",
+                "fieldType" : "CONNECTOR",
+                "label" : "transfer_status",
+                "nativeName" : "transfer_status",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 15,
                 "scale" : 0,
                 "properties" : [
                   {
@@ -3622,7 +4619,7 @@
               },
               {
                 "name" : "Temporary Credential Duration",
-                "value" : "900"
+                "value" : "43200"
               },
               {
                 "name" : "S3 Server Side Encryption",
@@ -3653,6 +4650,10 @@
                 "value" : "5242880"
               },
               {
+                "name" : "Schema Name",
+                "value" : "$$staging_schema"
+              },
+              {
                 "name" : "Preserve record order on write",
                 "value" : "NO"
               },
@@ -3680,23 +4681,76 @@
         "manualMappings" : {
           "mappingList" : [
             {
-              "fromFieldName" : "group_guidewire_row_id",
+              "fromFieldName" : "adm_group_guidewire_row_id",
               "toField" : {
-                "name" : "group_guidewire_row_id"
+                "name" : "adm_group_guidewire_row_id"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_row_status_expired",
+              "toField" : {
+                "name" : "adm_group_guidewire_row_status"
               },
               "fromFieldNames" : null
             },
             {
               "fromFieldName" : "o_enddate_sysdate",
               "toField" : {
-                "name" : "group_guidewire_row_effective_end_datetime"
+                "name" : "adm_group_guidewire_row_effective_end_datetime"
               },
               "fromFieldNames" : null
             }
           ]
         }
       }
+    ],
+    "variables" : [
+      {
+        "aggregationType" : "MAX",
+        "expressionVariable" : "false",
+        "name" : "sourcesystemcode",
+        "platformType" : {
+          "name" : "string"
+        },
+        "precision" : 30,
+        "retentionPolicy" : "ON_SUCCESS_OR_WARNING",
+        "scale" : 0
+      },
+      {
+        "aggregationType" : "MAX",
+        "expressionVariable" : "false",
+        "name" : "raw_schema",
+        "platformType" : {
+          "name" : "string"
+        },
+        "precision" : 30,
+        "retentionPolicy" : "ON_SUCCESS_OR_WARNING",
+        "scale" : 0
+      },
+      {
+        "aggregationType" : "MAX",
+        "expressionVariable" : "false",
+        "name" : "staging_schema",
+        "platformType" : {
+          "name" : "string"
+        },
+        "precision" : 30,
+        "retentionPolicy" : "ON_SUCCESS_OR_WARNING",
+        "scale" : 0
+      },
+      {
+        "aggregationType" : "MAX",
+        "expressionVariable" : "false",
+        "name" : "operational_schema",
+        "platformType" : {
+          "name" : "string"
+        },
+        "precision" : 30,
+        "retentionPolicy" : "ON_SUCCESS_OR_WARNING",
+        "scale" : 0
+      }
     ]
   },
-  "vcsExportTime" : "2025-06-13 07:04:18 PDT"
+  "vcsExportTime" : "2025-08-28 08:17:14 PDT"
 }
