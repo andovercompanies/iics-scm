@@ -1,6 +1,6 @@
 {
   "name" : "cdi_tsk_map_adm_t_members_bronze_load",
-  "description" : "This job is responsible for reading data from the Metal staging layer and loading it into the Bronze SCD Type 2 tables. It ensures historical tracking of changes by identifying new, changed, and unchanged records, applying the appropriate logic to insert new versions or retire old ones with end dates as part of the SCD2 process.",
+  "description" : "This job is responsible for reading data from the Metal staging layer and loading it into the Bronze SCD Type 2 tables. It ensures historical tracking of changes by identifying new, changed, and unchanged records, applying the appropriate logic to insert new versions or retire old ones with end dates as part of the SCD2 process",
   "runtimeEnvironmentId" : "@3pADNCV9u0PcgrXjM7rx0t",
   "runtimeEnvironmentName" : "sag_aws_linux",
   "maxLogs" : 10,
@@ -8,7 +8,7 @@
     {
       "name" : "$src_delta_changes_t_members$",
       "type" : "SOURCE",
-      "label" : "DBConnection_UDM_SRC",
+      "label" : "src_delta_changes_t_members",
       "uiProperties" : {
         "cnxtype" : "Amazon Redshift v2",
         "connectionParameterized" : "true",
@@ -30,7 +30,7 @@
       "truncateTarget" : false,
       "bulkApiDBTarget" : false,
       "customFuncCfg" : { },
-      "customQuery" : "with current_batch as (\nselect\n\tbls.batch_id,\n\tbls.source_start_cutoff_datetime,\n\tbls.source_end_cutoff_datetime\nfrom\n\tmetal.batch_load_summary bls\nwhere\n\tbls.source_system_code = 'ADM'\n\tand bls.batch_status = 'Inprogress'\n\tand bls.batch_id = (\n\tselect\n\t\tMAX(batch_id)\n\tfrom\n\t\tmetal.batch_load_summary\n\twhere\n\t\tsource_system_code = 'ADM'\n\t\tand batch_status = 'Inprogress'\n      )\n)\n\nselect\n\tdistinct\n        metal_atm.source_name,\n\tmetal_atm.load_type,\n\tmetal_atm.members_group_id,\n\tmetal_atm.members_agency_id,\n\tcurrent_batch.batch_id\nfrom\n\tmetal.adm_t_members metal_atm\ncross join current_batch\norder by\n\tmetal_atm.members_agency_id",
+      "customQuery" : "with current_batch as (\nselect\n\tbls.batch_id,\n\tbls.source_start_cutoff_datetime,\n\tbls.source_end_cutoff_datetime\nfrom\n\t$$operational_schema.batch_load_summary bls\nwhere\n\tbls.source_system_code = '$$sourcesystemcode'\n\tand bls.batch_status = 'Inprogress'\n\tand bls.batch_id = (\n\tselect\n\t\tMAX(batch_id)\n\tfrom\n\t\t$$operational_schema.batch_load_summary\n\twhere\n\t\tsource_system_code =  '$$sourcesystemcode'\n\t\tand batch_status = 'Inprogress'\n      )\n)\n\nselect\n\tdistinct\n        metal_atm.source_name,\n\tmetal_atm.load_type,\n\tmetal_atm.members_group_id,\n\tmetal_atm.members_agency_id,\n\tcurrent_batch.batch_id\nfrom\n\t$$raw_schema.adm_t_members metal_atm\ncross join current_batch\norder by\n\tmetal_atm.members_agency_id",
       "commandType" : 0,
       "handleSpecialChars" : false,
       "handleDecimalRoundOff" : false,
@@ -42,20 +42,19 @@
       "objectName" : "DUMMY_src_delta_changes_t_members",
       "useExactSrcNames" : false,
       "userUpdated" : true,
-      "unspecified" : false,
       "fetchMode" : "ORIGINAL",
       "runtimeParameterData" : {
-        "connectionParameterName" : "DBConnection_UDM_SRC",
         "connectionRuntimeParameter" : false,
         "objectRuntimeParameter" : false
       },
       "restmodernSource" : true,
+      "unspecified" : false,
       "fileList" : false
     },
     {
       "name" : "$src_tgt_bronze_adm_t_members_Query$",
       "type" : "SOURCE",
-      "label" : "DBConnection_UDM_SRC",
+      "label" : "src_tgt_bronze_adm_t_members_Query",
       "uiProperties" : {
         "cnxtype" : "Amazon Redshift v2",
         "connectionParameterized" : "true",
@@ -77,7 +76,7 @@
       "truncateTarget" : false,
       "bulkApiDBTarget" : false,
       "customFuncCfg" : { },
-      "customQuery" : "select\n\tt_members_row_id,\n\tt_members_batch_id,\n\tt_members_row_md5checksum,\n\tt_members_row_effective_end_datetime,\n\tgroup_id,\n\tagency_id\nfrom\n\tbronze.adm_t_members\nwhere\n\tt_members_row_effective_end_datetime = '9999-12-31 00:00:00.000';",
+      "customQuery" : "select\n\tadm_t_members_row_id,\n\tadm_t_members_batch_id,\n\tadm_t_members_row_md5checksum,\n\tadm_t_members_row_effective_end_datetime,\n\tmembers_group_id,\n\tmembers_agency_id\nfrom\n\t$$staging_schema.adm_t_members\nwhere\n\tadm_t_members_row_effective_end_datetime = '9999-12-31 00:00:00.000';",
       "commandType" : 0,
       "handleSpecialChars" : false,
       "handleDecimalRoundOff" : false,
@@ -89,20 +88,19 @@
       "objectName" : "DUMMY_src_tgt_bronze_adm_t_members_Query",
       "useExactSrcNames" : false,
       "userUpdated" : true,
-      "unspecified" : false,
       "fetchMode" : "ORIGINAL",
       "runtimeParameterData" : {
-        "connectionParameterName" : "DBConnection_UDM_SRC",
         "connectionRuntimeParameter" : false,
         "objectRuntimeParameter" : false
       },
       "restmodernSource" : true,
+      "unspecified" : false,
       "fileList" : false
     },
     {
       "name" : "$tgt_bronze_adm_t_members_insrt$",
       "type" : "TARGET",
-      "label" : "DBConnection_UDM_TGT",
+      "label" : "tgt_bronze_adm_t_members_insrt",
       "uiProperties" : {
         "cnxtype" : "Amazon Redshift v2",
         "connectionParameterized" : "true",
@@ -142,21 +140,20 @@
       "objectLabel" : "bronze/adm_t_members",
       "useExactSrcNames" : false,
       "userUpdated" : true,
-      "unspecified" : false,
       "fetchMode" : "ORIGINAL",
       "runtimeParameterData" : {
-        "connectionParameterName" : "DBConnection_UDM_TGT",
         "connectionRuntimeParameter" : false,
         "objectRuntimeParameter" : false
       },
       "targetSchemaProviderType" : "SELECTED_OBJECT",
       "restmodernSource" : true,
+      "unspecified" : false,
       "fileList" : false
     },
     {
       "name" : "$tgt_bronze_adm_t_members_updt$",
       "type" : "TARGET",
-      "label" : "DBConnection_UDM_TGT",
+      "label" : "tgt_bronze_adm_t_members_updt",
       "uiProperties" : {
         "cnxtype" : "Amazon Redshift v2",
         "connectionParameterized" : "true",
@@ -196,21 +193,20 @@
       "objectLabel" : "bronze/adm_t_members",
       "useExactSrcNames" : false,
       "userUpdated" : true,
-      "unspecified" : false,
       "fetchMode" : "ORIGINAL",
       "runtimeParameterData" : {
-        "connectionParameterName" : "DBConnection_UDM_TGT",
         "connectionRuntimeParameter" : false,
         "objectRuntimeParameter" : false
       },
       "targetSchemaProviderType" : "SELECTED_OBJECT",
       "restmodernSource" : true,
+      "unspecified" : false,
       "fileList" : false
     },
     {
       "name" : "$tgt_bronze_adm_t_members_updt_endate$",
       "type" : "TARGET",
-      "label" : "DBConnection_UDM_TGT",
+      "label" : "tgt_bronze_adm_t_members_updt_endate",
       "uiProperties" : {
         "cnxtype" : "Amazon Redshift v2",
         "connectionParameterized" : "true",
@@ -220,7 +216,7 @@
         "default" : "bronze/adm_t_members",
         "objectParameterized" : "false",
         "visible" : "false",
-        "defaultTargetUpdateColumns" : "t_members_row_id",
+        "defaultTargetUpdateColumns" : "adm_t_members_row_id",
         "supportApplyDDLChanges" : "false",
         "originalPath" : "tgt_bronze_adm_t_members_updt_endate"
       },
@@ -237,7 +233,7 @@
       "operationType" : "Update",
       "customFuncCfg" : { },
       "targetUpdateColumns" : [
-        "t_members_row_id"
+        "adm_t_members_row_id"
       ],
       "extendedObject" : {
         "singleMode" : true
@@ -254,20 +250,19 @@
       "objectLabel" : "bronze/adm_t_members",
       "useExactSrcNames" : false,
       "userUpdated" : true,
-      "unspecified" : false,
       "fetchMode" : "ORIGINAL",
       "runtimeParameterData" : {
-        "connectionParameterName" : "DBConnection_UDM_TGT",
         "connectionRuntimeParameter" : false,
         "objectRuntimeParameter" : false
       },
       "targetSchemaProviderType" : "SELECTED_OBJECT",
       "restmodernSource" : true,
+      "unspecified" : false,
       "fileList" : false
     }
   ],
   "verbose" : false,
-  "lastRunTime" : 1750790335000,
+  "lastRunTime" : 1756781799000,
   "mappingId" : "@gEZbC1LAXw6jWWShsFfq6W",
   "mappingTemplateName" : "cdi_map_adm_t_members_bronze_load",
   "sessionPropertiesList" : [
@@ -284,6 +279,38 @@
       "value" : "Partial PDO"
     }
   ],
+  "inOutParameters" : [
+    {
+      "name" : "raw_schema",
+      "initialValue" : "metal",
+      "datatype" : "STRING",
+      "precision" : "10",
+      "scale" : "0",
+      "retentionPolicy" : "NEVER",
+      "aggregationType" : "MAX",
+      "currentValue" : "metal"
+    },
+    {
+      "name" : "operational_schema",
+      "initialValue" : "operations",
+      "datatype" : "STRING",
+      "precision" : "100",
+      "scale" : "0",
+      "retentionPolicy" : "NEVER",
+      "aggregationType" : "MAX",
+      "currentValue" : "operations"
+    },
+    {
+      "name" : "staging_schema",
+      "initialValue" : "bronze",
+      "datatype" : "STRING",
+      "precision" : "100",
+      "scale" : "0",
+      "retentionPolicy" : "NEVER",
+      "aggregationType" : "MAX",
+      "currentValue" : "bronze"
+    }
+  ],
   "hidden" : false,
   "enableCrossSchemaPushdown" : true,
   "enableParallelRun" : false,
@@ -296,6 +323,7 @@
   "valid" : true,
   "optimizationPlan" : "NONE",
   "allowMaxFieldLength" : false,
+  "specialCharacterSupport" : false,
   "midstreamPreview" : false,
-  "vcsExportTime" : "2025-06-26 12:36:04 EDT"
+  "vcsExportTime" : "2025-09-01 20:05:06 PDT"
 }

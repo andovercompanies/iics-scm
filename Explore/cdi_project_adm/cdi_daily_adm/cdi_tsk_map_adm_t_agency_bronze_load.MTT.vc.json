@@ -1,6 +1,6 @@
 {
   "name" : "cdi_tsk_map_adm_t_agency_bronze_load",
-  "description" : "This job is responsible for reading data from the Metal staging layer and loading it into the Bronze SCD Type 2 tables. It ensures historical tracking of changes by identifying new, changed, and unchanged records, applying the appropriate logic to insert new versions or retire old ones with end dates as part of the SCD2 process.",
+  "description" : "This job is responsible for reading data from the Metal staging layer and loading it into the Bronze SCD Type 2 tables. It ensures historical tracking of changes by identifying new, changed, and unchanged records, applying the appropriate logic to insert new versions or retire old ones with end dates as part of the SCD2 process",
   "runtimeEnvironmentId" : "@3pADNCV9u0PcgrXjM7rx0t",
   "runtimeEnvironmentName" : "sag_aws_linux",
   "maxLogs" : 10,
@@ -30,7 +30,7 @@
       "truncateTarget" : false,
       "bulkApiDBTarget" : false,
       "customFuncCfg" : { },
-      "customQuery" : "WITH current_batch AS (\n    SELECT \n        bls.batch_id,\n        bls.source_start_cutoff_datetime,\n        bls.source_end_cutoff_datetime\n    FROM metal.batch_load_summary bls\n    WHERE bls.source_system_code = 'ADM'\n      AND bls.batch_status = 'Inprogress'\n      AND bls.batch_id = (\n          SELECT MAX(batch_id)\n          FROM metal.batch_load_summary\n          WHERE source_system_code = 'ADM'\n            AND batch_status = 'Inprogress'\n      )\n)\n\nSELECT DISTINCT\n    metal_agency.source_name,\n    metal_agency.load_type,\n    metal_agency.agency_nup,\n    metal_agency.agency_num,\n    metal_agency.location_num,\n    metal_agency.location_type,\n    metal_agency.agency_is_super,\n    metal_agency.agency_is_enabled,\n    metal_agency.agency_name,\n    metal_agency.agency_second_name,\n    metal_agency.agency_str_1,\n    metal_agency.agency_str_2,\n    metal_agency.agency_str_3,\n    metal_agency.agency_city,\n    metal_agency.agency_st,\n    metal_agency.agency_zip,\n    metal_agency.agency_contact_firstname,\n    metal_agency.agency_contact_lastname,\n    metal_agency.agency_contact_phone,\n    metal_agency.agency_contact_fax,\n    metal_agency.agency_contact_email_address,\n    metal_agency.agency_claims_email_address,\n    metal_agency.agency_website_address,\n    metal_agency.agency_is_grouped,\n    metal_agency.agency_connection_type,\n    metal_agency.agency_alternative_phone,\n    metal_agency.agency_agent_type,\n    metal_agency.agency_adjustment_period,\n    metal_agency.agency_combine_producer_code,\n    metal_agency.agency_branch,\n    metal_agency.agency_fieldman,\n    metal_agency.default_choicepoint_acct,\n    metal_agency.gw_choicepoint_acct,\n    metal_agency.agency_locator_on,\n    metal_agency.is_boa_enabled,\n    metal_agency.fid_num,\n    metal_agency.fid_type,\n    metal_agency.lexis_ivans_y_number,\n    metal_agency.user_who_modified,\n    metal_agency.last_modified,\n    metal_agency.create_date,\n\tmetal_agency.agency_group_id,\n    current_batch.batch_id\nFROM metal.adm_t_agency metal_agency\nCROSS JOIN current_batch\nORDER BY \n    metal_agency.agency_nup,\n    metal_agency.agency_num,\n    metal_agency.create_date,\n    metal_agency.last_modified;",
+      "customQuery" : "WITH current_batch AS (\n    SELECT \n        bls.batch_id,\n        bls.source_start_cutoff_datetime,\n        bls.source_end_cutoff_datetime\n    FROM $$operational_schema.batch_load_summary bls\n    WHERE bls.source_system_code = '$$sourcesystemcode'\n      AND bls.batch_status = 'Inprogress'\n      AND bls.batch_id = (\n          SELECT MAX(batch_id)\n          FROM $$operational_schema.batch_load_summary\n          WHERE source_system_code = '$$sourcesystemcode'\n            AND batch_status = 'Inprogress'\n      )\n)\n\nSELECT DISTINCT\n    metal_agency.source_name,\n    metal_agency.load_type,\n    metal_agency.agency_nup,\n    metal_agency.agency_num,\n    metal_agency.location_num,\n    metal_agency.location_type,\n    metal_agency.agency_is_super,\n    metal_agency.agency_is_enabled,\n    metal_agency.agency_name,\n    metal_agency.agency_second_name,\n    metal_agency.agency_str_1,\n    metal_agency.agency_str_2,\n    metal_agency.agency_str_3,\n    metal_agency.agency_city,\n    metal_agency.agency_st,\n    metal_agency.agency_zip,\n    metal_agency.agency_contact_firstname,\n    metal_agency.agency_contact_lastname,\n    metal_agency.agency_contact_phone,\n    metal_agency.agency_contact_fax,\n    metal_agency.agency_contact_email_address,\n    metal_agency.agency_claims_email_address,\n    metal_agency.agency_website_address,\n    metal_agency.agency_is_grouped,\n    metal_agency.agency_connection_type,\n    metal_agency.agency_alternative_phone,\n    metal_agency.agency_agent_type,\n    metal_agency.agency_adjustment_period,\n    metal_agency.agency_combine_producer_code,\n    metal_agency.agency_branch,\n    metal_agency.agency_fieldman,\n    metal_agency.default_choicepoint_acct,\n    metal_agency.gw_choicepoint_acct,\n    metal_agency.agency_locator_on,\n    metal_agency.is_boa_enabled,\n    metal_agency.fid_num,\n    metal_agency.fid_type,\n    metal_agency.lexis_ivans_y_number,\n    metal_agency.user_who_modified,\n    metal_agency.last_modified,\n    metal_agency.create_date,\n\tmetal_agency.agency_group_id,\n    current_batch.batch_id\nFROM $$raw_schema.adm_t_agency metal_agency\nCROSS JOIN current_batch\nORDER BY \n    metal_agency.agency_nup,\n    metal_agency.agency_num,\n    metal_agency.create_date,\n    metal_agency.last_modified;",
       "commandType" : 0,
       "handleSpecialChars" : false,
       "handleDecimalRoundOff" : false,
@@ -77,7 +77,7 @@
       "truncateTarget" : false,
       "bulkApiDBTarget" : false,
       "customFuncCfg" : { },
-      "customQuery" : "SELECT \nt_agency_row_id, \nt_agency_row_md5checksum, \nagency_id,\nagency_number,\nagency_id, agency_number ,\nt_agency_datetime_modified,\nt_agency_row_effective_end_datetime\nFROM bronze.adm_t_agency\nwhere t_agency_row_effective_end_datetime = '9999-12-31 00:00:00.000'",
+      "customQuery" : "SELECT \nadm_t_agency_row_id, \nadm_t_agency_row_md5checksum, \nagency_nup,\nagency_num\nFROM bronze.adm_t_agency\nwhere adm_t_agency_row_effective_end_datetime = '9999-12-31 00:00:00.000'",
       "commandType" : 0,
       "handleSpecialChars" : false,
       "handleDecimalRoundOff" : false,
@@ -148,6 +148,7 @@
         "connectionRuntimeParameter" : false,
         "objectRuntimeParameter" : false
       },
+      "targetSchemaProviderType" : "SELECTED_OBJECT",
       "restmodernSource" : true,
       "unspecified" : false,
       "fileList" : false
@@ -165,7 +166,7 @@
         "default" : "bronze/adm_t_agency",
         "objectParameterized" : "false",
         "visible" : "false",
-        "defaultTargetUpdateColumns" : "t_agency_row_id",
+        "defaultTargetUpdateColumns" : "adm_t_agency_row_id",
         "supportApplyDDLChanges" : "false",
         "originalPath" : "tgt_bronze_adm_t_agency_updates"
       },
@@ -182,7 +183,7 @@
       "operationType" : "Update",
       "customFuncCfg" : { },
       "targetUpdateColumns" : [
-        "t_agency_row_id"
+        "adm_t_agency_row_id"
       ],
       "extendedObject" : {
         "singleMode" : true
@@ -205,6 +206,7 @@
         "connectionRuntimeParameter" : false,
         "objectRuntimeParameter" : false
       },
+      "targetSchemaProviderType" : "SELECTED_OBJECT",
       "restmodernSource" : true,
       "unspecified" : false,
       "fileList" : false
@@ -258,13 +260,14 @@
         "connectionRuntimeParameter" : false,
         "objectRuntimeParameter" : false
       },
+      "targetSchemaProviderType" : "SELECTED_OBJECT",
       "restmodernSource" : true,
       "unspecified" : false,
       "fileList" : false
     }
   ],
-  "verbose" : true,
-  "lastRunTime" : 1753996647000,
+  "verbose" : false,
+  "lastRunTime" : 1756780740000,
   "mappingId" : "@ag3RBfxkbssdOb7pyCOkEC",
   "mappingTemplateName" : "cdi_tsk_adm_t_agency_bronze_load",
   "sessionPropertiesList" : [
@@ -281,6 +284,38 @@
       "value" : "Partial PDO"
     }
   ],
+  "inOutParameters" : [
+    {
+      "name" : "raw_schema",
+      "initialValue" : "metal",
+      "datatype" : "STRING",
+      "precision" : "100",
+      "scale" : "0",
+      "retentionPolicy" : "NEVER",
+      "aggregationType" : "MAX",
+      "currentValue" : "metal"
+    },
+    {
+      "name" : "staging_schema",
+      "initialValue" : "bronze",
+      "datatype" : "STRING",
+      "precision" : "100",
+      "scale" : "0",
+      "retentionPolicy" : "NEVER",
+      "aggregationType" : "MAX",
+      "currentValue" : "bronze"
+    },
+    {
+      "name" : "operational_schema",
+      "initialValue" : "operations",
+      "datatype" : "STRING",
+      "precision" : "100",
+      "scale" : "0",
+      "retentionPolicy" : "NEVER",
+      "aggregationType" : "MAX",
+      "currentValue" : "operations"
+    }
+  ],
   "hidden" : false,
   "enableCrossSchemaPushdown" : true,
   "enableParallelRun" : false,
@@ -295,5 +330,5 @@
   "allowMaxFieldLength" : false,
   "specialCharacterSupport" : false,
   "midstreamPreview" : false,
-  "vcsExportTime" : "2025-07-31 14:51:11 PDT"
+  "vcsExportTime" : "2025-09-01 19:49:37 PDT"
 }
