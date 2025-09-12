@@ -201,6 +201,28 @@
           },
           {
             "adapterField" : {
+              "name" : "transfer_status"
+            },
+            "name" : "transfer_status",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "agencies_transferable"
+            },
+            "name" : "agencies_transferable",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
               "name" : "status_date"
             },
             "name" : "status_date",
@@ -286,28 +308,6 @@
             },
             "precision" : 1200,
             "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "transfer_status"
-            },
-            "name" : "transfer_status",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 10,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "agencies_transferable"
-            },
-            "name" : "agencies_transferable",
-            "platformType" : {
-              "name" : "integer"
-            },
-            "precision" : 10,
-            "scale" : 0
           }
         ],
         "dataAdapter" : {
@@ -319,7 +319,7 @@
           "typeSystem" : "MySQL",
           "useDynamicFileName" : "false",
           "object" : {
-            "customQuery" : "SELECT\n\tgroups_nup,\n\tgroups_number,\n\tcombined,\n\tqualifyingamount,\n\tshare,\n\tsuper_group_id,\n\tcontingent_group_name1,\n\tcontingent_group_name2,\n\tfieldrep,\n\tfieldrep_state,\n\tuser_gw,\n\tstatus_date,\n\tcreated,\n\tmodified,\n\tcontingent_paymentby,\n\tach_accounttype1,\n\tach_accounttype2,\n\tach_accountnum,\n\tach_routingnum,\n\ttransfer_status,\n\tagencies_transferable\nFROM\n\tagencymanagement.groupguidewire\nORDER BY\n\tmodified DESC",
+            "customQuery" : "SELECT \n\tgroups_nup, \n\tgroups_number, \n\tcombined, \n\tqualifyingamount, \n\tshare, \n\tsuper_group_id,\n\tcontingent_group_name1, \n\tcontingent_group_name2, \n\tfieldrep, \n\tfieldrep_state, \n\tuser_gw, \n\ttransfer_status, \n\tagencies_transferable, \n\tstatus_date, \n\tcreated, \n\tmodified, \n\tcontingent_paymentby, \n\tach_accounttype1, \n\tach_accounttype2, \n\tach_accountnum, \n\tach_routingnum\nFROM $$adm_source_schema.groupguidewire;",
             "retainMetadata" : "false",
             "fields" : [
               {
@@ -499,6 +499,38 @@
                 ]
               },
               {
+                "name" : "transfer_status",
+                "fieldType" : "CONNECTOR",
+                "label" : "transfer_status",
+                "nativeName" : "transfer_status",
+                "nativeType" : "char",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "groupguidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "agencies_transferable",
+                "fieldType" : "CONNECTOR",
+                "label" : "agencies_transferable",
+                "nativeName" : "agencies_transferable",
+                "nativeType" : "integer",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "groupguidewire"
+                  }
+                ]
+              },
+              {
                 "name" : "status_date",
                 "fieldType" : "CONNECTOR",
                 "label" : "status_date",
@@ -618,38 +650,6 @@
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 1200,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "groupguidewire"
-                  }
-                ]
-              },
-              {
-                "name" : "transfer_status",
-                "fieldType" : "CONNECTOR",
-                "label" : "transfer_status",
-                "nativeName" : "transfer_status",
-                "nativeType" : "char",
-                "original" : "false",
-                "precision" : 10,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "groupguidewire"
-                  }
-                ]
-              },
-              {
-                "name" : "agencies_transferable",
-                "fieldType" : "CONNECTOR",
-                "label" : "agencies_transferable",
-                "nativeName" : "agencies_transferable",
-                "nativeType" : "integer",
-                "original" : "false",
-                "precision" : 10,
                 "scale" : 0,
                 "properties" : [
                   {
@@ -1406,6 +1406,10 @@
                 "value" : "5242880"
               },
               {
+                "name" : "Schema Name",
+                "value" : "$$raw_schema"
+              },
+              {
                 "name" : "Preserve record order on write",
                 "value" : "NO"
               },
@@ -1632,10 +1636,10 @@
             "platformType" : {
               "name" : "string"
             },
-            "precision" : 10,
+            "precision" : 70,
             "scale" : 0,
             "expFieldType" : "OUTPUT",
-            "expression" : "'Daily'"
+            "expression" : "'Daily full refresh'"
           },
           {
             "defaultValue" : "ERROR('transformation error')",
@@ -1679,7 +1683,33 @@
           "partitionKeys" : null
         }
       }
+    ],
+    "variables" : [
+      {
+        "aggregationType" : "MAX",
+        "expressionVariable" : "false",
+        "name" : "adm_source_schema",
+        "platformType" : {
+          "name" : "string"
+        },
+        "precision" : 30,
+        "retentionPolicy" : "NEVER",
+        "scale" : 0,
+        "defaultValue" : "agencymanagement"
+      },
+      {
+        "aggregationType" : "MAX",
+        "expressionVariable" : "false",
+        "name" : "raw_schema",
+        "platformType" : {
+          "name" : "string"
+        },
+        "precision" : 30,
+        "retentionPolicy" : "NEVER",
+        "scale" : 0,
+        "defaultValue" : "metal"
+      }
     ]
   },
-  "vcsExportTime" : "2025-09-05 11:43:04 PDT"
+  "vcsExportTime" : "2025-09-12 11:07:26 PDT"
 }

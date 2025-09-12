@@ -30,7 +30,7 @@
       "truncateTarget" : false,
       "bulkApiDBTarget" : false,
       "customFuncCfg" : { },
-      "customQuery" : "WITH current_batch AS (\n    SELECT \n        bls.batch_id,\n        bls.source_start_cutoff_datetime,\n        bls.source_end_cutoff_datetime\n    FROM metal.batch_load_summary bls\n    WHERE bls.source_system_code = 'ADM'\n      AND bls.batch_status = 'Inprogress'\n      AND bls.batch_id = (\n          SELECT MAX(batch_id)\n          FROM metal.batch_load_summary\n          WHERE source_system_code = 'ADM'\n            AND batch_status = 'Inprogress'\n      )\n)\nSELECT DISTINCT \n\t\tmetal_acd.source_name, \n\t\tmetal_acd.load_type, \n\t\tmetal_acd.agency_nup, \n\t\tmetal_acd.contact_email, \n\t\tmetal_acd.contact_firstname, \n\t\tmetal_acd.contact_lastname, \n\t\tmetal_acd.contact_title, \n\t\tmetal_acd.created, \n\t\tmetal_acd.id,\n\t\tmetal_acd.modified,\n\t\tcurrent_batch.batch_id\nFROM metal.adm_contact_guidewire metal_acd\nCROSS JOIN current_batch\nORDER BY \n    metal_acd.id,\n    metal_acd.created,\n    metal_acd.modified;",
+      "customQuery" : "WITH current_batch AS \n(\n    SELECT \n        bls.batch_id,\n        bls.source_start_cutoff_datetime,\n        bls.source_end_cutoff_datetime\n    FROM $$operational_schema.batch_load_summary bls\n    WHERE bls.source_system_code = '$$sourcesystemcode'\n    AND bls.batch_status = 'Inprogress'\n    AND bls.batch_id = \n\t(\n        SELECT MAX(batch_id)\n        FROM $$operational_schema.batch_load_summary\n        WHERE source_system_code = '$$sourcesystemcode'\n        AND batch_status = 'Inprogress'\n    )\n)\nSELECT DISTINCT \n\tmetal_acd.source_name as src_source_name, \n\tmetal_acd.load_type as src_load_type, \n\tmetal_acd.id as src_id,\n\tmetal_acd.agency_nup as src_agency_nup, \n\tmetal_acd.contact_firstname as src_contact_firstname, \n\tmetal_acd.contact_lastname as src_contact_lastname, \n\tmetal_acd.contact_title as src_contact_title,\n\tmetal_acd.contact_email as src_contact_email,\n\tmetal_acd.is_cyber as src_is_cyber,\n\tmetal_acd.created as src_created, \n\tmetal_acd.modified as src_modified,\n\tcurrent_batch.batch_id as src_batch_id\nFROM $$raw_schema.adm_contact_guidewire metal_acd\nCROSS JOIN current_batch\nORDER BY \n    metal_acd.id,\n    metal_acd.created,\n    metal_acd.modified;",
       "commandType" : 0,
       "handleSpecialChars" : false,
       "handleDecimalRoundOff" : false,
@@ -42,26 +42,25 @@
       "objectName" : "DUMMY_source_delta_changes_contact_guidewire",
       "useExactSrcNames" : false,
       "userUpdated" : true,
-      "unspecified" : false,
-      "fetchMode" : "ORIGINAL",
       "runtimeParameterData" : {
         "connectionParameterName" : "DBConnection_UDM_SRC",
         "connectionRuntimeParameter" : false,
         "objectRuntimeParameter" : false
       },
       "restmodernSource" : true,
+      "unspecified" : false,
       "fileList" : false
     },
     {
       "name" : "$src_tgt_query$",
       "type" : "SOURCE",
-      "label" : "DBConnection_UDM_SRC",
+      "label" : "DBConnection_UDM_TGT",
       "uiProperties" : {
         "cnxtype" : "Amazon Redshift v2",
         "connectionParameterized" : "true",
-        "paramName" : "DBConnection_UDM_SRC",
+        "paramName" : "DBConnection_UDM_TGT",
         "paramType-mapping" : "Connection",
-        "logcnx" : "DBConnection_UDM_SRC",
+        "logcnx" : "DBConnection_UDM_TGT",
         "isSelectDistinct" : "false",
         "objectParameterized" : "false",
         "visible" : "false",
@@ -77,7 +76,7 @@
       "truncateTarget" : false,
       "bulkApiDBTarget" : false,
       "customFuncCfg" : { },
-      "customQuery" : "SELECT \n        contact_guidewire_row_id, \n        contact_guidewire_row_md5checksum, \n        agency_contact_guidewire_id,  \n  contact_guidewire_datetime_modified,\n  contact_guidewire_row_effective_end_datetime\t\n    FROM bronze.adm_contact_guidewire\n    where  contact_guidewire_row_effective_end_datetime = '9999-12-31 00:00:00.000'",
+      "customQuery" : "SELECT \n    adm_contact_guidewire_row_id as tgt_adm_contact_guidewire_row_id, \n    adm_contact_guidewire_row_md5checksum as tgt_adm_contact_guidewire_row_md5checksum, \n    id as tgt_id,\n   modified as tgt_modified,\n   adm_contact_guidewire_row_effective_end_datetime as tgt_adm_contact_guidewire_row_effective_end_datetime \nFROM $$staging_schema.adm_contact_guidewire\nWHERE adm_contact_guidewire_row_effective_end_datetime = '9999-12-31 00:00:00.000'",
       "commandType" : 0,
       "handleSpecialChars" : false,
       "handleDecimalRoundOff" : false,
@@ -89,18 +88,17 @@
       "objectName" : "DUMMY_src_tgt_query",
       "useExactSrcNames" : false,
       "userUpdated" : true,
-      "unspecified" : false,
-      "fetchMode" : "ORIGINAL",
       "runtimeParameterData" : {
-        "connectionParameterName" : "DBConnection_UDM_SRC",
+        "connectionParameterName" : "DBConnection_UDM_TGT",
         "connectionRuntimeParameter" : false,
         "objectRuntimeParameter" : false
       },
       "restmodernSource" : true,
+      "unspecified" : false,
       "fileList" : false
     },
     {
-      "name" : "$tgt_insert_records$",
+      "name" : "$tgt_bronze_adm_contact_guidewire_ins$",
       "type" : "TARGET",
       "label" : "DBConnection_UDM_TGT",
       "uiProperties" : {
@@ -113,7 +111,7 @@
         "objectParameterized" : "false",
         "visible" : "false",
         "supportApplyDDLChanges" : "false",
-        "originalPath" : "tgt_insert_records"
+        "originalPath" : "tgt_bronze_adm_contact_guidewire_ins"
       },
       "targetConnectionId" : "@aYZ4ekzHgIPeKpiaoqDLKP",
       "connectionName" : "redshift_nonprod_andover_dw_dev",
@@ -142,19 +140,17 @@
       "objectLabel" : "bronze/adm_contact_guidewire",
       "useExactSrcNames" : false,
       "userUpdated" : true,
-      "unspecified" : false,
-      "fetchMode" : "ORIGINAL",
       "runtimeParameterData" : {
         "connectionParameterName" : "DBConnection_UDM_TGT",
         "connectionRuntimeParameter" : false,
         "objectRuntimeParameter" : false
       },
-      "targetSchemaProviderType" : "SELECTED_OBJECT",
       "restmodernSource" : true,
+      "unspecified" : false,
       "fileList" : false
     },
     {
-      "name" : "$tgt_update$",
+      "name" : "$tgt_bronze_adm_contact_guidewire_upd_closeout$",
       "type" : "TARGET",
       "label" : "DBConnection_UDM_TGT",
       "uiProperties" : {
@@ -166,63 +162,9 @@
         "default" : "bronze/adm_contact_guidewire",
         "objectParameterized" : "false",
         "visible" : "false",
+        "defaultTargetUpdateColumns" : "adm_contact_guidewire_row_id",
         "supportApplyDDLChanges" : "false",
-        "originalPath" : "tgt_update"
-      },
-      "targetConnectionId" : "@aYZ4ekzHgIPeKpiaoqDLKP",
-      "connectionName" : "redshift_nonprod_andover_dw_dev",
-      "targetObject" : "bronze/adm_contact_guidewire",
-      "targetObjectLabel" : "bronze/adm_contact_guidewire",
-      "newFlatFile" : false,
-      "newObject" : false,
-      "showBusinessNames" : true,
-      "naturalOrder" : true,
-      "truncateTarget" : false,
-      "bulkApiDBTarget" : false,
-      "operationType" : "Insert",
-      "customFuncCfg" : { },
-      "extendedObject" : {
-        "singleMode" : true
-      },
-      "commandType" : 0,
-      "handleSpecialChars" : false,
-      "handleDecimalRoundOff" : false,
-      "frsAsset" : false,
-      "dynamicFileName" : false,
-      "excludeDynamicFileNameField" : false,
-      "currentlyProcessedFileName" : false,
-      "retainFieldMetadata" : false,
-      "objectName" : "bronze/adm_contact_guidewire",
-      "objectLabel" : "bronze/adm_contact_guidewire",
-      "useExactSrcNames" : false,
-      "userUpdated" : true,
-      "unspecified" : false,
-      "fetchMode" : "ORIGINAL",
-      "runtimeParameterData" : {
-        "connectionParameterName" : "DBConnection_UDM_TGT",
-        "connectionRuntimeParameter" : false,
-        "objectRuntimeParameter" : false
-      },
-      "targetSchemaProviderType" : "SELECTED_OBJECT",
-      "restmodernSource" : true,
-      "fileList" : false
-    },
-    {
-      "name" : "$tgt_update_closeout$",
-      "type" : "TARGET",
-      "label" : "DBConnection_UDM_TGT",
-      "uiProperties" : {
-        "cnxtype" : "Amazon Redshift v2",
-        "connectionParameterized" : "true",
-        "paramName" : "DBConnection_UDM_TGT",
-        "paramType-mapping" : "Connection",
-        "logcnx" : "DBConnection_UDM_TGT",
-        "default" : "bronze/adm_contact_guidewire",
-        "objectParameterized" : "false",
-        "visible" : "false",
-        "defaultTargetUpdateColumns" : "contact_guidewire_row_id",
-        "supportApplyDDLChanges" : "false",
-        "originalPath" : "tgt_update_closeout"
+        "originalPath" : "tgt_bronze_adm_contact_guidewire_upd_closeout"
       },
       "targetConnectionId" : "@aYZ4ekzHgIPeKpiaoqDLKP",
       "connectionName" : "redshift_nonprod_andover_dw_dev",
@@ -237,7 +179,7 @@
       "operationType" : "Update",
       "customFuncCfg" : { },
       "targetUpdateColumns" : [
-        "contact_guidewire_row_id"
+        "adm_contact_guidewire_row_id"
       ],
       "extendedObject" : {
         "singleMode" : true
@@ -254,20 +196,70 @@
       "objectLabel" : "bronze/adm_contact_guidewire",
       "useExactSrcNames" : false,
       "userUpdated" : true,
-      "unspecified" : false,
-      "fetchMode" : "ORIGINAL",
       "runtimeParameterData" : {
         "connectionParameterName" : "DBConnection_UDM_TGT",
         "connectionRuntimeParameter" : false,
         "objectRuntimeParameter" : false
       },
-      "targetSchemaProviderType" : "SELECTED_OBJECT",
       "restmodernSource" : true,
+      "unspecified" : false,
+      "fileList" : false
+    },
+    {
+      "name" : "$tgt_bronze_adm_contact_guidewire_upd_ins$",
+      "type" : "TARGET",
+      "label" : "DBConnection_UDM_TGT",
+      "uiProperties" : {
+        "cnxtype" : "Amazon Redshift v2",
+        "connectionParameterized" : "true",
+        "paramName" : "DBConnection_UDM_TGT",
+        "paramType-mapping" : "Connection",
+        "logcnx" : "DBConnection_UDM_TGT",
+        "default" : "bronze/adm_contact_guidewire",
+        "objectParameterized" : "false",
+        "visible" : "false",
+        "supportApplyDDLChanges" : "false",
+        "originalPath" : "tgt_bronze_adm_contact_guidewire_upd_ins"
+      },
+      "targetConnectionId" : "@aYZ4ekzHgIPeKpiaoqDLKP",
+      "connectionName" : "redshift_nonprod_andover_dw_dev",
+      "targetObject" : "bronze/adm_contact_guidewire",
+      "targetObjectLabel" : "bronze/adm_contact_guidewire",
+      "newFlatFile" : false,
+      "newObject" : false,
+      "showBusinessNames" : true,
+      "naturalOrder" : true,
+      "truncateTarget" : false,
+      "bulkApiDBTarget" : false,
+      "operationType" : "Insert",
+      "customFuncCfg" : { },
+      "extendedObject" : {
+        "singleMode" : true
+      },
+      "commandType" : 0,
+      "handleSpecialChars" : false,
+      "handleDecimalRoundOff" : false,
+      "frsAsset" : false,
+      "dynamicFileName" : false,
+      "excludeDynamicFileNameField" : false,
+      "currentlyProcessedFileName" : false,
+      "retainFieldMetadata" : false,
+      "objectName" : "bronze/adm_contact_guidewire",
+      "objectLabel" : "bronze/adm_contact_guidewire",
+      "useExactSrcNames" : false,
+      "userUpdated" : true,
+      "runtimeParameterData" : {
+        "connectionParameterName" : "DBConnection_UDM_TGT",
+        "connectionRuntimeParameter" : false,
+        "objectRuntimeParameter" : false
+      },
+      "restmodernSource" : true,
+      "unspecified" : false,
       "fileList" : false
     }
   ],
   "verbose" : false,
-  "lastRunTime" : 1750251753000,
+  "lastRunTime" : 1757693198000,
   "mappingId" : "@39iSV7UVhtsdxEtBPCarYm",
   "mappingTemplateName" : "cdi_map_adm_contact_guidewire_bronze_load",
   "sessionPropertiesList" : [
@@ -284,6 +276,48 @@
       "value" : "Partial PDO"
     }
   ],
+  "inOutParameters" : [
+    {
+      "name" : "sourcesystemcode",
+      "initialValue" : "ADM",
+      "datatype" : "STRING",
+      "precision" : "30",
+      "scale" : "0",
+      "retentionPolicy" : "NEVER",
+      "aggregationType" : "MAX",
+      "currentValue" : "ADM"
+    },
+    {
+      "name" : "raw_schema",
+      "initialValue" : "metal",
+      "datatype" : "STRING",
+      "precision" : "30",
+      "scale" : "0",
+      "retentionPolicy" : "NEVER",
+      "aggregationType" : "MAX",
+      "currentValue" : "metal"
+    },
+    {
+      "name" : "staging_schema",
+      "initialValue" : "bronze",
+      "datatype" : "STRING",
+      "precision" : "30",
+      "scale" : "0",
+      "retentionPolicy" : "NEVER",
+      "aggregationType" : "MAX",
+      "currentValue" : "bronze"
+    },
+    {
+      "name" : "operational_schema",
+      "initialValue" : "metal",
+      "datatype" : "STRING",
+      "precision" : "30",
+      "scale" : "0",
+      "retentionPolicy" : "NEVER",
+      "aggregationType" : "MAX",
+      "currentValue" : "metal"
+    }
+  ],
   "hidden" : false,
   "enableCrossSchemaPushdown" : true,
   "enableParallelRun" : false,
@@ -296,6 +330,7 @@
   "valid" : true,
   "optimizationPlan" : "NONE",
   "allowMaxFieldLength" : false,
+  "specialCharacterSupport" : false,
   "midstreamPreview" : false,
-  "vcsExportTime" : "2025-06-18 09:11:40 EDT"
+  "vcsExportTime" : "2025-09-12 09:08:52 PDT"
 }
