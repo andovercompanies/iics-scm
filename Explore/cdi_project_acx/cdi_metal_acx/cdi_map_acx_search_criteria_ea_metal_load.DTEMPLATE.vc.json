@@ -1,17 +1,17 @@
 {
   "content" : {
-    "description" : "this job will read data from Maria DB and load to metal staging tables. This is one to one mapping without any changes.",
+    "description" : "This job reads data from ACX Guidewire DB and loads it into the Metal staging tables. It follows a one-to-one mapping with no transformations.",
     "allowMaxFieldLength" : "false",
     "bigIntConvertType" : "ONLY_BIGINT",
     "documentType" : "MAPPING",
-    "name" : "cdi_map_adm_agency_group_metal_stg_load",
+    "name" : "cdi_map_acx_search_criteria_ea_metal_load",
     "specialCharacterSupport" : "false",
     "links" : [
       {
-        "link" : "exp_read_all_fields -> tgt_adm_agency_group"
+        "link" : "exp_read_all_fields -> tgt_acx_search_criteria"
       },
       {
-        "link" : "src_agencygroup -> exp_read_all_fields"
+        "link" : "src_searchcriteriaea -> exp_read_all_fields"
       }
     ],
     "parameters" : [
@@ -31,10 +31,11 @@
         "scale" : 0,
         "allowRuntimeOverride" : "false",
         "expressionVariable" : "false",
-        "name" : "DBConnection_ADM_SRC",
+        "name" : "DBConnection_ACX_TGT",
         "anonymousType" : {
-          "typeSystem" : "MySQL",
-          "connectionType" : "MySQL"
+          "subType" : "TOOLKIT_CCI",
+          "typeSystem" : "TOOLKIT",
+          "connectionType" : "Amazon Redshift v2"
         }
       },
       {
@@ -44,19 +45,17 @@
         "scale" : 0,
         "allowRuntimeOverride" : "false",
         "expressionVariable" : "false",
-        "name" : "DBConnection_UDM_TGT",
+        "name" : "DBConnection_ACX_SRCM",
         "anonymousType" : {
-          "subType" : "TOOLKIT_CCI",
-          "typeSystem" : "TOOLKIT",
-          "connectionType" : "Amazon Redshift v2"
+          "typeSystem" : "MySQL",
+          "connectionType" : "MySQL"
         }
       }
     ],
     "transformations" : [
       {
-        "description" : "this source to capture the daily data from Maria DB.",
-        "createTime" : "2025-04-29T16:54:45.081Z",
-        "name" : "src_agencygroup",
+        "createTime" : "2025-07-16T21:35:38.241Z",
+        "name" : "src_searchcriteriaea",
         "advancedProperties" : [
           {
             "name" : "Tracing Level",
@@ -74,21 +73,15 @@
             "output" : "true"
           }
         ],
-        "sessionProperties" : [
-          {
-            "name" : "Schema Name",
-            "value" : "$$adm_source_schema"
-          }
-        ],
         "generateFilenamePort" : "false",
         "useLabels" : "false",
         "useSequenceFields" : "false",
         "fields" : [
           {
             "adapterField" : {
-              "name" : "id"
+              "name" : "SystemId"
             },
-            "name" : "id",
+            "name" : "SystemId",
             "platformType" : {
               "name" : "integer"
             },
@@ -97,9 +90,9 @@
           },
           {
             "adapterField" : {
-              "name" : "name"
+              "name" : "ParentId"
             },
-            "name" : "name",
+            "name" : "ParentId",
             "platformType" : {
               "name" : "string"
             },
@@ -108,20 +101,20 @@
           },
           {
             "adapterField" : {
-              "name" : "number"
+              "name" : "CMMContainer"
             },
-            "name" : "number",
+            "name" : "CMMContainer",
             "platformType" : {
               "name" : "string"
             },
-            "precision" : 4,
+            "precision" : 100,
             "scale" : 0
           },
           {
             "adapterField" : {
-              "name" : "modified_by"
+              "name" : "Id"
             },
-            "name" : "modified_by",
+            "name" : "Id",
             "platformType" : {
               "name" : "string"
             },
@@ -130,44 +123,77 @@
           },
           {
             "adapterField" : {
-              "name" : "created"
+              "name" : "SearchCriteriaName"
             },
-            "name" : "created",
+            "name" : "SearchCriteriaName",
             "platformType" : {
-              "name" : "date/time"
+              "name" : "string"
             },
-            "precision" : 29,
-            "scale" : 9
+            "precision" : 100,
+            "scale" : 0
           },
           {
             "adapterField" : {
-              "name" : "modified"
+              "name" : "SearchCriteriaValue"
             },
-            "name" : "modified",
+            "name" : "SearchCriteriaValue",
             "platformType" : {
-              "name" : "date/time"
+              "name" : "string"
             },
-            "precision" : 29,
-            "scale" : 9
+            "precision" : 100,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "Type"
+            },
+            "name" : "Type",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 100,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "KeyParentBeanRefId"
+            },
+            "name" : "KeyParentBeanRefId",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 100,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "RowId"
+            },
+            "name" : "RowId",
+            "platformType" : {
+              "name" : "bigint"
+            },
+            "precision" : 19,
+            "scale" : 0
           }
         ],
         "dataAdapter" : {
           "connectionId$" : {
-            "name" : "DBConnection_ADM_SRC"
+            "name" : "DBConnection_ACX_SRCM"
           },
           "excludeDynamicFileNameField" : "false",
           "objectType" : "QUERY",
           "typeSystem" : "MySQL",
           "useDynamicFileName" : "false",
           "object" : {
-            "customQuery" : "SELECT id, name, number, modified_by, created, modified\nFROM $$adm_source_schema.agencygroup\nORDER BY modified DESC",
+            "customQuery" : "select\n\ta.SystemId,\n\ta.ParentId,\n\ta.CMMContainer,\n\ta.Id,\n\ta.SearchCriteriaName,\n\ta.SearchCriteriaValue,\n\ta.`Type`,\n\ta.KeyParentBeanRefId,\n\ta.RowId\nfrom\n\tsearchcriteriaea a\ninner join advrxxchangedbeans b\non a.Systemid = b.Systemid\nand a.CmmContainer = b.CmmContainer\nand b.CmmContainer in ('Policy','DataReport','Application')\nwhere CONCAT(b.adddt, ' ', substr(b.addtm, 1, 8))>= $LASTRUNTIME",
             "retainMetadata" : "false",
             "fields" : [
               {
-                "name" : "id",
+                "name" : "SystemId",
                 "fieldType" : "CONNECTOR",
-                "label" : "id",
-                "nativeName" : "id",
+                "label" : "SystemId",
+                "nativeName" : "SystemId",
                 "nativeType" : "integer",
                 "original" : "false",
                 "precision" : 10,
@@ -175,15 +201,15 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "agencygroup"
+                    "value" : "searchcriteriaea"
                   }
                 ]
               },
               {
-                "name" : "name",
+                "name" : "ParentId",
                 "fieldType" : "CONNECTOR",
-                "label" : "name",
-                "nativeName" : "name",
+                "label" : "ParentId",
+                "nativeName" : "ParentId",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 255,
@@ -191,31 +217,31 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "agencygroup"
+                    "value" : "searchcriteriaea"
                   }
                 ]
               },
               {
-                "name" : "number",
+                "name" : "CMMContainer",
                 "fieldType" : "CONNECTOR",
-                "label" : "number",
-                "nativeName" : "number",
+                "label" : "CMMContainer",
+                "nativeName" : "CMMContainer",
                 "nativeType" : "varchar",
                 "original" : "false",
-                "precision" : 4,
+                "precision" : 100,
                 "scale" : 0,
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "agencygroup"
+                    "value" : "searchcriteriaea"
                   }
                 ]
               },
               {
-                "name" : "modified_by",
+                "name" : "Id",
                 "fieldType" : "CONNECTOR",
-                "label" : "modified_by",
-                "nativeName" : "modified_by",
+                "label" : "Id",
+                "nativeName" : "Id",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 255,
@@ -223,39 +249,87 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "agencygroup"
+                    "value" : "searchcriteriaea"
                   }
                 ]
               },
               {
-                "name" : "created",
+                "name" : "SearchCriteriaName",
                 "fieldType" : "CONNECTOR",
-                "label" : "created",
-                "nativeName" : "created",
-                "nativeType" : "timestamp",
+                "label" : "SearchCriteriaName",
+                "nativeName" : "SearchCriteriaName",
+                "nativeType" : "varchar",
                 "original" : "false",
-                "precision" : 23,
-                "scale" : 3,
+                "precision" : 100,
+                "scale" : 0,
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "agencygroup"
+                    "value" : "searchcriteriaea"
                   }
                 ]
               },
               {
-                "name" : "modified",
+                "name" : "SearchCriteriaValue",
                 "fieldType" : "CONNECTOR",
-                "label" : "modified",
-                "nativeName" : "modified",
-                "nativeType" : "timestamp",
+                "label" : "SearchCriteriaValue",
+                "nativeName" : "SearchCriteriaValue",
+                "nativeType" : "varchar",
                 "original" : "false",
-                "precision" : 23,
-                "scale" : 3,
+                "precision" : 100,
+                "scale" : 0,
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "agencygroup"
+                    "value" : "searchcriteriaea"
+                  }
+                ]
+              },
+              {
+                "name" : "Type",
+                "fieldType" : "CONNECTOR",
+                "label" : "Type",
+                "nativeName" : "Type",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 100,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "searchcriteriaea"
+                  }
+                ]
+              },
+              {
+                "name" : "KeyParentBeanRefId",
+                "fieldType" : "CONNECTOR",
+                "label" : "KeyParentBeanRefId",
+                "nativeName" : "KeyParentBeanRefId",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 100,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "searchcriteriaea"
+                  }
+                ]
+              },
+              {
+                "name" : "RowId",
+                "fieldType" : "CONNECTOR",
+                "label" : "RowId",
+                "nativeName" : "RowId",
+                "nativeType" : "bigint",
+                "original" : "false",
+                "precision" : 19,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "searchcriteriaea"
                   }
                 ]
               }
@@ -272,8 +346,8 @@
       },
       {
         "description" : "this is redshift UDM staging table.",
-        "createTime" : "2025-04-29T16:54:45.081Z",
-        "name" : "tgt_adm_agency_group",
+        "createTime" : "2025-07-16T21:35:38.241Z",
+        "name" : "tgt_acx_search_criteria",
         "advancedProperties" : [
           {
             "name" : "Forward Rejected Rows",
@@ -326,9 +400,9 @@
           },
           {
             "adapterField" : {
-              "name" : "id"
+              "name" : "system_id"
             },
-            "name" : "id",
+            "name" : "system_id",
             "platformType" : {
               "name" : "string"
             },
@@ -337,9 +411,9 @@
           },
           {
             "adapterField" : {
-              "name" : "name"
+              "name" : "parent_id"
             },
-            "name" : "name",
+            "name" : "parent_id",
             "platformType" : {
               "name" : "string"
             },
@@ -348,20 +422,20 @@
           },
           {
             "adapterField" : {
-              "name" : "number"
+              "name" : "cmm_container"
             },
-            "name" : "number",
+            "name" : "cmm_container",
             "platformType" : {
               "name" : "string"
             },
-            "precision" : 7,
+            "precision" : 127,
             "scale" : 0
           },
           {
             "adapterField" : {
-              "name" : "modified_by"
+              "name" : "id"
             },
-            "name" : "modified_by",
+            "name" : "id",
             "platformType" : {
               "name" : "string"
             },
@@ -370,20 +444,53 @@
           },
           {
             "adapterField" : {
-              "name" : "created"
+              "name" : "search_criteria_name"
             },
-            "name" : "created",
+            "name" : "search_criteria_name",
             "platformType" : {
               "name" : "string"
             },
-            "precision" : 31,
+            "precision" : 127,
             "scale" : 0
           },
           {
             "adapterField" : {
-              "name" : "modified"
+              "name" : "search_criteria_value"
             },
-            "name" : "modified",
+            "name" : "search_criteria_value",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "type"
+            },
+            "name" : "type",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "key_parent_bean_ref_id"
+            },
+            "name" : "key_parent_bean_ref_id",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "row_id"
+            },
+            "name" : "row_id",
             "platformType" : {
               "name" : "string"
             },
@@ -393,18 +500,18 @@
         ],
         "dataAdapter" : {
           "connectionId$" : {
-            "name" : "DBConnection_UDM_TGT"
+            "name" : "DBConnection_ACX_TGT"
           },
           "excludeDynamicFileNameField" : "false",
           "objectType" : "SINGLE",
           "typeSystem" : "TOOLKIT",
           "useDynamicFileName" : "false",
           "object" : {
-            "name" : "metal/adm_agency_group",
-            "label" : "metal/adm_agency_group",
-            "objectName" : "adm_agency_group",
+            "name" : "metal/acx_search_criteria_ea",
+            "label" : "metal/acx_search_criteria_ea",
+            "objectName" : "acx_search_criteria_ea",
             "objectType" : "amazonredshift",
-            "path" : "metal/adm_agency_group",
+            "path" : "metal/acx_search_criteria_ea",
             "retainMetadata" : "false",
             "fields" : [
               {
@@ -419,7 +526,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_agency_group"
+                    "value" : "acx_search_criteria_ea"
                   }
                 ]
               },
@@ -435,7 +542,55 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_agency_group"
+                    "value" : "acx_search_criteria_ea"
+                  }
+                ]
+              },
+              {
+                "name" : "system_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "system_id",
+                "nativeName" : "system_id",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 15,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "acx_search_criteria_ea"
+                  }
+                ]
+              },
+              {
+                "name" : "parent_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "parent_id",
+                "nativeName" : "parent_id",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 511,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "acx_search_criteria_ea"
+                  }
+                ]
+              },
+              {
+                "name" : "cmm_container",
+                "fieldType" : "CONNECTOR",
+                "label" : "cmm_container",
+                "nativeName" : "cmm_container",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "acx_search_criteria_ea"
                   }
                 ]
               },
@@ -446,68 +601,84 @@
                 "nativeName" : "id",
                 "nativeType" : "varchar",
                 "original" : "false",
-                "precision" : 15,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_agency_group"
-                  }
-                ]
-              },
-              {
-                "name" : "name",
-                "fieldType" : "CONNECTOR",
-                "label" : "name",
-                "nativeName" : "name",
-                "nativeType" : "varchar",
-                "original" : "false",
                 "precision" : 511,
                 "scale" : 0,
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_agency_group"
+                    "value" : "acx_search_criteria_ea"
                   }
                 ]
               },
               {
-                "name" : "number",
+                "name" : "search_criteria_name",
                 "fieldType" : "CONNECTOR",
-                "label" : "number",
-                "nativeName" : "number",
+                "label" : "search_criteria_name",
+                "nativeName" : "search_criteria_name",
                 "nativeType" : "varchar",
                 "original" : "false",
-                "precision" : 7,
+                "precision" : 127,
                 "scale" : 0,
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_agency_group"
+                    "value" : "acx_search_criteria_ea"
                   }
                 ]
               },
               {
-                "name" : "modified_by",
+                "name" : "search_criteria_value",
                 "fieldType" : "CONNECTOR",
-                "label" : "modified_by",
-                "nativeName" : "modified_by",
+                "label" : "search_criteria_value",
+                "nativeName" : "search_criteria_value",
                 "nativeType" : "varchar",
                 "original" : "false",
-                "precision" : 511,
+                "precision" : 127,
                 "scale" : 0,
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_agency_group"
+                    "value" : "acx_search_criteria_ea"
                   }
                 ]
               },
               {
-                "name" : "created",
+                "name" : "type",
                 "fieldType" : "CONNECTOR",
-                "label" : "created",
-                "nativeName" : "created",
+                "label" : "type",
+                "nativeName" : "type",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "acx_search_criteria_ea"
+                  }
+                ]
+              },
+              {
+                "name" : "key_parent_bean_ref_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "key_parent_bean_ref_id",
+                "nativeName" : "key_parent_bean_ref_id",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "acx_search_criteria_ea"
+                  }
+                ]
+              },
+              {
+                "name" : "row_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "row_id",
+                "nativeName" : "row_id",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 31,
@@ -515,23 +686,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_agency_group"
-                  }
-                ]
-              },
-              {
-                "name" : "modified",
-                "fieldType" : "CONNECTOR",
-                "label" : "modified",
-                "nativeName" : "modified",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 31,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_agency_group"
+                    "value" : "acx_search_criteria_ea"
                   }
                 ]
               }
@@ -647,44 +802,65 @@
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "id",
+              "fromFieldName" : "SystemId",
+              "toField" : {
+                "name" : "system_id"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "ParentId",
+              "toField" : {
+                "name" : "parent_id"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "CMMContainer",
+              "toField" : {
+                "name" : "cmm_container"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "Id",
               "toField" : {
                 "name" : "id"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "name",
+              "fromFieldName" : "SearchCriteriaName",
               "toField" : {
-                "name" : "name"
+                "name" : "search_criteria_name"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "number",
+              "fromFieldName" : "SearchCriteriaValue",
               "toField" : {
-                "name" : "number"
+                "name" : "search_criteria_value"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "modified_by",
+              "fromFieldName" : "Type",
               "toField" : {
-                "name" : "modified_by"
+                "name" : "type"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "o_create",
+              "fromFieldName" : "KeyParentBeanRefId",
               "toField" : {
-                "name" : "created"
+                "name" : "key_parent_bean_ref_id"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "o_modified",
+              "fromFieldName" : "RowId",
               "toField" : {
-                "name" : "modified"
+                "name" : "row_id"
               },
               "fromFieldNames" : null
             }
@@ -692,8 +868,8 @@
         }
       },
       {
-        "description" : "straight pass through, no transformation required ",
-        "createTime" : "2025-05-01T12:40:58.640Z",
+        "description" : "straight pass through, no transformation required",
+        "createTime" : "2025-07-16T21:35:48.463Z",
         "name" : "exp_read_all_fields",
         "groups" : [
           {
@@ -719,7 +895,7 @@
             "precision" : 20,
             "scale" : 0,
             "expFieldType" : "OUTPUT",
-            "expression" : "'agencygroup'"
+            "expression" : "'searchcriteriaea'"
           },
           {
             "defaultValue" : "ERROR('transformation error')",
@@ -730,29 +906,7 @@
             "precision" : 100,
             "scale" : 0,
             "expFieldType" : "OUTPUT",
-            "expression" : "'Daily full load'"
-          },
-          {
-            "defaultValue" : "ERROR('transformation error')",
-            "name" : "o_create",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 30,
-            "scale" : 0,
-            "expFieldType" : "OUTPUT",
-            "expression" : "TO_CHAR(created,'YYYY-MM-DD HH24:MI:SS')"
-          },
-          {
-            "defaultValue" : "ERROR('transformation error')",
-            "name" : "o_modified",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 30,
-            "scale" : 0,
-            "expFieldType" : "OUTPUT",
-            "expression" : "TO_CHAR(modified,'YYYY-MM-DD HH24:MI:SS')"
+            "expression" : "'Daily incremental load'"
           }
         ],
         "windowSpec" : {
@@ -772,24 +926,12 @@
         "platformType" : {
           "name" : "string"
         },
-        "precision" : 100,
+        "precision" : 20,
         "retentionPolicy" : "NEVER",
         "scale" : 0,
         "defaultValue" : "metal"
-      },
-      {
-        "aggregationType" : "MAX",
-        "expressionVariable" : "false",
-        "name" : "adm_source_schema",
-        "platformType" : {
-          "name" : "string"
-        },
-        "precision" : 100,
-        "retentionPolicy" : "NEVER",
-        "scale" : 0,
-        "defaultValue" : "agencymanagement"
       }
     ]
   },
-  "vcsExportTime" : "2025-09-16 11:09:59 PDT"
+  "vcsExportTime" : "2025-09-16 11:18:11 PDT"
 }
