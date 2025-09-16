@@ -6,7 +6,7 @@
   "maxLogs" : 10,
   "parameters" : [
     {
-      "name" : "$src_delta_changes_agency$",
+      "name" : "$src_delta_changes_address_guidewire$",
       "type" : "SOURCE",
       "label" : "DBConnection_UDM_SRC",
       "uiProperties" : {
@@ -18,11 +18,11 @@
         "isSelectDistinct" : "false",
         "objectParameterized" : "false",
         "visible" : "false",
-        "originalPath" : "src_delta_changes_agency"
+        "originalPath" : "src_delta_changes_address_guidewire"
       },
       "sourceConnectionId" : "@aYZ4ekzHgIPeKpiaoqDLKP",
       "connectionName" : "redshift_nonprod_andover_dw_dev",
-      "sourceObject" : "DUMMY_src_delta_changes_agency",
+      "sourceObject" : "DUMMY_src_delta_changes_address_guidewire",
       "newFlatFile" : false,
       "newObject" : false,
       "showBusinessNames" : true,
@@ -30,7 +30,7 @@
       "truncateTarget" : false,
       "bulkApiDBTarget" : false,
       "customFuncCfg" : { },
-      "customQuery" : "WITH current_batch AS (\n    SELECT \n        bls.batch_id,\n        bls.source_start_cutoff_datetime,\n        bls.source_end_cutoff_datetime\n    FROM metal.batch_load_summary bls\n    WHERE bls.source_system_code = 'ADM'\n      AND bls.batch_status = 'Inprogress'\n      AND bls.batch_id = (\n          SELECT MAX(batch_id)\n          FROM metal.batch_load_summary\n          WHERE source_system_code = 'ADM'\n            AND batch_status = 'Inprogress'\n      )\n)\n\nSELECT DISTINCT\nmetal_aag.source_name, \nmetal_aag.load_type,\nmetal_aag.address1,\nmetal_aag.address2,\nmetal_aag.agency_nup,\nmetal_aag.city,\nmetal_aag.country,\nmetal_aag.created,\nmetal_aag.id,\nmetal_aag.modified,\nmetal_aag.state,\nmetal_aag.type,\nmetal_aag.zipcode,\ncurrent_batch.batch_id\nFROM metal.adm_address_guidewire metal_aag\nCROSS JOIN current_batch\nORDER BY \nmetal_aag.agency_nup,\nmetal_aag.created,\nmetal_aag.modified;",
+      "customQuery" : "WITH current_batch AS (\n    SELECT \n        bls.batch_id,\n        bls.source_start_cutoff_datetime,\n        bls.source_end_cutoff_datetime\n    FROM $$operational_schema.batch_load_summary bls\n    WHERE bls.source_system_code = '$$sourcesystemcode'\n      AND bls.batch_status = 'Inprogress'\n      AND bls.batch_id = (\n          SELECT MAX(batch_id)\n          FROM $$operational_schema.batch_load_summary\n          WHERE source_system_code = '$$sourcesystemcode'\n            AND batch_status = 'Inprogress'\n      )\n)\n\nSELECT DISTINCT\nmetal_aag.source_name, \nmetal_aag.load_type,\nmetal_aag.address1,\nmetal_aag.address2,\nmetal_aag.agency_nup,\nmetal_aag.city,\nmetal_aag.country,\nmetal_aag.created,\nmetal_aag.id,\nmetal_aag.modified,\nmetal_aag.state,\nmetal_aag.type,\nmetal_aag.zip,\ncurrent_batch.batch_id\nFROM $$raw_schema.adm_address_guidewire metal_aag\nCROSS JOIN current_batch\nORDER BY \nmetal_aag.agency_nup,\nmetal_aag.created,\nmetal_aag.modified;",
       "commandType" : 0,
       "handleSpecialChars" : false,
       "handleDecimalRoundOff" : false,
@@ -39,28 +39,29 @@
       "excludeDynamicFileNameField" : false,
       "currentlyProcessedFileName" : false,
       "retainFieldMetadata" : false,
-      "objectName" : "DUMMY_src_delta_changes_agency",
+      "objectName" : "DUMMY_src_delta_changes_address_guidewire",
       "useExactSrcNames" : false,
       "userUpdated" : true,
-      "unspecified" : false,
+      "fetchMode" : "ORIGINAL",
       "runtimeParameterData" : {
         "connectionParameterName" : "DBConnection_UDM_SRC",
         "connectionRuntimeParameter" : false,
         "objectRuntimeParameter" : false
       },
       "restmodernSource" : true,
+      "unspecified" : false,
       "fileList" : false
     },
     {
       "name" : "$src_tgt_bronze_adm_address_guidewire_Query$",
       "type" : "SOURCE",
-      "label" : "DBConnection_UDM_SRC",
+      "label" : "DBConnection_UDM_TGT",
       "uiProperties" : {
         "cnxtype" : "Amazon Redshift v2",
         "connectionParameterized" : "true",
-        "paramName" : "DBConnection_UDM_SRC",
+        "paramName" : "DBConnection_UDM_TGT",
         "paramType-mapping" : "Connection",
-        "logcnx" : "DBConnection_UDM_SRC",
+        "logcnx" : "DBConnection_UDM_TGT",
         "isSelectDistinct" : "false",
         "objectParameterized" : "false",
         "visible" : "false",
@@ -76,7 +77,7 @@
       "truncateTarget" : false,
       "bulkApiDBTarget" : false,
       "customFuncCfg" : { },
-      "customQuery" : "SELECT \naddress_guidewire_row_id, \naddress_guidewire_row_md5checksum, \naddress_guidewire_batch_id,  \naddress_guidewire_datetime_modified,\naddress_guidewire_row_effective_end_datetime,\nagency_id,\nagency_address_id\nFROM bronze.adm_address_guidewire \nwhere  address_guidewire_row_effective_end_datetime = '9999-12-31 00:00:00.000'",
+      "customQuery" : "SELECT \nadm_address_guidewire_row_id, \nadm_address_guidewire_row_md5checksum, \nadm_address_guidewire_batch_id,  \nmodified,\nadm_address_guidewire_row_effective_end_datetime,\nagency_nup,\nid\nFROM $$staging_schema.adm_address_guidewire \nwhere  adm_address_guidewire_row_effective_end_datetime = '9999-12-31 00:00:00.000'",
       "commandType" : 0,
       "handleSpecialChars" : false,
       "handleDecimalRoundOff" : false,
@@ -88,13 +89,14 @@
       "objectName" : "DUMMY_src_tgt_bronze_adm_address_guidewire_Query",
       "useExactSrcNames" : false,
       "userUpdated" : true,
-      "unspecified" : false,
+      "fetchMode" : "ORIGINAL",
       "runtimeParameterData" : {
-        "connectionParameterName" : "DBConnection_UDM_SRC",
+        "connectionParameterName" : "DBConnection_UDM_TGT",
         "connectionRuntimeParameter" : false,
         "objectRuntimeParameter" : false
       },
       "restmodernSource" : true,
+      "unspecified" : false,
       "fileList" : false
     },
     {
@@ -140,13 +142,14 @@
       "objectLabel" : "bronze/adm_address_guidewire",
       "useExactSrcNames" : false,
       "userUpdated" : true,
-      "unspecified" : false,
+      "fetchMode" : "ORIGINAL",
       "runtimeParameterData" : {
         "connectionParameterName" : "DBConnection_UDM_TGT",
         "connectionRuntimeParameter" : false,
         "objectRuntimeParameter" : false
       },
       "restmodernSource" : true,
+      "unspecified" : false,
       "fileList" : false
     },
     {
@@ -192,13 +195,14 @@
       "objectLabel" : "bronze/adm_address_guidewire",
       "useExactSrcNames" : false,
       "userUpdated" : true,
-      "unspecified" : false,
+      "fetchMode" : "ORIGINAL",
       "runtimeParameterData" : {
         "connectionParameterName" : "DBConnection_UDM_TGT",
         "connectionRuntimeParameter" : false,
         "objectRuntimeParameter" : false
       },
       "restmodernSource" : true,
+      "unspecified" : false,
       "fileList" : false
     },
     {
@@ -214,7 +218,7 @@
         "default" : "bronze/adm_address_guidewire",
         "objectParameterized" : "false",
         "visible" : "false",
-        "defaultTargetUpdateColumns" : "address_guidewire_row_id",
+        "defaultTargetUpdateColumns" : "adm_address_guidewire_row_id",
         "supportApplyDDLChanges" : "false",
         "originalPath" : "tgt_bronze_adm_address_guidewire_updt_endate"
       },
@@ -231,7 +235,7 @@
       "operationType" : "Update",
       "customFuncCfg" : { },
       "targetUpdateColumns" : [
-        "address_guidewire_row_id"
+        "adm_address_guidewire_row_id"
       ],
       "extendedObject" : {
         "singleMode" : true
@@ -248,17 +252,19 @@
       "objectLabel" : "bronze/adm_address_guidewire",
       "useExactSrcNames" : false,
       "userUpdated" : true,
-      "unspecified" : false,
+      "fetchMode" : "ORIGINAL",
       "runtimeParameterData" : {
         "connectionParameterName" : "DBConnection_UDM_TGT",
         "connectionRuntimeParameter" : false,
         "objectRuntimeParameter" : false
       },
       "restmodernSource" : true,
+      "unspecified" : false,
       "fileList" : false
     }
   ],
   "verbose" : false,
+  "lastRunTime" : 1757428173000,
   "mappingId" : "@lcwXV27Km8uffX9T3xEmqs",
   "mappingTemplateName" : "cdi_map_adm_address_guidewire_bronze_load",
   "sessionPropertiesList" : [
@@ -275,6 +281,38 @@
       "value" : "Partial PDO"
     }
   ],
+  "inOutParameters" : [
+    {
+      "name" : "raw_schema",
+      "initialValue" : "metal",
+      "datatype" : "STRING",
+      "precision" : "10",
+      "scale" : "0",
+      "retentionPolicy" : "NEVER",
+      "aggregationType" : "MAX",
+      "currentValue" : "metal"
+    },
+    {
+      "name" : "staging_schema",
+      "initialValue" : "bronze",
+      "datatype" : "STRING",
+      "precision" : "10",
+      "scale" : "0",
+      "retentionPolicy" : "NEVER",
+      "aggregationType" : "MAX",
+      "currentValue" : "bronze"
+    },
+    {
+      "name" : "operational_schema",
+      "initialValue" : "operations",
+      "datatype" : "STRING",
+      "precision" : "100",
+      "scale" : "0",
+      "retentionPolicy" : "NEVER",
+      "aggregationType" : "MAX",
+      "currentValue" : "operations"
+    }
+  ],
   "hidden" : false,
   "enableCrossSchemaPushdown" : true,
   "enableParallelRun" : false,
@@ -287,6 +325,7 @@
   "valid" : true,
   "optimizationPlan" : "NONE",
   "allowMaxFieldLength" : false,
+  "specialCharacterSupport" : false,
   "midstreamPreview" : false,
-  "vcsExportTime" : "2025-06-17 14:11:29 PDT"
+  "vcsExportTime" : "2025-09-15 09:07:02 PDT"
 }
