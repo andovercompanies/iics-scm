@@ -4,6 +4,7 @@
     "bigIntConvertType" : "ONLY_BIGINT",
     "documentType" : "MAPPING",
     "name" : "cdi_map_adm_agency_email_bronze_load",
+    "specialCharacterSupport" : "false",
     "links" : [
       {
         "link" : "Source_delta_changes_agency_email -> exp_convert_datatype"
@@ -19,11 +20,11 @@
         "link" : "exp_update -> tgt_update_closeout"
       },
       {
-        "link" : "exp_MD5 -> Joiner",
+        "link" : "exp_MD5 -> Jnr_src_tgt",
         "groupLink" : "DefaultGroup -> Master"
       },
       {
-        "link" : "Joiner -> exp_flag_records",
+        "link" : "Jnr_src_tgt -> exp_flag_records",
         "groupLink" : "OutputGroup -> DefaultGroup"
       },
       {
@@ -31,7 +32,7 @@
         "groupLink" : "update_group -> DefaultGroup"
       },
       {
-        "link" : "exp_passthrough -> Joiner",
+        "link" : "exp_passthrough -> Jnr_src_tgt",
         "groupLink" : "DefaultGroup -> Detail"
       },
       {
@@ -83,6 +84,18 @@
         "allowRuntimeOverride" : "false",
         "expressionVariable" : "false",
         "name" : "S3_Staging_Bucket"
+      },
+      {
+        "input" : "true",
+        "output" : "false",
+        "precision" : 0,
+        "scale" : 0,
+        "allowRuntimeOverride" : "false",
+        "expressionVariable" : "false",
+        "name" : "sourcesystemcode",
+        "defaultValue" : {
+          "valueLiteral" : "ADM"
+        }
       }
     ],
     "transformations" : [
@@ -230,7 +243,7 @@
           "typeSystem" : "TOOLKIT",
           "useDynamicFileName" : "false",
           "object" : {
-            "customQuery" : "WITH current_batch AS (\n    SELECT \n        bls.batch_id,\n        bls.source_start_cutoff_datetime,\n        bls.source_end_cutoff_datetime\n    FROM metal.batch_load_summary bls\n    WHERE bls.source_system_code = 'ADM'\n      AND bls.batch_status = 'Inprogress'\n      AND bls.batch_id = (\n          SELECT MAX(batch_id)\n          FROM metal.batch_load_summary\n          WHERE source_system_code = 'ADM'\n            AND batch_status = 'Inprogress'\n      )\n)\nSELECT DISTINCT  \n\t\tmetal_aae.source_name, \n\t\tmetal_aae.load_type, \n\t\tmetal_aae.agency_nup, \n\t\tmetal_aae.create_date, \n\t\tmetal_aae.email_address, \n\t\tmetal_aae.email_type, \n\t\tmetal_aae.group_nup, \n\t\tmetal_aae.id, \n\t\tmetal_aae.modified_date,\n\t\tcurrent_batch.batch_id\nFROM metal.adm_agency_email metal_aae\nCROSS JOIN current_batch\nORDER BY \n    metal_aae.id,\n    metal_aae.create_date,\n    metal_aae.modified_date;",
+            "customQuery" : "WITH current_batch AS (\n    SELECT \n        bls.batch_id,\n        bls.source_start_cutoff_datetime,\n        bls.source_end_cutoff_datetime\n    FROM $$operational_schema.batch_load_summary bls\n    WHERE bls.source_system_code = '$$sourcesystemcode'\n      AND bls.batch_status = 'Inprogress'\n      AND bls.batch_id = (\n          SELECT MAX(batch_id)\n          FROM $$operational_schema.batch_load_summary\n          WHERE source_system_code = '$$sourcesystemcode'\n            AND batch_status = 'Inprogress'\n      )\n)\nSELECT DISTINCT  \n\t\tmetal_aae.source_name, \n\t\tmetal_aae.load_type, \n\t\tmetal_aae.agency_nup, \n\t\tmetal_aae.create_date, \n\t\tmetal_aae.email_address, \n\t\tmetal_aae.email_type, \n\t\tmetal_aae.group_nup, \n\t\tmetal_aae.id, \n\t\tmetal_aae.modified_date,\n\t\tcurrent_batch.batch_id\nFROM $$raw_schema.adm_agency_email metal_aae\nCROSS JOIN current_batch\nORDER BY \n    metal_aae.id,\n    metal_aae.create_date,\n    metal_aae.modified_date;",
             "retainMetadata" : "false",
             "fields" : [
               {
@@ -430,7 +443,7 @@
               },
               {
                 "name" : "Temporary Credential Duration",
-                "value" : "900"
+                "value" : "43200"
               },
               {
                 "name" : "Treat NULL Value as NULL",
@@ -602,9 +615,9 @@
         "fields" : [
           {
             "adapterField" : {
-              "name" : "agency_email_row_id"
+              "name" : "adm_agency_email_row_id"
             },
-            "name" : "agency_email_row_id",
+            "name" : "adm_agency_email_row_id",
             "platformType" : {
               "name" : "bigint"
             },
@@ -613,9 +626,9 @@
           },
           {
             "adapterField" : {
-              "name" : "agency_email_row_md5checksum"
+              "name" : "adm_agency_email_row_md5checksum"
             },
-            "name" : "agency_email_row_md5checksum",
+            "name" : "adm_agency_email_row_md5checksum",
             "platformType" : {
               "name" : "string"
             },
@@ -624,20 +637,20 @@
           },
           {
             "adapterField" : {
-              "name" : "agency_email_id"
+              "name" : "email_address"
             },
-            "name" : "agency_email_id",
+            "name" : "email_address",
             "platformType" : {
-              "name" : "integer"
+              "name" : "string"
             },
-            "precision" : 10,
+            "precision" : 63,
             "scale" : 0
           },
           {
             "adapterField" : {
-              "name" : "agency_email_datetime_modified"
+              "name" : "modified_date"
             },
-            "name" : "agency_email_datetime_modified",
+            "name" : "modified_date",
             "platformType" : {
               "name" : "date/time"
             },
@@ -646,9 +659,20 @@
           },
           {
             "adapterField" : {
-              "name" : "agency_email_row_effective_end_datetime"
+              "name" : "id"
             },
-            "name" : "agency_email_row_effective_end_datetime",
+            "name" : "id",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "adm_agency_email_row_effective_end_datetime"
+            },
+            "name" : "adm_agency_email_row_effective_end_datetime",
             "platformType" : {
               "name" : "date/time"
             },
@@ -658,21 +682,21 @@
         ],
         "dataAdapter" : {
           "connectionId$" : {
-            "name" : "DBConnection_UDM_SRC"
+            "name" : "DBConnection_UDM_TGT"
           },
           "excludeDynamicFileNameField" : "false",
           "objectType" : "QUERY",
           "typeSystem" : "TOOLKIT",
           "useDynamicFileName" : "false",
           "object" : {
-            "customQuery" : "SELECT \n        agency_email_row_id, \n        agency_email_row_md5checksum, \n        agency_email_id,  \n  agency_email_datetime_modified,\n  agency_email_row_effective_end_datetime\t\n    FROM bronze.adm_agency_email\n    where  agency_email_row_effective_end_datetime = '9999-12-31 00:00:00.000'",
+            "customQuery" : "SELECT \n        adm_agency_email_row_id, \n        adm_agency_email_row_md5checksum, \n        email_address,  \n        modified_date,\n        id,\n        adm_agency_email_row_effective_end_datetime\t\n    FROM $$staging_schema.adm_agency_email\n    where adm_agency_email_row_effective_end_datetime = '9999-12-31 00:00:00.000'",
             "retainMetadata" : "false",
             "fields" : [
               {
-                "name" : "agency_email_row_id",
+                "name" : "adm_agency_email_row_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "agency_email_row_id",
-                "nativeName" : "agency_email_row_id",
+                "label" : "adm_agency_email_row_id",
+                "nativeName" : "adm_agency_email_row_id",
                 "nativeType" : "int8",
                 "original" : "false",
                 "precision" : 19,
@@ -685,10 +709,10 @@
                 ]
               },
               {
-                "name" : "agency_email_row_md5checksum",
+                "name" : "adm_agency_email_row_md5checksum",
                 "fieldType" : "CONNECTOR",
-                "label" : "agency_email_row_md5checksum",
-                "nativeName" : "agency_email_row_md5checksum",
+                "label" : "adm_agency_email_row_md5checksum",
+                "nativeName" : "adm_agency_email_row_md5checksum",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 255,
@@ -701,13 +725,13 @@
                 ]
               },
               {
-                "name" : "agency_email_id",
+                "name" : "email_address",
                 "fieldType" : "CONNECTOR",
-                "label" : "agency_email_id",
-                "nativeName" : "agency_email_id",
-                "nativeType" : "int4",
+                "label" : "email_address",
+                "nativeName" : "email_address",
+                "nativeType" : "varchar",
                 "original" : "false",
-                "precision" : 10,
+                "precision" : 63,
                 "scale" : 0,
                 "properties" : [
                   {
@@ -717,10 +741,10 @@
                 ]
               },
               {
-                "name" : "agency_email_datetime_modified",
+                "name" : "modified_date",
                 "fieldType" : "CONNECTOR",
-                "label" : "agency_email_datetime_modified",
-                "nativeName" : "agency_email_datetime_modified",
+                "label" : "modified_date",
+                "nativeName" : "modified_date",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 29,
@@ -733,10 +757,26 @@
                 ]
               },
               {
-                "name" : "agency_email_row_effective_end_datetime",
+                "name" : "id",
                 "fieldType" : "CONNECTOR",
-                "label" : "agency_email_row_effective_end_datetime",
-                "nativeName" : "agency_email_row_effective_end_datetime",
+                "label" : "id",
+                "nativeName" : "id",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "adm_agency_email_row_effective_end_datetime",
+                "fieldType" : "CONNECTOR",
+                "label" : "adm_agency_email_row_effective_end_datetime",
+                "nativeName" : "adm_agency_email_row_effective_end_datetime",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 29,
@@ -761,7 +801,7 @@
             "attributes" : [
               {
                 "name" : "Read Mode",
-                "value" : "Staging"
+                "value" : "Direct"
               },
               {
                 "name" : "Fetch Size",
@@ -777,7 +817,7 @@
               },
               {
                 "name" : "Temporary Credential Duration",
-                "value" : "900"
+                "value" : "43200"
               },
               {
                 "name" : "Treat NULL Value as NULL",
@@ -830,7 +870,7 @@
             "precision" : 10,
             "scale" : 0,
             "expFieldType" : "OUTPUT",
-            "expression" : "IIF(ISNULL(agency_email_row_id),'I','X')"
+            "expression" : "IIF(ISNULL(tgt_adm_agency_email_row_id),'I','X')"
           },
           {
             "defaultValue" : "ERROR('transformation error')",
@@ -863,7 +903,29 @@
             "precision" : 10,
             "scale" : 0,
             "expFieldType" : "OUTPUT",
-            "expression" : "IIF(NOT ISNULL(agency_email_row_id) AND agency_email_row_md5checksum <> o_src_md5_hash_value, 'U','X')"
+            "expression" : "IIF(NOT ISNULL(tgt_adm_agency_email_row_id) AND tgt_adm_agency_email_row_md5checksum <> o_src_md5_hash_value, 'U','X')"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_row_status_active",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 10,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "'Active'"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_row_status_expired",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 10,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "'Expired'"
           }
         ],
         "windowSpec" : {
@@ -984,6 +1046,54 @@
               {
                 "bulkRename" : "false",
                 "include" : "true"
+              },
+              {
+                "bulkRename" : "false",
+                "include" : "false",
+                "names" : [
+                  {
+                    "inputName" : "agency_nup"
+                  },
+                  {
+                    "inputName" : "create_date"
+                  },
+                  {
+                    "inputName" : "group_nup"
+                  },
+                  {
+                    "inputName" : "id"
+                  },
+                  {
+                    "inputName" : "modified_date"
+                  },
+                  {
+                    "inputName" : "o_insert_flag"
+                  },
+                  {
+                    "inputName" : "o_row_status_expired"
+                  },
+                  {
+                    "inputName" : "o_update_flag"
+                  },
+                  {
+                    "inputName" : "tgt_adm_agency_email_row_effective_end_datetime"
+                  },
+                  {
+                    "inputName" : "tgt_adm_agency_email_row_id"
+                  },
+                  {
+                    "inputName" : "tgt_adm_agency_email_row_md5checksum"
+                  },
+                  {
+                    "inputName" : "tgt_email_address"
+                  },
+                  {
+                    "inputName" : "tgt_id"
+                  },
+                  {
+                    "inputName" : "tgt_modified_date"
+                  }
+                ]
               }
             ]
           }
@@ -992,15 +1102,16 @@
         "fieldMappingMode" : "MANUAL",
         "inputSorted" : "false",
         "schemaProviderType" : "SELECTED_OBJECT",
+        "targetFieldsOrdered" : "false",
         "updateColumns" : null,
         "useLabels" : "false",
         "useSequenceFields" : "false",
         "fields" : [
           {
             "adapterField" : {
-              "name" : "agency_email_row_id"
+              "name" : "adm_agency_email_row_id"
             },
-            "name" : "agency_email_row_id",
+            "name" : "adm_agency_email_row_id",
             "platformType" : {
               "name" : "bigint"
             },
@@ -1009,9 +1120,9 @@
           },
           {
             "adapterField" : {
-              "name" : "agency_email_batch_id"
+              "name" : "adm_agency_email_batch_id"
             },
-            "name" : "agency_email_batch_id",
+            "name" : "adm_agency_email_batch_id",
             "platformType" : {
               "name" : "bigint"
             },
@@ -1020,9 +1131,9 @@
           },
           {
             "adapterField" : {
-              "name" : "source_name"
+              "name" : "originating_source_name"
             },
-            "name" : "source_name",
+            "name" : "originating_source_name",
             "platformType" : {
               "name" : "string"
             },
@@ -1031,9 +1142,9 @@
           },
           {
             "adapterField" : {
-              "name" : "load_type"
+              "name" : "originating_load_type"
             },
-            "name" : "load_type",
+            "name" : "originating_load_type",
             "platformType" : {
               "name" : "string"
             },
@@ -1042,9 +1153,9 @@
           },
           {
             "adapterField" : {
-              "name" : "agency_email_row_md5checksum"
+              "name" : "adm_agency_email_row_md5checksum"
             },
-            "name" : "agency_email_row_md5checksum",
+            "name" : "adm_agency_email_row_md5checksum",
             "platformType" : {
               "name" : "string"
             },
@@ -1053,9 +1164,9 @@
           },
           {
             "adapterField" : {
-              "name" : "agency_email_datetime_created"
+              "name" : "adm_agency_email_row_effective_start_datetime"
             },
-            "name" : "agency_email_datetime_created",
+            "name" : "adm_agency_email_row_effective_start_datetime",
             "platformType" : {
               "name" : "date/time"
             },
@@ -1064,9 +1175,9 @@
           },
           {
             "adapterField" : {
-              "name" : "agency_email_datetime_modified"
+              "name" : "adm_agency_email_row_effective_end_datetime"
             },
-            "name" : "agency_email_datetime_modified",
+            "name" : "adm_agency_email_row_effective_end_datetime",
             "platformType" : {
               "name" : "date/time"
             },
@@ -1075,42 +1186,9 @@
           },
           {
             "adapterField" : {
-              "name" : "agency_email_row_effective_start_datetime"
+              "name" : "adm_agency_email_row_status"
             },
-            "name" : "agency_email_row_effective_start_datetime",
-            "platformType" : {
-              "name" : "date/time"
-            },
-            "precision" : 29,
-            "scale" : 9
-          },
-          {
-            "adapterField" : {
-              "name" : "agency_email_row_effective_end_datetime"
-            },
-            "name" : "agency_email_row_effective_end_datetime",
-            "platformType" : {
-              "name" : "date/time"
-            },
-            "precision" : 29,
-            "scale" : 9
-          },
-          {
-            "adapterField" : {
-              "name" : "agency_id"
-            },
-            "name" : "agency_id",
-            "platformType" : {
-              "name" : "integer"
-            },
-            "precision" : 10,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "agency_experience_report_email_address"
-            },
-            "name" : "agency_experience_report_email_address",
+            "name" : "adm_agency_email_row_status",
             "platformType" : {
               "name" : "string"
             },
@@ -1119,9 +1197,42 @@
           },
           {
             "adapterField" : {
-              "name" : "agency_email_type"
+              "name" : "agency_nup"
             },
-            "name" : "agency_email_type",
+            "name" : "agency_nup",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "create_date"
+            },
+            "name" : "create_date",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "email_address"
+            },
+            "name" : "email_address",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "email_type"
+            },
+            "name" : "email_type",
             "platformType" : {
               "name" : "string"
             },
@@ -1130,9 +1241,9 @@
           },
           {
             "adapterField" : {
-              "name" : "group_id"
+              "name" : "group_nup"
             },
-            "name" : "group_id",
+            "name" : "group_nup",
             "platformType" : {
               "name" : "integer"
             },
@@ -1141,14 +1252,25 @@
           },
           {
             "adapterField" : {
-              "name" : "agency_email_id"
+              "name" : "id"
             },
-            "name" : "agency_email_id",
+            "name" : "id",
             "platformType" : {
               "name" : "integer"
             },
             "precision" : 10,
             "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "modified_date"
+            },
+            "name" : "modified_date",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
           }
         ],
         "dataAdapter" : {
@@ -1168,10 +1290,10 @@
             "retainMetadata" : "false",
             "fields" : [
               {
-                "name" : "agency_email_row_id",
+                "name" : "adm_agency_email_row_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "agency_email_row_id",
-                "nativeName" : "agency_email_row_id",
+                "label" : "adm_agency_email_row_id",
+                "nativeName" : "adm_agency_email_row_id",
                 "nativeType" : "int8",
                 "original" : "false",
                 "precision" : 19,
@@ -1184,10 +1306,10 @@
                 ]
               },
               {
-                "name" : "agency_email_batch_id",
+                "name" : "adm_agency_email_batch_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "agency_email_batch_id",
-                "nativeName" : "agency_email_batch_id",
+                "label" : "adm_agency_email_batch_id",
+                "nativeName" : "adm_agency_email_batch_id",
                 "nativeType" : "int8",
                 "original" : "false",
                 "precision" : 19,
@@ -1200,10 +1322,10 @@
                 ]
               },
               {
-                "name" : "source_name",
+                "name" : "originating_source_name",
                 "fieldType" : "CONNECTOR",
-                "label" : "source_name",
-                "nativeName" : "source_name",
+                "label" : "originating_source_name",
+                "nativeName" : "originating_source_name",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 127,
@@ -1216,10 +1338,10 @@
                 ]
               },
               {
-                "name" : "load_type",
+                "name" : "originating_load_type",
                 "fieldType" : "CONNECTOR",
-                "label" : "load_type",
-                "nativeName" : "load_type",
+                "label" : "originating_load_type",
+                "nativeName" : "originating_load_type",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 63,
@@ -1232,10 +1354,10 @@
                 ]
               },
               {
-                "name" : "agency_email_row_md5checksum",
+                "name" : "adm_agency_email_row_md5checksum",
                 "fieldType" : "CONNECTOR",
-                "label" : "agency_email_row_md5checksum",
-                "nativeName" : "agency_email_row_md5checksum",
+                "label" : "adm_agency_email_row_md5checksum",
+                "nativeName" : "adm_agency_email_row_md5checksum",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 255,
@@ -1248,10 +1370,10 @@
                 ]
               },
               {
-                "name" : "agency_email_datetime_created",
+                "name" : "adm_agency_email_row_effective_start_datetime",
                 "fieldType" : "CONNECTOR",
-                "label" : "agency_email_datetime_created",
-                "nativeName" : "agency_email_datetime_created",
+                "label" : "adm_agency_email_row_effective_start_datetime",
+                "nativeName" : "adm_agency_email_row_effective_start_datetime",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 29,
@@ -1264,10 +1386,10 @@
                 ]
               },
               {
-                "name" : "agency_email_datetime_modified",
+                "name" : "adm_agency_email_row_effective_end_datetime",
                 "fieldType" : "CONNECTOR",
-                "label" : "agency_email_datetime_modified",
-                "nativeName" : "agency_email_datetime_modified",
+                "label" : "adm_agency_email_row_effective_end_datetime",
+                "nativeName" : "adm_agency_email_row_effective_end_datetime",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 29,
@@ -1280,58 +1402,10 @@
                 ]
               },
               {
-                "name" : "agency_email_row_effective_start_datetime",
+                "name" : "adm_agency_email_row_status",
                 "fieldType" : "CONNECTOR",
-                "label" : "agency_email_row_effective_start_datetime",
-                "nativeName" : "agency_email_row_effective_start_datetime",
-                "nativeType" : "timestamp",
-                "original" : "false",
-                "precision" : 29,
-                "scale" : 6,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_agency_email"
-                  }
-                ]
-              },
-              {
-                "name" : "agency_email_row_effective_end_datetime",
-                "fieldType" : "CONNECTOR",
-                "label" : "agency_email_row_effective_end_datetime",
-                "nativeName" : "agency_email_row_effective_end_datetime",
-                "nativeType" : "timestamp",
-                "original" : "false",
-                "precision" : 29,
-                "scale" : 6,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_agency_email"
-                  }
-                ]
-              },
-              {
-                "name" : "agency_id",
-                "fieldType" : "CONNECTOR",
-                "label" : "agency_id",
-                "nativeName" : "agency_id",
-                "nativeType" : "int4",
-                "original" : "false",
-                "precision" : 10,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_agency_email"
-                  }
-                ]
-              },
-              {
-                "name" : "agency_experience_report_email_address",
-                "fieldType" : "CONNECTOR",
-                "label" : "agency_experience_report_email_address",
-                "nativeName" : "agency_experience_report_email_address",
+                "label" : "adm_agency_email_row_status",
+                "nativeName" : "adm_agency_email_row_status",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 63,
@@ -1344,10 +1418,58 @@
                 ]
               },
               {
-                "name" : "agency_email_type",
+                "name" : "agency_nup",
                 "fieldType" : "CONNECTOR",
-                "label" : "agency_email_type",
-                "nativeName" : "agency_email_type",
+                "label" : "agency_nup",
+                "nativeName" : "agency_nup",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_agency_email"
+                  }
+                ]
+              },
+              {
+                "name" : "create_date",
+                "fieldType" : "CONNECTOR",
+                "label" : "create_date",
+                "nativeName" : "create_date",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_agency_email"
+                  }
+                ]
+              },
+              {
+                "name" : "email_address",
+                "fieldType" : "CONNECTOR",
+                "label" : "email_address",
+                "nativeName" : "email_address",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_agency_email"
+                  }
+                ]
+              },
+              {
+                "name" : "email_type",
+                "fieldType" : "CONNECTOR",
+                "label" : "email_type",
+                "nativeName" : "email_type",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 7,
@@ -1360,10 +1482,10 @@
                 ]
               },
               {
-                "name" : "group_id",
+                "name" : "group_nup",
                 "fieldType" : "CONNECTOR",
-                "label" : "group_id",
-                "nativeName" : "group_id",
+                "label" : "group_nup",
+                "nativeName" : "group_nup",
                 "nativeType" : "int4",
                 "original" : "false",
                 "precision" : 10,
@@ -1376,14 +1498,30 @@
                 ]
               },
               {
-                "name" : "agency_email_id",
+                "name" : "id",
                 "fieldType" : "CONNECTOR",
-                "label" : "agency_email_id",
-                "nativeName" : "agency_email_id",
+                "label" : "id",
+                "nativeName" : "id",
                 "nativeType" : "int4",
                 "original" : "false",
                 "precision" : 10,
                 "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_agency_email"
+                  }
+                ]
+              },
+              {
+                "name" : "modified_date",
+                "fieldType" : "CONNECTOR",
+                "label" : "modified_date",
+                "nativeName" : "modified_date",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
                 "properties" : [
                   {
                     "name" : "parentObject",
@@ -1427,7 +1565,7 @@
               },
               {
                 "name" : "Temporary Credential Duration",
-                "value" : "900"
+                "value" : "43200"
               },
               {
                 "name" : "S3 Server Side Encryption",
@@ -1458,6 +1596,10 @@
                 "value" : "5242880"
               },
               {
+                "name" : "Schema Name",
+                "value" : "$$staging_schema"
+              },
+              {
                 "name" : "Preserve record order on write",
                 "value" : "NO"
               },
@@ -1485,93 +1627,100 @@
         "manualMappings" : {
           "mappingList" : [
             {
-              "fromFieldName" : "o_src_md5_hash_value",
-              "toField" : {
-                "name" : "agency_email_row_md5checksum"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "o_agency_email_datetime_created",
-              "toField" : {
-                "name" : "agency_email_datetime_created"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "o_agency_email_datetime_modified",
-              "toField" : {
-                "name" : "agency_email_datetime_modified"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "o_agency_email_row_effective_start_datetime",
-              "toField" : {
-                "name" : "agency_email_row_effective_start_datetime"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "o_agency_email_row_effective_end_datetime",
-              "toField" : {
-                "name" : "agency_email_row_effective_end_datetime"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "o_agency_id",
-              "toField" : {
-                "name" : "agency_id"
-              },
-              "fromFieldNames" : null
-            },
-            {
               "fromFieldName" : "batch_id",
               "toField" : {
-                "name" : "agency_email_batch_id"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "load_type",
-              "toField" : {
-                "name" : "load_type"
+                "name" : "adm_agency_email_batch_id"
               },
               "fromFieldNames" : null
             },
             {
               "fromFieldName" : "source_name",
               "toField" : {
-                "name" : "source_name"
+                "name" : "originating_source_name"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "load_type",
+              "toField" : {
+                "name" : "originating_load_type"
               },
               "fromFieldNames" : null
             },
             {
               "fromFieldName" : "email_address",
               "toField" : {
-                "name" : "agency_experience_report_email_address"
+                "name" : "email_address"
               },
               "fromFieldNames" : null
             },
             {
               "fromFieldName" : "email_type",
               "toField" : {
-                "name" : "agency_email_type"
+                "name" : "email_type"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "o_group_id",
+              "fromFieldName" : "o_row_status_active",
               "toField" : {
-                "name" : "group_id"
+                "name" : "adm_agency_email_row_status"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_src_md5_hash_value",
+              "toField" : {
+                "name" : "adm_agency_email_row_md5checksum"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_agency_email_row_effective_end_datetime",
+              "toField" : {
+                "name" : "adm_agency_email_row_effective_end_datetime"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_agency_email_row_effective_start_datetime",
+              "toField" : {
+                "name" : "adm_agency_email_row_effective_start_datetime"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_agency_email_datetime_created",
+              "toField" : {
+                "name" : "create_date"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_agency_email_datetime_modified",
+              "toField" : {
+                "name" : "modified_date"
               },
               "fromFieldNames" : null
             },
             {
               "fromFieldName" : "o_agency_email_id",
               "toField" : {
-                "name" : "agency_email_id"
+                "name" : "id"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_agency_id",
+              "toField" : {
+                "name" : "agency_nup"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_group_id",
+              "toField" : {
+                "name" : "group_nup"
               },
               "fromFieldNames" : null
             }
@@ -1596,6 +1745,90 @@
               {
                 "bulkRename" : "false",
                 "include" : "true"
+              },
+              {
+                "bulkRename" : "false",
+                "include" : "false",
+                "names" : [
+                  {
+                    "inputName" : "agency_nup"
+                  },
+                  {
+                    "inputName" : "batch_id"
+                  },
+                  {
+                    "inputName" : "create_date"
+                  },
+                  {
+                    "inputName" : "email_address"
+                  },
+                  {
+                    "inputName" : "email_type"
+                  },
+                  {
+                    "inputName" : "group_nup"
+                  },
+                  {
+                    "inputName" : "id"
+                  },
+                  {
+                    "inputName" : "load_type"
+                  },
+                  {
+                    "inputName" : "modified_date"
+                  },
+                  {
+                    "inputName" : "o_agency_email_datetime_created"
+                  },
+                  {
+                    "inputName" : "o_agency_email_datetime_modified"
+                  },
+                  {
+                    "inputName" : "o_agency_email_id"
+                  },
+                  {
+                    "inputName" : "o_agency_email_row_effective_end_datetime"
+                  },
+                  {
+                    "inputName" : "o_agency_email_row_effective_start_datetime"
+                  },
+                  {
+                    "inputName" : "o_agency_id"
+                  },
+                  {
+                    "inputName" : "o_group_id"
+                  },
+                  {
+                    "inputName" : "o_insert_flag"
+                  },
+                  {
+                    "inputName" : "o_row_status_active"
+                  },
+                  {
+                    "inputName" : "o_src_md5_hash_value"
+                  },
+                  {
+                    "inputName" : "o_update_flag"
+                  },
+                  {
+                    "inputName" : "source_name"
+                  },
+                  {
+                    "inputName" : "tgt_adm_agency_email_row_effective_end_datetime"
+                  },
+                  {
+                    "inputName" : "tgt_adm_agency_email_row_md5checksum"
+                  },
+                  {
+                    "inputName" : "tgt_email_address"
+                  },
+                  {
+                    "inputName" : "tgt_id"
+                  },
+                  {
+                    "inputName" : "tgt_modified_date"
+                  }
+                ]
               }
             ]
           }
@@ -1604,17 +1837,18 @@
         "fieldMappingMode" : "MANUAL",
         "inputSorted" : "false",
         "schemaProviderType" : "SELECTED_OBJECT",
+        "targetFieldsOrdered" : "false",
         "updateColumns" : [
-          "agency_email_row_id"
+          "adm_agency_email_row_id"
         ],
         "useLabels" : "false",
         "useSequenceFields" : "false",
         "fields" : [
           {
             "adapterField" : {
-              "name" : "agency_email_row_id"
+              "name" : "adm_agency_email_row_id"
             },
-            "name" : "agency_email_row_id",
+            "name" : "adm_agency_email_row_id",
             "platformType" : {
               "name" : "bigint"
             },
@@ -1623,9 +1857,9 @@
           },
           {
             "adapterField" : {
-              "name" : "agency_email_batch_id"
+              "name" : "adm_agency_email_batch_id"
             },
-            "name" : "agency_email_batch_id",
+            "name" : "adm_agency_email_batch_id",
             "platformType" : {
               "name" : "bigint"
             },
@@ -1634,9 +1868,9 @@
           },
           {
             "adapterField" : {
-              "name" : "source_name"
+              "name" : "originating_source_name"
             },
-            "name" : "source_name",
+            "name" : "originating_source_name",
             "platformType" : {
               "name" : "string"
             },
@@ -1645,9 +1879,9 @@
           },
           {
             "adapterField" : {
-              "name" : "load_type"
+              "name" : "originating_load_type"
             },
-            "name" : "load_type",
+            "name" : "originating_load_type",
             "platformType" : {
               "name" : "string"
             },
@@ -1656,9 +1890,9 @@
           },
           {
             "adapterField" : {
-              "name" : "agency_email_row_md5checksum"
+              "name" : "adm_agency_email_row_md5checksum"
             },
-            "name" : "agency_email_row_md5checksum",
+            "name" : "adm_agency_email_row_md5checksum",
             "platformType" : {
               "name" : "string"
             },
@@ -1667,9 +1901,9 @@
           },
           {
             "adapterField" : {
-              "name" : "agency_email_datetime_created"
+              "name" : "adm_agency_email_row_effective_start_datetime"
             },
-            "name" : "agency_email_datetime_created",
+            "name" : "adm_agency_email_row_effective_start_datetime",
             "platformType" : {
               "name" : "date/time"
             },
@@ -1678,9 +1912,9 @@
           },
           {
             "adapterField" : {
-              "name" : "agency_email_datetime_modified"
+              "name" : "adm_agency_email_row_effective_end_datetime"
             },
-            "name" : "agency_email_datetime_modified",
+            "name" : "adm_agency_email_row_effective_end_datetime",
             "platformType" : {
               "name" : "date/time"
             },
@@ -1689,42 +1923,9 @@
           },
           {
             "adapterField" : {
-              "name" : "agency_email_row_effective_start_datetime"
+              "name" : "adm_agency_email_row_status"
             },
-            "name" : "agency_email_row_effective_start_datetime",
-            "platformType" : {
-              "name" : "date/time"
-            },
-            "precision" : 29,
-            "scale" : 9
-          },
-          {
-            "adapterField" : {
-              "name" : "agency_email_row_effective_end_datetime"
-            },
-            "name" : "agency_email_row_effective_end_datetime",
-            "platformType" : {
-              "name" : "date/time"
-            },
-            "precision" : 29,
-            "scale" : 9
-          },
-          {
-            "adapterField" : {
-              "name" : "agency_id"
-            },
-            "name" : "agency_id",
-            "platformType" : {
-              "name" : "integer"
-            },
-            "precision" : 10,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "agency_experience_report_email_address"
-            },
-            "name" : "agency_experience_report_email_address",
+            "name" : "adm_agency_email_row_status",
             "platformType" : {
               "name" : "string"
             },
@@ -1733,9 +1934,42 @@
           },
           {
             "adapterField" : {
-              "name" : "agency_email_type"
+              "name" : "agency_nup"
             },
-            "name" : "agency_email_type",
+            "name" : "agency_nup",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "create_date"
+            },
+            "name" : "create_date",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "email_address"
+            },
+            "name" : "email_address",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "email_type"
+            },
+            "name" : "email_type",
             "platformType" : {
               "name" : "string"
             },
@@ -1744,9 +1978,9 @@
           },
           {
             "adapterField" : {
-              "name" : "group_id"
+              "name" : "group_nup"
             },
-            "name" : "group_id",
+            "name" : "group_nup",
             "platformType" : {
               "name" : "integer"
             },
@@ -1755,14 +1989,25 @@
           },
           {
             "adapterField" : {
-              "name" : "agency_email_id"
+              "name" : "id"
             },
-            "name" : "agency_email_id",
+            "name" : "id",
             "platformType" : {
               "name" : "integer"
             },
             "precision" : 10,
             "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "modified_date"
+            },
+            "name" : "modified_date",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
           }
         ],
         "dataAdapter" : {
@@ -1793,10 +2038,10 @@
             "retainMetadata" : "false",
             "fields" : [
               {
-                "name" : "agency_email_row_id",
+                "name" : "adm_agency_email_row_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "agency_email_row_id",
-                "nativeName" : "agency_email_row_id",
+                "label" : "adm_agency_email_row_id",
+                "nativeName" : "adm_agency_email_row_id",
                 "nativeType" : "int8",
                 "original" : "false",
                 "precision" : 19,
@@ -1809,10 +2054,10 @@
                 ]
               },
               {
-                "name" : "agency_email_batch_id",
+                "name" : "adm_agency_email_batch_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "agency_email_batch_id",
-                "nativeName" : "agency_email_batch_id",
+                "label" : "adm_agency_email_batch_id",
+                "nativeName" : "adm_agency_email_batch_id",
                 "nativeType" : "int8",
                 "original" : "false",
                 "precision" : 19,
@@ -1825,10 +2070,10 @@
                 ]
               },
               {
-                "name" : "source_name",
+                "name" : "originating_source_name",
                 "fieldType" : "CONNECTOR",
-                "label" : "source_name",
-                "nativeName" : "source_name",
+                "label" : "originating_source_name",
+                "nativeName" : "originating_source_name",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 127,
@@ -1841,10 +2086,10 @@
                 ]
               },
               {
-                "name" : "load_type",
+                "name" : "originating_load_type",
                 "fieldType" : "CONNECTOR",
-                "label" : "load_type",
-                "nativeName" : "load_type",
+                "label" : "originating_load_type",
+                "nativeName" : "originating_load_type",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 63,
@@ -1857,10 +2102,10 @@
                 ]
               },
               {
-                "name" : "agency_email_row_md5checksum",
+                "name" : "adm_agency_email_row_md5checksum",
                 "fieldType" : "CONNECTOR",
-                "label" : "agency_email_row_md5checksum",
-                "nativeName" : "agency_email_row_md5checksum",
+                "label" : "adm_agency_email_row_md5checksum",
+                "nativeName" : "adm_agency_email_row_md5checksum",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 255,
@@ -1873,10 +2118,10 @@
                 ]
               },
               {
-                "name" : "agency_email_datetime_created",
+                "name" : "adm_agency_email_row_effective_start_datetime",
                 "fieldType" : "CONNECTOR",
-                "label" : "agency_email_datetime_created",
-                "nativeName" : "agency_email_datetime_created",
+                "label" : "adm_agency_email_row_effective_start_datetime",
+                "nativeName" : "adm_agency_email_row_effective_start_datetime",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 29,
@@ -1889,10 +2134,10 @@
                 ]
               },
               {
-                "name" : "agency_email_datetime_modified",
+                "name" : "adm_agency_email_row_effective_end_datetime",
                 "fieldType" : "CONNECTOR",
-                "label" : "agency_email_datetime_modified",
-                "nativeName" : "agency_email_datetime_modified",
+                "label" : "adm_agency_email_row_effective_end_datetime",
+                "nativeName" : "adm_agency_email_row_effective_end_datetime",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 29,
@@ -1905,58 +2150,10 @@
                 ]
               },
               {
-                "name" : "agency_email_row_effective_start_datetime",
+                "name" : "adm_agency_email_row_status",
                 "fieldType" : "CONNECTOR",
-                "label" : "agency_email_row_effective_start_datetime",
-                "nativeName" : "agency_email_row_effective_start_datetime",
-                "nativeType" : "timestamp",
-                "original" : "false",
-                "precision" : 29,
-                "scale" : 6,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_agency_email"
-                  }
-                ]
-              },
-              {
-                "name" : "agency_email_row_effective_end_datetime",
-                "fieldType" : "CONNECTOR",
-                "label" : "agency_email_row_effective_end_datetime",
-                "nativeName" : "agency_email_row_effective_end_datetime",
-                "nativeType" : "timestamp",
-                "original" : "false",
-                "precision" : 29,
-                "scale" : 6,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_agency_email"
-                  }
-                ]
-              },
-              {
-                "name" : "agency_id",
-                "fieldType" : "CONNECTOR",
-                "label" : "agency_id",
-                "nativeName" : "agency_id",
-                "nativeType" : "int4",
-                "original" : "false",
-                "precision" : 10,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_agency_email"
-                  }
-                ]
-              },
-              {
-                "name" : "agency_experience_report_email_address",
-                "fieldType" : "CONNECTOR",
-                "label" : "agency_experience_report_email_address",
-                "nativeName" : "agency_experience_report_email_address",
+                "label" : "adm_agency_email_row_status",
+                "nativeName" : "adm_agency_email_row_status",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 63,
@@ -1969,10 +2166,58 @@
                 ]
               },
               {
-                "name" : "agency_email_type",
+                "name" : "agency_nup",
                 "fieldType" : "CONNECTOR",
-                "label" : "agency_email_type",
-                "nativeName" : "agency_email_type",
+                "label" : "agency_nup",
+                "nativeName" : "agency_nup",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_agency_email"
+                  }
+                ]
+              },
+              {
+                "name" : "create_date",
+                "fieldType" : "CONNECTOR",
+                "label" : "create_date",
+                "nativeName" : "create_date",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_agency_email"
+                  }
+                ]
+              },
+              {
+                "name" : "email_address",
+                "fieldType" : "CONNECTOR",
+                "label" : "email_address",
+                "nativeName" : "email_address",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_agency_email"
+                  }
+                ]
+              },
+              {
+                "name" : "email_type",
+                "fieldType" : "CONNECTOR",
+                "label" : "email_type",
+                "nativeName" : "email_type",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 7,
@@ -1985,10 +2230,10 @@
                 ]
               },
               {
-                "name" : "group_id",
+                "name" : "group_nup",
                 "fieldType" : "CONNECTOR",
-                "label" : "group_id",
-                "nativeName" : "group_id",
+                "label" : "group_nup",
+                "nativeName" : "group_nup",
                 "nativeType" : "int4",
                 "original" : "false",
                 "precision" : 10,
@@ -2001,14 +2246,30 @@
                 ]
               },
               {
-                "name" : "agency_email_id",
+                "name" : "id",
                 "fieldType" : "CONNECTOR",
-                "label" : "agency_email_id",
-                "nativeName" : "agency_email_id",
+                "label" : "id",
+                "nativeName" : "id",
                 "nativeType" : "int4",
                 "original" : "false",
                 "precision" : 10,
                 "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_agency_email"
+                  }
+                ]
+              },
+              {
+                "name" : "modified_date",
+                "fieldType" : "CONNECTOR",
+                "label" : "modified_date",
+                "nativeName" : "modified_date",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
                 "properties" : [
                   {
                     "name" : "parentObject",
@@ -2052,7 +2313,7 @@
               },
               {
                 "name" : "Temporary Credential Duration",
-                "value" : "900"
+                "value" : "43200"
               },
               {
                 "name" : "S3 Server Side Encryption",
@@ -2083,6 +2344,10 @@
                 "value" : "5242880"
               },
               {
+                "name" : "Schema Name",
+                "value" : "$$staging_schema"
+              },
+              {
                 "name" : "Preserve record order on write",
                 "value" : "NO"
               },
@@ -2110,16 +2375,23 @@
         "manualMappings" : {
           "mappingList" : [
             {
-              "fromFieldName" : "agency_email_row_id",
+              "fromFieldName" : "tgt_adm_agency_email_row_id",
               "toField" : {
-                "name" : "agency_email_row_id"
+                "name" : "adm_agency_email_row_id"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_row_status_expired",
+              "toField" : {
+                "name" : "adm_agency_email_row_status"
               },
               "fromFieldNames" : null
             },
             {
               "fromFieldName" : "o_retire_old_record",
               "toField" : {
-                "name" : "agency_email_row_effective_end_datetime"
+                "name" : "adm_agency_email_row_effective_end_datetime"
               },
               "fromFieldNames" : null
             }
@@ -2127,8 +2399,9 @@
         }
       },
       {
+        "description" : "join source and target",
         "createTime" : "2025-05-14T04:21:47.331Z",
-        "name" : "Joiner",
+        "name" : "Jnr_src_tgt",
         "groups" : [
           {
             "input" : "true",
@@ -2147,7 +2420,7 @@
             "output" : "false",
             "rules" : [
               {
-                "bulkRename" : "false",
+                "bulkRename" : "true",
                 "include" : "true",
                 "bulkRenameOption" : {
                   "literal" : "tgt_",
@@ -2167,7 +2440,7 @@
           {
             "leftOperand" : "o_agency_email_id",
             "operator" : "=",
-            "rightOperand" : "agency_email_id"
+            "rightOperand" : "tgt_id"
           }
         ]
       },
@@ -2214,6 +2487,51 @@
               {
                 "bulkRename" : "false",
                 "include" : "true"
+              },
+              {
+                "bulkRename" : "false",
+                "include" : "false",
+                "names" : [
+                  {
+                    "inputName" : "agency_nup"
+                  },
+                  {
+                    "inputName" : "create_date"
+                  },
+                  {
+                    "inputName" : "group_nup"
+                  },
+                  {
+                    "inputName" : "modified_date"
+                  },
+                  {
+                    "inputName" : "o_insert_flag"
+                  },
+                  {
+                    "inputName" : "o_row_status_expired"
+                  },
+                  {
+                    "inputName" : "o_update_flag"
+                  },
+                  {
+                    "inputName" : "tgt_adm_agency_email_row_effective_end_datetime"
+                  },
+                  {
+                    "inputName" : "tgt_adm_agency_email_row_id"
+                  },
+                  {
+                    "inputName" : "tgt_adm_agency_email_row_md5checksum"
+                  },
+                  {
+                    "inputName" : "tgt_email_address"
+                  },
+                  {
+                    "inputName" : "tgt_id"
+                  },
+                  {
+                    "inputName" : "tgt_modified_date"
+                  }
+                ]
               }
             ]
           }
@@ -2222,15 +2540,16 @@
         "fieldMappingMode" : "MANUAL",
         "inputSorted" : "false",
         "schemaProviderType" : "SELECTED_OBJECT",
+        "targetFieldsOrdered" : "false",
         "updateColumns" : null,
         "useLabels" : "false",
         "useSequenceFields" : "false",
         "fields" : [
           {
             "adapterField" : {
-              "name" : "agency_email_row_id"
+              "name" : "adm_agency_email_row_id"
             },
-            "name" : "agency_email_row_id",
+            "name" : "adm_agency_email_row_id",
             "platformType" : {
               "name" : "bigint"
             },
@@ -2239,9 +2558,9 @@
           },
           {
             "adapterField" : {
-              "name" : "agency_email_batch_id"
+              "name" : "adm_agency_email_batch_id"
             },
-            "name" : "agency_email_batch_id",
+            "name" : "adm_agency_email_batch_id",
             "platformType" : {
               "name" : "bigint"
             },
@@ -2250,9 +2569,9 @@
           },
           {
             "adapterField" : {
-              "name" : "source_name"
+              "name" : "originating_source_name"
             },
-            "name" : "source_name",
+            "name" : "originating_source_name",
             "platformType" : {
               "name" : "string"
             },
@@ -2261,9 +2580,9 @@
           },
           {
             "adapterField" : {
-              "name" : "load_type"
+              "name" : "originating_load_type"
             },
-            "name" : "load_type",
+            "name" : "originating_load_type",
             "platformType" : {
               "name" : "string"
             },
@@ -2272,9 +2591,9 @@
           },
           {
             "adapterField" : {
-              "name" : "agency_email_row_md5checksum"
+              "name" : "adm_agency_email_row_md5checksum"
             },
-            "name" : "agency_email_row_md5checksum",
+            "name" : "adm_agency_email_row_md5checksum",
             "platformType" : {
               "name" : "string"
             },
@@ -2283,9 +2602,9 @@
           },
           {
             "adapterField" : {
-              "name" : "agency_email_datetime_created"
+              "name" : "adm_agency_email_row_effective_start_datetime"
             },
-            "name" : "agency_email_datetime_created",
+            "name" : "adm_agency_email_row_effective_start_datetime",
             "platformType" : {
               "name" : "date/time"
             },
@@ -2294,9 +2613,9 @@
           },
           {
             "adapterField" : {
-              "name" : "agency_email_datetime_modified"
+              "name" : "adm_agency_email_row_effective_end_datetime"
             },
-            "name" : "agency_email_datetime_modified",
+            "name" : "adm_agency_email_row_effective_end_datetime",
             "platformType" : {
               "name" : "date/time"
             },
@@ -2305,42 +2624,9 @@
           },
           {
             "adapterField" : {
-              "name" : "agency_email_row_effective_start_datetime"
+              "name" : "adm_agency_email_row_status"
             },
-            "name" : "agency_email_row_effective_start_datetime",
-            "platformType" : {
-              "name" : "date/time"
-            },
-            "precision" : 29,
-            "scale" : 9
-          },
-          {
-            "adapterField" : {
-              "name" : "agency_email_row_effective_end_datetime"
-            },
-            "name" : "agency_email_row_effective_end_datetime",
-            "platformType" : {
-              "name" : "date/time"
-            },
-            "precision" : 29,
-            "scale" : 9
-          },
-          {
-            "adapterField" : {
-              "name" : "agency_id"
-            },
-            "name" : "agency_id",
-            "platformType" : {
-              "name" : "integer"
-            },
-            "precision" : 10,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "agency_experience_report_email_address"
-            },
-            "name" : "agency_experience_report_email_address",
+            "name" : "adm_agency_email_row_status",
             "platformType" : {
               "name" : "string"
             },
@@ -2349,9 +2635,42 @@
           },
           {
             "adapterField" : {
-              "name" : "agency_email_type"
+              "name" : "agency_nup"
             },
-            "name" : "agency_email_type",
+            "name" : "agency_nup",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "create_date"
+            },
+            "name" : "create_date",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "email_address"
+            },
+            "name" : "email_address",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "email_type"
+            },
+            "name" : "email_type",
             "platformType" : {
               "name" : "string"
             },
@@ -2360,9 +2679,9 @@
           },
           {
             "adapterField" : {
-              "name" : "group_id"
+              "name" : "group_nup"
             },
-            "name" : "group_id",
+            "name" : "group_nup",
             "platformType" : {
               "name" : "integer"
             },
@@ -2371,14 +2690,25 @@
           },
           {
             "adapterField" : {
-              "name" : "agency_email_id"
+              "name" : "id"
             },
-            "name" : "agency_email_id",
+            "name" : "id",
             "platformType" : {
               "name" : "integer"
             },
             "precision" : 10,
             "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "modified_date"
+            },
+            "name" : "modified_date",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
           }
         ],
         "dataAdapter" : {
@@ -2398,10 +2728,10 @@
             "retainMetadata" : "false",
             "fields" : [
               {
-                "name" : "agency_email_row_id",
+                "name" : "adm_agency_email_row_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "agency_email_row_id",
-                "nativeName" : "agency_email_row_id",
+                "label" : "adm_agency_email_row_id",
+                "nativeName" : "adm_agency_email_row_id",
                 "nativeType" : "int8",
                 "original" : "false",
                 "precision" : 19,
@@ -2414,10 +2744,10 @@
                 ]
               },
               {
-                "name" : "agency_email_batch_id",
+                "name" : "adm_agency_email_batch_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "agency_email_batch_id",
-                "nativeName" : "agency_email_batch_id",
+                "label" : "adm_agency_email_batch_id",
+                "nativeName" : "adm_agency_email_batch_id",
                 "nativeType" : "int8",
                 "original" : "false",
                 "precision" : 19,
@@ -2430,10 +2760,10 @@
                 ]
               },
               {
-                "name" : "source_name",
+                "name" : "originating_source_name",
                 "fieldType" : "CONNECTOR",
-                "label" : "source_name",
-                "nativeName" : "source_name",
+                "label" : "originating_source_name",
+                "nativeName" : "originating_source_name",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 127,
@@ -2446,10 +2776,10 @@
                 ]
               },
               {
-                "name" : "load_type",
+                "name" : "originating_load_type",
                 "fieldType" : "CONNECTOR",
-                "label" : "load_type",
-                "nativeName" : "load_type",
+                "label" : "originating_load_type",
+                "nativeName" : "originating_load_type",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 63,
@@ -2462,10 +2792,10 @@
                 ]
               },
               {
-                "name" : "agency_email_row_md5checksum",
+                "name" : "adm_agency_email_row_md5checksum",
                 "fieldType" : "CONNECTOR",
-                "label" : "agency_email_row_md5checksum",
-                "nativeName" : "agency_email_row_md5checksum",
+                "label" : "adm_agency_email_row_md5checksum",
+                "nativeName" : "adm_agency_email_row_md5checksum",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 255,
@@ -2478,10 +2808,10 @@
                 ]
               },
               {
-                "name" : "agency_email_datetime_created",
+                "name" : "adm_agency_email_row_effective_start_datetime",
                 "fieldType" : "CONNECTOR",
-                "label" : "agency_email_datetime_created",
-                "nativeName" : "agency_email_datetime_created",
+                "label" : "adm_agency_email_row_effective_start_datetime",
+                "nativeName" : "adm_agency_email_row_effective_start_datetime",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 29,
@@ -2494,10 +2824,10 @@
                 ]
               },
               {
-                "name" : "agency_email_datetime_modified",
+                "name" : "adm_agency_email_row_effective_end_datetime",
                 "fieldType" : "CONNECTOR",
-                "label" : "agency_email_datetime_modified",
-                "nativeName" : "agency_email_datetime_modified",
+                "label" : "adm_agency_email_row_effective_end_datetime",
+                "nativeName" : "adm_agency_email_row_effective_end_datetime",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 29,
@@ -2510,58 +2840,10 @@
                 ]
               },
               {
-                "name" : "agency_email_row_effective_start_datetime",
+                "name" : "adm_agency_email_row_status",
                 "fieldType" : "CONNECTOR",
-                "label" : "agency_email_row_effective_start_datetime",
-                "nativeName" : "agency_email_row_effective_start_datetime",
-                "nativeType" : "timestamp",
-                "original" : "false",
-                "precision" : 29,
-                "scale" : 6,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_agency_email"
-                  }
-                ]
-              },
-              {
-                "name" : "agency_email_row_effective_end_datetime",
-                "fieldType" : "CONNECTOR",
-                "label" : "agency_email_row_effective_end_datetime",
-                "nativeName" : "agency_email_row_effective_end_datetime",
-                "nativeType" : "timestamp",
-                "original" : "false",
-                "precision" : 29,
-                "scale" : 6,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_agency_email"
-                  }
-                ]
-              },
-              {
-                "name" : "agency_id",
-                "fieldType" : "CONNECTOR",
-                "label" : "agency_id",
-                "nativeName" : "agency_id",
-                "nativeType" : "int4",
-                "original" : "false",
-                "precision" : 10,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_agency_email"
-                  }
-                ]
-              },
-              {
-                "name" : "agency_experience_report_email_address",
-                "fieldType" : "CONNECTOR",
-                "label" : "agency_experience_report_email_address",
-                "nativeName" : "agency_experience_report_email_address",
+                "label" : "adm_agency_email_row_status",
+                "nativeName" : "adm_agency_email_row_status",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 63,
@@ -2574,10 +2856,58 @@
                 ]
               },
               {
-                "name" : "agency_email_type",
+                "name" : "agency_nup",
                 "fieldType" : "CONNECTOR",
-                "label" : "agency_email_type",
-                "nativeName" : "agency_email_type",
+                "label" : "agency_nup",
+                "nativeName" : "agency_nup",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_agency_email"
+                  }
+                ]
+              },
+              {
+                "name" : "create_date",
+                "fieldType" : "CONNECTOR",
+                "label" : "create_date",
+                "nativeName" : "create_date",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_agency_email"
+                  }
+                ]
+              },
+              {
+                "name" : "email_address",
+                "fieldType" : "CONNECTOR",
+                "label" : "email_address",
+                "nativeName" : "email_address",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_agency_email"
+                  }
+                ]
+              },
+              {
+                "name" : "email_type",
+                "fieldType" : "CONNECTOR",
+                "label" : "email_type",
+                "nativeName" : "email_type",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 7,
@@ -2590,10 +2920,10 @@
                 ]
               },
               {
-                "name" : "group_id",
+                "name" : "group_nup",
                 "fieldType" : "CONNECTOR",
-                "label" : "group_id",
-                "nativeName" : "group_id",
+                "label" : "group_nup",
+                "nativeName" : "group_nup",
                 "nativeType" : "int4",
                 "original" : "false",
                 "precision" : 10,
@@ -2606,14 +2936,30 @@
                 ]
               },
               {
-                "name" : "agency_email_id",
+                "name" : "id",
                 "fieldType" : "CONNECTOR",
-                "label" : "agency_email_id",
-                "nativeName" : "agency_email_id",
+                "label" : "id",
+                "nativeName" : "id",
                 "nativeType" : "int4",
                 "original" : "false",
                 "precision" : 10,
                 "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_agency_email"
+                  }
+                ]
+              },
+              {
+                "name" : "modified_date",
+                "fieldType" : "CONNECTOR",
+                "label" : "modified_date",
+                "nativeName" : "modified_date",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
                 "properties" : [
                   {
                     "name" : "parentObject",
@@ -2657,7 +3003,7 @@
               },
               {
                 "name" : "Temporary Credential Duration",
-                "value" : "900"
+                "value" : "43200"
               },
               {
                 "name" : "S3 Server Side Encryption",
@@ -2686,6 +3032,10 @@
               {
                 "name" : "Minimum Upload Part Size",
                 "value" : "5242880"
+              },
+              {
+                "name" : "Schema Name",
+                "value" : "$$staging_schema"
               },
               {
                 "name" : "Preserve record order on write",
@@ -2717,98 +3067,143 @@
             {
               "fromFieldName" : "batch_id",
               "toField" : {
-                "name" : "agency_email_batch_id"
+                "name" : "adm_agency_email_batch_id"
               },
               "fromFieldNames" : null
             },
             {
               "fromFieldName" : "source_name",
               "toField" : {
-                "name" : "source_name"
+                "name" : "originating_source_name"
               },
               "fromFieldNames" : null
             },
             {
               "fromFieldName" : "load_type",
               "toField" : {
-                "name" : "load_type"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "o_src_md5_hash_value",
-              "toField" : {
-                "name" : "agency_email_row_md5checksum"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "o_agency_email_datetime_created",
-              "toField" : {
-                "name" : "agency_email_datetime_created"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "o_agency_email_datetime_modified",
-              "toField" : {
-                "name" : "agency_email_datetime_modified"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "o_agency_email_row_effective_start_datetime",
-              "toField" : {
-                "name" : "agency_email_row_effective_start_datetime"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "o_agency_email_row_effective_end_datetime",
-              "toField" : {
-                "name" : "agency_email_row_effective_end_datetime"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "o_agency_id",
-              "toField" : {
-                "name" : "agency_id"
+                "name" : "originating_load_type"
               },
               "fromFieldNames" : null
             },
             {
               "fromFieldName" : "email_address",
               "toField" : {
-                "name" : "agency_experience_report_email_address"
+                "name" : "email_address"
               },
               "fromFieldNames" : null
             },
             {
               "fromFieldName" : "email_type",
               "toField" : {
-                "name" : "agency_email_type"
+                "name" : "email_type"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_src_md5_hash_value",
+              "toField" : {
+                "name" : "adm_agency_email_row_md5checksum"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_agency_email_row_effective_start_datetime",
+              "toField" : {
+                "name" : "adm_agency_email_row_effective_start_datetime"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_agency_email_row_effective_end_datetime",
+              "toField" : {
+                "name" : "adm_agency_email_row_effective_end_datetime"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_row_status_active",
+              "toField" : {
+                "name" : "adm_agency_email_row_status"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_agency_id",
+              "toField" : {
+                "name" : "agency_nup"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_agency_email_datetime_created",
+              "toField" : {
+                "name" : "create_date"
               },
               "fromFieldNames" : null
             },
             {
               "fromFieldName" : "o_group_id",
               "toField" : {
-                "name" : "group_id"
+                "name" : "group_nup"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_agency_email_datetime_modified",
+              "toField" : {
+                "name" : "modified_date"
               },
               "fromFieldNames" : null
             },
             {
               "fromFieldName" : "o_agency_email_id",
               "toField" : {
-                "name" : "agency_email_id"
+                "name" : "id"
               },
               "fromFieldNames" : null
             }
           ]
         }
       }
+    ],
+    "variables" : [
+      {
+        "aggregationType" : "MAX",
+        "expressionVariable" : "false",
+        "name" : "raw_schema",
+        "platformType" : {
+          "name" : "string"
+        },
+        "precision" : 10,
+        "retentionPolicy" : "NEVER",
+        "scale" : 0,
+        "defaultValue" : "metal"
+      },
+      {
+        "aggregationType" : "MAX",
+        "expressionVariable" : "false",
+        "name" : "staging_schema",
+        "platformType" : {
+          "name" : "string"
+        },
+        "precision" : 10,
+        "retentionPolicy" : "NEVER",
+        "scale" : 0,
+        "defaultValue" : "bronze"
+      },
+      {
+        "aggregationType" : "MAX",
+        "expressionVariable" : "false",
+        "name" : "operational_schema",
+        "platformType" : {
+          "name" : "string"
+        },
+        "precision" : 100,
+        "retentionPolicy" : "NEVER",
+        "scale" : 0,
+        "defaultValue" : "operations"
+      }
     ]
   },
-  "vcsExportTime" : "2025-06-27 08:43:25 PDT"
+  "vcsExportTime" : "2025-09-05 09:13:04 PDT"
 }

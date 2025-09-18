@@ -4,6 +4,7 @@
     "bigIntConvertType" : "ONLY_BIGINT",
     "documentType" : "MAPPING",
     "name" : "cdi_map_adm_agency_email_metal_stg_load",
+    "specialCharacterSupport" : "false",
     "links" : [
       {
         "link" : "exp_values -> tgt_metal_adm_agency_email"
@@ -220,7 +221,7 @@
             ]
           },
           "object" : {
-            "customQuery" : "SELECT\n\tid,\n\tgroup_nup,\n\tagency_nup,\n\temail_type,\n\temail_address,\n\tcreate_date,\n\tmodified_date\nFROM\n\tagencymanagement.agencyemail\nWHERE\n\tmodified_date >= $LASTRUNTIME\nORDER BY\n\tmodified_date DESC;",
+            "customQuery" : "SELECT\n\tid,\n\tgroup_nup,\n\tagency_nup,\n\temail_type,\n\temail_address,\n\tcreate_date,\n\tmodified_date\nFROM\n\t$$adm_source_schema.agencyemail\nORDER BY\n\tmodified_date DESC;",
             "retainMetadata" : "false",
             "fields" : [
               {
@@ -372,6 +373,7 @@
         "fieldMappingMode" : "MANUAL",
         "inputSorted" : "false",
         "schemaProviderType" : "SELECTED_OBJECT",
+        "targetFieldsOrdered" : "false",
         "updateColumns" : null,
         "useLabels" : "false",
         "useSequenceFields" : "false",
@@ -672,7 +674,7 @@
               },
               {
                 "name" : "Temporary Credential Duration",
-                "value" : "900"
+                "value" : "43200"
               },
               {
                 "name" : "S3 Server Side Encryption",
@@ -701,6 +703,10 @@
               {
                 "name" : "Minimum Upload Part Size",
                 "value" : "5242880"
+              },
+              {
+                "name" : "Schema Name",
+                "value" : "$$raw_schema"
               },
               {
                 "name" : "Preserve record order on write",
@@ -822,7 +828,7 @@
             "precision" : 50,
             "scale" : 0,
             "expFieldType" : "OUTPUT",
-            "expression" : "'Daily'"
+            "expression" : "'Daily full load'"
           },
           {
             "defaultValue" : "ERROR('transformation error')",
@@ -866,7 +872,33 @@
           "partitionKeys" : null
         }
       }
+    ],
+    "variables" : [
+      {
+        "aggregationType" : "MAX",
+        "expressionVariable" : "false",
+        "name" : "raw_schema",
+        "platformType" : {
+          "name" : "string"
+        },
+        "precision" : 10,
+        "retentionPolicy" : "NEVER",
+        "scale" : 0,
+        "defaultValue" : "metal"
+      },
+      {
+        "aggregationType" : "MAX",
+        "expressionVariable" : "false",
+        "name" : "adm_source_schema",
+        "platformType" : {
+          "name" : "string"
+        },
+        "precision" : 100,
+        "retentionPolicy" : "NEVER",
+        "scale" : 0,
+        "defaultValue" : "agencymanagement"
+      }
     ]
   },
-  "vcsExportTime" : "2025-06-13 07:49:01 PDT"
+  "vcsExportTime" : "2025-09-16 12:30:25 PDT"
 }

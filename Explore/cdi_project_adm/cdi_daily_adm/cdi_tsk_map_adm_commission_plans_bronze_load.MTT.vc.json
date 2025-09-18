@@ -1,5 +1,6 @@
 {
   "name" : "cdi_tsk_map_adm_commission_plans_bronze_load",
+  "description" : "This mapping task extracts the data from metal.adm_commission_plans to bronze.adm_commission_plans with a SCD Type 2 design.",
   "runtimeEnvironmentId" : "@3pADNCV9u0PcgrXjM7rx0t",
   "runtimeEnvironmentName" : "sag_aws_linux",
   "maxLogs" : 10,
@@ -29,7 +30,7 @@
       "truncateTarget" : false,
       "bulkApiDBTarget" : false,
       "customFuncCfg" : { },
-      "customQuery" : "WITH current_batch AS (\n    SELECT \n        bls.batch_id,\n        bls.source_start_cutoff_datetime,\n        bls.source_end_cutoff_datetime\n    FROM metal.batch_load_summary bls\n    WHERE bls.source_system_code = 'ADM'\n      AND bls.batch_status = 'Inprogress'\n      AND bls.batch_id = (\n          SELECT MAX(batch_id)\n          FROM metal.batch_load_summary\n          WHERE source_system_code = 'ADM'\n            AND batch_status = 'Inprogress'\n      )\n)\nSELECT DISTINCT \nmetal_acp.source_name, \nmetal_acp.load_type, \nmetal_acp.agency_nup, \nmetal_acp.bs_appoint_dt, \nmetal_acp.bs_cancel_dt, \nmetal_acp.ca_appoint_dt, \nmetal_acp.ca_cancel_dt, \nmetal_acp.create_user_nup, \nmetal_acp.created, \nmetal_acp.id, \nmetal_acp.mk_appoint_dt, \nmetal_acp.mk_cancel_dt, \nmetal_acp.modified, modify_user_nup, \nmetal_acp.state,\ncurrent_batch.batch_id\nFROM metal.adm_commission_plans metal_acp\nCROSS JOIN current_batch\nORDER BY \nmetal_acp.id,\nmetal_acp.created,\nmetal_acp.modified",
+      "customQuery" : "with current_batch as (\nselect\n\tbls.batch_id,\n\tbls.source_start_cutoff_datetime,\n\tbls.source_end_cutoff_datetime\nfrom\n\t$$operational_schema.batch_load_summary bls\nwhere\n\tbls.source_system_code ='$$sourcesystemcode'\n\tand bls.batch_status = 'Inprogress'\n\tand bls.batch_id = (\n\tselect\n\t\tMAX(batch_id)\n\tfrom\n\t\t$$operational_schema.batch_load_summary\n\twhere\n\t\tsource_system_code ='$$sourcesystemcode'\n\t\tand batch_status = 'Inprogress' ) )\nSELECT \n    DISTINCT \n    acp.source_name, \n    acp.load_type, \n    acp.agency_nup, \n    acp.bs_appoint_dt, \n    acp.bs_cancel_dt, \n    acp.ca_appoint_dt, \n    acp.ca_cancel_dt, \n    acp.create_user_nup, \n    acp.created, \n    acp.id, \n    acp.mk_appoint_dt, \n    acp.mk_cancel_dt, \n    acp.modified, \n    acp.modify_user_nup, \n    acp.state,\n    cb.batch_id\nFROM \n    $$raw_schema.adm_commission_plans acp\nCROSS JOIN current_batch cb\nORDER BY \n    acp.id,\n    acp.created,\n    acp.modified;",
       "commandType" : 0,
       "handleSpecialChars" : false,
       "handleDecimalRoundOff" : false,
@@ -41,25 +42,25 @@
       "objectName" : "DUMMY_src_delta_changes_commission_plans",
       "useExactSrcNames" : false,
       "userUpdated" : true,
-      "unspecified" : false,
       "runtimeParameterData" : {
         "connectionParameterName" : "DBConnection_UDM_SRC",
         "connectionRuntimeParameter" : false,
         "objectRuntimeParameter" : false
       },
       "restmodernSource" : true,
+      "unspecified" : false,
       "fileList" : false
     },
     {
       "name" : "$src_tgt_bronze_adm_commission_plans_query$",
       "type" : "SOURCE",
-      "label" : "DBConnection_UDM_SRC",
+      "label" : "DBConnection_UDM_TGT",
       "uiProperties" : {
         "cnxtype" : "Amazon Redshift v2",
         "connectionParameterized" : "true",
-        "paramName" : "DBConnection_UDM_SRC",
+        "paramName" : "DBConnection_UDM_TGT",
         "paramType-mapping" : "Connection",
-        "logcnx" : "DBConnection_UDM_SRC",
+        "logcnx" : "DBConnection_UDM_TGT",
         "isSelectDistinct" : "false",
         "objectParameterized" : "false",
         "visible" : "false",
@@ -75,7 +76,7 @@
       "truncateTarget" : false,
       "bulkApiDBTarget" : false,
       "customFuncCfg" : { },
-      "customQuery" : "SELECT \n\tcommission_plans_row_id, \n\tcommission_plans_batch_id, \n\tagency_id,\n\tcommission_plan_id,\n\tcommission_plans_md5checksum, \n\tcommission_plans_datetime_modified, \n\tcommission_plans_row_effective_end_datetime\nFROM bronze.adm_commission_plans\nWHERE commission_plans_row_effective_end_datetime = '9999-12-31 00:00:00.000'",
+      "customQuery" : "SELECT \n\tadm_commission_plans_row_id, \n\tagency_nup,\n\tid,\n        adm_commission_plans_md5checksum\nFROM $$staging_schema.adm_commission_plans\nWHERE adm_commission_plans_row_effective_end_datetime = '9999-12-31 00:00:00.000'",
       "commandType" : 0,
       "handleSpecialChars" : false,
       "handleDecimalRoundOff" : false,
@@ -87,13 +88,13 @@
       "objectName" : "DUMMY_src_tgt_bronze_adm_commission_plans_query",
       "useExactSrcNames" : false,
       "userUpdated" : true,
-      "unspecified" : false,
       "runtimeParameterData" : {
-        "connectionParameterName" : "DBConnection_UDM_SRC",
+        "connectionParameterName" : "DBConnection_UDM_TGT",
         "connectionRuntimeParameter" : false,
         "objectRuntimeParameter" : false
       },
       "restmodernSource" : true,
+      "unspecified" : false,
       "fileList" : false
     },
     {
@@ -139,13 +140,13 @@
       "objectLabel" : "bronze/adm_commission_plans",
       "useExactSrcNames" : false,
       "userUpdated" : true,
-      "unspecified" : false,
       "runtimeParameterData" : {
         "connectionParameterName" : "DBConnection_UDM_TGT",
         "connectionRuntimeParameter" : false,
         "objectRuntimeParameter" : false
       },
       "restmodernSource" : true,
+      "unspecified" : false,
       "fileList" : false
     },
     {
@@ -161,7 +162,7 @@
         "default" : "bronze/adm_commission_plans",
         "objectParameterized" : "false",
         "visible" : "false",
-        "defaultTargetUpdateColumns" : "commission_plans_row_id",
+        "defaultTargetUpdateColumns" : "adm_commission_plans_row_id",
         "supportApplyDDLChanges" : "false",
         "originalPath" : "tgt_bronze_adm_commision_plans_upd_enddate"
       },
@@ -178,7 +179,7 @@
       "operationType" : "Update",
       "customFuncCfg" : { },
       "targetUpdateColumns" : [
-        "commission_plans_row_id"
+        "adm_commission_plans_row_id"
       ],
       "extendedObject" : {
         "singleMode" : true
@@ -195,13 +196,13 @@
       "objectLabel" : "bronze/adm_commission_plans",
       "useExactSrcNames" : false,
       "userUpdated" : true,
-      "unspecified" : false,
       "runtimeParameterData" : {
         "connectionParameterName" : "DBConnection_UDM_TGT",
         "connectionRuntimeParameter" : false,
         "objectRuntimeParameter" : false
       },
       "restmodernSource" : true,
+      "unspecified" : false,
       "fileList" : false
     },
     {
@@ -247,18 +248,18 @@
       "objectLabel" : "bronze/adm_commission_plans",
       "useExactSrcNames" : false,
       "userUpdated" : true,
-      "unspecified" : false,
       "runtimeParameterData" : {
         "connectionParameterName" : "DBConnection_UDM_TGT",
         "connectionRuntimeParameter" : false,
         "objectRuntimeParameter" : false
       },
       "restmodernSource" : true,
+      "unspecified" : false,
       "fileList" : false
     }
   ],
   "verbose" : false,
-  "lastRunTime" : 1751393114000,
+  "lastRunTime" : 1756907389000,
   "mappingId" : "@51T985hgL5WepbEcsMYeSF",
   "mappingTemplateName" : "cdi_map_adm_commission_plans_bronze_load",
   "sessionPropertiesList" : [
@@ -275,6 +276,38 @@
       "value" : "Partial PDO"
     }
   ],
+  "inOutParameters" : [
+    {
+      "name" : "raw_schema",
+      "initialValue" : "metal",
+      "datatype" : "STRING",
+      "precision" : "100",
+      "scale" : "0",
+      "retentionPolicy" : "NEVER",
+      "aggregationType" : "MAX",
+      "currentValue" : "metal"
+    },
+    {
+      "name" : "staging_schema",
+      "initialValue" : "bronze",
+      "datatype" : "STRING",
+      "precision" : "100",
+      "scale" : "0",
+      "retentionPolicy" : "NEVER",
+      "aggregationType" : "MAX",
+      "currentValue" : "bronze"
+    },
+    {
+      "name" : "operational_schema",
+      "initialValue" : "operations",
+      "datatype" : "STRING",
+      "precision" : "100",
+      "scale" : "0",
+      "retentionPolicy" : "NEVER",
+      "aggregationType" : "MAX",
+      "currentValue" : "operations"
+    }
+  ],
   "hidden" : false,
   "enableCrossSchemaPushdown" : true,
   "enableParallelRun" : false,
@@ -287,6 +320,7 @@
   "valid" : true,
   "optimizationPlan" : "NONE",
   "allowMaxFieldLength" : false,
+  "specialCharacterSupport" : false,
   "midstreamPreview" : false,
-  "vcsExportTime" : "2025-07-01 14:14:40 EDT"
+  "vcsExportTime" : "2025-09-03 06:51:09 PDT"
 }

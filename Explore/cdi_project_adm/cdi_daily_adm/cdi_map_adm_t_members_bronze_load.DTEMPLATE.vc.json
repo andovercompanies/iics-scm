@@ -5,6 +5,7 @@
     "bigIntConvertType" : "ONLY_BIGINT",
     "documentType" : "MAPPING",
     "name" : "cdi_map_adm_t_members_bronze_load",
+    "specialCharacterSupport" : "false",
     "links" : [
       {
         "link" : "src_delta_changes_t_members -> exp_datatype_conversion"
@@ -83,6 +84,18 @@
           "subType" : "TOOLKIT_CCI",
           "typeSystem" : "TOOLKIT",
           "connectionType" : "Amazon Redshift v2"
+        }
+      },
+      {
+        "input" : "true",
+        "output" : "false",
+        "precision" : 0,
+        "scale" : 0,
+        "allowRuntimeOverride" : "false",
+        "expressionVariable" : "false",
+        "name" : "sourcesystemcode",
+        "defaultValue" : {
+          "valueLiteral" : "ADM"
         }
       }
     ],
@@ -177,7 +190,7 @@
           "typeSystem" : "TOOLKIT",
           "useDynamicFileName" : "false",
           "object" : {
-            "customQuery" : "with current_batch as (\nselect\n\tbls.batch_id,\n\tbls.source_start_cutoff_datetime,\n\tbls.source_end_cutoff_datetime\nfrom\n\tmetal.batch_load_summary bls\nwhere\n\tbls.source_system_code = 'ADM'\n\tand bls.batch_status = 'Inprogress'\n\tand bls.batch_id = (\n\tselect\n\t\tMAX(batch_id)\n\tfrom\n\t\tmetal.batch_load_summary\n\twhere\n\t\tsource_system_code = 'ADM'\n\t\tand batch_status = 'Inprogress'\n      )\n)\n\nselect\n\tdistinct\n        metal_atm.source_name,\n\tmetal_atm.load_type,\n\tmetal_atm.members_group_id,\n\tmetal_atm.members_agency_id,\n\tcurrent_batch.batch_id\nfrom\n\tmetal.adm_t_members metal_atm\ncross join current_batch\norder by\n\tmetal_atm.members_agency_id",
+            "customQuery" : "with current_batch as (\nselect\n\tbls.batch_id,\n\tbls.source_start_cutoff_datetime,\n\tbls.source_end_cutoff_datetime\nfrom\n\t$$operational_schema.batch_load_summary bls\nwhere\n\tbls.source_system_code = '$$sourcesystemcode'\n\tand bls.batch_status = 'Inprogress'\n\tand bls.batch_id = (\n\tselect\n\t\tMAX(batch_id)\n\tfrom\n\t\t$$operational_schema.batch_load_summary\n\twhere\n\t\tsource_system_code =  '$$sourcesystemcode'\n\t\tand batch_status = 'Inprogress'\n      )\n)\n\nselect\n\tdistinct\n        metal_atm.source_name,\n\tmetal_atm.load_type,\n\tmetal_atm.members_group_id,\n\tmetal_atm.members_agency_id,\n\tcurrent_batch.batch_id\nfrom\n\t$$raw_schema.adm_t_members metal_atm\ncross join current_batch\norder by\n\tmetal_atm.members_agency_id",
             "retainMetadata" : "false",
             "fields" : [
               {
@@ -289,7 +302,7 @@
               },
               {
                 "name" : "Temporary Credential Duration",
-                "value" : "900"
+                "value" : "43200"
               },
               {
                 "name" : "Treat NULL Value as NULL",
@@ -357,7 +370,7 @@
             "precision" : 10,
             "scale" : 0,
             "expFieldType" : "OUTPUT",
-            "expression" : "IIF(isnull(t_members_row_id),'I','X')"
+            "expression" : "IIF(isnull(tgt_adm_t_members_row_id),'I','X')"
           },
           {
             "defaultValue" : "ERROR('transformation error')",
@@ -390,7 +403,29 @@
             "precision" : 10,
             "scale" : 0,
             "expFieldType" : "OUTPUT",
-            "expression" : "IIF(NOT ISNULL(t_members_row_id) AND t_members_row_md5checksum <> o_src_md5_hash_value,'U','X')"
+            "expression" : "IIF(NOT ISNULL(tgt_adm_t_members_row_id) AND tgt_adm_t_members_row_md5checksum <> o_src_md5_hash_value,'U','X')"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_row_status_active",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 10,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "'Active'"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_row_status_expired",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 10,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "'Expired'"
           }
         ],
         "windowSpec" : {
@@ -532,15 +567,16 @@
         "fieldMappingMode" : "MANUAL",
         "inputSorted" : "false",
         "schemaProviderType" : "SELECTED_OBJECT",
+        "targetFieldsOrdered" : "false",
         "updateColumns" : null,
         "useLabels" : "false",
         "useSequenceFields" : "false",
         "fields" : [
           {
             "adapterField" : {
-              "name" : "t_members_row_id"
+              "name" : "adm_t_members_row_id"
             },
-            "name" : "t_members_row_id",
+            "name" : "adm_t_members_row_id",
             "platformType" : {
               "name" : "bigint"
             },
@@ -549,9 +585,9 @@
           },
           {
             "adapterField" : {
-              "name" : "t_members_batch_id"
+              "name" : "adm_t_members_batch_id"
             },
-            "name" : "t_members_batch_id",
+            "name" : "adm_t_members_batch_id",
             "platformType" : {
               "name" : "bigint"
             },
@@ -560,9 +596,9 @@
           },
           {
             "adapterField" : {
-              "name" : "source_name"
+              "name" : "originating_source_name"
             },
-            "name" : "source_name",
+            "name" : "originating_source_name",
             "platformType" : {
               "name" : "string"
             },
@@ -571,9 +607,9 @@
           },
           {
             "adapterField" : {
-              "name" : "load_type"
+              "name" : "originating_load_type"
             },
-            "name" : "load_type",
+            "name" : "originating_load_type",
             "platformType" : {
               "name" : "string"
             },
@@ -582,9 +618,9 @@
           },
           {
             "adapterField" : {
-              "name" : "t_members_row_md5checksum"
+              "name" : "adm_t_members_row_md5checksum"
             },
-            "name" : "t_members_row_md5checksum",
+            "name" : "adm_t_members_row_md5checksum",
             "platformType" : {
               "name" : "string"
             },
@@ -593,9 +629,9 @@
           },
           {
             "adapterField" : {
-              "name" : "t_members_row_effective_start_datetime"
+              "name" : "adm_t_members_row_effective_start_datetime"
             },
-            "name" : "t_members_row_effective_start_datetime",
+            "name" : "adm_t_members_row_effective_start_datetime",
             "platformType" : {
               "name" : "date/time"
             },
@@ -604,9 +640,9 @@
           },
           {
             "adapterField" : {
-              "name" : "t_members_row_effective_end_datetime"
+              "name" : "adm_t_members_row_effective_end_datetime"
             },
-            "name" : "t_members_row_effective_end_datetime",
+            "name" : "adm_t_members_row_effective_end_datetime",
             "platformType" : {
               "name" : "date/time"
             },
@@ -615,9 +651,20 @@
           },
           {
             "adapterField" : {
-              "name" : "group_id"
+              "name" : "adm_t_members_row_status"
             },
-            "name" : "group_id",
+            "name" : "adm_t_members_row_status",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "members_group_id"
+            },
+            "name" : "members_group_id",
             "platformType" : {
               "name" : "integer"
             },
@@ -626,9 +673,9 @@
           },
           {
             "adapterField" : {
-              "name" : "agency_id"
+              "name" : "members_agency_id"
             },
-            "name" : "agency_id",
+            "name" : "members_agency_id",
             "platformType" : {
               "name" : "integer"
             },
@@ -653,10 +700,10 @@
             "retainMetadata" : "false",
             "fields" : [
               {
-                "name" : "t_members_row_id",
+                "name" : "adm_t_members_row_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "t_members_row_id",
-                "nativeName" : "t_members_row_id",
+                "label" : "adm_t_members_row_id",
+                "nativeName" : "adm_t_members_row_id",
                 "nativeType" : "int8",
                 "original" : "false",
                 "precision" : 19,
@@ -669,10 +716,10 @@
                 ]
               },
               {
-                "name" : "t_members_batch_id",
+                "name" : "adm_t_members_batch_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "t_members_batch_id",
-                "nativeName" : "t_members_batch_id",
+                "label" : "adm_t_members_batch_id",
+                "nativeName" : "adm_t_members_batch_id",
                 "nativeType" : "int8",
                 "original" : "false",
                 "precision" : 19,
@@ -685,10 +732,10 @@
                 ]
               },
               {
-                "name" : "source_name",
+                "name" : "originating_source_name",
                 "fieldType" : "CONNECTOR",
-                "label" : "source_name",
-                "nativeName" : "source_name",
+                "label" : "originating_source_name",
+                "nativeName" : "originating_source_name",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 127,
@@ -701,10 +748,10 @@
                 ]
               },
               {
-                "name" : "load_type",
+                "name" : "originating_load_type",
                 "fieldType" : "CONNECTOR",
-                "label" : "load_type",
-                "nativeName" : "load_type",
+                "label" : "originating_load_type",
+                "nativeName" : "originating_load_type",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 63,
@@ -717,10 +764,10 @@
                 ]
               },
               {
-                "name" : "t_members_row_md5checksum",
+                "name" : "adm_t_members_row_md5checksum",
                 "fieldType" : "CONNECTOR",
-                "label" : "t_members_row_md5checksum",
-                "nativeName" : "t_members_row_md5checksum",
+                "label" : "adm_t_members_row_md5checksum",
+                "nativeName" : "adm_t_members_row_md5checksum",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 255,
@@ -733,10 +780,10 @@
                 ]
               },
               {
-                "name" : "t_members_row_effective_start_datetime",
+                "name" : "adm_t_members_row_effective_start_datetime",
                 "fieldType" : "CONNECTOR",
-                "label" : "t_members_row_effective_start_datetime",
-                "nativeName" : "t_members_row_effective_start_datetime",
+                "label" : "adm_t_members_row_effective_start_datetime",
+                "nativeName" : "adm_t_members_row_effective_start_datetime",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 29,
@@ -749,10 +796,10 @@
                 ]
               },
               {
-                "name" : "t_members_row_effective_end_datetime",
+                "name" : "adm_t_members_row_effective_end_datetime",
                 "fieldType" : "CONNECTOR",
-                "label" : "t_members_row_effective_end_datetime",
-                "nativeName" : "t_members_row_effective_end_datetime",
+                "label" : "adm_t_members_row_effective_end_datetime",
+                "nativeName" : "adm_t_members_row_effective_end_datetime",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 29,
@@ -765,10 +812,26 @@
                 ]
               },
               {
-                "name" : "group_id",
+                "name" : "adm_t_members_row_status",
                 "fieldType" : "CONNECTOR",
-                "label" : "group_id",
-                "nativeName" : "group_id",
+                "label" : "adm_t_members_row_status",
+                "nativeName" : "adm_t_members_row_status",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_t_members"
+                  }
+                ]
+              },
+              {
+                "name" : "members_group_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "members_group_id",
+                "nativeName" : "members_group_id",
                 "nativeType" : "int4",
                 "original" : "false",
                 "precision" : 10,
@@ -781,10 +844,10 @@
                 ]
               },
               {
-                "name" : "agency_id",
+                "name" : "members_agency_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "agency_id",
-                "nativeName" : "agency_id",
+                "label" : "members_agency_id",
+                "nativeName" : "members_agency_id",
                 "nativeType" : "int4",
                 "original" : "false",
                 "precision" : 10,
@@ -832,7 +895,7 @@
               },
               {
                 "name" : "Temporary Credential Duration",
-                "value" : "900"
+                "value" : "43200"
               },
               {
                 "name" : "S3 Server Side Encryption",
@@ -861,6 +924,10 @@
               {
                 "name" : "Minimum Upload Part Size",
                 "value" : "5242880"
+              },
+              {
+                "name" : "Schema Name",
+                "value" : "$$staging_schema"
               },
               {
                 "name" : "Preserve record order on write",
@@ -892,56 +959,63 @@
             {
               "fromFieldName" : "batch_id",
               "toField" : {
-                "name" : "t_members_batch_id"
+                "name" : "adm_t_members_batch_id"
               },
               "fromFieldNames" : null
             },
             {
               "fromFieldName" : "source_name",
               "toField" : {
-                "name" : "source_name"
+                "name" : "originating_source_name"
               },
               "fromFieldNames" : null
             },
             {
               "fromFieldName" : "load_type",
               "toField" : {
-                "name" : "load_type"
+                "name" : "originating_load_type"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "members_group_id",
+              "toField" : {
+                "name" : "members_group_id"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "members_agency_id",
+              "toField" : {
+                "name" : "members_agency_id"
               },
               "fromFieldNames" : null
             },
             {
               "fromFieldName" : "o_src_md5_hash_value",
               "toField" : {
-                "name" : "t_members_row_md5checksum"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "o_t_members_row_effective_start_datetime",
-              "toField" : {
-                "name" : "t_members_row_effective_start_datetime"
+                "name" : "adm_t_members_row_md5checksum"
               },
               "fromFieldNames" : null
             },
             {
               "fromFieldName" : "o_t_members_row_effective_end_datetime",
               "toField" : {
-                "name" : "t_members_row_effective_end_datetime"
+                "name" : "adm_t_members_row_effective_end_datetime"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "o_group_id",
+              "fromFieldName" : "o_t_members_row_effective_start_datetime",
               "toField" : {
-                "name" : "group_id"
+                "name" : "adm_t_members_row_effective_start_datetime"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "o_agency_id",
+              "fromFieldName" : "o_row_status_active",
               "toField" : {
-                "name" : "agency_id"
+                "name" : "adm_t_members_row_status"
               },
               "fromFieldNames" : null
             }
@@ -974,15 +1048,16 @@
         "fieldMappingMode" : "MANUAL",
         "inputSorted" : "false",
         "schemaProviderType" : "SELECTED_OBJECT",
+        "targetFieldsOrdered" : "false",
         "updateColumns" : null,
         "useLabels" : "false",
         "useSequenceFields" : "false",
         "fields" : [
           {
             "adapterField" : {
-              "name" : "t_members_row_id"
+              "name" : "adm_t_members_row_id"
             },
-            "name" : "t_members_row_id",
+            "name" : "adm_t_members_row_id",
             "platformType" : {
               "name" : "bigint"
             },
@@ -991,9 +1066,9 @@
           },
           {
             "adapterField" : {
-              "name" : "t_members_batch_id"
+              "name" : "adm_t_members_batch_id"
             },
-            "name" : "t_members_batch_id",
+            "name" : "adm_t_members_batch_id",
             "platformType" : {
               "name" : "bigint"
             },
@@ -1002,9 +1077,9 @@
           },
           {
             "adapterField" : {
-              "name" : "source_name"
+              "name" : "originating_source_name"
             },
-            "name" : "source_name",
+            "name" : "originating_source_name",
             "platformType" : {
               "name" : "string"
             },
@@ -1013,9 +1088,9 @@
           },
           {
             "adapterField" : {
-              "name" : "load_type"
+              "name" : "originating_load_type"
             },
-            "name" : "load_type",
+            "name" : "originating_load_type",
             "platformType" : {
               "name" : "string"
             },
@@ -1024,9 +1099,9 @@
           },
           {
             "adapterField" : {
-              "name" : "t_members_row_md5checksum"
+              "name" : "adm_t_members_row_md5checksum"
             },
-            "name" : "t_members_row_md5checksum",
+            "name" : "adm_t_members_row_md5checksum",
             "platformType" : {
               "name" : "string"
             },
@@ -1035,9 +1110,9 @@
           },
           {
             "adapterField" : {
-              "name" : "t_members_row_effective_start_datetime"
+              "name" : "adm_t_members_row_effective_start_datetime"
             },
-            "name" : "t_members_row_effective_start_datetime",
+            "name" : "adm_t_members_row_effective_start_datetime",
             "platformType" : {
               "name" : "date/time"
             },
@@ -1046,9 +1121,9 @@
           },
           {
             "adapterField" : {
-              "name" : "t_members_row_effective_end_datetime"
+              "name" : "adm_t_members_row_effective_end_datetime"
             },
-            "name" : "t_members_row_effective_end_datetime",
+            "name" : "adm_t_members_row_effective_end_datetime",
             "platformType" : {
               "name" : "date/time"
             },
@@ -1057,9 +1132,20 @@
           },
           {
             "adapterField" : {
-              "name" : "group_id"
+              "name" : "adm_t_members_row_status"
             },
-            "name" : "group_id",
+            "name" : "adm_t_members_row_status",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "members_group_id"
+            },
+            "name" : "members_group_id",
             "platformType" : {
               "name" : "integer"
             },
@@ -1068,9 +1154,9 @@
           },
           {
             "adapterField" : {
-              "name" : "agency_id"
+              "name" : "members_agency_id"
             },
-            "name" : "agency_id",
+            "name" : "members_agency_id",
             "platformType" : {
               "name" : "integer"
             },
@@ -1106,10 +1192,10 @@
             "retainMetadata" : "false",
             "fields" : [
               {
-                "name" : "t_members_row_id",
+                "name" : "adm_t_members_row_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "t_members_row_id",
-                "nativeName" : "t_members_row_id",
+                "label" : "adm_t_members_row_id",
+                "nativeName" : "adm_t_members_row_id",
                 "nativeType" : "int8",
                 "original" : "false",
                 "precision" : 19,
@@ -1122,10 +1208,10 @@
                 ]
               },
               {
-                "name" : "t_members_batch_id",
+                "name" : "adm_t_members_batch_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "t_members_batch_id",
-                "nativeName" : "t_members_batch_id",
+                "label" : "adm_t_members_batch_id",
+                "nativeName" : "adm_t_members_batch_id",
                 "nativeType" : "int8",
                 "original" : "false",
                 "precision" : 19,
@@ -1138,10 +1224,10 @@
                 ]
               },
               {
-                "name" : "source_name",
+                "name" : "originating_source_name",
                 "fieldType" : "CONNECTOR",
-                "label" : "source_name",
-                "nativeName" : "source_name",
+                "label" : "originating_source_name",
+                "nativeName" : "originating_source_name",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 127,
@@ -1154,10 +1240,10 @@
                 ]
               },
               {
-                "name" : "load_type",
+                "name" : "originating_load_type",
                 "fieldType" : "CONNECTOR",
-                "label" : "load_type",
-                "nativeName" : "load_type",
+                "label" : "originating_load_type",
+                "nativeName" : "originating_load_type",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 63,
@@ -1170,10 +1256,10 @@
                 ]
               },
               {
-                "name" : "t_members_row_md5checksum",
+                "name" : "adm_t_members_row_md5checksum",
                 "fieldType" : "CONNECTOR",
-                "label" : "t_members_row_md5checksum",
-                "nativeName" : "t_members_row_md5checksum",
+                "label" : "adm_t_members_row_md5checksum",
+                "nativeName" : "adm_t_members_row_md5checksum",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 255,
@@ -1186,10 +1272,10 @@
                 ]
               },
               {
-                "name" : "t_members_row_effective_start_datetime",
+                "name" : "adm_t_members_row_effective_start_datetime",
                 "fieldType" : "CONNECTOR",
-                "label" : "t_members_row_effective_start_datetime",
-                "nativeName" : "t_members_row_effective_start_datetime",
+                "label" : "adm_t_members_row_effective_start_datetime",
+                "nativeName" : "adm_t_members_row_effective_start_datetime",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 29,
@@ -1202,10 +1288,10 @@
                 ]
               },
               {
-                "name" : "t_members_row_effective_end_datetime",
+                "name" : "adm_t_members_row_effective_end_datetime",
                 "fieldType" : "CONNECTOR",
-                "label" : "t_members_row_effective_end_datetime",
-                "nativeName" : "t_members_row_effective_end_datetime",
+                "label" : "adm_t_members_row_effective_end_datetime",
+                "nativeName" : "adm_t_members_row_effective_end_datetime",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 29,
@@ -1218,10 +1304,26 @@
                 ]
               },
               {
-                "name" : "group_id",
+                "name" : "adm_t_members_row_status",
                 "fieldType" : "CONNECTOR",
-                "label" : "group_id",
-                "nativeName" : "group_id",
+                "label" : "adm_t_members_row_status",
+                "nativeName" : "adm_t_members_row_status",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_t_members"
+                  }
+                ]
+              },
+              {
+                "name" : "members_group_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "members_group_id",
+                "nativeName" : "members_group_id",
                 "nativeType" : "int4",
                 "original" : "false",
                 "precision" : 10,
@@ -1234,10 +1336,10 @@
                 ]
               },
               {
-                "name" : "agency_id",
+                "name" : "members_agency_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "agency_id",
-                "nativeName" : "agency_id",
+                "label" : "members_agency_id",
+                "nativeName" : "members_agency_id",
                 "nativeType" : "int4",
                 "original" : "false",
                 "precision" : 10,
@@ -1285,7 +1387,7 @@
               },
               {
                 "name" : "Temporary Credential Duration",
-                "value" : "900"
+                "value" : "43200"
               },
               {
                 "name" : "S3 Server Side Encryption",
@@ -1314,6 +1416,10 @@
               {
                 "name" : "Minimum Upload Part Size",
                 "value" : "5242880"
+              },
+              {
+                "name" : "Schema Name",
+                "value" : "$$staging_schema"
               },
               {
                 "name" : "Preserve record order on write",
@@ -1345,56 +1451,63 @@
             {
               "fromFieldName" : "batch_id",
               "toField" : {
-                "name" : "t_members_batch_id"
+                "name" : "adm_t_members_batch_id"
               },
               "fromFieldNames" : null
             },
             {
               "fromFieldName" : "source_name",
               "toField" : {
-                "name" : "source_name"
+                "name" : "originating_source_name"
               },
               "fromFieldNames" : null
             },
             {
               "fromFieldName" : "load_type",
               "toField" : {
-                "name" : "load_type"
+                "name" : "originating_load_type"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "o_src_md5_hash_value",
+              "fromFieldName" : "members_group_id",
               "toField" : {
-                "name" : "t_members_row_md5checksum"
+                "name" : "members_group_id"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "o_t_members_row_effective_start_datetime",
+              "fromFieldName" : "members_agency_id",
               "toField" : {
-                "name" : "t_members_row_effective_start_datetime"
+                "name" : "members_agency_id"
               },
               "fromFieldNames" : null
             },
             {
               "fromFieldName" : "o_t_members_row_effective_end_datetime",
               "toField" : {
-                "name" : "t_members_row_effective_end_datetime"
+                "name" : "adm_t_members_row_effective_end_datetime"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "o_group_id",
+              "fromFieldName" : "o_t_members_row_effective_start_datetime",
               "toField" : {
-                "name" : "group_id"
+                "name" : "adm_t_members_row_effective_start_datetime"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "o_agency_id",
+              "fromFieldName" : "o_src_md5_hash_value",
               "toField" : {
-                "name" : "agency_id"
+                "name" : "adm_t_members_row_md5checksum"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_row_status_active",
+              "toField" : {
+                "name" : "adm_t_members_row_status"
               },
               "fromFieldNames" : null
             }
@@ -1427,9 +1540,9 @@
         "fields" : [
           {
             "adapterField" : {
-              "name" : "t_members_row_id"
+              "name" : "adm_t_members_row_id"
             },
-            "name" : "t_members_row_id",
+            "name" : "adm_t_members_row_id",
             "platformType" : {
               "name" : "bigint"
             },
@@ -1438,9 +1551,9 @@
           },
           {
             "adapterField" : {
-              "name" : "t_members_batch_id"
+              "name" : "adm_t_members_batch_id"
             },
-            "name" : "t_members_batch_id",
+            "name" : "adm_t_members_batch_id",
             "platformType" : {
               "name" : "bigint"
             },
@@ -1449,9 +1562,9 @@
           },
           {
             "adapterField" : {
-              "name" : "t_members_row_md5checksum"
+              "name" : "adm_t_members_row_md5checksum"
             },
-            "name" : "t_members_row_md5checksum",
+            "name" : "adm_t_members_row_md5checksum",
             "platformType" : {
               "name" : "string"
             },
@@ -1460,9 +1573,9 @@
           },
           {
             "adapterField" : {
-              "name" : "t_members_row_effective_end_datetime"
+              "name" : "adm_t_members_row_effective_end_datetime"
             },
-            "name" : "t_members_row_effective_end_datetime",
+            "name" : "adm_t_members_row_effective_end_datetime",
             "platformType" : {
               "name" : "date/time"
             },
@@ -1471,9 +1584,9 @@
           },
           {
             "adapterField" : {
-              "name" : "group_id"
+              "name" : "members_group_id"
             },
-            "name" : "group_id",
+            "name" : "members_group_id",
             "platformType" : {
               "name" : "integer"
             },
@@ -1482,9 +1595,9 @@
           },
           {
             "adapterField" : {
-              "name" : "agency_id"
+              "name" : "members_agency_id"
             },
-            "name" : "agency_id",
+            "name" : "members_agency_id",
             "platformType" : {
               "name" : "integer"
             },
@@ -1501,14 +1614,14 @@
           "typeSystem" : "TOOLKIT",
           "useDynamicFileName" : "false",
           "object" : {
-            "customQuery" : "select\n\tt_members_row_id,\n\tt_members_batch_id,\n\tt_members_row_md5checksum,\n\tt_members_row_effective_end_datetime,\n\tgroup_id,\n\tagency_id\nfrom\n\tbronze.adm_t_members\nwhere\n\tt_members_row_effective_end_datetime = '9999-12-31 00:00:00.000';",
+            "customQuery" : "select\n\tadm_t_members_row_id,\n\tadm_t_members_batch_id,\n\tadm_t_members_row_md5checksum,\n\tadm_t_members_row_effective_end_datetime,\n\tmembers_group_id,\n\tmembers_agency_id\nfrom\n\t$$staging_schema.adm_t_members\nwhere\n\tadm_t_members_row_effective_end_datetime = '9999-12-31 00:00:00.000';",
             "retainMetadata" : "false",
             "fields" : [
               {
-                "name" : "t_members_row_id",
+                "name" : "adm_t_members_row_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "t_members_row_id",
-                "nativeName" : "t_members_row_id",
+                "label" : "adm_t_members_row_id",
+                "nativeName" : "adm_t_members_row_id",
                 "nativeType" : "int8",
                 "original" : "false",
                 "precision" : 19,
@@ -1521,10 +1634,10 @@
                 ]
               },
               {
-                "name" : "t_members_batch_id",
+                "name" : "adm_t_members_batch_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "t_members_batch_id",
-                "nativeName" : "t_members_batch_id",
+                "label" : "adm_t_members_batch_id",
+                "nativeName" : "adm_t_members_batch_id",
                 "nativeType" : "int8",
                 "original" : "false",
                 "precision" : 19,
@@ -1537,10 +1650,10 @@
                 ]
               },
               {
-                "name" : "t_members_row_md5checksum",
+                "name" : "adm_t_members_row_md5checksum",
                 "fieldType" : "CONNECTOR",
-                "label" : "t_members_row_md5checksum",
-                "nativeName" : "t_members_row_md5checksum",
+                "label" : "adm_t_members_row_md5checksum",
+                "nativeName" : "adm_t_members_row_md5checksum",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 255,
@@ -1553,10 +1666,10 @@
                 ]
               },
               {
-                "name" : "t_members_row_effective_end_datetime",
+                "name" : "adm_t_members_row_effective_end_datetime",
                 "fieldType" : "CONNECTOR",
-                "label" : "t_members_row_effective_end_datetime",
-                "nativeName" : "t_members_row_effective_end_datetime",
+                "label" : "adm_t_members_row_effective_end_datetime",
+                "nativeName" : "adm_t_members_row_effective_end_datetime",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 29,
@@ -1569,10 +1682,10 @@
                 ]
               },
               {
-                "name" : "group_id",
+                "name" : "members_group_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "group_id",
-                "nativeName" : "group_id",
+                "label" : "members_group_id",
+                "nativeName" : "members_group_id",
                 "nativeType" : "int4",
                 "original" : "false",
                 "precision" : 10,
@@ -1585,10 +1698,10 @@
                 ]
               },
               {
-                "name" : "agency_id",
+                "name" : "members_agency_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "agency_id",
-                "nativeName" : "agency_id",
+                "label" : "members_agency_id",
+                "nativeName" : "members_agency_id",
                 "nativeType" : "int4",
                 "original" : "false",
                 "precision" : 10,
@@ -1629,7 +1742,7 @@
               },
               {
                 "name" : "Temporary Credential Duration",
-                "value" : "900"
+                "value" : "43200"
               },
               {
                 "name" : "Treat NULL Value as NULL",
@@ -1741,7 +1854,7 @@
         "fields" : [
           {
             "defaultValue" : "ERROR('transformation error')",
-            "name" : "o_retire_old_record",
+            "name" : "o_end_date",
             "platformType" : {
               "name" : "date/time"
             },
@@ -1785,17 +1898,18 @@
         "fieldMappingMode" : "MANUAL",
         "inputSorted" : "false",
         "schemaProviderType" : "SELECTED_OBJECT",
+        "targetFieldsOrdered" : "false",
         "updateColumns" : [
-          "t_members_row_id"
+          "adm_t_members_row_id"
         ],
         "useLabels" : "false",
         "useSequenceFields" : "false",
         "fields" : [
           {
             "adapterField" : {
-              "name" : "t_members_row_id"
+              "name" : "adm_t_members_row_id"
             },
-            "name" : "t_members_row_id",
+            "name" : "adm_t_members_row_id",
             "platformType" : {
               "name" : "bigint"
             },
@@ -1804,9 +1918,9 @@
           },
           {
             "adapterField" : {
-              "name" : "t_members_batch_id"
+              "name" : "adm_t_members_batch_id"
             },
-            "name" : "t_members_batch_id",
+            "name" : "adm_t_members_batch_id",
             "platformType" : {
               "name" : "bigint"
             },
@@ -1815,9 +1929,9 @@
           },
           {
             "adapterField" : {
-              "name" : "source_name"
+              "name" : "originating_source_name"
             },
-            "name" : "source_name",
+            "name" : "originating_source_name",
             "platformType" : {
               "name" : "string"
             },
@@ -1826,9 +1940,9 @@
           },
           {
             "adapterField" : {
-              "name" : "load_type"
+              "name" : "originating_load_type"
             },
-            "name" : "load_type",
+            "name" : "originating_load_type",
             "platformType" : {
               "name" : "string"
             },
@@ -1837,9 +1951,9 @@
           },
           {
             "adapterField" : {
-              "name" : "t_members_row_md5checksum"
+              "name" : "adm_t_members_row_md5checksum"
             },
-            "name" : "t_members_row_md5checksum",
+            "name" : "adm_t_members_row_md5checksum",
             "platformType" : {
               "name" : "string"
             },
@@ -1848,9 +1962,9 @@
           },
           {
             "adapterField" : {
-              "name" : "t_members_row_effective_start_datetime"
+              "name" : "adm_t_members_row_effective_start_datetime"
             },
-            "name" : "t_members_row_effective_start_datetime",
+            "name" : "adm_t_members_row_effective_start_datetime",
             "platformType" : {
               "name" : "date/time"
             },
@@ -1859,9 +1973,9 @@
           },
           {
             "adapterField" : {
-              "name" : "t_members_row_effective_end_datetime"
+              "name" : "adm_t_members_row_effective_end_datetime"
             },
-            "name" : "t_members_row_effective_end_datetime",
+            "name" : "adm_t_members_row_effective_end_datetime",
             "platformType" : {
               "name" : "date/time"
             },
@@ -1870,9 +1984,20 @@
           },
           {
             "adapterField" : {
-              "name" : "group_id"
+              "name" : "adm_t_members_row_status"
             },
-            "name" : "group_id",
+            "name" : "adm_t_members_row_status",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "members_group_id"
+            },
+            "name" : "members_group_id",
             "platformType" : {
               "name" : "integer"
             },
@@ -1881,9 +2006,9 @@
           },
           {
             "adapterField" : {
-              "name" : "agency_id"
+              "name" : "members_agency_id"
             },
-            "name" : "agency_id",
+            "name" : "members_agency_id",
             "platformType" : {
               "name" : "integer"
             },
@@ -1919,10 +2044,10 @@
             "retainMetadata" : "false",
             "fields" : [
               {
-                "name" : "t_members_row_id",
+                "name" : "adm_t_members_row_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "t_members_row_id",
-                "nativeName" : "t_members_row_id",
+                "label" : "adm_t_members_row_id",
+                "nativeName" : "adm_t_members_row_id",
                 "nativeType" : "int8",
                 "original" : "false",
                 "precision" : 19,
@@ -1935,10 +2060,10 @@
                 ]
               },
               {
-                "name" : "t_members_batch_id",
+                "name" : "adm_t_members_batch_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "t_members_batch_id",
-                "nativeName" : "t_members_batch_id",
+                "label" : "adm_t_members_batch_id",
+                "nativeName" : "adm_t_members_batch_id",
                 "nativeType" : "int8",
                 "original" : "false",
                 "precision" : 19,
@@ -1951,10 +2076,10 @@
                 ]
               },
               {
-                "name" : "source_name",
+                "name" : "originating_source_name",
                 "fieldType" : "CONNECTOR",
-                "label" : "source_name",
-                "nativeName" : "source_name",
+                "label" : "originating_source_name",
+                "nativeName" : "originating_source_name",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 127,
@@ -1967,10 +2092,10 @@
                 ]
               },
               {
-                "name" : "load_type",
+                "name" : "originating_load_type",
                 "fieldType" : "CONNECTOR",
-                "label" : "load_type",
-                "nativeName" : "load_type",
+                "label" : "originating_load_type",
+                "nativeName" : "originating_load_type",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 63,
@@ -1983,10 +2108,10 @@
                 ]
               },
               {
-                "name" : "t_members_row_md5checksum",
+                "name" : "adm_t_members_row_md5checksum",
                 "fieldType" : "CONNECTOR",
-                "label" : "t_members_row_md5checksum",
-                "nativeName" : "t_members_row_md5checksum",
+                "label" : "adm_t_members_row_md5checksum",
+                "nativeName" : "adm_t_members_row_md5checksum",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 255,
@@ -1999,10 +2124,10 @@
                 ]
               },
               {
-                "name" : "t_members_row_effective_start_datetime",
+                "name" : "adm_t_members_row_effective_start_datetime",
                 "fieldType" : "CONNECTOR",
-                "label" : "t_members_row_effective_start_datetime",
-                "nativeName" : "t_members_row_effective_start_datetime",
+                "label" : "adm_t_members_row_effective_start_datetime",
+                "nativeName" : "adm_t_members_row_effective_start_datetime",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 29,
@@ -2015,10 +2140,10 @@
                 ]
               },
               {
-                "name" : "t_members_row_effective_end_datetime",
+                "name" : "adm_t_members_row_effective_end_datetime",
                 "fieldType" : "CONNECTOR",
-                "label" : "t_members_row_effective_end_datetime",
-                "nativeName" : "t_members_row_effective_end_datetime",
+                "label" : "adm_t_members_row_effective_end_datetime",
+                "nativeName" : "adm_t_members_row_effective_end_datetime",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 29,
@@ -2031,10 +2156,26 @@
                 ]
               },
               {
-                "name" : "group_id",
+                "name" : "adm_t_members_row_status",
                 "fieldType" : "CONNECTOR",
-                "label" : "group_id",
-                "nativeName" : "group_id",
+                "label" : "adm_t_members_row_status",
+                "nativeName" : "adm_t_members_row_status",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_t_members"
+                  }
+                ]
+              },
+              {
+                "name" : "members_group_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "members_group_id",
+                "nativeName" : "members_group_id",
                 "nativeType" : "int4",
                 "original" : "false",
                 "precision" : 10,
@@ -2047,10 +2188,10 @@
                 ]
               },
               {
-                "name" : "agency_id",
+                "name" : "members_agency_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "agency_id",
-                "nativeName" : "agency_id",
+                "label" : "members_agency_id",
+                "nativeName" : "members_agency_id",
                 "nativeType" : "int4",
                 "original" : "false",
                 "precision" : 10,
@@ -2098,7 +2239,7 @@
               },
               {
                 "name" : "Temporary Credential Duration",
-                "value" : "900"
+                "value" : "43200"
               },
               {
                 "name" : "S3 Server Side Encryption",
@@ -2129,6 +2270,10 @@
                 "value" : "5242880"
               },
               {
+                "name" : "Schema Name",
+                "value" : "$$staging_schema"
+              },
+              {
                 "name" : "Preserve record order on write",
                 "value" : "NO"
               },
@@ -2156,16 +2301,23 @@
         "manualMappings" : {
           "mappingList" : [
             {
-              "fromFieldName" : "t_members_row_id",
+              "fromFieldName" : "tgt_adm_t_members_row_id",
               "toField" : {
-                "name" : "t_members_row_id"
+                "name" : "adm_t_members_row_id"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "o_retire_old_record",
+              "fromFieldName" : "o_row_status_expired",
               "toField" : {
-                "name" : "t_members_row_effective_end_datetime"
+                "name" : "adm_t_members_row_status"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_end_date",
+              "toField" : {
+                "name" : "adm_t_members_row_effective_end_datetime"
               },
               "fromFieldNames" : null
             }
@@ -2194,8 +2346,12 @@
             "output" : "false",
             "rules" : [
               {
-                "bulkRename" : "false",
-                "include" : "true"
+                "bulkRename" : "true",
+                "include" : "true",
+                "bulkRenameOption" : {
+                  "literal" : "tgt_",
+                  "suffix" : "false"
+                }
               }
             ]
           },
@@ -2210,11 +2366,49 @@
           {
             "leftOperand" : "o_agency_id",
             "operator" : "=",
-            "rightOperand" : "agency_id"
+            "rightOperand" : "tgt_members_agency_id"
           }
         ]
       }
+    ],
+    "variables" : [
+      {
+        "aggregationType" : "MAX",
+        "expressionVariable" : "false",
+        "name" : "raw_schema",
+        "platformType" : {
+          "name" : "string"
+        },
+        "precision" : 10,
+        "retentionPolicy" : "NEVER",
+        "scale" : 0,
+        "defaultValue" : "metal"
+      },
+      {
+        "aggregationType" : "MAX",
+        "expressionVariable" : "false",
+        "name" : "operational_schema",
+        "platformType" : {
+          "name" : "string"
+        },
+        "precision" : 100,
+        "retentionPolicy" : "NEVER",
+        "scale" : 0,
+        "defaultValue" : "operations"
+      },
+      {
+        "aggregationType" : "MAX",
+        "expressionVariable" : "false",
+        "name" : "staging_schema",
+        "platformType" : {
+          "name" : "string"
+        },
+        "precision" : 100,
+        "retentionPolicy" : "NEVER",
+        "scale" : 0,
+        "defaultValue" : "bronze"
+      }
     ]
   },
-  "vcsExportTime" : "2025-06-26 12:36:03 EDT"
+  "vcsExportTime" : "2025-09-01 20:05:05 PDT"
 }

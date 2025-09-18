@@ -1,9 +1,11 @@
 {
   "content" : {
+    "description" : "This mapping task loads data from the ADM fieldReps table to the Redshift metal layer table - adm_field_reps.",
     "allowMaxFieldLength" : "false",
     "bigIntConvertType" : "ONLY_BIGINT",
     "documentType" : "MAPPING",
     "name" : "cdi_map_adm_field_reps_metal_stg_load",
+    "specialCharacterSupport" : "false",
     "links" : [
       {
         "link" : "exp_passthrough -> tgt_redshift_adm_field_reps"
@@ -53,162 +55,6 @@
     "transformations" : [
       {
         "createTime" : "2025-06-25T16:10:02.772Z",
-        "name" : "src_adm_fieldreps",
-        "advancedProperties" : [
-          {
-            "name" : "Tracing Level",
-            "value" : "Normal"
-          },
-          {
-            "name" : "Output is deterministic",
-            "value" : "false"
-          }
-        ],
-        "groups" : [
-          {
-            "input" : "false",
-            "name" : "DefaultGroup",
-            "output" : "true"
-          }
-        ],
-        "generateFilenamePort" : "false",
-        "useLabels" : "false",
-        "useSequenceFields" : "false",
-        "fields" : [
-          {
-            "adapterField" : {
-              "name" : "id"
-            },
-            "name" : "id",
-            "platformType" : {
-              "name" : "integer"
-            },
-            "precision" : 10,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "name"
-            },
-            "name" : "name",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 255,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "email"
-            },
-            "name" : "email",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 255,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "territory"
-            },
-            "name" : "territory",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 11,
-            "scale" : 0
-          }
-        ],
-        "dataAdapter" : {
-          "connectionId$" : {
-            "name" : "DBConnection_ADM_SRC"
-          },
-          "excludeDynamicFileNameField" : "false",
-          "objectType" : "QUERY",
-          "typeSystem" : "MySQL",
-          "useDynamicFileName" : "false",
-          "object" : {
-            "customQuery" : "SELECT id, name, email, territory\nFROM agencymanagement.fieldReps",
-            "retainMetadata" : "false",
-            "fields" : [
-              {
-                "name" : "id",
-                "fieldType" : "CONNECTOR",
-                "label" : "id",
-                "nativeName" : "id",
-                "nativeType" : "integer",
-                "original" : "false",
-                "precision" : 10,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "fieldReps"
-                  }
-                ]
-              },
-              {
-                "name" : "name",
-                "fieldType" : "CONNECTOR",
-                "label" : "name",
-                "nativeName" : "name",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 255,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "fieldReps"
-                  }
-                ]
-              },
-              {
-                "name" : "email",
-                "fieldType" : "CONNECTOR",
-                "label" : "email",
-                "nativeName" : "email",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 255,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "fieldReps"
-                  }
-                ]
-              },
-              {
-                "name" : "territory",
-                "fieldType" : "CONNECTOR",
-                "label" : "territory",
-                "nativeName" : "territory",
-                "nativeType" : "char",
-                "original" : "false",
-                "precision" : 11,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "fieldReps"
-                  }
-                ]
-              }
-            ]
-          },
-          "readOptions" : {
-            "commandType" : 0,
-            "descending" : "false",
-            "queryAll" : "false",
-            "rowLimit" : 0,
-            "selectDistinct" : "false"
-          }
-        }
-      },
-      {
-        "createTime" : "2025-06-25T16:10:02.772Z",
         "name" : "tgt_redshift_adm_field_reps",
         "advancedProperties" : [
           {
@@ -233,6 +79,7 @@
         "fieldMappingMode" : "MANUAL",
         "inputSorted" : "false",
         "schemaProviderType" : "SELECTED_OBJECT",
+        "targetFieldsOrdered" : "false",
         "updateColumns" : null,
         "useLabels" : "false",
         "useSequenceFields" : "false",
@@ -483,6 +330,10 @@
                 "value" : "5242880"
               },
               {
+                "name" : "Schema Name",
+                "value" : "$$raw_schema"
+              },
+              {
                 "name" : "Preserve record order on write",
                 "value" : "NO"
               },
@@ -578,7 +429,7 @@
             "platformType" : {
               "name" : "string"
             },
-            "precision" : 50,
+            "precision" : 127,
             "scale" : 0,
             "expFieldType" : "OUTPUT",
             "expression" : "'fieldReps'"
@@ -589,10 +440,10 @@
             "platformType" : {
               "name" : "string"
             },
-            "precision" : 30,
+            "precision" : 63,
             "scale" : 0,
             "expFieldType" : "OUTPUT",
-            "expression" : "'Daily'"
+            "expression" : "'Daily full load'"
           }
         ],
         "windowSpec" : {
@@ -602,8 +453,190 @@
           "startOffset" : 0,
           "partitionKeys" : null
         }
+      },
+      {
+        "createTime" : "2025-09-10T21:08:48.822Z",
+        "name" : "src_adm_fieldreps",
+        "advancedProperties" : [
+          {
+            "name" : "Tracing Level",
+            "value" : "Normal"
+          },
+          {
+            "name" : "Output is deterministic",
+            "value" : "false"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "false",
+            "name" : "DefaultGroup",
+            "output" : "true"
+          }
+        ],
+        "generateFilenamePort" : "false",
+        "useLabels" : "false",
+        "useSequenceFields" : "false",
+        "fields" : [
+          {
+            "adapterField" : {
+              "name" : "id"
+            },
+            "name" : "id",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "name"
+            },
+            "name" : "name",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 255,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "email"
+            },
+            "name" : "email",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 255,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "territory"
+            },
+            "name" : "territory",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 11,
+            "scale" : 0
+          }
+        ],
+        "dataAdapter" : {
+          "connectionId$" : {
+            "name" : "DBConnection_ADM_SRC"
+          },
+          "excludeDynamicFileNameField" : "false",
+          "objectType" : "QUERY",
+          "typeSystem" : "MySQL",
+          "useDynamicFileName" : "false",
+          "object" : {
+            "customQuery" : "SELECT id, name, email, territory FROM $$adm_source_schema.fieldReps",
+            "retainMetadata" : "false",
+            "fields" : [
+              {
+                "name" : "id",
+                "fieldType" : "CONNECTOR",
+                "label" : "id",
+                "nativeName" : "id",
+                "nativeType" : "integer",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "fieldReps"
+                  }
+                ]
+              },
+              {
+                "name" : "name",
+                "fieldType" : "CONNECTOR",
+                "label" : "name",
+                "nativeName" : "name",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 255,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "fieldReps"
+                  }
+                ]
+              },
+              {
+                "name" : "email",
+                "fieldType" : "CONNECTOR",
+                "label" : "email",
+                "nativeName" : "email",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 255,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "fieldReps"
+                  }
+                ]
+              },
+              {
+                "name" : "territory",
+                "fieldType" : "CONNECTOR",
+                "label" : "territory",
+                "nativeName" : "territory",
+                "nativeType" : "char",
+                "original" : "false",
+                "precision" : 11,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "fieldReps"
+                  }
+                ]
+              }
+            ]
+          },
+          "readOptions" : {
+            "commandType" : 0,
+            "descending" : "false",
+            "queryAll" : "false",
+            "rowLimit" : 0,
+            "selectDistinct" : "false"
+          }
+        }
+      }
+    ],
+    "variables" : [
+      {
+        "aggregationType" : "MAX",
+        "expressionVariable" : "false",
+        "name" : "raw_schema",
+        "platformType" : {
+          "name" : "string"
+        },
+        "precision" : 30,
+        "retentionPolicy" : "NEVER",
+        "scale" : 0,
+        "defaultValue" : "metal"
+      },
+      {
+        "aggregationType" : "MAX",
+        "expressionVariable" : "false",
+        "name" : "adm_source_schema",
+        "platformType" : {
+          "name" : "string"
+        },
+        "precision" : 30,
+        "retentionPolicy" : "NEVER",
+        "scale" : 0,
+        "defaultValue" : "agencymanagement"
       }
     ]
   },
-  "vcsExportTime" : "2025-06-26 09:54:54 EDT"
+  "vcsExportTime" : "2025-09-12 10:18:08 PDT"
 }

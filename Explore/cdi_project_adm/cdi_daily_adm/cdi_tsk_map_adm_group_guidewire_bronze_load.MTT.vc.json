@@ -30,7 +30,7 @@
       "truncateTarget" : false,
       "bulkApiDBTarget" : false,
       "customFuncCfg" : { },
-      "customQuery" : "WITH current_batch AS (\n    SELECT \n        bls.batch_id,\n        bls.source_start_cutoff_datetime,\n        bls.source_end_cutoff_datetime\n    FROM metal.batch_load_summary bls\n    WHERE bls.source_system_code = 'ADM'\n      AND bls.batch_status = 'Inprogress'\n      AND bls.batch_id = (\n          SELECT MAX(batch_id)\n          FROM metal.batch_load_summary\n          WHERE source_system_code = 'ADM'\n            AND batch_status = 'Inprogress'\n      )\n)\n\nSELECT DISTINCT\nmetal_agg.source_name, \nmetal_agg.load_type,\nmetal_agg.combined,\nmetal_agg.contingent_group_name1,\nmetal_agg.contingent_group_name2,\nmetal_agg.created, \nmetal_agg.fieldrep,\nmetal_agg.fieldrep_state,\nmetal_agg.groups_nup,\nmetal_agg.groups_number,\nmetal_agg.modified,\nmetal_agg.qualifyingamount,\nmetal_agg.share,\nmetal_agg.status_date, \nmetal_agg.super_group_id,\nmetal_agg.user_gw,\ncurrent_batch.batch_id\nFROM metal.adm_group_guidewire metal_agg\nCROSS JOIN current_batch\nORDER BY \nmetal_agg.groups_nup,\n    metal_agg.created,\n    metal_agg.modified;",
+      "customQuery" : "WITH current_batch AS (\n    SELECT \n        bls.batch_id,\n        bls.source_start_cutoff_datetime,\n        bls.source_end_cutoff_datetime\n    FROM $$raw_schema.batch_load_summary bls\n    WHERE bls.source_system_code = '$$sourcesystemcode'\n      AND bls.batch_status = 'Inprogress'\n      AND bls.batch_id = (\n          SELECT MAX(batch_id)\n          FROM metal.batch_load_summary\n          WHERE source_system_code = '$$sourcesystemcode'\n            AND batch_status = 'Inprogress'\n      )\n)\nSELECT DISTINCT\nmetal_agg.source_name, \nmetal_agg.load_type,\nmetal_agg.combined,\nmetal_agg.agencies_transferable,\nmetal_agg.ach_accountnum,\nmetal_agg.ach_accounttype1,\nmetal_agg.ach_accounttype2,\nmetal_agg.ach_routingnum,\nmetal_agg.contingent_group_name1,\nmetal_agg.contingent_group_name2,\nmetal_agg.contingent_paymentby,\nmetal_agg.created, \nmetal_agg.fieldrep,\nmetal_agg.fieldrep_state,\nmetal_agg.groups_nup,\nmetal_agg.groups_number,\nmetal_agg.modified,\nmetal_agg.qualifyingamount,\nmetal_agg.share,\nmetal_agg.status_date, \nmetal_agg.super_group_id,\nmetal_agg.user_gw,\nmetal_agg.transfer_status,\ncurrent_batch.batch_id\nFROM $$raw_schema.adm_group_guidewire metal_agg\nCROSS JOIN current_batch\nORDER BY \nmetal_agg.groups_nup,\nmetal_agg.created,\nmetal_agg.modified;",
       "commandType" : 0,
       "handleSpecialChars" : false,
       "handleDecimalRoundOff" : false,
@@ -42,25 +42,25 @@
       "objectName" : "DUMMY_src_delta_changes_agency",
       "useExactSrcNames" : false,
       "userUpdated" : true,
-      "unspecified" : false,
       "runtimeParameterData" : {
         "connectionParameterName" : "DBConnection_UDM_SRC",
         "connectionRuntimeParameter" : false,
         "objectRuntimeParameter" : false
       },
       "restmodernSource" : true,
+      "unspecified" : false,
       "fileList" : false
     },
     {
       "name" : "$src_tgt_bronze_adm_group_guidewire_Query$",
       "type" : "SOURCE",
-      "label" : "DBConnection_UDM_SRC",
+      "label" : "DBConnection_UDM_TGT",
       "uiProperties" : {
         "cnxtype" : "Amazon Redshift v2",
         "connectionParameterized" : "true",
-        "paramName" : "DBConnection_UDM_SRC",
+        "paramName" : "DBConnection_UDM_TGT",
         "paramType-mapping" : "Connection",
-        "logcnx" : "DBConnection_UDM_SRC",
+        "logcnx" : "DBConnection_UDM_TGT",
         "isSelectDistinct" : "false",
         "objectParameterized" : "false",
         "visible" : "false",
@@ -76,7 +76,7 @@
       "truncateTarget" : false,
       "bulkApiDBTarget" : false,
       "customFuncCfg" : { },
-      "customQuery" : "SELECT \n        group_guidewire_row_id, \n        group_guidewire_row_md5checksum, \n        group_guidewire_batch_id,  \n  group_guidewire_datetime_modified,\n  group_guidewire_row_effective_end_datetime,\ngroup_id\n    FROM bronze.adm_group_guidewire \n    where  group_guidewire_row_effective_end_datetime = '9999-12-31 00:00:00.000'",
+      "customQuery" : "SELECT \n    adm_group_guidewire_row_id, \n    adm_group_guidewire_row_md5checksum, \n    adm_group_guidewire_batch_id,  \n    modified,\n    adm_group_guidewire_row_effective_end_datetime,\n    groups_nup\nFROM $$staging_schema.adm_group_guidewire \nWHERE  adm_group_guidewire_row_effective_end_datetime = '9999-12-31 00:00:00.000'",
       "commandType" : 0,
       "handleSpecialChars" : false,
       "handleDecimalRoundOff" : false,
@@ -88,13 +88,13 @@
       "objectName" : "DUMMY_src_tgt_bronze_adm_group_guidewire_Query",
       "useExactSrcNames" : false,
       "userUpdated" : true,
-      "unspecified" : false,
       "runtimeParameterData" : {
-        "connectionParameterName" : "DBConnection_UDM_SRC",
+        "connectionParameterName" : "DBConnection_UDM_TGT",
         "connectionRuntimeParameter" : false,
         "objectRuntimeParameter" : false
       },
       "restmodernSource" : true,
+      "unspecified" : false,
       "fileList" : false
     },
     {
@@ -140,13 +140,13 @@
       "objectLabel" : "bronze/adm_group_guidewire",
       "useExactSrcNames" : false,
       "userUpdated" : true,
-      "unspecified" : false,
       "runtimeParameterData" : {
         "connectionParameterName" : "DBConnection_UDM_TGT",
         "connectionRuntimeParameter" : false,
         "objectRuntimeParameter" : false
       },
       "restmodernSource" : true,
+      "unspecified" : false,
       "fileList" : false
     },
     {
@@ -192,13 +192,13 @@
       "objectLabel" : "bronze/adm_group_guidewire",
       "useExactSrcNames" : false,
       "userUpdated" : true,
-      "unspecified" : false,
       "runtimeParameterData" : {
         "connectionParameterName" : "DBConnection_UDM_TGT",
         "connectionRuntimeParameter" : false,
         "objectRuntimeParameter" : false
       },
       "restmodernSource" : true,
+      "unspecified" : false,
       "fileList" : false
     },
     {
@@ -214,7 +214,7 @@
         "default" : "bronze/adm_group_guidewire",
         "objectParameterized" : "false",
         "visible" : "false",
-        "defaultTargetUpdateColumns" : "group_guidewire_row_id",
+        "defaultTargetUpdateColumns" : "adm_group_guidewire_row_id",
         "supportApplyDDLChanges" : "false",
         "originalPath" : "tgt_bronze_adm_group_guidewire_updt_endate"
       },
@@ -231,7 +231,7 @@
       "operationType" : "Update",
       "customFuncCfg" : { },
       "targetUpdateColumns" : [
-        "group_guidewire_row_id"
+        "adm_group_guidewire_row_id"
       ],
       "extendedObject" : {
         "singleMode" : true
@@ -248,18 +248,18 @@
       "objectLabel" : "bronze/adm_group_guidewire",
       "useExactSrcNames" : false,
       "userUpdated" : true,
-      "unspecified" : false,
       "runtimeParameterData" : {
         "connectionParameterName" : "DBConnection_UDM_TGT",
         "connectionRuntimeParameter" : false,
         "objectRuntimeParameter" : false
       },
       "restmodernSource" : true,
+      "unspecified" : false,
       "fileList" : false
     }
   ],
   "verbose" : false,
-  "lastRunTime" : 1749822970000,
+  "lastRunTime" : 1757698249000,
   "mappingId" : "@jKCAKm5DMuFexzPbR31GAE",
   "mappingTemplateName" : "cdi_map_adm_group_guidewire_bronze_load",
   "sessionPropertiesList" : [
@@ -276,6 +276,44 @@
       "value" : "Partial PDO"
     }
   ],
+  "inOutParameters" : [
+    {
+      "name" : "sourcesystemcode",
+      "datatype" : "STRING",
+      "precision" : "30",
+      "scale" : "0",
+      "retentionPolicy" : "NEVER",
+      "aggregationType" : "MAX",
+      "currentValue" : "ACX"
+    },
+    {
+      "name" : "raw_schema",
+      "datatype" : "STRING",
+      "precision" : "30",
+      "scale" : "0",
+      "retentionPolicy" : "ON_SUCCESS_OR_WARNING",
+      "aggregationType" : "MAX",
+      "currentValue" : "metal"
+    },
+    {
+      "name" : "staging_schema",
+      "datatype" : "STRING",
+      "precision" : "30",
+      "scale" : "0",
+      "retentionPolicy" : "NEVER",
+      "aggregationType" : "MAX",
+      "currentValue" : "bronze"
+    },
+    {
+      "name" : "operational_schema",
+      "datatype" : "STRING",
+      "precision" : "30",
+      "scale" : "0",
+      "retentionPolicy" : "NEVER",
+      "aggregationType" : "MAX",
+      "currentValue" : "operations"
+    }
+  ],
   "hidden" : false,
   "enableCrossSchemaPushdown" : true,
   "enableParallelRun" : false,
@@ -288,6 +326,7 @@
   "valid" : true,
   "optimizationPlan" : "NONE",
   "allowMaxFieldLength" : false,
+  "specialCharacterSupport" : false,
   "midstreamPreview" : false,
-  "vcsExportTime" : "2025-06-13 07:04:19 PDT"
+  "vcsExportTime" : "2025-09-12 11:07:26 PDT"
 }
