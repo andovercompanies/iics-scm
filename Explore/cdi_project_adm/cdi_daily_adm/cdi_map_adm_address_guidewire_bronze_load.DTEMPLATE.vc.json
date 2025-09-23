@@ -85,18 +85,6 @@
           "typeSystem" : "TOOLKIT",
           "connectionType" : "Amazon Redshift v2"
         }
-      },
-      {
-        "input" : "true",
-        "output" : "false",
-        "precision" : 0,
-        "scale" : 0,
-        "allowRuntimeOverride" : "false",
-        "expressionVariable" : "false",
-        "name" : "sourcesystemcode",
-        "defaultValue" : {
-          "valueLiteral" : "ADM"
-        }
       }
     ],
     "transformations" : [
@@ -281,16 +269,15 @@
           }
         ],
         "dataAdapter" : {
-          "connectionId$" : {
-            "name" : "DBConnection_UDM_SRC"
-          },
+          "connectionId" : "saas:@aYZ4ekzHgIPeKpiaoqDLKP",
+          "connectionName" : "redshift_nonprod_andover_dw_dev",
           "excludeDynamicFileNameField" : "false",
           "objectType" : "QUERY",
           "typeSystem" : "TOOLKIT",
           "useDynamicFileName" : "false",
           "object" : {
             "customQuery" : "WITH current_batch AS (\n    SELECT \n        bls.batch_id,\n        bls.source_start_cutoff_datetime,\n        bls.source_end_cutoff_datetime\n    FROM $$operational_schema.batch_load_summary bls\n    WHERE bls.source_system_code = '$$sourcesystemcode'\n      AND bls.batch_status = 'Inprogress'\n      AND bls.batch_id = (\n          SELECT MAX(batch_id)\n          FROM $$operational_schema.batch_load_summary\n          WHERE source_system_code = '$$sourcesystemcode'\n            AND batch_status = 'Inprogress'\n      )\n)\n\nSELECT DISTINCT\nmetal_aag.source_name, \nmetal_aag.load_type,\nmetal_aag.address1,\nmetal_aag.address2,\nmetal_aag.agency_nup,\nmetal_aag.city,\nmetal_aag.country,\nmetal_aag.created,\nmetal_aag.id,\nmetal_aag.modified,\nmetal_aag.state,\nmetal_aag.type,\nmetal_aag.zip,\ncurrent_batch.batch_id\nFROM $$raw_schema.adm_address_guidewire metal_aag\nCROSS JOIN current_batch\nORDER BY \nmetal_aag.agency_nup,\nmetal_aag.created,\nmetal_aag.modified;",
-            "retainMetadata" : "false",
+            "retainMetadata" : "true",
             "fields" : [
               {
                 "name" : "source_name",
@@ -3556,8 +3543,20 @@
         "retentionPolicy" : "NEVER",
         "scale" : 0,
         "defaultValue" : "operations"
+      },
+      {
+        "aggregationType" : "MAX",
+        "expressionVariable" : "false",
+        "name" : "sourcesystemcode",
+        "platformType" : {
+          "name" : "string"
+        },
+        "precision" : 10,
+        "retentionPolicy" : "NEVER",
+        "scale" : 0,
+        "defaultValue" : "ADM"
       }
     ]
   },
-  "vcsExportTime" : "2025-09-15 09:07:02 PDT"
+  "vcsExportTime" : "2025-09-22 19:16:45 PDT"
 }
