@@ -13,10 +13,10 @@
       <types1:CreatedBy>RErventi@andovercos.com.SAML3</types1:CreatedBy>
       <types1:CreationDate>2025-09-18T17:36:44Z</types1:CreationDate>
       <types1:ModifiedBy>ABetgeri@andovercos.com</types1:ModifiedBy>
-      <types1:ModificationDate>2025-09-23T19:04:22Z</types1:ModificationDate>
+      <types1:ModificationDate>2025-09-24T18:28:45Z</types1:ModificationDate>
       <types1:PublicationStatus>published</types1:PublicationStatus>
       <types1:PublishedBy>ABetgeri@andovercos.com</types1:PublishedBy>
-      <types1:PublicationDate>2025-09-23T19:04:59Z</types1:PublicationDate>
+      <types1:PublicationDate>2025-09-24T18:28:51Z</types1:PublicationDate>
       <types1:PublishedContributionId>project:/tf.cdi_tkf_flow_straight_through_processing_rules_load/cdi_tkf_flow_straight_through_processing_rules_load.tf.xml</types1:PublishedContributionId>
       <types1:Entry>
          <taskflow xmlns="http://schemas.active-endpoints.com/appmodules/screenflow/2010/10/avosScreenflow.xsd"
@@ -30,12 +30,29 @@
             <description/>
             <tags/>
             <generator>Informatica Process Designer 11</generator>
+            <input>
+               <parameter description=""
+                          name="sb_input_filename"
+                          required="true"
+                          type="string">
+                  <options>
+                     <option name="required">false</option>
+                  </options>
+               </parameter>
+            </input>
             <tempFields>
                <field description=""
                       name="cdi_tsk_map_straight_through_processing_rules_load"
                       type="reference">
                   <options>
                      <option name="referenceTo">$po:cdi-tsk-map-straight-through-processing-rules-load-0xX3C3FTniXljKba7LVV05</option>
+                     <option name="failOnNotRun">false</option>
+                     <option name="failOnFault">false</option>
+                  </options>
+               </field>
+               <field description="" name="s_m_update_src_file" type="reference">
+                  <options>
+                     <option name="referenceTo">$po:s-m-update-src-file-j2iY6QTHo6YgztciqEs0ol</option>
                   </options>
                </field>
             </tempFields>
@@ -53,8 +70,20 @@
             </extData>
             <flow id="a">
                <start id="b">
-                  <link id="mfqcpn0f" targetId="mfpou0a1"/>
+                  <link id="mfy9bn3f" targetId="mfy9bn3e"/>
                </start>
+               <assignment id="mfy9bn3e">
+                  <title>Assign_Filename</title>
+                  <operation source="formula"
+                             to="temp.cdi_tsk_map_straight_through_processing_rules_load[1]/inout[1]/SrcFile">
+                     <expression language="XQuery">fn:concat('/internal/straight_through_processing/',$input.sb_input_filename)</expression>
+                  </operation>
+                  <operation source="formula"
+                             to="temp.cdi_tsk_map_straight_through_processing_rules_load[1]/inout[1]/ArcFile">
+                     <expression language="XQuery">fn:concat('/internal/processed/cdi_tkf_flow_stp_rules_load/',$input.sb_input_filename)</expression>
+                  </operation>
+                  <link id="mfy9bn3g" targetId="mfpou0a1"/>
+               </assignment>
                <eventContainer id="mfpou0a1">
                   <service id="mfpou097">
                      <title>cdi_tsk_map_straight_through_processing_rules_load</title>
@@ -70,8 +99,10 @@
                         <parameter name="taskField" source="nested">
                            <operation source="field"
                                       to="cdi-tsk-map-straight-through-processing-rules-load-0xX3C3FTniXljKba7LVV05">temp.cdi_tsk_map_straight_through_processing_rules_load</operation>
-                           <operation source="constant"
-                                      to="cdi-tsk-map-straight-through-processing-rules-load-0xX3C3FTniXljKba7LVV05/inout[1]/SrcFile">{$temp.SrcFileName}</operation>
+                           <operation source="field"
+                                      to="cdi-tsk-map-straight-through-processing-rules-load-0xX3C3FTniXljKba7LVV05/input[1]/source[1]/src_stp_Rules_File[1]/object">temp.cdi_tsk_map_straight_through_processing_rules_load[1]/inout[1]/SrcFile</operation>
+                           <operation source="field"
+                                      to="temp.cdi_tsk_map_straight_through_processing_rules_load[1]/input[1]/source[1]/src_stp_Rules_File[1]/object">temp.cdi_tsk_map_straight_through_processing_rules_load[1]/inout[1]/SrcFile</operation>
                         </parameter>
                      </serviceInput>
                      <serviceOutput>
@@ -119,7 +150,7 @@
                                    to="temp.cdi_tsk_map_straight_through_processing_rules_load/inout/SrcFolder">SrcFolder</operation>
                      </serviceOutput>
                   </service>
-                  <link id="mfpou099" targetId="c"/>
+                  <link id="mfy9bn7u" targetId="mfy9bn7t"/>
                   <events>
                      <catch faultField="temp.cdi_tsk_map_straight_through_processing_rules_load/fault"
                             id="mfpou09z"
@@ -133,6 +164,86 @@
                             name="warning"/>
                   </events>
                </eventContainer>
+               <container id="mfy9bn7t" type="exclusive">
+                  <title>Link_Condition_loornyna</title>
+                  <flow id="mfy9bn7x">
+                     <wait id="mfy9bnds">
+                        <title>Wait 5 Minutes</title>
+                        <duration source="formula">
+                           <function name="duration_expression">
+                              <arg name="value">5</arg>
+                              <arg name="scale">M</arg>
+                              <arg name="businessDays"/>
+                           </function>
+                        </duration>
+                        <link id="mfy9bndy" targetId="mfy9bnek"/>
+                     </wait>
+                     <eventContainer id="mfy9bnek">
+                        <service id="mfy9bndx">
+                           <title>s_m_update_src_file</title>
+                           <serviceName>ICSExecuteDataTask</serviceName>
+                           <serviceGUID/>
+                           <serviceInput>
+                              <parameter name="Wait for Task to Complete" source="constant" updatable="true">true</parameter>
+                              <parameter name="Max Wait" source="constant" updatable="true">604800</parameter>
+                              <parameter name="Task Name" source="constant" updatable="true">s_m_update_src_file</parameter>
+                              <parameter name="GUID" source="constant" updatable="true">j2iY6QTHo6YgztciqEs0ol</parameter>
+                              <parameter name="Task Type" source="constant" updatable="true">MCT</parameter>
+                              <parameter name="Has Inout Parameters" source="constant" updatable="true">false</parameter>
+                              <parameter name="taskField" source="nested">
+                                 <operation source="field" to="s-m-update-src-file-j2iY6QTHo6YgztciqEs0ol">temp.s_m_update_src_file</operation>
+                                 <operation source="field"
+                                            to="s-m-update-src-file-j2iY6QTHo6YgztciqEs0ol/input[1]/target[1]/tgt_rm_src[1]/object">input.sb_input_filename</operation>
+                                 <operation source="field"
+                                            to="temp.s_m_update_src_file[1]/input[1]/target[1]/tgt_rm_src[1]/object">input.sb_input_filename</operation>
+                              </parameter>
+                           </serviceInput>
+                           <serviceOutput>
+                              <operation source="field" to="temp.s_m_update_src_file/output/Object_Name">Object Name</operation>
+                              <operation source="field" to="temp.s_m_update_src_file/output/Run_Id">Run Id</operation>
+                              <operation source="field" to="temp.s_m_update_src_file/output/Log_Id">Log Id</operation>
+                              <operation source="field" to="temp.s_m_update_src_file/output/Task_Id">Task Id</operation>
+                              <operation source="field" to="temp.s_m_update_src_file/output/Task_Status">Task Status</operation>
+                              <operation source="field" to="temp.s_m_update_src_file/output/Success_Source_Rows">Success Source Rows</operation>
+                              <operation source="field" to="temp.s_m_update_src_file/output/Failed_Source_Rows">Failed Source Rows</operation>
+                              <operation source="field" to="temp.s_m_update_src_file/output/Success_Target_Rows">Success Target Rows</operation>
+                              <operation source="field" to="temp.s_m_update_src_file/output/Failed_Target_Rows">Failed Target Rows</operation>
+                              <operation source="field" to="temp.s_m_update_src_file/output/Start_Time">Start Time</operation>
+                              <operation source="field" to="temp.s_m_update_src_file/output/End_Time">End Time</operation>
+                              <operation source="field" to="temp.s_m_update_src_file/output/Error_Message">Error Message</operation>
+                              <operation source="field" to="temp.s_m_update_src_file/output/TotalTransErrors">Total Transformation Errors</operation>
+                              <operation source="field" to="temp.s_m_update_src_file/output/FirstErrorCode">First Error Code</operation>
+                           </serviceOutput>
+                        </service>
+                        <events>
+                           <catch faultField="temp.s_m_update_src_file/fault"
+                                  id="mfy9bn94"
+                                  interrupting="true"
+                                  name="error">
+                              <suspend/>
+                           </catch>
+                           <catch faultField="temp.s_m_update_src_file/fault"
+                                  id="mfy9bn95"
+                                  interrupting="true"
+                                  name="warning"/>
+                        </events>
+                     </eventContainer>
+                     <link id="mfy9bn7y" targetId="mfy9bn7t" type="containerLink"/>
+                  </flow>
+                  <flow id="mfy9bn80">
+                     <link id="mfy9bn81" targetId="mfy9bn7t" type="containerLink"/>
+                  </flow>
+                  <link id="mfy9bn7w" targetId="mfy9bn7x" type="containerLink">
+                     <condition source="formula">
+                        <function name="starts-with">
+                           <arg name="left">{$temp.cdi_tsk_map_straight_through_processing_rules_load[1]/output[1]/Task_Status}</arg>
+                           <arg name="right">1,2</arg>
+                        </function>
+                     </condition>
+                  </link>
+                  <link id="mfy9bn7z" targetId="mfy9bn80" type="containerLink"/>
+                  <link id="mfy9bn7v" targetId="c"/>
+               </container>
                <end id="c"/>
             </flow>
             <dependencies>
@@ -175,11 +286,45 @@
                             type="int"/>
                   </detail>
                </processObject>
+               <processObject xmlns="http://schemas.active-endpoints.com/appmodules/screenflow/2011/06/avosHostEnvironment.xsd"
+                              displayName="s-m-update-src-file-j2iY6QTHo6YgztciqEs0ol"
+                              isByCopy="true"
+                              name="s-m-update-src-file-j2iY6QTHo6YgztciqEs0ol">
+                  <description/>
+                  <tags/>
+                  <detail>
+                     <field label="Input Parameters"
+                            name="input"
+                            nullable="true"
+                            required="false"
+                            type="reference"/>
+                     <field label="TaskProperties Parameters"
+                            name="taskProperties"
+                            nullable="true"
+                            required="false"
+                            type="reference"/>
+                     <field label="Output Parameters"
+                            name="output"
+                            nullable="true"
+                            required="false"
+                            type="reference"/>
+                     <field label="Fault"
+                            name="fault"
+                            nullable="true"
+                            required="false"
+                            type="reference"/>
+                     <field label="Max Wait (Seconds)"
+                            name="Max_Wait"
+                            nullable="true"
+                            required="false"
+                            type="int"/>
+                  </detail>
+               </processObject>
             </dependencies>
          </taskflow>
       </types1:Entry>
       <types1:GUID>1lgUuZcXWg6bDSXzi7uA0k</types1:GUID>
       <types1:DisplayName>cdi_tkf_flow_straight_through_processing_rules_load</types1:DisplayName>
    </types1:Item>
-   <types1:CurrentServerDateTime>2025-09-24T15:16:09.218Z</types1:CurrentServerDateTime>
+   <types1:CurrentServerDateTime>2025-09-24T19:18:32.702Z</types1:CurrentServerDateTime>
 </aetgt:getResponse>
