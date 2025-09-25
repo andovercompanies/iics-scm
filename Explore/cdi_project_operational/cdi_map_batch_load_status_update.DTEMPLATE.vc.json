@@ -600,7 +600,7 @@
               },
               {
                 "name" : "Post-Sql",
-                "value" : "update $$operations_schema.batch_load_summary\n  set batch_end_datetime = (\n  select max(batch_end_datetime)\n    from  $$operations_schema.batch_load_summary\n    where BATCH_ID = (SELECT MAX(batch_id) AS latest_batch_id from $$operations_schema.batch_load_summary \n    WHERE source_system_code = '$$SourceSystemCode' and target_schema_name = '$$bronze_schema')\n\tand batch_status in ('Success', 'Failure') and source_system_code = '$$SourceSystemCode')\n   where \n\ttarget_schema_name = '$$bronze_schema' and batch_load_summary_row_id in (select batch_load_summary_row_id \n    from  $$operations_schema.batch_load_summary \n    where BATCH_ID = (SELECT MAX(batch_id) AS latest_batch_id from \n    $$operations_schema.batch_load_summary WHERE source_system_code = '$$SourceSystemCode' and target_schema_name = '$$bronze_schema')\n\tand batch_status in ('Success', 'Failure') and source_system_code = '$$SourceSystemCode' and target_schema_name = '$$bronze_schema');"
+                "value" : "update $$operations_schema.batch_load_summary\n  set batch_end_datetime = (\n  select max(batch_end_datetime)\n    from  $$operations_schema.batch_load_summary\n    where BATCH_ID = (SELECT MAX(batch_id) AS latest_batch_id from $$operations_schema.batch_load_summary \n    WHERE source_system_code = '$$SourceSystemCode' and target_schema_name = '$$target_schema_name')\n\tand batch_status in ('Success', 'Failure') and source_system_code = '$$SourceSystemCode')\n   where \n\ttarget_schema_name = '$$target_schema_name' and batch_load_summary_row_id in (select batch_load_summary_row_id \n    from  $$operations_schema.batch_load_summary \n    where BATCH_ID = (SELECT MAX(batch_id) AS latest_batch_id from \n    $$operations_schema.batch_load_summary WHERE source_system_code = '$$SourceSystemCode' and target_schema_name = '$$target_schema_name')\n\tand batch_status in ('Success', 'Failure') and source_system_code = '$$SourceSystemCode' and target_schema_name = '$$target_schema_name');"
               }
             ]
           },
@@ -643,13 +643,6 @@
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "o_target_schema_name",
-              "toField" : {
-                "name" : "target_schema_name"
-              },
-              "fromFieldNames" : null
-            },
-            {
               "fromFieldName" : "o_batch_status",
               "toField" : {
                 "name" : "batch_status"
@@ -678,7 +671,14 @@
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "o_Source_System_Code",
+              "fromFieldName" : "target_schema_name",
+              "toField" : {
+                "name" : "target_schema_name"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "source_system_code",
               "toField" : {
                 "name" : "source_system_code"
               },
@@ -743,6 +743,28 @@
             },
             "precision" : 19,
             "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "target_schema_name"
+            },
+            "name" : "target_schema_name",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "source_system_code"
+            },
+            "name" : "source_system_code",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
           }
         ],
         "dataAdapter" : {
@@ -754,8 +776,8 @@
           "typeSystem" : "TOOLKIT",
           "useDynamicFileName" : "false",
           "object" : {
-            "customQuery" : "select batch_load_summary_row_id,target_table_name,batch_id from $$operations_schema.batch_load_summary where target_table_name = '$$target_table_name' and target_schema_name = '$$bronze_schema' AND batch_id in ( SELECT MAX(batch_id) AS batch_id from $$operations_schema.batch_load_summary WHERE source_system_code = '$$SourceSystemCode' AND batch_status = 'Inprogress' AND target_table_name = '$$target_table_name' AND batch_end_Datetime IS NULL and target_schema_name = '$$bronze_schema' GROUP BY target_table_name ) and batch_end_Datetime IS NULL",
-            "retainMetadata" : "true",
+            "customQuery" : "select batch_load_summary_row_id,\ntarget_table_name,\nbatch_id,\ntarget_schema_name,\nsource_system_code  \nfrom $$operations_schema.batch_load_summary where target_table_name = '$$target_table_name' and target_schema_name = '$$target_schema_name' AND batch_id in ( SELECT MAX(batch_id) AS batch_id from $$operations_schema.batch_load_summary WHERE source_system_code = '$$SourceSystemCode' AND batch_status = 'Inprogress' AND target_table_name = '$$target_table_name' AND batch_end_Datetime IS NULL and target_schema_name = '$$target_schema_name' GROUP BY target_table_name ) and batch_end_Datetime IS NULL",
+            "retainMetadata" : "false",
             "fields" : [
               {
                 "name" : "batch_load_summary_row_id",
@@ -797,6 +819,38 @@
                 "nativeType" : "int8",
                 "original" : "false",
                 "precision" : 19,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "target_schema_name",
+                "fieldType" : "CONNECTOR",
+                "label" : "target_schema_name",
+                "nativeName" : "target_schema_name",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "source_system_code",
+                "fieldType" : "CONNECTOR",
+                "label" : "source_system_code",
+                "nativeName" : "source_system_code",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
                 "scale" : 0,
                 "properties" : [
                   {
@@ -929,7 +983,7 @@
             "precision" : 100,
             "scale" : 0,
             "expFieldType" : "OUTPUT",
-            "expression" : "'$bronze_schema$'"
+            "expression" : "'$$target_schema_name'"
           },
           {
             "name" : "o_Source_System_Code",
@@ -1109,7 +1163,7 @@
           "typeSystem" : "TOOLKIT",
           "useDynamicFileName" : "false",
           "object" : {
-            "customQuery" : "select batch_id, target_table_name, source_system_code , batch_status, row_created_datetime\nfrom  $$operations_schema.batch_load_summary\nWHERE\nsource_system_code = '$$SourceSystemCode' AND batch_status = 'Success' AND  target_table_name = '$$target_table_name' and target_schema_name = '$$bronze_schema'\nand batch_id =\n(\nSELECT MAX(batch_id) AS batch_id\nfrom\n$$operations_schema.batch_load_summary\nWHERE\nsource_system_code = '$$SourceSystemCode' AND batch_status = 'Success' AND  target_table_name = '$$target_table_name' and target_schema_name = '$$bronze_schema'\nGROUP BY target_table_name\n)",
+            "customQuery" : "select batch_id, target_table_name, source_system_code , batch_status, row_created_datetime\nfrom  $$operations_schema.batch_load_summary\nWHERE\nsource_system_code = '$$SourceSystemCode' AND batch_status = 'Success' AND  target_table_name = '$$target_table_name' and target_schema_name = '$$target_schema_name'\nand batch_id =\n(\nSELECT MAX(batch_id) AS batch_id\nfrom\n$$operations_schema.batch_load_summary\nWHERE\nsource_system_code = '$$SourceSystemCode' AND batch_status = 'Success' AND  target_table_name = '$$target_table_name' and target_schema_name = '$$target_schema_name'\nGROUP BY target_table_name\n)",
             "retainMetadata" : "true",
             "fields" : [
               {
@@ -1282,8 +1336,20 @@
         "retentionPolicy" : "NEVER",
         "scale" : 0,
         "defaultValue" : "operations"
+      },
+      {
+        "aggregationType" : "MAX",
+        "expressionVariable" : "false",
+        "name" : "target_schema_name",
+        "platformType" : {
+          "name" : "string"
+        },
+        "precision" : 50,
+        "retentionPolicy" : "NEVER",
+        "scale" : 0,
+        "defaultValue" : "bronze"
       }
     ]
   },
-  "vcsExportTime" : "2025-08-14 09:49:55 PDT"
+  "vcsExportTime" : "2025-09-25 06:04:11 PDT"
 }

@@ -197,7 +197,7 @@
           "typeSystem" : "TOOLKIT",
           "useDynamicFileName" : "false",
           "object" : {
-            "customQuery" : "select count(*) as pilot_batch_count, source_system_code from $$operations_schema.batch_load_summary\nwhere source_system_code = '$$SourceSystemCode'  and batch_id =0 and target_schema_name = '$$bronze_schema'\ngroup by source_system_code",
+            "customQuery" : "select count(*) as pilot_batch_count, source_system_code from $$operations_schema.batch_load_summary\nwhere source_system_code = '$$SourceSystemCode'  and batch_id =0 and target_schema_name = '$$target_schema_name'\ngroup by source_system_code",
             "retainMetadata" : "true",
             "fields" : [
               {
@@ -531,7 +531,7 @@
           "typeSystem" : "TOOLKIT",
           "useDynamicFileName" : "false",
           "object" : {
-            "customQuery" : "select * from (\nselect  source_system_code, MAX(recent_b_query.batch_id) as latest_batch,\nrecent_b_query.target_table_name, recent_b_query.recent_b_status\nfrom (\nselect batch_id, target_table_name, batch_status,source_system_code, \nlast_value(batch_status) over(partition by batch_id, target_table_name \norder by batch_status asc rows between unbounded preceding and unbounded following) as recent_b_status\nfrom (select * from $$operations_schema.batch_load_summary\nwhere source_system_code = '$$SourceSystemCode'  and batch_status in ('Success', 'Failure', 'Inprogress') \nand  batch_id !=0 and target_schema_name = '$$bronze_schema'\n)\norder by batch_id) recent_b_query\ngroup by batch_id,target_table_name, recent_b_status, source_system_code\norder by batch_id desc ,target_table_name, recent_b_status\n)\nwhere latest_batch = (SELECT COALESCE(MAX(batch_id), 0) AS batch_id\n  FROM $$operations_schema.batch_load_summary where target_schema_name = '$$bronze_schema')",
+            "customQuery" : "select * from (\nselect  source_system_code, MAX(recent_b_query.batch_id) as latest_batch,\nrecent_b_query.target_table_name, recent_b_query.recent_b_status\nfrom (\nselect batch_id, target_table_name, batch_status,source_system_code, \nlast_value(batch_status) over(partition by batch_id, target_table_name \norder by batch_status asc rows between unbounded preceding and unbounded following) as recent_b_status\nfrom (select * from $$operations_schema.batch_load_summary\nwhere source_system_code = '$$SourceSystemCode'  and batch_status in ('Success', 'Failure', 'Inprogress') \nand  batch_id !=0 and target_schema_name = '$$target_schema_name'\n)\norder by batch_id) recent_b_query\ngroup by batch_id,target_table_name, recent_b_status, source_system_code\norder by batch_id desc ,target_table_name, recent_b_status\n)\nwhere latest_batch = (SELECT COALESCE(MAX(batch_id), 0) AS batch_id\n  FROM $$operations_schema.batch_load_summary where target_schema_name = '$$target_schema_name')",
             "retainMetadata" : "true",
             "fields" : [
               {
@@ -1348,7 +1348,7 @@
           "typeSystem" : "TOOLKIT",
           "useDynamicFileName" : "false",
           "object" : {
-            "customQuery" : "select  count(*) as recent_batch_count, '$$SourceSystemCode' as source_system_id from (\nselect  source_system_code, MAX(recent_b_query.batch_id) as latest_batch, recent_b_query.target_table_name, recent_b_query.recent_b_status\nfrom (\nselect batch_id, target_table_name, batch_status,source_system_code, last_value(batch_status) over(partition by batch_id, target_table_name \norder by batch_status asc rows between unbounded preceding and unbounded following) as recent_b_status\nfrom (select * from $$operations_schema.batch_load_summary\nwhere source_system_code = '$$SourceSystemCode' and batch_status in ('Success', 'Failure', 'Inprogress') \nand  batch_id !=0 and target_schema_name = '$$bronze_schema')\norder by batch_id) recent_b_query\ngroup by batch_id,target_table_name, recent_b_status, source_system_code\norder by batch_id desc ,target_table_name, recent_b_status\n)\nwhere latest_batch = (SELECT COALESCE(MAX(batch_id), 1) AS batch_id\n  FROM $$operations_schema.batch_load_summary where target_schema_name = '$$bronze_schema')",
+            "customQuery" : "select  count(*) as recent_batch_count, '$$SourceSystemCode' as source_system_id from (\nselect  source_system_code, MAX(recent_b_query.batch_id) as latest_batch, recent_b_query.target_table_name, recent_b_query.recent_b_status\nfrom (\nselect batch_id, target_table_name, batch_status,source_system_code, last_value(batch_status) over(partition by batch_id, target_table_name \norder by batch_status asc rows between unbounded preceding and unbounded following) as recent_b_status\nfrom (select * from $$operations_schema.batch_load_summary\nwhere source_system_code = '$$SourceSystemCode' and batch_status in ('Success', 'Failure', 'Inprogress') \nand  batch_id !=0 and target_schema_name = '$$target_schema_name')\norder by batch_id) recent_b_query\ngroup by batch_id,target_table_name, recent_b_status, source_system_code\norder by batch_id desc ,target_table_name, recent_b_status\n)\nwhere latest_batch = (SELECT COALESCE(MAX(batch_id), 1) AS batch_id\n  FROM $$operations_schema.batch_load_summary where target_schema_name = '$$target_schema_name')",
             "retainMetadata" : "true",
             "fields" : [
               {
@@ -2385,7 +2385,7 @@
           "typeSystem" : "TOOLKIT",
           "useDynamicFileName" : "false",
           "object" : {
-            "customQuery" : "SELECT MAX(batch_id) AS batch_id, source_system_code\nfrom $$operations_schema.batch_load_summary WHERE source_system_code = '$$SourceSystemCode' and target_schema_name = '$$bronze_schema' group by source_system_code",
+            "customQuery" : "SELECT MAX(batch_id) AS batch_id, source_system_code\nfrom $$operations_schema.batch_load_summary WHERE source_system_code = '$$SourceSystemCode' and target_schema_name = '$$target_schema_name' group by source_system_code",
             "retainMetadata" : "true",
             "fields" : [
               {
@@ -3256,7 +3256,7 @@
           "typeSystem" : "TOOLKIT",
           "useDynamicFileName" : "false",
           "object" : {
-            "customQuery" : "select source_system_code, batch_id, max(batch_start_datetime) as prev_batch_start_datetime from $$operations_schema.batch_load_summary\nwhere source_system_code = '$$SourceSystemCode' and target_schema_name = '$$bronze_schema' group by source_system_code, batch_id order by source_system_code, batch_id  desc",
+            "customQuery" : "select source_system_code, batch_id, max(batch_start_datetime) as prev_batch_start_datetime from $$operations_schema.batch_load_summary\nwhere source_system_code = '$$SourceSystemCode' and target_schema_name = '$$target_schema_name' group by source_system_code, batch_id order by source_system_code, batch_id  desc",
             "retainMetadata" : "true",
             "fields" : [
               {
@@ -3443,8 +3443,20 @@
         "retentionPolicy" : "NEVER",
         "scale" : 0,
         "defaultValue" : "operations"
+      },
+      {
+        "aggregationType" : "MAX",
+        "expressionVariable" : "false",
+        "name" : "target_schema_name",
+        "platformType" : {
+          "name" : "string"
+        },
+        "precision" : 50,
+        "retentionPolicy" : "NEVER",
+        "scale" : 0,
+        "defaultValue" : "bronze"
       }
     ]
   },
-  "vcsExportTime" : "2025-08-14 09:49:55 PDT"
+  "vcsExportTime" : "2025-09-25 06:04:11 PDT"
 }
