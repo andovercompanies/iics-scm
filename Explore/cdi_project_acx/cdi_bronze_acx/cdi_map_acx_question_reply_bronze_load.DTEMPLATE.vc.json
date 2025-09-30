@@ -10,21 +10,6 @@
         "link" : "src_question_reply_stg -> exp_MD5"
       },
       {
-        "link" : "src_tgt_query -> exp_rename"
-      },
-      {
-        "link" : "exp_rename -> jnr_src_tgt",
-        "groupLink" : "DefaultGroup -> Detail"
-      },
-      {
-        "link" : "exp_MD5 -> jnr_src_tgt",
-        "groupLink" : "DefaultGroup -> Master"
-      },
-      {
-        "link" : "jnr_src_tgt -> exp_flag_records",
-        "groupLink" : "OutputGroup -> DefaultGroup"
-      },
-      {
         "link" : "exp_flag_records -> rtr_insert_update_path",
         "groupLink" : "DefaultGroup -> INPUT"
       },
@@ -42,6 +27,9 @@
       },
       {
         "link" : "exp_closeout -> tgt_update_closeout"
+      },
+      {
+        "link" : "exp_MD5 -> exp_flag_records"
       }
     ],
     "parameters" : [
@@ -217,6 +205,28 @@
             },
             "precision" : 19,
             "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "acx_question_reply_row_id"
+            },
+            "name" : "acx_question_reply_row_id",
+            "platformType" : {
+              "name" : "bigint"
+            },
+            "precision" : 19,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "acx_question_reply_row_md5checksum"
+            },
+            "name" : "acx_question_reply_row_md5checksum",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 255,
+            "scale" : 0
           }
         ],
         "dataAdapter" : {
@@ -228,7 +238,7 @@
           "typeSystem" : "TOOLKIT",
           "useDynamicFileName" : "false",
           "object" : {
-            "customQuery" : "select\n\tdistinct\n\tsystem_id as system_id,\n\tparent_id as parent_id,\n\tcmm_container as cmm_container,\n\tid as id,\n\tname as name,\n\tvalue as value,\n\tvisible_ind as visible_indicator,\n\ttext as text,\n\tdisplay_desc as display_description,\n\trow_id as row_id\nfrom\n\tdbo.underwriting_dashboard_question_reply_stg \norder by system_id, cmm_container ;",
+            "customQuery" : "select\n\tdistinct\n\tstg.system_id as system_id,\n\tstg.parent_id as parent_id,\n\tstg.cmm_container as cmm_container,\n\tstg.id as id,\n\tstg.name as name,\n\tstg.value as value,\n\tstg.visible_ind as visible_indicator,\n\tstg.text as text,\n\tstg.display_desc as display_description,\n\tstg.row_id as row_id,\n\ttgt.acx_question_reply_row_id,\n\ttgt.acx_question_reply_row_md5checksum \nfrom\n\tdbo.underwriting_dashboard_question_reply_stg stg\n\tleft join bronze.acx_question_reply tgt \n\ton stg.system_id = tgt.system_id \n\tand stg.cmm_container = tgt.cmm_container \n\tand stg.id = tgt.id \n\tand acx_question_reply_row_effective_end_datetime = '9999-12-31'\norder by system_id, cmm_container ;",
             "retainMetadata" : "false",
             "fields" : [
               {
@@ -390,6 +400,38 @@
                     "value" : "INFARS_CUSTOM_SCHEMA"
                   }
                 ]
+              },
+              {
+                "name" : "acx_question_reply_row_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "acx_question_reply_row_id",
+                "nativeName" : "acx_question_reply_row_id",
+                "nativeType" : "int8",
+                "original" : "false",
+                "precision" : 19,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "acx_question_reply_row_md5checksum",
+                "fieldType" : "CONNECTOR",
+                "label" : "acx_question_reply_row_md5checksum",
+                "nativeName" : "acx_question_reply_row_md5checksum",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 255,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
               }
             ]
           },
@@ -503,314 +545,6 @@
         }
       },
       {
-        "createTime" : "2025-07-21T23:59:11.449Z",
-        "name" : "src_tgt_query",
-        "advancedProperties" : [
-          {
-            "name" : "Tracing Level",
-            "value" : "Normal"
-          },
-          {
-            "name" : "Output is deterministic",
-            "value" : "false"
-          }
-        ],
-        "groups" : [
-          {
-            "input" : "false",
-            "name" : "DefaultGroup",
-            "output" : "true"
-          }
-        ],
-        "generateFilenamePort" : "false",
-        "useLabels" : "false",
-        "useSequenceFields" : "false",
-        "fields" : [
-          {
-            "adapterField" : {
-              "name" : "row_id"
-            },
-            "name" : "row_id",
-            "platformType" : {
-              "name" : "bigint"
-            },
-            "precision" : 19,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "acx_question_reply_row_id"
-            },
-            "name" : "acx_question_reply_row_id",
-            "platformType" : {
-              "name" : "bigint"
-            },
-            "precision" : 19,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "acx_question_reply_row_md5checksum"
-            },
-            "name" : "acx_question_reply_row_md5checksum",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 255,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "acx_question_reply_row_effective_end_datetime"
-            },
-            "name" : "acx_question_reply_row_effective_end_datetime",
-            "platformType" : {
-              "name" : "date/time"
-            },
-            "precision" : 29,
-            "scale" : 9
-          }
-        ],
-        "dataAdapter" : {
-          "connectionId$" : {
-            "name" : "DBConnection_ACX_SRC"
-          },
-          "excludeDynamicFileNameField" : "false",
-          "objectType" : "QUERY",
-          "typeSystem" : "TOOLKIT",
-          "useDynamicFileName" : "false",
-          "object" : {
-            "customQuery" : "select\n\trow_id,\n\tacx_question_reply_row_id,\n\tacx_question_reply_row_md5checksum,\n\tacx_question_reply_row_effective_end_datetime\nfrom\n\tbronze.acx_question_reply\nwhere\n\tacx_question_reply_row_effective_end_datetime = '9999-12-31 00:00:00.000'\norder by system_id, cmm_container ;",
-            "retainMetadata" : "false",
-            "fields" : [
-              {
-                "name" : "row_id",
-                "fieldType" : "CONNECTOR",
-                "label" : "row_id",
-                "nativeName" : "row_id",
-                "nativeType" : "int8",
-                "original" : "false",
-                "precision" : 19,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "INFARS_CUSTOM_SCHEMA"
-                  }
-                ]
-              },
-              {
-                "name" : "acx_question_reply_row_id",
-                "fieldType" : "CONNECTOR",
-                "label" : "acx_question_reply_row_id",
-                "nativeName" : "acx_question_reply_row_id",
-                "nativeType" : "int8",
-                "original" : "false",
-                "precision" : 19,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "INFARS_CUSTOM_SCHEMA"
-                  }
-                ]
-              },
-              {
-                "name" : "acx_question_reply_row_md5checksum",
-                "fieldType" : "CONNECTOR",
-                "label" : "acx_question_reply_row_md5checksum",
-                "nativeName" : "acx_question_reply_row_md5checksum",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 255,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "INFARS_CUSTOM_SCHEMA"
-                  }
-                ]
-              },
-              {
-                "name" : "acx_question_reply_row_effective_end_datetime",
-                "fieldType" : "CONNECTOR",
-                "label" : "acx_question_reply_row_effective_end_datetime",
-                "nativeName" : "acx_question_reply_row_effective_end_datetime",
-                "nativeType" : "timestamp",
-                "original" : "false",
-                "precision" : 29,
-                "scale" : 6,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "INFARS_CUSTOM_SCHEMA"
-                  }
-                ]
-              }
-            ]
-          },
-          "readOptions" : {
-            "commandType" : 0,
-            "descending" : "false",
-            "queryAll" : "false",
-            "rowLimit" : 0,
-            "selectDistinct" : "false"
-          },
-          "runtimeAttributes" : {
-            "attributes" : [
-              {
-                "name" : "Read Mode",
-                "value" : "Direct"
-              },
-              {
-                "name" : "Fetch Size",
-                "value" : "10000"
-              },
-              {
-                "name" : "Enable Compression",
-                "value" : "YES"
-              },
-              {
-                "name" : "Temporary Credential Duration",
-                "value" : "900"
-              },
-              {
-                "name" : "Treat NULL Value as NULL",
-                "value" : "NO"
-              },
-              {
-                "name" : "Encryption Type",
-                "value" : "None"
-              },
-              {
-                "name" : "Download S3 Files In Multiple Parts",
-                "value" : "NO"
-              },
-              {
-                "name" : "Multipart Download Threshold Size",
-                "value" : "5242880"
-              },
-              {
-                "name" : "Select Distinct",
-                "value" : "NO"
-              }
-            ]
-          }
-        }
-      },
-      {
-        "createTime" : "2025-07-22T00:04:13.813Z",
-        "name" : "exp_rename",
-        "groups" : [
-          {
-            "input" : "true",
-            "name" : "DefaultGroup",
-            "output" : "true",
-            "rules" : [
-              {
-                "bulkRename" : "true",
-                "include" : "true",
-                "bulkRenameOption" : {
-                  "literal" : "tgt_",
-                  "suffix" : "false"
-                }
-              }
-            ]
-          }
-        ],
-        "windowConfigurationEnabled" : "false",
-        "windowSpec" : {
-          "allRowsFollowing" : "false",
-          "allRowsPreceding" : "false",
-          "endOffset" : 0,
-          "startOffset" : 0,
-          "partitionKeys" : null
-        }
-      },
-      {
-        "createTime" : "2025-07-22T00:04:44.988Z",
-        "name" : "jnr_src_tgt",
-        "advancedProperties" : [
-          {
-            "name" : "Tracing Level",
-            "value" : "Normal"
-          },
-          {
-            "name" : "Cache Directory",
-            "value" : "$PMCacheDir"
-          },
-          {
-            "name" : "Null ordering in master",
-            "value" : "Null is Highest Value"
-          },
-          {
-            "name" : "Null ordering in detail",
-            "value" : "Null is Higest Value"
-          },
-          {
-            "name" : "Joiner Data Cache Size",
-            "value" : "AUTO"
-          },
-          {
-            "name" : "Joiner Index Cache Size",
-            "value" : "AUTO"
-          },
-          {
-            "name" : "Sorted Input",
-            "value" : "false"
-          },
-          {
-            "name" : "Master Sort Order",
-            "value" : "AUTO"
-          },
-          {
-            "name" : "Transformation Scope",
-            "value" : "All Input"
-          },
-          {
-            "name" : "Optional",
-            "value" : "true"
-          }
-        ],
-        "groups" : [
-          {
-            "input" : "true",
-            "name" : "Master",
-            "output" : "false",
-            "rules" : [
-              {
-                "bulkRename" : "false",
-                "include" : "true"
-              }
-            ]
-          },
-          {
-            "input" : "true",
-            "name" : "Detail",
-            "output" : "false",
-            "rules" : [
-              {
-                "bulkRename" : "false",
-                "include" : "true"
-              }
-            ]
-          },
-          {
-            "input" : "false",
-            "name" : "OutputGroup",
-            "output" : "true"
-          }
-        ],
-        "joinType" : "Detail Outer Join",
-        "joinConditions" : [
-          {
-            "leftOperand" : "row_id",
-            "operator" : "=",
-            "rightOperand" : "tgt_row_id"
-          }
-        ]
-      },
-      {
         "createTime" : "2025-07-22T00:08:32.723Z",
         "name" : "exp_flag_records",
         "groups" : [
@@ -837,7 +571,7 @@
             "precision" : 20,
             "scale" : 0,
             "expFieldType" : "OUTPUT",
-            "expression" : "IIF(ISNULL(tgt_acx_question_reply_row_id),'I','X')"
+            "expression" : "IIF(ISNULL(acx_question_reply_row_id),'I','X')"
           },
           {
             "defaultValue" : "ERROR('transformation error')",
@@ -870,7 +604,7 @@
             "precision" : 10,
             "scale" : 0,
             "expFieldType" : "OUTPUT",
-            "expression" : "IIF(NOT ISNULL(tgt_acx_question_reply_row_id) AND tgt_acx_question_reply_row_md5checksum <> src_md5_hash_value, 'U','X')"
+            "expression" : "IIF(NOT ISNULL(acx_question_reply_row_id) AND acx_question_reply_row_md5checksum <> src_md5_hash_value, 'U','X')"
           },
           {
             "defaultValue" : "ERROR('transformation error')",
@@ -3082,13 +2816,6 @@
         "manualMappings" : {
           "mappingList" : [
             {
-              "fromFieldName" : "tgt_acx_question_reply_row_id",
-              "toField" : {
-                "name" : "acx_question_reply_row_id"
-              },
-              "fromFieldNames" : null
-            },
-            {
               "fromFieldName" : "o_retire_old_record",
               "toField" : {
                 "name" : "acx_question_reply_row_effective_end_datetime"
@@ -3099,6 +2826,13 @@
               "fromFieldName" : "o_expired",
               "toField" : {
                 "name" : "acx_question_reply_row_status"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "acx_question_reply_row_id",
+              "toField" : {
+                "name" : "acx_question_reply_row_id"
               },
               "fromFieldNames" : null
             }
@@ -3145,5 +2879,5 @@
       }
     ]
   },
-  "vcsExportTime" : "2025-07-23 18:18:17 PDT"
+  "vcsExportTime" : "2025-09-30 05:38:25 PDT"
 }
