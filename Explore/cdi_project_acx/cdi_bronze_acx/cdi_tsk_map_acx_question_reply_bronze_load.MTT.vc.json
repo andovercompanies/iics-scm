@@ -1,6 +1,6 @@
 {
   "name" : "cdi_tsk_map_acx_question_reply_bronze_load",
-  "runtimeEnvironmentId" : "@3pADNCV9u0PcgrXjM7rx0t",
+  "runtimeEnvironmentId" : "@2NZZ3Ll26eokZZRvQWlJuU",
   "runtimeEnvironmentName" : "sag_aws_linux",
   "maxLogs" : 10,
   "parameters" : [
@@ -19,8 +19,8 @@
         "visible" : "false",
         "originalPath" : "src_question_reply_stg"
       },
-      "sourceConnectionId" : "@aYZ4ekzHgIPeKpiaoqDLKP",
-      "connectionName" : "redshift_nonprod_andover_dw_dev",
+      "sourceConnectionId" : "@iWG7WweMRiOiUzzrDFkK0U",
+      "connectionName" : "redshift_uat_andover_dw_uat",
       "sourceObject" : "DUMMY_src_question_reply_stg",
       "newFlatFile" : false,
       "newObject" : false,
@@ -29,7 +29,7 @@
       "truncateTarget" : false,
       "bulkApiDBTarget" : false,
       "customFuncCfg" : { },
-      "customQuery" : "select\n\tdistinct\n\tsystem_id as system_id,\n\tparent_id as parent_id,\n\tcmm_container as cmm_container,\n\tid as id,\n\tname as name,\n\tvalue as value,\n\tvisible_ind as visible_indicator,\n\ttext as text,\n\tdisplay_desc as display_description,\n\trow_id as row_id\nfrom\n\tdbo.underwriting_dashboard_question_reply_stg \norder by system_id, cmm_container ;",
+      "customQuery" : "select\n\tdistinct\n\tstg.system_id as system_id,\n\tstg.parent_id as parent_id,\n\tstg.cmm_container as cmm_container,\n\tstg.id as id,\n\tstg.name as name,\n\tstg.value as value,\n\tstg.visible_ind as visible_indicator,\n\tstg.text as text,\n\tstg.display_desc as display_description,\n\tstg.row_id as row_id,\n\ttgt.acx_question_reply_row_id,\n\ttgt.acx_question_reply_row_md5checksum \nfrom\n\tdbo.underwriting_dashboard_question_reply_stg stg\n\tleft join bronze.acx_question_reply tgt \n\ton stg.system_id = tgt.system_id \n\tand stg.cmm_container = tgt.cmm_container \n\tand stg.id = tgt.id \n\tand acx_question_reply_row_effective_end_datetime = '9999-12-31'\norder by system_id, cmm_container ;",
       "commandType" : 0,
       "handleSpecialChars" : false,
       "handleDecimalRoundOff" : false,
@@ -41,52 +41,7 @@
       "objectName" : "DUMMY_src_question_reply_stg",
       "useExactSrcNames" : false,
       "userUpdated" : true,
-      "runtimeParameterData" : {
-        "connectionParameterName" : "DBConnection_ACX_SRC",
-        "connectionRuntimeParameter" : false,
-        "objectRuntimeParameter" : false
-      },
-      "restmodernSource" : true,
-      "unspecified" : false,
-      "fileList" : false
-    },
-    {
-      "name" : "$src_tgt_query$",
-      "type" : "SOURCE",
-      "label" : "DBConnection_ACX_SRC",
-      "uiProperties" : {
-        "cnxtype" : "Amazon Redshift v2",
-        "connectionParameterized" : "true",
-        "paramName" : "DBConnection_ACX_SRC",
-        "paramType-mapping" : "Connection",
-        "logcnx" : "DBConnection_ACX_SRC",
-        "isSelectDistinct" : "false",
-        "objectParameterized" : "false",
-        "visible" : "false",
-        "originalPath" : "src_tgt_query"
-      },
-      "sourceConnectionId" : "@aYZ4ekzHgIPeKpiaoqDLKP",
-      "connectionName" : "redshift_nonprod_andover_dw_dev",
-      "sourceObject" : "DUMMY_src_tgt_query",
-      "newFlatFile" : false,
-      "newObject" : false,
-      "showBusinessNames" : true,
-      "naturalOrder" : true,
-      "truncateTarget" : false,
-      "bulkApiDBTarget" : false,
-      "customFuncCfg" : { },
-      "customQuery" : "select\n\trow_id,\n\tacx_question_reply_row_id,\n\tacx_question_reply_row_md5checksum,\n\tacx_question_reply_row_effective_end_datetime\nfrom\n\tbronze.acx_question_reply\nwhere\n\tacx_question_reply_row_effective_end_datetime = '9999-12-31 00:00:00.000'\norder by system_id, cmm_container ;",
-      "commandType" : 0,
-      "handleSpecialChars" : false,
-      "handleDecimalRoundOff" : false,
-      "frsAsset" : false,
-      "dynamicFileName" : false,
-      "excludeDynamicFileNameField" : false,
-      "currentlyProcessedFileName" : false,
-      "retainFieldMetadata" : false,
-      "objectName" : "DUMMY_src_tgt_query",
-      "useExactSrcNames" : false,
-      "userUpdated" : true,
+      "fetchMode" : "ORIGINAL",
       "runtimeParameterData" : {
         "connectionParameterName" : "DBConnection_ACX_SRC",
         "connectionRuntimeParameter" : false,
@@ -112,8 +67,8 @@
         "supportApplyDDLChanges" : "false",
         "originalPath" : "tgt_insert_records"
       },
-      "targetConnectionId" : "@aYZ4ekzHgIPeKpiaoqDLKP",
-      "connectionName" : "redshift_nonprod_andover_dw_dev",
+      "targetConnectionId" : "@iWG7WweMRiOiUzzrDFkK0U",
+      "connectionName" : "redshift_uat_andover_dw_uat",
       "targetObject" : "bronze/acx_question_reply",
       "targetObjectLabel" : "bronze/acx_question_reply",
       "newFlatFile" : false,
@@ -139,6 +94,7 @@
       "objectLabel" : "bronze/acx_question_reply",
       "useExactSrcNames" : false,
       "userUpdated" : true,
+      "fetchMode" : "ORIGINAL",
       "runtimeParameterData" : {
         "connectionParameterName" : "DBConnection_ACX_TGT",
         "connectionRuntimeParameter" : false,
@@ -165,8 +121,8 @@
         "supportApplyDDLChanges" : "false",
         "originalPath" : "tgt_update_closeout"
       },
-      "targetConnectionId" : "@aYZ4ekzHgIPeKpiaoqDLKP",
-      "connectionName" : "redshift_nonprod_andover_dw_dev",
+      "targetConnectionId" : "@iWG7WweMRiOiUzzrDFkK0U",
+      "connectionName" : "redshift_uat_andover_dw_uat",
       "targetObject" : "bronze/acx_question_reply",
       "targetObjectLabel" : "bronze/acx_question_reply",
       "newFlatFile" : false,
@@ -195,6 +151,7 @@
       "objectLabel" : "bronze/acx_question_reply",
       "useExactSrcNames" : false,
       "userUpdated" : true,
+      "fetchMode" : "ORIGINAL",
       "runtimeParameterData" : {
         "connectionParameterName" : "DBConnection_ACX_TGT",
         "connectionRuntimeParameter" : false,
@@ -220,8 +177,8 @@
         "supportApplyDDLChanges" : "false",
         "originalPath" : "tgt_update_records"
       },
-      "targetConnectionId" : "@aYZ4ekzHgIPeKpiaoqDLKP",
-      "connectionName" : "redshift_nonprod_andover_dw_dev",
+      "targetConnectionId" : "@iWG7WweMRiOiUzzrDFkK0U",
+      "connectionName" : "redshift_uat_andover_dw_uat",
       "targetObject" : "bronze/acx_question_reply",
       "targetObjectLabel" : "bronze/acx_question_reply",
       "newFlatFile" : false,
@@ -247,6 +204,7 @@
       "objectLabel" : "bronze/acx_question_reply",
       "useExactSrcNames" : false,
       "userUpdated" : true,
+      "fetchMode" : "ORIGINAL",
       "runtimeParameterData" : {
         "connectionParameterName" : "DBConnection_ACX_TGT",
         "connectionRuntimeParameter" : false,
@@ -258,8 +216,8 @@
     }
   ],
   "verbose" : false,
-  "lastRunTime" : 1753318572000,
-  "mappingId" : "@1LZOSIJKV8cbwDuhtplvW6",
+  "lastRunTime" : 1753823367000,
+  "mappingId" : "@dJhsfaHs1iZjrnFer8uPUQ",
   "mappingTemplateName" : "cdi_map_acx_question_reply_bronze_load",
   "sessionPropertiesList" : [
     {
@@ -289,5 +247,5 @@
   "allowMaxFieldLength" : false,
   "specialCharacterSupport" : false,
   "midstreamPreview" : false,
-  "vcsExportTime" : "2025-07-23 18:18:18 PDT"
+  "vcsExportTime" : "2025-08-26 10:54:22 PDT"
 }
