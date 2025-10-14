@@ -1,0 +1,176 @@
+{
+  "name" : "s_Load_Fact_Premiums_GW",
+  "description" : "Session pushed from PC to ICS : s_Load_Fact_Premiums_GW",
+  "runtimeEnvironmentId" : "@l5ReTxe0L4Udpq0dXr0vIZ",
+  "runtimeEnvironmentName" : "sag_aws_linux",
+  "maxLogs" : 10,
+  "parameters" : [
+    {
+      "name" : "$EarnedPremium_Fact$",
+      "type" : "SOURCE",
+      "label" : "DBConnection_SRC",
+      "uiProperties" : {
+        "cnxtype" : "Amazon Redshift v2",
+        "connectionParameterized" : "true",
+        "paramName" : "DBConnection_SRC",
+        "paramType-mapping" : "Connection",
+        "logcnx" : "DBConnection_SRC",
+        "isSelectDistinct" : "false",
+        "objectParameterized" : "false",
+        "visible" : "false",
+        "originalPath" : "EarnedPremium_Fact"
+      },
+      "sourceConnectionId" : "@kz9Es8IGoicjZNLnrhio0E",
+      "connectionName" : "redshift_prod_andover_dw_prod",
+      "sourceObject" : "DUMMY_EarnedPremium_Fact",
+      "newFlatFile" : false,
+      "newObject" : false,
+      "showBusinessNames" : true,
+      "naturalOrder" : true,
+      "truncateTarget" : false,
+      "bulkApiDBTarget" : false,
+      "customFuncCfg" : { },
+      "customQuery" : "select\n\na.\"Policy Key\" as Policy_Key\n,\"Policy Key Code\"  as Policy_Key_Code\n,\"Policy Coverage Code\"  as Policy_Coverage_Code\n,AnnualStatementLineCd as Annual_Statement_Line\n,StatLineCd  as Stat_Line_Cd\n,\"Risk State ID\" as Risk_State_ID\n,\"Agency ID\"  as Agency_ID\n,\"Major Peril ID\" as Major_Peril_ID\n,cast(TO_TIMESTAMP(\"Time\",'YYYY-MM-DD HH24:MI:SS')as timestamp) as Dim_Time\n,NULL as \"Inforce Premium\"\n,coalesce(\"SAR Premium\", 0) as \"SAR Premium\"\n,coalesce(\"Commission Amount\", 0) as \"Commission Amount\"\n,coalesce(\"Taxes Service Charges\", 0) as \"Taxes Service Charges\"\n,NULL as \"Earned Premium\"\n,NULL as \"Unearned Premium\"\n,NULL as \"Written Commission Fee Amt\"\n,NULL as \"Written Premium Fee Amt\"\n,NULL as \"Inforce Policy Key\"\n,CoverageCd\n,\"Quoted Premium\"\n,RateAreaName\n FROM\n\n (SELECT \"Policy Key\"\n,\"Policy Key Code\"\n,\"Policy Coverage Code\"\n,\"Risk State ID\"\n,\"Agency ID\"\n,\"Major Peril ID\"\n,\"Time\"\n,AnnualStatementLineCd\n,StatLineCd\n,CoverageCd\n,SUM(\"SAR Premium\") \"SAR Premium\"\n,SUM(\"Commission Amount\") \"Commission Amount\"\n,SUM(\"Taxes Service Charges\") \"Taxes Service Charges\"\n,SUM(QuotedPremium) \"Quoted Premium\"\n,RateAreaNAme\nFROM\n(SELECT\nB.CarrierCd+B.PolicyKey as \"Policy Key\"\n--,B.CarrierCd+B.PolicyKey+A.RiskId as \"Policy Key Code\"\n,case when B.PolicyKey like 'U%' then B.CarrierCd+B.PolicyKey else B.CarrierCd+B.PolicyKey+coalesce(A.RiskId,'') end as \"Policy Key Code\" \t\t\n--,CAST(a.PolicyKey+coalesce(a.RiskId,'')+a.CoverageId AS varchar(100)) as \"Policy Coverage Code\"\n,case when B.PolicyKey like 'U%' then B.PolicyKey+COALESCE(a.CoverageId,'') else CAST(a.PolicyKey+coalesce(a.RiskId,'')+COALESCE(a.CoverageId,'') AS varchar(100)) end as \"Policy Coverage Code\"\n,A.PolicyKey+A.RiskId AS \"Risk State ID\"\n,coalesce(dd.AgencyCd,D.AgencyCd) AS \"Agency ID\"\n,A.MajorperilCd AS \"Major Peril ID\"\n,DATE_TRUNC('month', A.TransactionAccountingDt) AS \"Time\"\n\n,A.WrittenCommissionAmt as \"Commission Amount\"\n,A.Taxesandservicecharges AS \"Taxes Service Charges\"\n,A.WrittenPremiumAmt AS \"SAR Premium\"\n,'Guidewire' AS \"Data Source\"\n,A.AnnualStatementLineCd\n,A.StatLineCd\n,A.CoverageCd\n,A.QuotedPremium\n,a.rateareaname\nFROM dbo.PolicyTransaction A\nLEFT JOIN dbo.PolicyDetail B   on A.PolicyKey = B.PolicyKey\nleft join (select distinct AgentCd,AgencyCd from dbo.Agents   where RowEffEndDt = '9999-12-31 00:00:00.000') d\non d.AgentCd = B.ProviderNumber\nleft join (select distinct AgentCd,AgencyCd from dbo.Agents   where RowEffEndDt = '9999-12-31 00:00:00.000') dd\non dd.AgentCd = a.AgentId\nwhere A.RowEffEndDt = '9999-12-31 00:00:00.000'\nand A.BookDt < cast(CURRENT_TIMESTAMP as date)\n) A\nGROUP BY \"Policy Key\"\n,\"Policy Key Code\"\n,\"Policy Coverage Code\"\n,\"Risk State ID\"\n,\"Agency ID\"\n,\"Major Peril ID\"\n,\"Time\"\n,AnnualStatementLineCd\n,StatLineCd\n,CoverageCd\n,rateareaname\n)a\n\nUNION ALL\n\nselect\n\nCOALESCE( d.\"Policy Key\",b.\"Policy Key\") as Policy_Key\n,COALESCE(d.\"Policy Key Code\",b.\"Policy Key Code\" ) as Policy_Key_Code\n,COALESCE(d.\"Policy Coverage Code\",b.\"Policy Coverage Code\") as Policy_Coverage_Code\n,COALESCE(d.AnnualStatementLineCd,b.AnnualStatementLineCd) as Annual_Statement_Line\n,COALESCE(d.StatLineCd,b.StatLineCd) as Stat_Line_Cd\n,COALESCE(d.\"Risk State ID\",b.\"Risk State ID\") as Risk_State_ID\n,COALESCE(d.\"Agency ID\",b.\"Agency ID\") as Agency_ID\n,COALESCE(d.\"Major Peril ID\",b.\"Major Peril ID\") as Major_Peril_ID\n,COALESCE(d.\"Time\",b.\"Time\") as Dim_Time\n,coalesce(\"Inforce Premium\", 0) as \"Inforce Premium\"\n,null as \"SAR Premium\"\n,NULL as \"Commission Amount\"\n,NULL as \"Taxes Service Charges\"\n,coalesce(\"Earned Premium\", 0) as \"Earned Premium\"\n,coalesce(\"Unearned Premium\", 0) as \"Unearned Premium\"\n,coalesce(\"Written Commission Fee Amt\", 0) as \"Written Commission Fee Amt\"\n,coalesce(\"Written Premium Fee Amt\", 0) as \"Written Premium Fee Amt\"\n,\"Inforce Policy Key\"\n,coalesce(d.CoverageCd,b.coverageCd) as CoverageCd\n,NULL as \"Quoted Premium\"\n,coalesce(d. rateareaname,b.rateAReaName) as RateAreaName\nfrom\n(\nSELECT \"Policy Key\"\n,\"Policy Key Code\"\n,\"Policy Coverage Code\"\n,\"Risk State ID\"\n,\"Agency ID\"\n,\"Major Peril ID\"\n,cast(TO_TIMESTAMP(\"Time\",'YYYY-MM-DD HH24:MI:SS')as timestamp) as \"Time\"\n,AnnualStatementLineCd\n,StatLineCd\n,CoverageCd\n,RateAreaName\n,SUM(\"Earned Premium\") AS \"Earned Premium\"\n,SUM(\"Unearned Premium\") AS \"Unearned Premium\"\n,SUM(\"Written Premium Fee Amt\") AS \"Written Premium Fee Amt\"\n,SUM(\"Written Commission Fee Amt\") AS \"Written Commission Fee Amt\"\nFROM\n(\n    SELECT\nCAST(B.CarrierCd+B.PolicyKey AS varchar(100)) AS \"Policy Key\"\n--,CAST(B.CarrierCd+B.PolicyKey+A.RiskId AS varchar(100)) AS \"Policy Key Code\"\n,case when B.PolicyKey like 'U%' then B.CarrierCd+B.PolicyKey else B.CarrierCd+B.PolicyKey+coalesce(A.RiskId,'') end as \"Policy Key Code\"\n--,CAST(A.PolicyKey+coalesce(A.RiskId,'')+A.CoverageId AS varchar(100)) as \"Policy Coverage Code\"\n,case when B.PolicyKey like 'U%' then B.PolicyKey+COALESCE(a.CoverageId,'') else CAST(a.PolicyKey+coalesce(a.RiskId,'')+COALESCE(a.CoverageId,'') AS varchar(100)) end as \"Policy Coverage Code\"\n,CAST(A.PolicyKey+A.RiskId AS varchar(100)) AS \"Risk State ID\"\n,coalesce(dd.Agencycd,D.AgencyCd) AS \"Agency ID\"\n,A.MajorperilCd AS \"Major Peril ID\"\n,TO_TIMESTAMP(SUBSTRING(ReportPeriod, 1, 4) || '-' || SUBSTRING(ReportPeriod, 5, 2) || '-01', 'YYYY-MM-DD') AS \"Time\"\n,A.MTDEarnedPremiumAmount AS \"Earned Premium\"\n,A.UNearnedPremiumAmount AS \"Unearned Premium\"\n, A.MTDWrittenCommissionFeeAmt AS \"Written Commission Fee Amt\"\n, A. MTDWrittenPremiumFeeAmt AS \"Written Premium Fee Amt\"\n,'Guidewire' AS \"Data Source\"\n,A.AnnualStatementLineCd\n,A.StatLineCd\n,A.CoverageCd\n,A.RateAreaName\nFROM dbo.EarnedPremiumFact A\nLEFT JOIN dbo.PolicyDetail B    ON A.PolicyKey = B.PolicyKey\nLEFT JOIN (select distinct agentcd,agencycd from dbo.agents  where RowEffEndDt = '9999-12-31 00:00:00.000') D\nON D.AgentCd = B.ProviderNumber\nLEFT JOIN (select distinct agentcd,agencycd from dbo.agents  where RowEffEndDt = '9999-12-31 00:00:00.000') DD\nON Dd.AgentCd = a.AgentId\n\n) B\nGROUP BY \"Policy Key\"\n,\"Policy Key Code\"\n,\"Policy Coverage Code\"\n,\"Risk State ID\"\n,\"Agency ID\"\n,\"Major Peril ID\"\n,\"Time\"\n,AnnualStatementLineCd\n,StatLineCd\n,CoverageCd\n,RateAreaName\n) b\n\nfull outer join\n\n(SELECT\n          c.CarrierCd+A.policykey AS \"Policy Key\"\n,c.CarrierCd+A.policykey AS \"Inforce Policy Key\"\n         --,c.CarrierCd+A.policykey+A.RiskId AS \"Policy Key Code\"\n,case when A.PolicyKey like 'U%' then c.CarrierCd+a.PolicyKey else c.CarrierCd+a.PolicyKey+coalesce(A.RiskId,'') end as \"Policy Key Code\"\n        --,CAST(a.PolicyKey+coalesce(a.RiskId,'')+a.CoverageId AS varchar(100)) as \"Policy Coverage Code\"\n,case when a.PolicyKey like 'U%' then a.PolicyKey+COALESCE(a.CoverageId,'') else CAST(a.PolicyKey+coalesce(a.RiskId,'')+COALESCE(a.CoverageId,'') AS varchar(100)) end as \"Policy Coverage Code\"\n        ,a.majorperilcd AS \"Major Peril ID\"\n         ,a.PolicyKey+a.RiskId AS \"Risk State ID\"\n        ,coalesce(gg.agencycd, g.AgencyCd) AS \"Agency ID\"\n         ,d.dimid AS \"Inforce TimeID\"\n        ,d.calendar_dt AS \"Accident Time\"\n        ,cast(TO_TIMESTAMP(d.calendar_dt,'YYYY-MM-DD HH24:MI:SS')as timestamp)  AS \"Time\"\n        ,SUM(a.InforcedAmount) AS \"Inforce Premium\"\n        ,'Guidewire' AS \"Data Source\"\n        ,A.AnnualStatementLineCd\n        ,a.StatLineCd\n        ,CoverageCd\n        ,RateAreaName\nFROM dbo.earnedpremiumfact a\ninner join\n(select CarrierCd,PolicyKey,ProviderNumber,CONCAT(SUBSTRING(TO_CHAR(PolicyEffectiveDt, 'YYYYMMDD'), 1, 6), '01') as PolicyStartDt,\n                                            case when PolicyCancelDt is null then CONCAT(SUBSTRING(TO_CHAR(PolicyExpirationDt, 'YYYYMMDD'), 1, 6), '01')\n\nelse CONCAT(SUBSTRING(TO_CHAR(PolicyCancelDt, 'YYYYMMDD'), 1, 6), '01')\n  end as PolicyEndDt, policysystemid from dbo.policydetail\n                                      ) c\non  a.policykey = c.policykey\nleft join (select distinct agentcd,agencycd from dbo.Agents where RowEffEndDt = '9999-12-31 00:00:00.000') g\non c.ProviderNumber = g.AgentCd\nleft join  (select dimid,calendar_dt,concat(left(period,4),right(period,2)) as reportperiod from dbo.view_dim_time) d\non  d.reportperiod = a.reportperiod\nleft join (select distinct agentcd,agencycd from dbo.Agents where RowEffEndDt = '9999-12-31 00:00:00.000') gg\non gg.AgentCd =a.AgentId\nwhere  TO_CHAR(d.calendar_dt, 'YYYYMMDD') < c.PolicyEndDt\n\nGROUP BY c.CarrierCd,A.policykey,A.RiskId,a.CoverageId,A.AnnualStatementLineCd,coalesce(gg.agencycd, g.AgencyCd),a.majorperilcd, d.dimid, d.calendar_dt\n,a.AnnualStatementLineCd,a.StatLineCd,CoverageCd,RateAreaName\n) d\non B.\"Policy Key\"=d.\"Policy Key\"\nand b.\"Policy Key Code\" =d.\"Policy Key Code\"\nand b.\"Policy Coverage Code\"=d.\"Policy Coverage Code\"\nand b.AnnualStatementLineCd=d.AnnualStatementLineCd\nand b.StatLineCd=d.StatLineCd\nand b.CoverageCd=d.CoverageCd\nand b.\"Risk State ID\"=d.\"Risk State ID\"\nand b.\"Agency ID\"=d.\"Agency ID\"\nand b.\"Major Peril ID\"=d.\"Major Peril ID\"\nand b.RateAreaName=d.RateAreaName\nand b.\"Time\"=d.\"Time\"",
+      "commandType" : 0,
+      "handleSpecialChars" : false,
+      "handleDecimalRoundOff" : false,
+      "frsAsset" : false,
+      "dynamicFileName" : false,
+      "excludeDynamicFileNameField" : false,
+      "currentlyProcessedFileName" : false,
+      "retainFieldMetadata" : false,
+      "objectName" : "DUMMY_EarnedPremium_Fact",
+      "useExactSrcNames" : false,
+      "userUpdated" : true,
+      "runtimeParameterData" : {
+        "connectionParameterName" : "DBConnection_SRC",
+        "connectionRuntimeParameter" : true,
+        "objectRuntimeParameter" : false
+      },
+      "restmodernSource" : true,
+      "unspecified" : false,
+      "fileList" : false
+    },
+    {
+      "name" : "$Fact_Agg_GW_Premiums$",
+      "type" : "TARGET",
+      "label" : "DBConnection_TGT",
+      "uiProperties" : {
+        "cnxtype" : "Amazon Redshift v2",
+        "connectionParameterized" : "true",
+        "paramName" : "DBConnection_TGT",
+        "paramType-mapping" : "Connection",
+        "logcnx" : "DBConnection_TGT",
+        "default" : "dbo/fact_agg_gw_premiums",
+        "objectParameterized" : "false",
+        "visible" : "false",
+        "supportApplyDDLChanges" : "false",
+        "originalPath" : "Fact_Agg_GW_Premiums"
+      },
+      "targetConnectionId" : "@kz9Es8IGoicjZNLnrhio0E",
+      "connectionName" : "redshift_prod_andover_dw_prod",
+      "targetObject" : "dbo/fact_agg_gw_premiums",
+      "targetObjectLabel" : "fact_agg_gw_premiums",
+      "newFlatFile" : false,
+      "newObject" : false,
+      "showBusinessNames" : true,
+      "naturalOrder" : true,
+      "truncateTarget" : false,
+      "bulkApiDBTarget" : false,
+      "operationType" : "Insert",
+      "customFuncCfg" : { },
+      "extendedObject" : {
+        "singleMode" : true
+      },
+      "commandType" : 0,
+      "handleSpecialChars" : false,
+      "handleDecimalRoundOff" : false,
+      "frsAsset" : false,
+      "dynamicFileName" : false,
+      "excludeDynamicFileNameField" : false,
+      "currentlyProcessedFileName" : false,
+      "retainFieldMetadata" : false,
+      "objectName" : "dbo/fact_agg_gw_premiums",
+      "objectLabel" : "fact_agg_gw_premiums",
+      "useExactSrcNames" : false,
+      "userUpdated" : true,
+      "runtimeParameterData" : {
+        "connectionParameterName" : "DBConnection_TGT",
+        "connectionRuntimeParameter" : true,
+        "objectRuntimeParameter" : false
+      },
+      "restmodernSource" : true,
+      "unspecified" : false,
+      "fileList" : false
+    }
+  ],
+  "verbose" : false,
+  "lastRunTime" : 1760165405000,
+  "mappingId" : "@4JikVpP52l2d94vU2293eM",
+  "mappingTemplateName" : "m_Load_Fact_Premiums_GW",
+  "sessionPropertiesList" : [
+    {
+      "name" : "Allow Temporary Sequence for Pushdown",
+      "value" : "NO"
+    },
+    {
+      "name" : "Allow Temporary View for Pushdown",
+      "value" : "NO"
+    },
+    {
+      "name" : "Commit On End Of File",
+      "value" : "YES"
+    },
+    {
+      "name" : "Commit Type",
+      "value" : "Target"
+    },
+    {
+      "name" : "Data Column Delimiter",
+      "value" : "|"
+    },
+    {
+      "name" : "Error Log File Directory",
+      "value" : "$PMBadFileDir\\"
+    },
+    {
+      "name" : "Error Log File Name",
+      "value" : "PMError.log"
+    },
+    {
+      "name" : "Log Row Data",
+      "value" : "YES"
+    },
+    {
+      "name" : "Pushdown Optimization",
+      "value" : "None"
+    },
+    {
+      "name" : "Pushdown Optimization Context",
+      "value" : "None"
+    },
+    {
+      "name" : "Pushdown Optimization Fallback Option",
+      "value" : "Partial PDO"
+    },
+    {
+      "name" : "Treat source rows as",
+      "value" : "Insert"
+    }
+  ],
+  "hidden" : false,
+  "enableCrossSchemaPushdown" : false,
+  "enableParallelRun" : false,
+  "autoTunedApplied" : false,
+  "autoTunedAppliedType" : "NONE",
+  "parameterFileName" : "Andover_Param_GW.param",
+  "parameterFileDir" : "$PMRootDir/andover/parameters",
+  "paramFileType" : "PARAM_FILE_LOCAL",
+  "schemaMode" : "async",
+  "valid" : true,
+  "optimizationPlan" : "NONE",
+  "allowMaxFieldLength" : false,
+  "specialCharacterSupport" : false,
+  "midstreamPreview" : false,
+  "vcsExportTime" : "2025-10-14 09:59:29 EDT"
+}
