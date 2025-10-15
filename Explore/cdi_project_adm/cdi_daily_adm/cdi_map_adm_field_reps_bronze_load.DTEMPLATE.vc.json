@@ -4,7 +4,7 @@
     "allowMaxFieldLength" : "false",
     "bigIntConvertType" : "ONLY_BIGINT",
     "documentType" : "MAPPING",
-    "name" : "cdi_map_adm_field_reps_bronze_stg_load",
+    "name" : "cdi_map_adm_field_reps_bronze_load",
     "specialCharacterSupport" : "false",
     "links" : [
       {
@@ -51,7 +51,7 @@
         "groupLink" : "OutputGroup -> DefaultGroup"
       },
       {
-        "link" : "Source_delta_changes_field_representatives -> exp_convert_datatype"
+        "link" : "Source_delta_changes_field_reps -> exp_convert_datatype"
       }
     ],
     "parameters" : [
@@ -2358,7 +2358,7 @@
       {
         "description" : "Loads from Metal staging layer to the Bronze tables. SCD2(maintains history of the records, active records are open ended and old ones have closed date)",
         "createTime" : "2025-09-15T23:26:41.367Z",
-        "name" : "Source_delta_changes_field_representatives",
+        "name" : "Source_delta_changes_field_reps",
         "advancedProperties" : [
           {
             "name" : "Tracing Level",
@@ -2467,7 +2467,7 @@
           "typeSystem" : "TOOLKIT",
           "useDynamicFileName" : "false",
           "object" : {
-            "customQuery" : "with current_batch as (\nselect\n\tbls.batch_id,\n\tbls.source_start_cutoff_datetime,\n\tbls.source_end_cutoff_datetime\nfrom\n\t$$operational_schema.batch_load_summary bls\nwhere\n\tbls.source_system_code = $$sourcesystemcode\n\tand bls.batch_status = 'Inprogress'\n\tand bls.batch_id = (\n\tselect\n\t\tMAX(batch_id)\n\tfrom\n\t\t$$operational_schema.batch_load_summary\n\twhere\n\t\tsource_system_code = $$sourcesystemcode\n\t\tand batch_status = 'Inprogress'\n      )\n)\t\n\t\nselect\n\tdistinct\n\tmetal_afr.source_name,\n\tmetal_afr.load_type,\n\tmetal_afr.email,\n\tmetal_afr.id,\n\tmetal_afr.territory,\n\tmetal_afr.\"name\",\n\tcurrent_batch.batch_id\nfrom\n\t $$raw_schema.adm_field_reps metal_afr\ncross join current_batch\norder by\n\tmetal_afr.id;",
+            "customQuery" : "with current_batch as (\nselect\n\tbls.batch_id,\n\tbls.source_start_cutoff_datetime,\n\tbls.source_end_cutoff_datetime\nfrom\n\t$$operational_schema.batch_load_summary bls\nwhere\n\tbls.source_system_code = '$$sourcesystemcode'\n\tand bls.batch_status = 'Inprogress'\n\tand bls.batch_id = (\n\tselect\n\t\tMAX(batch_id)\n\tfrom\n\t\t$$operational_schema.batch_load_summary\n\twhere\n\t\tsource_system_code = '$$sourcesystemcode'\n\t\tand batch_status = 'Inprogress'\n      )\n)\n\t\nselect\n\tdistinct\n\tmetal_afr.source_name,\n\tmetal_afr.load_type,\n\tmetal_afr.email,\n\tmetal_afr.id,\n\tmetal_afr.territory,\n\tmetal_afr.\"name\",\n\tcurrent_batch.batch_id\nfrom\n\t $$raw_schema.adm_field_reps metal_afr\ncross join current_batch\norder by\n\tmetal_afr.id;",
             "retainMetadata" : "true",
             "fields" : [
               {
@@ -2685,5 +2685,5 @@
       }
     ]
   },
-  "vcsExportTime" : "2025-09-15 20:30:00 PDT"
+  "vcsExportTime" : "2025-10-09 06:07:05 PDT"
 }
