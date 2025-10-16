@@ -18,7 +18,6 @@
         "isSelectDistinct" : "false",
         "objectParameterized" : "false",
         "visible" : "false",
-        "isCustomQueryRetainMetaData" : "true",
         "originalPath" : "src_get_max_batch_id"
       },
       "sourceConnectionId" : "@aYZ4ekzHgIPeKpiaoqDLKP",
@@ -31,7 +30,7 @@
       "truncateTarget" : false,
       "bulkApiDBTarget" : false,
       "customFuncCfg" : { },
-      "customQuery" : "select batch_load_summary_row_id,target_table_name,batch_id from $$operations_schema.batch_load_summary where target_table_name = '$$target_table_name' and target_schema_name = '$$bronze_schema' AND batch_id in ( SELECT MAX(batch_id) AS batch_id from $$operations_schema.batch_load_summary WHERE source_system_code = '$$SourceSystemCode' AND batch_status = 'Inprogress' AND target_table_name = '$$target_table_name' AND batch_end_Datetime IS NULL and target_schema_name = '$$bronze_schema' GROUP BY target_table_name ) and batch_end_Datetime IS NULL",
+      "customQuery" : "select batch_load_summary_row_id,\ntarget_table_name,\nbatch_id,\ntarget_schema_name,\nsource_system_code  \nfrom $$operations_schema.batch_load_summary where target_table_name = '$$target_table_name' and target_schema_name = '$$target_schema_name' AND batch_id in ( SELECT MAX(batch_id) AS batch_id from $$operations_schema.batch_load_summary WHERE source_system_code = '$$SourceSystemCode' AND batch_status = 'Inprogress' AND target_table_name = '$$target_table_name' AND batch_end_Datetime IS NULL and target_schema_name = '$$target_schema_name' GROUP BY target_table_name ) and batch_end_Datetime IS NULL",
       "commandType" : 0,
       "handleSpecialChars" : false,
       "handleDecimalRoundOff" : false,
@@ -43,7 +42,6 @@
       "objectName" : "DUMMY_src_get_max_batch_id",
       "useExactSrcNames" : false,
       "userUpdated" : true,
-      "fetchMode" : "ORIGINAL",
       "runtimeParameterData" : {
         "connectionParameterName" : "DBConnection_UDM_SRC",
         "connectionRuntimeParameter" : true,
@@ -105,7 +103,6 @@
       "objectLabel" : "operations/batch_load_summary",
       "useExactSrcNames" : false,
       "userUpdated" : true,
-      "fetchMode" : "ORIGINAL",
       "runtimeParameterData" : {
         "connectionParameterName" : "DBConnection_UDM_TGT",
         "connectionRuntimeParameter" : true,
@@ -163,7 +160,7 @@
         "Pre-build lookup cache" : "AUTO",
         "Include Only Required Fields" : "false"
       },
-      "customQuery" : "select batch_id, target_table_name, source_system_code , batch_status, row_created_datetime\nfrom  $$operations_schema.batch_load_summary\nWHERE\nsource_system_code = '$$SourceSystemCode' AND batch_status = 'Success' AND  target_table_name = '$$target_table_name' and target_schema_name = '$$bronze_schema'\nand batch_id =\n(\nSELECT MAX(batch_id) AS batch_id\nfrom\n$$operations_schema.batch_load_summary\nWHERE\nsource_system_code = '$$SourceSystemCode' AND batch_status = 'Success' AND  target_table_name = '$$target_table_name' and target_schema_name = '$$bronze_schema'\nGROUP BY target_table_name\n)",
+      "customQuery" : "select batch_id, target_table_name, source_system_code , batch_status, row_created_datetime\nfrom  $$operations_schema.batch_load_summary\nWHERE\nsource_system_code = '$$SourceSystemCode' AND batch_status = 'Success' AND  target_table_name = '$$target_table_name' and target_schema_name = '$$target_schema_name'\nand batch_id =\n(\nSELECT MAX(batch_id) AS batch_id\nfrom\n$$operations_schema.batch_load_summary\nWHERE\nsource_system_code = '$$SourceSystemCode' AND batch_status = 'Success' AND  target_table_name = '$$target_table_name' and target_schema_name = '$$target_schema_name'\nGROUP BY target_table_name\n)",
       "commandType" : 0,
       "handleSpecialChars" : false,
       "handleDecimalRoundOff" : false,
@@ -175,7 +172,6 @@
       "objectName" : "DUMMY_lkp_last_sucessful_run_time",
       "useExactSrcNames" : false,
       "userUpdated" : true,
-      "fetchMode" : "ORIGINAL",
       "runtimeParameterData" : {
         "connectionParameterName" : "DBConnection_UDM_TGT",
         "connectionRuntimeParameter" : true,
@@ -212,43 +208,6 @@
       "retainFieldMetadata" : false,
       "useExactSrcNames" : false,
       "userUpdated" : true,
-      "fetchMode" : "ORIGINAL",
-      "runtimeParameterData" : {
-        "connectionRuntimeParameter" : false,
-        "objectRuntimeParameter" : false
-      },
-      "restmodernSource" : true,
-      "unspecified" : false,
-      "fileList" : false
-    },
-    {
-      "name" : "$bronze_schema$",
-      "type" : "STRING",
-      "text" : "bronze",
-      "label" : "bronze_schema",
-      "uiProperties" : {
-        "paramName" : "bronze_schema",
-        "paramType-mapping" : "String",
-        "originalPath" : "exp_get_data"
-      },
-      "newFlatFile" : false,
-      "newObject" : false,
-      "showBusinessNames" : true,
-      "naturalOrder" : true,
-      "truncateTarget" : false,
-      "bulkApiDBTarget" : false,
-      "customFuncCfg" : { },
-      "commandType" : 0,
-      "handleSpecialChars" : false,
-      "handleDecimalRoundOff" : false,
-      "frsAsset" : false,
-      "dynamicFileName" : false,
-      "excludeDynamicFileNameField" : false,
-      "currentlyProcessedFileName" : false,
-      "retainFieldMetadata" : false,
-      "useExactSrcNames" : false,
-      "userUpdated" : true,
-      "fetchMode" : "ORIGINAL",
       "runtimeParameterData" : {
         "connectionRuntimeParameter" : false,
         "objectRuntimeParameter" : false
@@ -259,7 +218,7 @@
     }
   ],
   "verbose" : false,
-  "lastRunTime" : 1758002959000,
+  "lastRunTime" : 1760627945000,
   "mappingId" : "@3KzwEDjcw9Qk3FuBEWlmam",
   "mappingTemplateName" : "cdi_map_batch_load_status_update",
   "sessionPropertiesList" : [
@@ -302,6 +261,16 @@
       "retentionPolicy" : "NEVER",
       "aggregationType" : "MAX",
       "currentValue" : "operations"
+    },
+    {
+      "name" : "target_schema_name",
+      "initialValue" : "bronze",
+      "datatype" : "STRING",
+      "precision" : "50",
+      "scale" : "0",
+      "retentionPolicy" : "NEVER",
+      "aggregationType" : "MAX",
+      "currentValue" : "bronze"
     }
   ],
   "hidden" : false,
@@ -318,5 +287,5 @@
   "allowMaxFieldLength" : false,
   "specialCharacterSupport" : false,
   "midstreamPreview" : false,
-  "vcsExportTime" : "2025-09-16 10:53:30 EDT"
+  "vcsExportTime" : "2025-10-16 08:34:02 PDT"
 }
