@@ -18,13 +18,13 @@
         "link" : "exp_set_defaults_and_md5 -> tgt_stp_api_data"
       },
       {
-        "link" : "src_data_src_query -> Agg_src_sys_id"
+        "link" : "exp_compare_concat -> Agg_src_sys_id"
       },
       {
-        "link" : "exp_pass_thru -> exp_set_defaults_and_md5"
+        "link" : "src_data_src_query -> exp_compare_concat"
       },
       {
-        "link" : "Agg_src_sys_id -> exp_pass_thru"
+        "link" : "Agg_src_sys_id -> exp_set_defaults_and_md5"
       }
     ],
     "parameters" : [
@@ -310,7 +310,7 @@
           "typeSystem" : "TOOLKIT",
           "useDynamicFileName" : "false",
           "object" : {
-            "customQuery" : "SELECT \n  policy_source_system_id,\n  'Policy' AS policy_cmm_container,\n  policy_number, \n  policy_module_number,\n  line_of_business,\n  policy_effective_date,\n  risk_state,\n  insured_name,\n  customer_number,\n  overall_rule_pass_fail_indicator,\n  GETDATE()::date AS task_work_date,\n  'UnderwritingPersonalLines' AS task_original_owner,\n  'Group' AS task_original_owner_code,\n  'UnderwritingPersonalLines' AS task_current_owner,\n  'Group' AS task_current_owner_code,\n  1 AS task_priority,\n'- ' || rule_name || ': ' || condition_column_name_left || COALESCE(calculation_operator || COALESCE(condition_column_name_right || calculation_constant_value,'') ,'') || ' - ' || final_value AS task_text,\n  rule_type,\n  rule_row_pass_fail_indicator\nFROM $$refined_schema.straight_through_processing_validated_data\nWHERE stp_validated_data_loaded_to_api_table_status = 'Load to API table pending'\nAND overall_rule_pass_fail_indicator = 'FAIL'\nAND rule_row_pass_fail_indicator = 'FAIL'\nORDER BY policy_source_system_id, rule_id, condition_order_number, straight_through_processing_rule_row_id;",
+            "customQuery" : "SELECT \n  policy_source_system_id,\n  'Policy' AS policy_cmm_container,\n  policy_number, \n  policy_module_number,\n  line_of_business,\n  policy_effective_date,\n  risk_state,\n  insured_name,\n  customer_number,\n  overall_rule_pass_fail_indicator,\n  GETDATE()::date AS task_work_date,\n  'UnderwritingPersonalLines' AS task_original_owner,\n  'Group' AS task_original_owner_code,\n  'UnderwritingPersonalLines' AS task_current_owner,\n  'Group' AS task_current_owner_code,\n  1 AS task_priority,\n'- ' || rule_name || ': ' || condition_column_name_left || COALESCE(calculation_operator || COALESCE(condition_column_name_right \n|| calculation_constant_value,'') ,'') || ' - ' || final_value AS task_text,\n  rule_type,\n  rule_row_pass_fail_indicator\nFROM $$refined_schema.straight_through_processing_validated_data\nWHERE \nstp_validated_data_loaded_to_api_table_status = 'Load to API table pending'\nAND overall_rule_pass_fail_indicator = 'FAIL'\nAND rule_row_pass_fail_indicator = 'FAIL'\nORDER BY policy_source_system_id, rule_id, condition_order_number, straight_through_processing_rule_row_id;",
             "retainMetadata" : "false",
             "fields" : [
               {
@@ -1870,7 +1870,7 @@
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "o_concat",
+              "fromFieldName" : "o_concat_txt",
               "toField" : {
                 "name" : "task_text"
               },
@@ -1939,7 +1939,7 @@
             "precision" : 2000,
             "scale" : 0,
             "expFieldType" : "OUTPUT",
-            "expression" : "MD5('policy_source_system_id' || to_char(policy_source_system_id) ||\n'policy_number' || policy_number ||\n'policy_module_number' || policy_module_number ||\n'line_of_business'|| line_of_business ||\n'policy_effective_date'|| to_char(policy_effective_date) ||\n'risk_state'||risk_state ||\n'insured_name' || insured_name ||\n'customer_number' ||customer_number ||\n'overall_rule_pass_fail_indicator' || overall_rule_pass_fail_indicator)"
+            "expression" : "MD5('policy_source_system_id' || to_char(policy_source_system_id) ||\n'policy_number' || policy_number ||\n'policy_module_number' || policy_module_number ||\n'line_of_business'|| line_of_business ||\n'policy_effective_date'|| to_char(policy_effective_date) ||\n'risk_state'||risk_state ||\n'insured_name' || insured_name ||\n'customer_number' ||customer_number ||\n'overall_rule_pass_fail_indicator' || overall_rule_pass_fail_indicator ||\n'task_text' || task_text)"
           },
           {
             "defaultValue" : "ERROR('transformation error')",
@@ -2182,28 +2182,6 @@
             ]
           }
         ],
-        "fields" : [
-          {
-            "name" : "v_concat",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 70000,
-            "scale" : 0,
-            "expFieldType" : "VARIABLE",
-            "expression" : "IIF(ISNULL(v_Concat), task_text, v_Concat || chr(13) || task_text)"
-          },
-          {
-            "name" : "o_concat",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 70000,
-            "scale" : 0,
-            "expFieldType" : "OUTPUT",
-            "expression" : "v_concat"
-          }
-        ],
         "groupByFieldsList" : {
           "fields" : [
             {
@@ -2213,8 +2191,8 @@
         }
       },
       {
-        "createTime" : "2025-10-09T16:46:19.246Z",
-        "name" : "exp_pass_thru",
+        "createTime" : "2025-10-15T16:38:16.539Z",
+        "name" : "exp_compare_concat",
         "groups" : [
           {
             "input" : "true",
@@ -2229,6 +2207,39 @@
           }
         ],
         "windowConfigurationEnabled" : "false",
+        "fields" : [
+          {
+            "name" : "v_concat_txt",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 70000,
+            "scale" : 0,
+            "expFieldType" : "VARIABLE",
+            "expression" : "IIF(policy_source_system_id = v_prev_policy_source_system_id, (v_concat_txt || chr(13) || task_text), task_text)"
+          },
+          {
+            "name" : "v_prev_policy_source_system_id",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0,
+            "expFieldType" : "VARIABLE",
+            "expression" : "policy_source_system_id"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_concat_txt",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 70000,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "v_concat_txt"
+          }
+        ],
         "windowSpec" : {
           "allRowsFollowing" : "false",
           "allRowsPreceding" : "false",
@@ -2277,5 +2288,5 @@
       }
     ]
   },
-  "vcsExportTime" : "2025-10-09 19:41:09 PDT"
+  "vcsExportTime" : "2025-10-15 10:19:25 PDT"
 }

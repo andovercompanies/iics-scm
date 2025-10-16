@@ -3,18 +3,18 @@
     "allowMaxFieldLength" : "false",
     "bigIntConvertType" : "ONLY_BIGINT",
     "documentType" : "MAPPING",
-    "name" : "cdi_map_stp_api_data_operations_update_status",
+    "name" : "cdi_map_stp_validated_data_silver_update_status",
     "specialCharacterSupport" : "false",
     "links" : [
       {
-        "link" : "Exp_updated_status -> tgt_operations_stg_api_data_status_update"
+        "link" : "Exp_updated_status -> tgt_silver_stp_validated_data"
       },
       {
         "link" : "src_operations_stp_api_data -> jnr_match_recs",
         "groupLink" : "DefaultGroup -> Master"
       },
       {
-        "link" : "src_acx_query -> jnr_match_recs",
+        "link" : "src_silver_stp_validated_data -> jnr_match_recs",
         "groupLink" : "DefaultGroup -> Detail"
       },
       {
@@ -58,19 +58,6 @@
           "subType" : "TOOLKIT_CCI",
           "typeSystem" : "TOOLKIT",
           "connectionType" : "Amazon Redshift v2"
-        }
-      },
-      {
-        "input" : "true",
-        "output" : "false",
-        "precision" : 0,
-        "scale" : 0,
-        "allowRuntimeOverride" : "true",
-        "expressionVariable" : "false",
-        "name" : "DBConnection_SRCM",
-        "anonymousType" : {
-          "typeSystem" : "MySQL",
-          "connectionType" : "MySQL"
         }
       }
     ],
@@ -153,39 +140,6 @@
             },
             "precision" : 63,
             "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "task_system_id"
-            },
-            "name" : "task_system_id",
-            "platformType" : {
-              "name" : "integer"
-            },
-            "precision" : 10,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "task_id"
-            },
-            "name" : "task_id",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 127,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "stp_api_data_id"
-            },
-            "name" : "stp_api_data_id",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 63,
-            "scale" : 0
           }
         ],
         "dataAdapter" : {
@@ -197,7 +151,7 @@
           "typeSystem" : "TOOLKIT",
           "useDynamicFileName" : "false",
           "object" : {
-            "customQuery" : "select policy_source_system_id, policy_number,\npolicy_cmm_container, insured_name,stp_api_data_transfer_to_guidewire_status,\ntask_system_id, task_id,\nstp_api_data_id\nfrom operations.straight_through_processing_api_data\nwhere\nstp_api_data_transfer_to_guidewire_status in ('Confirmed by API', 'Failed')\norder by policy_source_system_id desc",
+            "customQuery" : "select policy_source_system_id, policy_number,\npolicy_cmm_container, insured_name,stp_api_data_transfer_to_guidewire_status\nfrom operations.straight_through_processing_api_data\nwhere\nstp_api_data_transfer_to_guidewire_status = 'Queued for transfer'\norder by policy_source_system_id desc",
             "retainMetadata" : "false",
             "fields" : [
               {
@@ -279,54 +233,6 @@
                     "value" : "INFARS_CUSTOM_SCHEMA"
                   }
                 ]
-              },
-              {
-                "name" : "task_system_id",
-                "fieldType" : "CONNECTOR",
-                "label" : "task_system_id",
-                "nativeName" : "task_system_id",
-                "nativeType" : "int4",
-                "original" : "false",
-                "precision" : 10,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "INFARS_CUSTOM_SCHEMA"
-                  }
-                ]
-              },
-              {
-                "name" : "task_id",
-                "fieldType" : "CONNECTOR",
-                "label" : "task_id",
-                "nativeName" : "task_id",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 127,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "INFARS_CUSTOM_SCHEMA"
-                  }
-                ]
-              },
-              {
-                "name" : "stp_api_data_id",
-                "fieldType" : "CONNECTOR",
-                "label" : "stp_api_data_id",
-                "nativeName" : "stp_api_data_id",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 63,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "INFARS_CUSTOM_SCHEMA"
-                  }
-                ]
               }
             ]
           },
@@ -335,7 +241,8 @@
             "descending" : "false",
             "queryAll" : "false",
             "rowLimit" : 0,
-            "selectDistinct" : "false"
+            "selectDistinct" : "false",
+            "advancedFilterCondition" : "stp_api_data_transfer_to_guidewire_status = 'Queued for transfer'"
           },
           "runtimeAttributes" : {
             "attributes" : [
@@ -381,7 +288,13 @@
       },
       {
         "createTime" : "2025-10-08T20:52:55.017Z",
-        "name" : "tgt_operations_stg_api_data_status_update",
+        "name" : "tgt_silver_stp_validated_data",
+        "advancedProperties" : [
+          {
+            "name" : "Forward Rejected Rows",
+            "value" : "true"
+          }
+        ],
         "groups" : [
           {
             "input" : "true",
@@ -401,16 +314,16 @@
         "schemaProviderType" : "SELECTED_OBJECT",
         "targetFieldsOrdered" : "false",
         "updateColumns" : [
-          "stp_api_data_id"
+          "policy_source_system_id"
         ],
         "useLabels" : "false",
         "useSequenceFields" : "false",
         "fields" : [
           {
             "adapterField" : {
-              "name" : "stp_api_data_id"
+              "name" : "stp_validated_data_id"
             },
-            "name" : "stp_api_data_id",
+            "name" : "stp_validated_data_id",
             "platformType" : {
               "name" : "string"
             },
@@ -419,9 +332,20 @@
           },
           {
             "adapterField" : {
-              "name" : "stp_api_data_domain"
+              "name" : "stp_validated_data_source_system"
             },
-            "name" : "stp_api_data_domain",
+            "name" : "stp_validated_data_source_system",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "stp_validated_data_domain"
+            },
+            "name" : "stp_validated_data_domain",
             "platformType" : {
               "name" : "string"
             },
@@ -430,9 +354,53 @@
           },
           {
             "adapterField" : {
-              "name" : "stp_api_data_row_created_datetime"
+              "name" : "stp_validated_data_type"
             },
-            "name" : "stp_api_data_row_created_datetime",
+            "name" : "stp_validated_data_type",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "stp_validated_data_batch_id"
+            },
+            "name" : "stp_validated_data_batch_id",
+            "platformType" : {
+              "name" : "bigint"
+            },
+            "precision" : 19,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "originating_source_name"
+            },
+            "name" : "originating_source_name",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "originating_load_type"
+            },
+            "name" : "originating_load_type",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "stp_validated_data_row_effective_start_datetime"
+            },
+            "name" : "stp_validated_data_row_effective_start_datetime",
             "platformType" : {
               "name" : "date/time"
             },
@@ -441,9 +409,9 @@
           },
           {
             "adapterField" : {
-              "name" : "stp_api_data_row_updated_datetime"
+              "name" : "stp_validated_data_row_effective_end_datetime"
             },
-            "name" : "stp_api_data_row_updated_datetime",
+            "name" : "stp_validated_data_row_effective_end_datetime",
             "platformType" : {
               "name" : "date/time"
             },
@@ -452,9 +420,20 @@
           },
           {
             "adapterField" : {
-              "name" : "stp_api_data_row_md5checksum"
+              "name" : "stp_validated_data_row_status"
             },
-            "name" : "stp_api_data_row_md5checksum",
+            "name" : "stp_validated_data_row_status",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "stp_validated_data_row_md5checksum"
+            },
+            "name" : "stp_validated_data_row_md5checksum",
             "platformType" : {
               "name" : "string"
             },
@@ -463,9 +442,9 @@
           },
           {
             "adapterField" : {
-              "name" : "stp_api_data_row_created_by"
+              "name" : "stp_validated_data_row_created_by"
             },
-            "name" : "stp_api_data_row_created_by",
+            "name" : "stp_validated_data_row_created_by",
             "platformType" : {
               "name" : "string"
             },
@@ -474,9 +453,9 @@
           },
           {
             "adapterField" : {
-              "name" : "stp_api_data_row_modified_by"
+              "name" : "stp_validated_data_row_modified_by"
             },
-            "name" : "stp_api_data_row_modified_by",
+            "name" : "stp_validated_data_row_modified_by",
             "platformType" : {
               "name" : "string"
             },
@@ -485,9 +464,9 @@
           },
           {
             "adapterField" : {
-              "name" : "stp_api_data_load_state"
+              "name" : "stp_validated_data_load_state"
             },
-            "name" : "stp_api_data_load_state",
+            "name" : "stp_validated_data_load_state",
             "platformType" : {
               "name" : "string"
             },
@@ -496,42 +475,20 @@
           },
           {
             "adapterField" : {
-              "name" : "stp_api_data_transfer_to_guidewire_status"
+              "name" : "stp_validated_data_loaded_to_api_table_status"
             },
-            "name" : "stp_api_data_transfer_to_guidewire_status",
+            "name" : "stp_validated_data_loaded_to_api_table_status",
             "platformType" : {
               "name" : "string"
             },
-            "precision" : 63,
+            "precision" : 31,
             "scale" : 0
           },
           {
             "adapterField" : {
-              "name" : "stp_api_data_transferred_to_guidewire_datetime"
+              "name" : "stp_validated_data_row_source_system_key"
             },
-            "name" : "stp_api_data_transferred_to_guidewire_datetime",
-            "platformType" : {
-              "name" : "date/time"
-            },
-            "precision" : 29,
-            "scale" : 9
-          },
-          {
-            "adapterField" : {
-              "name" : "task_system_id"
-            },
-            "name" : "task_system_id",
-            "platformType" : {
-              "name" : "integer"
-            },
-            "precision" : 10,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "task_id"
-            },
-            "name" : "task_id",
+            "name" : "stp_validated_data_row_source_system_key",
             "platformType" : {
               "name" : "string"
             },
@@ -547,17 +504,6 @@
               "name" : "integer"
             },
             "precision" : 10,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "policy_cmm_container"
-            },
-            "name" : "policy_cmm_container",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 127,
             "scale" : 0
           },
           {
@@ -606,6 +552,17 @@
           },
           {
             "adapterField" : {
+              "name" : "risk_id"
+            },
+            "name" : "risk_id",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 511,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
               "name" : "risk_state"
             },
             "name" : "risk_state",
@@ -639,20 +596,9 @@
           },
           {
             "adapterField" : {
-              "name" : "overall_rule_pass_fail_indicator"
+              "name" : "transaction_code"
             },
-            "name" : "overall_rule_pass_fail_indicator",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 7,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "task_template_id"
-            },
-            "name" : "task_template_id",
+            "name" : "transaction_code",
             "platformType" : {
               "name" : "string"
             },
@@ -661,31 +607,9 @@
           },
           {
             "adapterField" : {
-              "name" : "task_name"
+              "name" : "transaction_datetime"
             },
-            "name" : "task_name",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 511,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "task_description"
-            },
-            "name" : "task_description",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 511,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "task_work_date"
-            },
-            "name" : "task_work_date",
+            "name" : "transaction_datetime",
             "platformType" : {
               "name" : "date/time"
             },
@@ -694,9 +618,9 @@
           },
           {
             "adapterField" : {
-              "name" : "task_original_owner"
+              "name" : "user_type_code"
             },
-            "name" : "task_original_owner",
+            "name" : "user_type_code",
             "platformType" : {
               "name" : "string"
             },
@@ -705,9 +629,42 @@
           },
           {
             "adapterField" : {
-              "name" : "task_original_owner_code"
+              "name" : "straight_through_processing_rule_row_id"
             },
-            "name" : "task_original_owner_code",
+            "name" : "straight_through_processing_rule_row_id",
+            "platformType" : {
+              "name" : "bigint"
+            },
+            "precision" : 19,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "rule_id"
+            },
+            "name" : "rule_id",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "rule_type"
+            },
+            "name" : "rule_type",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "rule_name"
+            },
+            "name" : "rule_name",
             "platformType" : {
               "name" : "string"
             },
@@ -716,31 +673,9 @@
           },
           {
             "adapterField" : {
-              "name" : "task_current_owner"
+              "name" : "condition_group_number"
             },
-            "name" : "task_current_owner",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 511,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "task_current_owner_code"
-            },
-            "name" : "task_current_owner_code",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 511,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "task_priority"
-            },
-            "name" : "task_priority",
+            "name" : "condition_group_number",
             "platformType" : {
               "name" : "integer"
             },
@@ -749,19 +684,107 @@
           },
           {
             "adapterField" : {
-              "name" : "task_text"
+              "name" : "condition_order_number"
             },
-            "name" : "task_text",
+            "name" : "condition_order_number",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "condition_column_name_left"
+            },
+            "name" : "condition_column_name_left",
             "platformType" : {
               "name" : "string"
             },
-            "precision" : 65535,
+            "precision" : 511,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "calculation_operator"
+            },
+            "name" : "calculation_operator",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 3,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "condition_column_name_right"
+            },
+            "name" : "condition_column_name_right",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 511,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "calculation_constant_value"
+            },
+            "name" : "calculation_constant_value",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 8,
+            "scale" : 2
+          },
+          {
+            "adapterField" : {
+              "name" : "priority_order_number"
+            },
+            "name" : "priority_order_number",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "final_value"
+            },
+            "name" : "final_value",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 1023,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "rule_row_pass_fail_indicator"
+            },
+            "name" : "rule_row_pass_fail_indicator",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 7,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "overall_rule_pass_fail_indicator"
+            },
+            "name" : "overall_rule_pass_fail_indicator",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 7,
             "scale" : 0
           }
         ],
         "dataAdapter" : {
           "connectionId$" : {
-            "name" : "DBConnection_UDM_TGT"
+            "name" : "DBConnection_UDM_SRC"
           },
           "excludeDynamicFileNameField" : "false",
           "objectType" : "SINGLE",
@@ -779,18 +802,18 @@
             "useBulkApiV2" : "false"
           },
           "object" : {
-            "name" : "operations/straight_through_processing_api_data",
-            "label" : "operations/straight_through_processing_api_data",
-            "objectName" : "straight_through_processing_api_data",
+            "name" : "silver/straight_through_processing_validated_data",
+            "label" : "silver/straight_through_processing_validated_data",
+            "objectName" : "straight_through_processing_validated_data",
             "objectType" : "amazonredshift",
-            "path" : "operations/straight_through_processing_api_data",
+            "path" : "silver/straight_through_processing_validated_data",
             "retainMetadata" : "false",
             "fields" : [
               {
-                "name" : "stp_api_data_id",
+                "name" : "stp_validated_data_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "stp_api_data_id",
-                "nativeName" : "stp_api_data_id",
+                "label" : "stp_validated_data_id",
+                "nativeName" : "stp_validated_data_id",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 63,
@@ -798,175 +821,15 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "straight_through_processing_api_data"
+                    "value" : "straight_through_processing_validated_data"
                   }
                 ]
               },
               {
-                "name" : "stp_api_data_domain",
+                "name" : "stp_validated_data_source_system",
                 "fieldType" : "CONNECTOR",
-                "label" : "stp_api_data_domain",
-                "nativeName" : "stp_api_data_domain",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 63,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "straight_through_processing_api_data"
-                  }
-                ]
-              },
-              {
-                "name" : "stp_api_data_row_created_datetime",
-                "fieldType" : "CONNECTOR",
-                "label" : "stp_api_data_row_created_datetime",
-                "nativeName" : "stp_api_data_row_created_datetime",
-                "nativeType" : "timestamp",
-                "original" : "false",
-                "precision" : 29,
-                "scale" : 6,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "straight_through_processing_api_data"
-                  }
-                ]
-              },
-              {
-                "name" : "stp_api_data_row_updated_datetime",
-                "fieldType" : "CONNECTOR",
-                "label" : "stp_api_data_row_updated_datetime",
-                "nativeName" : "stp_api_data_row_updated_datetime",
-                "nativeType" : "timestamp",
-                "original" : "false",
-                "precision" : 29,
-                "scale" : 6,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "straight_through_processing_api_data"
-                  }
-                ]
-              },
-              {
-                "name" : "stp_api_data_row_md5checksum",
-                "fieldType" : "CONNECTOR",
-                "label" : "stp_api_data_row_md5checksum",
-                "nativeName" : "stp_api_data_row_md5checksum",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 1023,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "straight_through_processing_api_data"
-                  }
-                ]
-              },
-              {
-                "name" : "stp_api_data_row_created_by",
-                "fieldType" : "CONNECTOR",
-                "label" : "stp_api_data_row_created_by",
-                "nativeName" : "stp_api_data_row_created_by",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 31,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "straight_through_processing_api_data"
-                  }
-                ]
-              },
-              {
-                "name" : "stp_api_data_row_modified_by",
-                "fieldType" : "CONNECTOR",
-                "label" : "stp_api_data_row_modified_by",
-                "nativeName" : "stp_api_data_row_modified_by",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 31,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "straight_through_processing_api_data"
-                  }
-                ]
-              },
-              {
-                "name" : "stp_api_data_load_state",
-                "fieldType" : "CONNECTOR",
-                "label" : "stp_api_data_load_state",
-                "nativeName" : "stp_api_data_load_state",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 31,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "straight_through_processing_api_data"
-                  }
-                ]
-              },
-              {
-                "name" : "stp_api_data_transfer_to_guidewire_status",
-                "fieldType" : "CONNECTOR",
-                "label" : "stp_api_data_transfer_to_guidewire_status",
-                "nativeName" : "stp_api_data_transfer_to_guidewire_status",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 63,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "straight_through_processing_api_data"
-                  }
-                ]
-              },
-              {
-                "name" : "stp_api_data_transferred_to_guidewire_datetime",
-                "fieldType" : "CONNECTOR",
-                "label" : "stp_api_data_transferred_to_guidewire_datetime",
-                "nativeName" : "stp_api_data_transferred_to_guidewire_datetime",
-                "nativeType" : "timestamp",
-                "original" : "false",
-                "precision" : 29,
-                "scale" : 6,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "straight_through_processing_api_data"
-                  }
-                ]
-              },
-              {
-                "name" : "task_system_id",
-                "fieldType" : "CONNECTOR",
-                "label" : "task_system_id",
-                "nativeName" : "task_system_id",
-                "nativeType" : "int4",
-                "original" : "false",
-                "precision" : 10,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "straight_through_processing_api_data"
-                  }
-                ]
-              },
-              {
-                "name" : "task_id",
-                "fieldType" : "CONNECTOR",
-                "label" : "task_id",
-                "nativeName" : "task_id",
+                "label" : "stp_validated_data_source_system",
+                "nativeName" : "stp_validated_data_source_system",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 127,
@@ -974,7 +837,231 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "straight_through_processing_api_data"
+                    "value" : "straight_through_processing_validated_data"
+                  }
+                ]
+              },
+              {
+                "name" : "stp_validated_data_domain",
+                "fieldType" : "CONNECTOR",
+                "label" : "stp_validated_data_domain",
+                "nativeName" : "stp_validated_data_domain",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "straight_through_processing_validated_data"
+                  }
+                ]
+              },
+              {
+                "name" : "stp_validated_data_type",
+                "fieldType" : "CONNECTOR",
+                "label" : "stp_validated_data_type",
+                "nativeName" : "stp_validated_data_type",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "straight_through_processing_validated_data"
+                  }
+                ]
+              },
+              {
+                "name" : "stp_validated_data_batch_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "stp_validated_data_batch_id",
+                "nativeName" : "stp_validated_data_batch_id",
+                "nativeType" : "int8",
+                "original" : "false",
+                "precision" : 19,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "straight_through_processing_validated_data"
+                  }
+                ]
+              },
+              {
+                "name" : "originating_source_name",
+                "fieldType" : "CONNECTOR",
+                "label" : "originating_source_name",
+                "nativeName" : "originating_source_name",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "straight_through_processing_validated_data"
+                  }
+                ]
+              },
+              {
+                "name" : "originating_load_type",
+                "fieldType" : "CONNECTOR",
+                "label" : "originating_load_type",
+                "nativeName" : "originating_load_type",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "straight_through_processing_validated_data"
+                  }
+                ]
+              },
+              {
+                "name" : "stp_validated_data_row_effective_start_datetime",
+                "fieldType" : "CONNECTOR",
+                "label" : "stp_validated_data_row_effective_start_datetime",
+                "nativeName" : "stp_validated_data_row_effective_start_datetime",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "straight_through_processing_validated_data"
+                  }
+                ]
+              },
+              {
+                "name" : "stp_validated_data_row_effective_end_datetime",
+                "fieldType" : "CONNECTOR",
+                "label" : "stp_validated_data_row_effective_end_datetime",
+                "nativeName" : "stp_validated_data_row_effective_end_datetime",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "straight_through_processing_validated_data"
+                  }
+                ]
+              },
+              {
+                "name" : "stp_validated_data_row_status",
+                "fieldType" : "CONNECTOR",
+                "label" : "stp_validated_data_row_status",
+                "nativeName" : "stp_validated_data_row_status",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "straight_through_processing_validated_data"
+                  }
+                ]
+              },
+              {
+                "name" : "stp_validated_data_row_md5checksum",
+                "fieldType" : "CONNECTOR",
+                "label" : "stp_validated_data_row_md5checksum",
+                "nativeName" : "stp_validated_data_row_md5checksum",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 1023,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "straight_through_processing_validated_data"
+                  }
+                ]
+              },
+              {
+                "name" : "stp_validated_data_row_created_by",
+                "fieldType" : "CONNECTOR",
+                "label" : "stp_validated_data_row_created_by",
+                "nativeName" : "stp_validated_data_row_created_by",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 31,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "straight_through_processing_validated_data"
+                  }
+                ]
+              },
+              {
+                "name" : "stp_validated_data_row_modified_by",
+                "fieldType" : "CONNECTOR",
+                "label" : "stp_validated_data_row_modified_by",
+                "nativeName" : "stp_validated_data_row_modified_by",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 31,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "straight_through_processing_validated_data"
+                  }
+                ]
+              },
+              {
+                "name" : "stp_validated_data_load_state",
+                "fieldType" : "CONNECTOR",
+                "label" : "stp_validated_data_load_state",
+                "nativeName" : "stp_validated_data_load_state",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 31,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "straight_through_processing_validated_data"
+                  }
+                ]
+              },
+              {
+                "name" : "stp_validated_data_loaded_to_api_table_status",
+                "fieldType" : "CONNECTOR",
+                "label" : "stp_validated_data_loaded_to_api_table_status",
+                "nativeName" : "stp_validated_data_loaded_to_api_table_status",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 31,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "straight_through_processing_validated_data"
+                  }
+                ]
+              },
+              {
+                "name" : "stp_validated_data_row_source_system_key",
+                "fieldType" : "CONNECTOR",
+                "label" : "stp_validated_data_row_source_system_key",
+                "nativeName" : "stp_validated_data_row_source_system_key",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "straight_through_processing_validated_data"
                   }
                 ]
               },
@@ -990,23 +1077,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "straight_through_processing_api_data"
-                  }
-                ]
-              },
-              {
-                "name" : "policy_cmm_container",
-                "fieldType" : "CONNECTOR",
-                "label" : "policy_cmm_container",
-                "nativeName" : "policy_cmm_container",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 127,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "straight_through_processing_api_data"
+                    "value" : "straight_through_processing_validated_data"
                   }
                 ]
               },
@@ -1022,7 +1093,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "straight_through_processing_api_data"
+                    "value" : "straight_through_processing_validated_data"
                   }
                 ]
               },
@@ -1038,7 +1109,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "straight_through_processing_api_data"
+                    "value" : "straight_through_processing_validated_data"
                   }
                 ]
               },
@@ -1054,7 +1125,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "straight_through_processing_api_data"
+                    "value" : "straight_through_processing_validated_data"
                   }
                 ]
               },
@@ -1070,7 +1141,23 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "straight_through_processing_api_data"
+                    "value" : "straight_through_processing_validated_data"
+                  }
+                ]
+              },
+              {
+                "name" : "risk_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "risk_id",
+                "nativeName" : "risk_id",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 511,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "straight_through_processing_validated_data"
                   }
                 ]
               },
@@ -1086,7 +1173,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "straight_through_processing_api_data"
+                    "value" : "straight_through_processing_validated_data"
                   }
                 ]
               },
@@ -1102,7 +1189,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "straight_through_processing_api_data"
+                    "value" : "straight_through_processing_validated_data"
                   }
                 ]
               },
@@ -1118,7 +1205,263 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "straight_through_processing_api_data"
+                    "value" : "straight_through_processing_validated_data"
+                  }
+                ]
+              },
+              {
+                "name" : "transaction_code",
+                "fieldType" : "CONNECTOR",
+                "label" : "transaction_code",
+                "nativeName" : "transaction_code",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 511,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "straight_through_processing_validated_data"
+                  }
+                ]
+              },
+              {
+                "name" : "transaction_datetime",
+                "fieldType" : "CONNECTOR",
+                "label" : "transaction_datetime",
+                "nativeName" : "transaction_datetime",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "straight_through_processing_validated_data"
+                  }
+                ]
+              },
+              {
+                "name" : "user_type_code",
+                "fieldType" : "CONNECTOR",
+                "label" : "user_type_code",
+                "nativeName" : "user_type_code",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 511,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "straight_through_processing_validated_data"
+                  }
+                ]
+              },
+              {
+                "name" : "straight_through_processing_rule_row_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "straight_through_processing_rule_row_id",
+                "nativeName" : "straight_through_processing_rule_row_id",
+                "nativeType" : "int8",
+                "original" : "false",
+                "precision" : 19,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "straight_through_processing_validated_data"
+                  }
+                ]
+              },
+              {
+                "name" : "rule_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "rule_id",
+                "nativeName" : "rule_id",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "straight_through_processing_validated_data"
+                  }
+                ]
+              },
+              {
+                "name" : "rule_type",
+                "fieldType" : "CONNECTOR",
+                "label" : "rule_type",
+                "nativeName" : "rule_type",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "straight_through_processing_validated_data"
+                  }
+                ]
+              },
+              {
+                "name" : "rule_name",
+                "fieldType" : "CONNECTOR",
+                "label" : "rule_name",
+                "nativeName" : "rule_name",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 511,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "straight_through_processing_validated_data"
+                  }
+                ]
+              },
+              {
+                "name" : "condition_group_number",
+                "fieldType" : "CONNECTOR",
+                "label" : "condition_group_number",
+                "nativeName" : "condition_group_number",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "straight_through_processing_validated_data"
+                  }
+                ]
+              },
+              {
+                "name" : "condition_order_number",
+                "fieldType" : "CONNECTOR",
+                "label" : "condition_order_number",
+                "nativeName" : "condition_order_number",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "straight_through_processing_validated_data"
+                  }
+                ]
+              },
+              {
+                "name" : "condition_column_name_left",
+                "fieldType" : "CONNECTOR",
+                "label" : "condition_column_name_left",
+                "nativeName" : "condition_column_name_left",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 511,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "straight_through_processing_validated_data"
+                  }
+                ]
+              },
+              {
+                "name" : "calculation_operator",
+                "fieldType" : "CONNECTOR",
+                "label" : "calculation_operator",
+                "nativeName" : "calculation_operator",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 3,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "straight_through_processing_validated_data"
+                  }
+                ]
+              },
+              {
+                "name" : "condition_column_name_right",
+                "fieldType" : "CONNECTOR",
+                "label" : "condition_column_name_right",
+                "nativeName" : "condition_column_name_right",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 511,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "straight_through_processing_validated_data"
+                  }
+                ]
+              },
+              {
+                "name" : "calculation_constant_value",
+                "fieldType" : "CONNECTOR",
+                "label" : "calculation_constant_value",
+                "nativeName" : "calculation_constant_value",
+                "nativeType" : "numeric",
+                "original" : "false",
+                "precision" : 8,
+                "scale" : 2,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "straight_through_processing_validated_data"
+                  }
+                ]
+              },
+              {
+                "name" : "priority_order_number",
+                "fieldType" : "CONNECTOR",
+                "label" : "priority_order_number",
+                "nativeName" : "priority_order_number",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "straight_through_processing_validated_data"
+                  }
+                ]
+              },
+              {
+                "name" : "final_value",
+                "fieldType" : "CONNECTOR",
+                "label" : "final_value",
+                "nativeName" : "final_value",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 1023,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "straight_through_processing_validated_data"
+                  }
+                ]
+              },
+              {
+                "name" : "rule_row_pass_fail_indicator",
+                "fieldType" : "CONNECTOR",
+                "label" : "rule_row_pass_fail_indicator",
+                "nativeName" : "rule_row_pass_fail_indicator",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 7,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "straight_through_processing_validated_data"
                   }
                 ]
               },
@@ -1134,167 +1477,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "straight_through_processing_api_data"
-                  }
-                ]
-              },
-              {
-                "name" : "task_template_id",
-                "fieldType" : "CONNECTOR",
-                "label" : "task_template_id",
-                "nativeName" : "task_template_id",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 511,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "straight_through_processing_api_data"
-                  }
-                ]
-              },
-              {
-                "name" : "task_name",
-                "fieldType" : "CONNECTOR",
-                "label" : "task_name",
-                "nativeName" : "task_name",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 511,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "straight_through_processing_api_data"
-                  }
-                ]
-              },
-              {
-                "name" : "task_description",
-                "fieldType" : "CONNECTOR",
-                "label" : "task_description",
-                "nativeName" : "task_description",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 511,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "straight_through_processing_api_data"
-                  }
-                ]
-              },
-              {
-                "name" : "task_work_date",
-                "fieldType" : "CONNECTOR",
-                "label" : "task_work_date",
-                "nativeName" : "task_work_date",
-                "nativeType" : "date",
-                "original" : "false",
-                "precision" : 13,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "straight_through_processing_api_data"
-                  }
-                ]
-              },
-              {
-                "name" : "task_original_owner",
-                "fieldType" : "CONNECTOR",
-                "label" : "task_original_owner",
-                "nativeName" : "task_original_owner",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 511,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "straight_through_processing_api_data"
-                  }
-                ]
-              },
-              {
-                "name" : "task_original_owner_code",
-                "fieldType" : "CONNECTOR",
-                "label" : "task_original_owner_code",
-                "nativeName" : "task_original_owner_code",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 511,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "straight_through_processing_api_data"
-                  }
-                ]
-              },
-              {
-                "name" : "task_current_owner",
-                "fieldType" : "CONNECTOR",
-                "label" : "task_current_owner",
-                "nativeName" : "task_current_owner",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 511,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "straight_through_processing_api_data"
-                  }
-                ]
-              },
-              {
-                "name" : "task_current_owner_code",
-                "fieldType" : "CONNECTOR",
-                "label" : "task_current_owner_code",
-                "nativeName" : "task_current_owner_code",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 511,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "straight_through_processing_api_data"
-                  }
-                ]
-              },
-              {
-                "name" : "task_priority",
-                "fieldType" : "CONNECTOR",
-                "label" : "task_priority",
-                "nativeName" : "task_priority",
-                "nativeType" : "int4",
-                "original" : "false",
-                "precision" : 10,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "straight_through_processing_api_data"
-                  }
-                ]
-              },
-              {
-                "name" : "task_text",
-                "fieldType" : "CONNECTOR",
-                "label" : "task_text",
-                "nativeName" : "task_text",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 65535,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "straight_through_processing_api_data"
+                    "value" : "straight_through_processing_validated_data"
                   }
                 ]
               }
@@ -1392,16 +1575,16 @@
         "manualMappings" : {
           "mappingList" : [
             {
-              "fromFieldName" : "o_stp_api_data_transfer_to_guidewire_status",
+              "fromFieldName" : "o_stp_validated_data_loaded_to_api_table_status",
               "toField" : {
-                "name" : "stp_api_data_transfer_to_guidewire_status"
+                "name" : "stp_validated_data_loaded_to_api_table_status"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "stp_api_data_id",
+              "fromFieldName" : "policy_source_system_id",
               "toField" : {
-                "name" : "stp_api_data_id"
+                "name" : "policy_source_system_id"
               },
               "fromFieldNames" : null
             }
@@ -1428,14 +1611,14 @@
         "fields" : [
           {
             "defaultValue" : "ERROR('transformation error')",
-            "name" : "o_stp_api_data_transfer_to_guidewire_status",
+            "name" : "o_stp_validated_data_loaded_to_api_table_status",
             "platformType" : {
               "name" : "string"
             },
             "precision" : 1000,
             "scale" : 0,
             "expFieldType" : "OUTPUT",
-            "expression" : "'Confirmed by ETL look-up on ACX'"
+            "expression" : "'Loaded to API table'"
           }
         ],
         "windowSpec" : {
@@ -1448,7 +1631,7 @@
       },
       {
         "createTime" : "2025-10-09T16:06:34.353Z",
-        "name" : "src_acx_query",
+        "name" : "src_silver_stp_validated_data",
         "advancedProperties" : [
           {
             "name" : "Tracing Level",
@@ -1472,9 +1655,9 @@
         "fields" : [
           {
             "adapterField" : {
-              "name" : "SystemId"
+              "name" : "policy_source_system_id"
             },
-            "name" : "SystemId",
+            "name" : "policy_source_system_id",
             "platformType" : {
               "name" : "integer"
             },
@@ -1483,57 +1666,165 @@
           },
           {
             "adapterField" : {
-              "name" : "Id"
+              "name" : "stp_validated_data_row_source_system_key"
             },
-            "name" : "Id",
+            "name" : "stp_validated_data_row_source_system_key",
             "platformType" : {
               "name" : "string"
             },
-            "precision" : 120,
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "policy_number"
+            },
+            "name" : "policy_number",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 511,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "rule_row_pass_fail_indicator"
+            },
+            "name" : "rule_row_pass_fail_indicator",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 7,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "overall_rule_pass_fail_indicator"
+            },
+            "name" : "overall_rule_pass_fail_indicator",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 7,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "rule_name"
+            },
+            "name" : "rule_name",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 511,
             "scale" : 0
           }
         ],
         "dataAdapter" : {
           "connectionId$" : {
-            "name" : "DBConnection_SRCM"
+            "name" : "DBConnection_UDM_SRC"
           },
           "excludeDynamicFileNameField" : "false",
           "objectType" : "QUERY",
-          "typeSystem" : "MySQL",
+          "typeSystem" : "TOOLKIT",
           "useDynamicFileName" : "false",
           "object" : {
-            "customQuery" : "select t.SystemId, t.Id\nfrom task t\njoin advrxxchangedbeans a \non t.SystemId = a.SystemId \nand t.CMMContainer = a.CMMContainer \nwhere t.TemplateId in ('ReviewNewBusiness-Policy',\n'HighPriorityReviewNewBusiness-Policy')",
+            "customQuery" : "select policy_source_system_id,stp_validated_data_row_source_system_key,\npolicy_number, rule_row_pass_fail_indicator, overall_rule_pass_fail_indicator,rule_name\nfrom silver.straight_through_processing_validated_data\nWHERE \nstp_validated_data_loaded_to_api_table_status = 'Load to API table pending' \nAND overall_rule_pass_fail_indicator = 'FAIL'\nAND rule_row_pass_fail_indicator = 'FAIL'\norder by policy_source_system_id desc",
             "retainMetadata" : "false",
             "fields" : [
               {
-                "name" : "SystemId",
+                "name" : "policy_source_system_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "SystemId",
-                "nativeName" : "SystemId",
-                "nativeType" : "integer",
+                "label" : "policy_source_system_id",
+                "nativeName" : "policy_source_system_id",
+                "nativeType" : "int4",
                 "original" : "false",
                 "precision" : 10,
                 "scale" : 0,
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "task"
+                    "value" : "INFARS_CUSTOM_SCHEMA"
                   }
                 ]
               },
               {
-                "name" : "Id",
+                "name" : "stp_validated_data_row_source_system_key",
                 "fieldType" : "CONNECTOR",
-                "label" : "Id",
-                "nativeName" : "Id",
+                "label" : "stp_validated_data_row_source_system_key",
+                "nativeName" : "stp_validated_data_row_source_system_key",
                 "nativeType" : "varchar",
                 "original" : "false",
-                "precision" : 120,
+                "precision" : 127,
                 "scale" : 0,
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "task"
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "policy_number",
+                "fieldType" : "CONNECTOR",
+                "label" : "policy_number",
+                "nativeName" : "policy_number",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 511,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "rule_row_pass_fail_indicator",
+                "fieldType" : "CONNECTOR",
+                "label" : "rule_row_pass_fail_indicator",
+                "nativeName" : "rule_row_pass_fail_indicator",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 7,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "overall_rule_pass_fail_indicator",
+                "fieldType" : "CONNECTOR",
+                "label" : "overall_rule_pass_fail_indicator",
+                "nativeName" : "overall_rule_pass_fail_indicator",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 7,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "rule_name",
+                "fieldType" : "CONNECTOR",
+                "label" : "rule_name",
+                "nativeName" : "rule_name",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 511,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
                   }
                 ]
               }
@@ -1544,7 +1835,48 @@
             "descending" : "false",
             "queryAll" : "false",
             "rowLimit" : 0,
-            "selectDistinct" : "false"
+            "selectDistinct" : "false",
+            "advancedFilterCondition" : "stp_validated_data_loaded_to_api_table_status = 'Load to API table pending' AND overall_rule_pass_fail_indicator = 'FAIL'\nAND rule_row_pass_fail_indicator = 'FAIL'"
+          },
+          "runtimeAttributes" : {
+            "attributes" : [
+              {
+                "name" : "Read Mode",
+                "value" : "Direct"
+              },
+              {
+                "name" : "Fetch Size",
+                "value" : "10000"
+              },
+              {
+                "name" : "Enable Compression",
+                "value" : "YES"
+              },
+              {
+                "name" : "Temporary Credential Duration",
+                "value" : "900"
+              },
+              {
+                "name" : "Treat NULL Value as NULL",
+                "value" : "NO"
+              },
+              {
+                "name" : "Encryption Type",
+                "value" : "None"
+              },
+              {
+                "name" : "Download S3 Files In Multiple Parts",
+                "value" : "NO"
+              },
+              {
+                "name" : "Multipart Download Threshold Size",
+                "value" : "5242880"
+              },
+              {
+                "name" : "Select Distinct",
+                "value" : "NO"
+              }
+            ]
           }
         }
       },
@@ -1556,6 +1888,20 @@
             "input" : "true",
             "name" : "Master",
             "output" : "false",
+            "conflictResolutions" : [
+              {
+                "precedingGroupName" : "DefaultGroup",
+                "precedingTxName" : "src_operations_stp_api_data",
+                "rule" : {
+                  "bulkRename" : "true",
+                  "include" : "true",
+                  "bulkRenameOption" : {
+                    "literal" : "tgt_",
+                    "suffix" : "false"
+                  }
+                }
+              }
+            ],
             "rules" : [
               {
                 "bulkRename" : "false",
@@ -1583,14 +1929,9 @@
         "joinType" : "Normal Join",
         "joinConditions" : [
           {
-            "leftOperand" : "task_system_id",
+            "leftOperand" : "tgt_policy_source_system_id",
             "operator" : "=",
-            "rightOperand" : "SystemId"
-          },
-          {
-            "leftOperand" : "task_id",
-            "operator" : "=",
-            "rightOperand" : "Id"
+            "rightOperand" : "policy_source_system_id"
           }
         ]
       }
