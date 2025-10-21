@@ -1,0 +1,1638 @@
+{
+  "content" : {
+    "allowMaxFieldLength" : "false",
+    "bigIntConvertType" : "ONLY_BIGINT",
+    "documentType" : "MAPPING",
+    "name" : "cdi_map_stp_api_data_operations_update_status",
+    "specialCharacterSupport" : "false",
+    "links" : [
+      {
+        "link" : "Exp_updated_status -> tgt_operations_stg_api_data_status_update"
+      },
+      {
+        "link" : "src_operations_stp_api_data -> jnr_match_recs",
+        "groupLink" : "DefaultGroup -> Master"
+      },
+      {
+        "link" : "src_acx_query -> jnr_match_recs",
+        "groupLink" : "DefaultGroup -> Detail"
+      },
+      {
+        "link" : "jnr_match_recs -> Exp_updated_status",
+        "groupLink" : "OutputGroup -> DefaultGroup"
+      }
+    ],
+    "parameters" : [
+      {
+        "input" : "true",
+        "output" : "false",
+        "precision" : 0,
+        "scale" : 0,
+        "allowRuntimeOverride" : "false",
+        "expressionVariable" : "false",
+        "name" : "S3_Staging_Bucket"
+      },
+      {
+        "input" : "true",
+        "output" : "false",
+        "precision" : 0,
+        "scale" : 0,
+        "allowRuntimeOverride" : "true",
+        "expressionVariable" : "false",
+        "name" : "DBConnection_UDM_SRC",
+        "anonymousType" : {
+          "subType" : "TOOLKIT_CCI",
+          "typeSystem" : "TOOLKIT",
+          "connectionType" : "Amazon Redshift v2"
+        }
+      },
+      {
+        "input" : "true",
+        "output" : "false",
+        "precision" : 0,
+        "scale" : 0,
+        "allowRuntimeOverride" : "true",
+        "expressionVariable" : "false",
+        "name" : "DBConnection_UDM_TGT",
+        "anonymousType" : {
+          "subType" : "TOOLKIT_CCI",
+          "typeSystem" : "TOOLKIT",
+          "connectionType" : "Amazon Redshift v2"
+        }
+      },
+      {
+        "input" : "true",
+        "output" : "false",
+        "precision" : 0,
+        "scale" : 0,
+        "allowRuntimeOverride" : "true",
+        "expressionVariable" : "false",
+        "name" : "DBConnection_SRCM",
+        "anonymousType" : {
+          "typeSystem" : "MySQL",
+          "connectionType" : "MySQL"
+        }
+      }
+    ],
+    "transformations" : [
+      {
+        "createTime" : "2025-10-08T20:52:55.015Z",
+        "name" : "src_operations_stp_api_data",
+        "advancedProperties" : [
+          {
+            "name" : "Tracing Level",
+            "value" : "Normal"
+          },
+          {
+            "name" : "Output is deterministic",
+            "value" : "false"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "false",
+            "name" : "DefaultGroup",
+            "output" : "true"
+          }
+        ],
+        "generateFilenamePort" : "false",
+        "useLabels" : "false",
+        "useSequenceFields" : "false",
+        "fields" : [
+          {
+            "adapterField" : {
+              "name" : "policy_source_system_id"
+            },
+            "name" : "policy_source_system_id",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "policy_number"
+            },
+            "name" : "policy_number",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 511,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "policy_cmm_container"
+            },
+            "name" : "policy_cmm_container",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "insured_name"
+            },
+            "name" : "insured_name",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 511,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "stp_api_data_transfer_to_guidewire_status"
+            },
+            "name" : "stp_api_data_transfer_to_guidewire_status",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "task_system_id"
+            },
+            "name" : "task_system_id",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "task_id"
+            },
+            "name" : "task_id",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "stp_api_data_id"
+            },
+            "name" : "stp_api_data_id",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          }
+        ],
+        "dataAdapter" : {
+          "connectionId$" : {
+            "name" : "DBConnection_UDM_SRC"
+          },
+          "excludeDynamicFileNameField" : "false",
+          "objectType" : "QUERY",
+          "typeSystem" : "TOOLKIT",
+          "useDynamicFileName" : "false",
+          "object" : {
+            "customQuery" : "select policy_source_system_id, policy_number,\npolicy_cmm_container, insured_name,stp_api_data_transfer_to_guidewire_status,\ntask_system_id, task_id,\nstp_api_data_id\nfrom operations.straight_through_processing_api_data\nwhere\nstp_api_data_transfer_to_guidewire_status in ('Confirmed by API', 'Failed')\norder by policy_source_system_id desc",
+            "retainMetadata" : "false",
+            "fields" : [
+              {
+                "name" : "policy_source_system_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "policy_source_system_id",
+                "nativeName" : "policy_source_system_id",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "policy_number",
+                "fieldType" : "CONNECTOR",
+                "label" : "policy_number",
+                "nativeName" : "policy_number",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 511,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "policy_cmm_container",
+                "fieldType" : "CONNECTOR",
+                "label" : "policy_cmm_container",
+                "nativeName" : "policy_cmm_container",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "insured_name",
+                "fieldType" : "CONNECTOR",
+                "label" : "insured_name",
+                "nativeName" : "insured_name",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 511,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "stp_api_data_transfer_to_guidewire_status",
+                "fieldType" : "CONNECTOR",
+                "label" : "stp_api_data_transfer_to_guidewire_status",
+                "nativeName" : "stp_api_data_transfer_to_guidewire_status",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "task_system_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "task_system_id",
+                "nativeName" : "task_system_id",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "task_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "task_id",
+                "nativeName" : "task_id",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "stp_api_data_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "stp_api_data_id",
+                "nativeName" : "stp_api_data_id",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              }
+            ]
+          },
+          "readOptions" : {
+            "commandType" : 0,
+            "descending" : "false",
+            "queryAll" : "false",
+            "rowLimit" : 0,
+            "selectDistinct" : "false"
+          },
+          "runtimeAttributes" : {
+            "attributes" : [
+              {
+                "name" : "Read Mode",
+                "value" : "Direct"
+              },
+              {
+                "name" : "Fetch Size",
+                "value" : "10000"
+              },
+              {
+                "name" : "Enable Compression",
+                "value" : "YES"
+              },
+              {
+                "name" : "Temporary Credential Duration",
+                "value" : "900"
+              },
+              {
+                "name" : "Treat NULL Value as NULL",
+                "value" : "NO"
+              },
+              {
+                "name" : "Encryption Type",
+                "value" : "None"
+              },
+              {
+                "name" : "Download S3 Files In Multiple Parts",
+                "value" : "NO"
+              },
+              {
+                "name" : "Multipart Download Threshold Size",
+                "value" : "5242880"
+              },
+              {
+                "name" : "Select Distinct",
+                "value" : "NO"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "createTime" : "2025-10-08T20:52:55.017Z",
+        "name" : "tgt_operations_stg_api_data_status_update",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "false",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "createTarget" : "false",
+        "fieldMappingMode" : "MANUAL",
+        "inputSorted" : "false",
+        "schemaProviderType" : "SELECTED_OBJECT",
+        "targetFieldsOrdered" : "false",
+        "updateColumns" : [
+          "stp_api_data_id"
+        ],
+        "useLabels" : "false",
+        "useSequenceFields" : "false",
+        "fields" : [
+          {
+            "adapterField" : {
+              "name" : "stp_api_data_id"
+            },
+            "name" : "stp_api_data_id",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "stp_api_data_domain"
+            },
+            "name" : "stp_api_data_domain",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "stp_api_data_row_created_datetime"
+            },
+            "name" : "stp_api_data_row_created_datetime",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "stp_api_data_row_updated_datetime"
+            },
+            "name" : "stp_api_data_row_updated_datetime",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "stp_api_data_row_md5checksum"
+            },
+            "name" : "stp_api_data_row_md5checksum",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 1023,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "stp_api_data_row_created_by"
+            },
+            "name" : "stp_api_data_row_created_by",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 31,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "stp_api_data_row_modified_by"
+            },
+            "name" : "stp_api_data_row_modified_by",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 31,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "stp_api_data_load_state"
+            },
+            "name" : "stp_api_data_load_state",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 31,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "stp_api_data_transfer_to_guidewire_status"
+            },
+            "name" : "stp_api_data_transfer_to_guidewire_status",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "stp_api_data_transferred_to_guidewire_datetime"
+            },
+            "name" : "stp_api_data_transferred_to_guidewire_datetime",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "task_system_id"
+            },
+            "name" : "task_system_id",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "task_id"
+            },
+            "name" : "task_id",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "policy_source_system_id"
+            },
+            "name" : "policy_source_system_id",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "policy_cmm_container"
+            },
+            "name" : "policy_cmm_container",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "policy_number"
+            },
+            "name" : "policy_number",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 511,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "policy_module_number"
+            },
+            "name" : "policy_module_number",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 511,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "line_of_business"
+            },
+            "name" : "line_of_business",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 511,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "policy_effective_date"
+            },
+            "name" : "policy_effective_date",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "risk_state"
+            },
+            "name" : "risk_state",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 511,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "insured_name"
+            },
+            "name" : "insured_name",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 511,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "customer_number"
+            },
+            "name" : "customer_number",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "overall_rule_pass_fail_indicator"
+            },
+            "name" : "overall_rule_pass_fail_indicator",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 7,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "task_template_id"
+            },
+            "name" : "task_template_id",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 511,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "task_name"
+            },
+            "name" : "task_name",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 511,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "task_description"
+            },
+            "name" : "task_description",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 511,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "task_work_date"
+            },
+            "name" : "task_work_date",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "task_original_owner"
+            },
+            "name" : "task_original_owner",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 511,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "task_original_owner_code"
+            },
+            "name" : "task_original_owner_code",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 511,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "task_current_owner"
+            },
+            "name" : "task_current_owner",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 511,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "task_current_owner_code"
+            },
+            "name" : "task_current_owner_code",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 511,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "task_priority"
+            },
+            "name" : "task_priority",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "task_text"
+            },
+            "name" : "task_text",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 65535,
+            "scale" : 0
+          }
+        ],
+        "dataAdapter" : {
+          "connectionId$" : {
+            "name" : "DBConnection_UDM_TGT"
+          },
+          "excludeDynamicFileNameField" : "false",
+          "objectType" : "SINGLE",
+          "typeSystem" : "TOOLKIT",
+          "useDynamicFileName" : "false",
+          "bulkOptions" : {
+            "hardDelete" : "false",
+            "maxRowsPerRequest" : 0,
+            "monitorBulk" : "false",
+            "monitorBulkV2" : "false",
+            "pkChunkingEnabled" : "false",
+            "pkChunkingSize" : 0,
+            "serialMode" : "false",
+            "useBulkApi" : "false",
+            "useBulkApiV2" : "false"
+          },
+          "object" : {
+            "name" : "operations/straight_through_processing_api_data",
+            "label" : "operations/straight_through_processing_api_data",
+            "objectName" : "straight_through_processing_api_data",
+            "objectType" : "amazonredshift",
+            "path" : "operations/straight_through_processing_api_data",
+            "retainMetadata" : "false",
+            "fields" : [
+              {
+                "name" : "stp_api_data_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "stp_api_data_id",
+                "nativeName" : "stp_api_data_id",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "straight_through_processing_api_data"
+                  }
+                ]
+              },
+              {
+                "name" : "stp_api_data_domain",
+                "fieldType" : "CONNECTOR",
+                "label" : "stp_api_data_domain",
+                "nativeName" : "stp_api_data_domain",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "straight_through_processing_api_data"
+                  }
+                ]
+              },
+              {
+                "name" : "stp_api_data_row_created_datetime",
+                "fieldType" : "CONNECTOR",
+                "label" : "stp_api_data_row_created_datetime",
+                "nativeName" : "stp_api_data_row_created_datetime",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "straight_through_processing_api_data"
+                  }
+                ]
+              },
+              {
+                "name" : "stp_api_data_row_updated_datetime",
+                "fieldType" : "CONNECTOR",
+                "label" : "stp_api_data_row_updated_datetime",
+                "nativeName" : "stp_api_data_row_updated_datetime",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "straight_through_processing_api_data"
+                  }
+                ]
+              },
+              {
+                "name" : "stp_api_data_row_md5checksum",
+                "fieldType" : "CONNECTOR",
+                "label" : "stp_api_data_row_md5checksum",
+                "nativeName" : "stp_api_data_row_md5checksum",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 1023,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "straight_through_processing_api_data"
+                  }
+                ]
+              },
+              {
+                "name" : "stp_api_data_row_created_by",
+                "fieldType" : "CONNECTOR",
+                "label" : "stp_api_data_row_created_by",
+                "nativeName" : "stp_api_data_row_created_by",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 31,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "straight_through_processing_api_data"
+                  }
+                ]
+              },
+              {
+                "name" : "stp_api_data_row_modified_by",
+                "fieldType" : "CONNECTOR",
+                "label" : "stp_api_data_row_modified_by",
+                "nativeName" : "stp_api_data_row_modified_by",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 31,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "straight_through_processing_api_data"
+                  }
+                ]
+              },
+              {
+                "name" : "stp_api_data_load_state",
+                "fieldType" : "CONNECTOR",
+                "label" : "stp_api_data_load_state",
+                "nativeName" : "stp_api_data_load_state",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 31,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "straight_through_processing_api_data"
+                  }
+                ]
+              },
+              {
+                "name" : "stp_api_data_transfer_to_guidewire_status",
+                "fieldType" : "CONNECTOR",
+                "label" : "stp_api_data_transfer_to_guidewire_status",
+                "nativeName" : "stp_api_data_transfer_to_guidewire_status",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "straight_through_processing_api_data"
+                  }
+                ]
+              },
+              {
+                "name" : "stp_api_data_transferred_to_guidewire_datetime",
+                "fieldType" : "CONNECTOR",
+                "label" : "stp_api_data_transferred_to_guidewire_datetime",
+                "nativeName" : "stp_api_data_transferred_to_guidewire_datetime",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "straight_through_processing_api_data"
+                  }
+                ]
+              },
+              {
+                "name" : "task_system_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "task_system_id",
+                "nativeName" : "task_system_id",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "straight_through_processing_api_data"
+                  }
+                ]
+              },
+              {
+                "name" : "task_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "task_id",
+                "nativeName" : "task_id",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "straight_through_processing_api_data"
+                  }
+                ]
+              },
+              {
+                "name" : "policy_source_system_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "policy_source_system_id",
+                "nativeName" : "policy_source_system_id",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "straight_through_processing_api_data"
+                  }
+                ]
+              },
+              {
+                "name" : "policy_cmm_container",
+                "fieldType" : "CONNECTOR",
+                "label" : "policy_cmm_container",
+                "nativeName" : "policy_cmm_container",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "straight_through_processing_api_data"
+                  }
+                ]
+              },
+              {
+                "name" : "policy_number",
+                "fieldType" : "CONNECTOR",
+                "label" : "policy_number",
+                "nativeName" : "policy_number",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 511,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "straight_through_processing_api_data"
+                  }
+                ]
+              },
+              {
+                "name" : "policy_module_number",
+                "fieldType" : "CONNECTOR",
+                "label" : "policy_module_number",
+                "nativeName" : "policy_module_number",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 511,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "straight_through_processing_api_data"
+                  }
+                ]
+              },
+              {
+                "name" : "line_of_business",
+                "fieldType" : "CONNECTOR",
+                "label" : "line_of_business",
+                "nativeName" : "line_of_business",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 511,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "straight_through_processing_api_data"
+                  }
+                ]
+              },
+              {
+                "name" : "policy_effective_date",
+                "fieldType" : "CONNECTOR",
+                "label" : "policy_effective_date",
+                "nativeName" : "policy_effective_date",
+                "nativeType" : "date",
+                "original" : "false",
+                "precision" : 13,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "straight_through_processing_api_data"
+                  }
+                ]
+              },
+              {
+                "name" : "risk_state",
+                "fieldType" : "CONNECTOR",
+                "label" : "risk_state",
+                "nativeName" : "risk_state",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 511,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "straight_through_processing_api_data"
+                  }
+                ]
+              },
+              {
+                "name" : "insured_name",
+                "fieldType" : "CONNECTOR",
+                "label" : "insured_name",
+                "nativeName" : "insured_name",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 511,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "straight_through_processing_api_data"
+                  }
+                ]
+              },
+              {
+                "name" : "customer_number",
+                "fieldType" : "CONNECTOR",
+                "label" : "customer_number",
+                "nativeName" : "customer_number",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "straight_through_processing_api_data"
+                  }
+                ]
+              },
+              {
+                "name" : "overall_rule_pass_fail_indicator",
+                "fieldType" : "CONNECTOR",
+                "label" : "overall_rule_pass_fail_indicator",
+                "nativeName" : "overall_rule_pass_fail_indicator",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 7,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "straight_through_processing_api_data"
+                  }
+                ]
+              },
+              {
+                "name" : "task_template_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "task_template_id",
+                "nativeName" : "task_template_id",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 511,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "straight_through_processing_api_data"
+                  }
+                ]
+              },
+              {
+                "name" : "task_name",
+                "fieldType" : "CONNECTOR",
+                "label" : "task_name",
+                "nativeName" : "task_name",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 511,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "straight_through_processing_api_data"
+                  }
+                ]
+              },
+              {
+                "name" : "task_description",
+                "fieldType" : "CONNECTOR",
+                "label" : "task_description",
+                "nativeName" : "task_description",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 511,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "straight_through_processing_api_data"
+                  }
+                ]
+              },
+              {
+                "name" : "task_work_date",
+                "fieldType" : "CONNECTOR",
+                "label" : "task_work_date",
+                "nativeName" : "task_work_date",
+                "nativeType" : "date",
+                "original" : "false",
+                "precision" : 13,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "straight_through_processing_api_data"
+                  }
+                ]
+              },
+              {
+                "name" : "task_original_owner",
+                "fieldType" : "CONNECTOR",
+                "label" : "task_original_owner",
+                "nativeName" : "task_original_owner",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 511,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "straight_through_processing_api_data"
+                  }
+                ]
+              },
+              {
+                "name" : "task_original_owner_code",
+                "fieldType" : "CONNECTOR",
+                "label" : "task_original_owner_code",
+                "nativeName" : "task_original_owner_code",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 511,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "straight_through_processing_api_data"
+                  }
+                ]
+              },
+              {
+                "name" : "task_current_owner",
+                "fieldType" : "CONNECTOR",
+                "label" : "task_current_owner",
+                "nativeName" : "task_current_owner",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 511,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "straight_through_processing_api_data"
+                  }
+                ]
+              },
+              {
+                "name" : "task_current_owner_code",
+                "fieldType" : "CONNECTOR",
+                "label" : "task_current_owner_code",
+                "nativeName" : "task_current_owner_code",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 511,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "straight_through_processing_api_data"
+                  }
+                ]
+              },
+              {
+                "name" : "task_priority",
+                "fieldType" : "CONNECTOR",
+                "label" : "task_priority",
+                "nativeName" : "task_priority",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "straight_through_processing_api_data"
+                  }
+                ]
+              },
+              {
+                "name" : "task_text",
+                "fieldType" : "CONNECTOR",
+                "label" : "task_text",
+                "nativeName" : "task_text",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 65535,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "straight_through_processing_api_data"
+                  }
+                ]
+              }
+            ],
+            "objectAttributes" : [
+              {
+                "name" : "recordType",
+                "value" : "TABLE"
+              }
+            ]
+          },
+          "runtimeAttributes" : {
+            "attributes" : [
+              {
+                "name" : "S3 Bucket Name",
+                "value" : "$$S3_Staging_Bucket"
+              },
+              {
+                "name" : "Enable Compression",
+                "value" : "YES"
+              },
+              {
+                "name" : "Batch Size",
+                "value" : "2000000"
+              },
+              {
+                "name" : "Max Errors Per Batch Upload Insert",
+                "value" : "1"
+              },
+              {
+                "name" : "Truncate Target Table Before Data Upload",
+                "value" : "NO"
+              },
+              {
+                "name" : "WaitTime In Seconds For S3 File Consistency",
+                "value" : "0"
+              },
+              {
+                "name" : "Temporary Credential Duration",
+                "value" : "900"
+              },
+              {
+                "name" : "S3 Server Side Encryption",
+                "value" : "NO"
+              },
+              {
+                "name" : "S3 Client Side Encryption",
+                "value" : "NO"
+              },
+              {
+                "name" : "Analyze Target Table",
+                "value" : "NO"
+              },
+              {
+                "name" : "Vacuum Target Table",
+                "value" : "None"
+              },
+              {
+                "name" : "Treat Source Rows As",
+                "value" : "UPDATE"
+              },
+              {
+                "name" : "Transfer Manager Thread Pool Size",
+                "value" : "10"
+              },
+              {
+                "name" : "Minimum Upload Part Size",
+                "value" : "5242880"
+              },
+              {
+                "name" : "Preserve record order on write",
+                "value" : "NO"
+              },
+              {
+                "name" : "Number of files per batch",
+                "value" : "0"
+              }
+            ]
+          },
+          "writeOptions" : {
+            "batchSize" : 0,
+            "bulkApi" : "false",
+            "handleDecimalRoundOff" : "false",
+            "handleSpecialChars" : "false",
+            "operations" : [
+              "Update"
+            ],
+            "setFieldsToNull" : "false",
+            "truncate" : "false",
+            "useErrorFile" : "false",
+            "useExactSrcNames" : "false",
+            "useSuccessFile" : "false"
+          }
+        },
+        "manualMappings" : {
+          "mappingList" : [
+            {
+              "fromFieldName" : "o_stp_api_data_transfer_to_guidewire_status",
+              "toField" : {
+                "name" : "stp_api_data_transfer_to_guidewire_status"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "stp_api_data_id",
+              "toField" : {
+                "name" : "stp_api_data_id"
+              },
+              "fromFieldNames" : null
+            }
+          ]
+        }
+      },
+      {
+        "createTime" : "2025-10-08T20:55:22.348Z",
+        "name" : "Exp_updated_status",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "windowConfigurationEnabled" : "false",
+        "fields" : [
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_stp_api_data_transfer_to_guidewire_status",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 1000,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "'Confirmed by ETL look-up on ACX'"
+          }
+        ],
+        "windowSpec" : {
+          "allRowsFollowing" : "false",
+          "allRowsPreceding" : "false",
+          "endOffset" : 0,
+          "startOffset" : 0,
+          "partitionKeys" : null
+        }
+      },
+      {
+        "createTime" : "2025-10-09T16:06:34.353Z",
+        "name" : "src_acx_query",
+        "advancedProperties" : [
+          {
+            "name" : "Tracing Level",
+            "value" : "Normal"
+          },
+          {
+            "name" : "Output is deterministic",
+            "value" : "false"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "false",
+            "name" : "DefaultGroup",
+            "output" : "true"
+          }
+        ],
+        "generateFilenamePort" : "false",
+        "useLabels" : "false",
+        "useSequenceFields" : "false",
+        "fields" : [
+          {
+            "adapterField" : {
+              "name" : "SystemId"
+            },
+            "name" : "SystemId",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "Id"
+            },
+            "name" : "Id",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 120,
+            "scale" : 0
+          }
+        ],
+        "dataAdapter" : {
+          "connectionId$" : {
+            "name" : "DBConnection_SRCM"
+          },
+          "excludeDynamicFileNameField" : "false",
+          "objectType" : "QUERY",
+          "typeSystem" : "MySQL",
+          "useDynamicFileName" : "false",
+          "object" : {
+            "customQuery" : "select t.SystemId, t.Id\nfrom task t\njoin advrxxchangedbeans a \non t.SystemId = a.SystemId \nand t.CMMContainer = a.CMMContainer \nwhere t.TemplateId in ('ReviewNewBusiness-Policy',\n'HighPriorityReviewNewBusiness-Policy')",
+            "retainMetadata" : "false",
+            "fields" : [
+              {
+                "name" : "SystemId",
+                "fieldType" : "CONNECTOR",
+                "label" : "SystemId",
+                "nativeName" : "SystemId",
+                "nativeType" : "integer",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "task"
+                  }
+                ]
+              },
+              {
+                "name" : "Id",
+                "fieldType" : "CONNECTOR",
+                "label" : "Id",
+                "nativeName" : "Id",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 120,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "task"
+                  }
+                ]
+              }
+            ]
+          },
+          "readOptions" : {
+            "commandType" : 0,
+            "descending" : "false",
+            "queryAll" : "false",
+            "rowLimit" : 0,
+            "selectDistinct" : "false"
+          }
+        }
+      },
+      {
+        "createTime" : "2025-10-09T16:07:51.982Z",
+        "name" : "jnr_match_recs",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "Master",
+            "output" : "false",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          },
+          {
+            "input" : "true",
+            "name" : "Detail",
+            "output" : "false",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          },
+          {
+            "input" : "false",
+            "name" : "OutputGroup",
+            "output" : "true"
+          }
+        ],
+        "joinType" : "Normal Join",
+        "joinConditions" : [
+          {
+            "leftOperand" : "task_system_id",
+            "operator" : "=",
+            "rightOperand" : "SystemId"
+          },
+          {
+            "leftOperand" : "task_id",
+            "operator" : "=",
+            "rightOperand" : "Id"
+          }
+        ]
+      }
+    ],
+    "variables" : [
+      {
+        "aggregationType" : "MAX",
+        "expressionVariable" : "false",
+        "name" : "operational_schema",
+        "platformType" : {
+          "name" : "string"
+        },
+        "precision" : 100,
+        "retentionPolicy" : "NEVER",
+        "scale" : 0,
+        "defaultValue" : "operations"
+      },
+      {
+        "aggregationType" : "MAX",
+        "expressionVariable" : "false",
+        "name" : "sourcesystemcode",
+        "platformType" : {
+          "name" : "string"
+        },
+        "precision" : 100,
+        "retentionPolicy" : "NEVER",
+        "scale" : 0,
+        "defaultValue" : "STP"
+      },
+      {
+        "aggregationType" : "MAX",
+        "expressionVariable" : "false",
+        "name" : "refined_schema",
+        "platformType" : {
+          "name" : "string"
+        },
+        "precision" : 100,
+        "retentionPolicy" : "NEVER",
+        "scale" : 0,
+        "defaultValue" : "silver"
+      }
+    ]
+  },
+  "vcsExportTime" : "2025-10-15 10:19:25 PDT"
+}

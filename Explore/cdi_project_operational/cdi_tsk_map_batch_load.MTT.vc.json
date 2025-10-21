@@ -30,7 +30,7 @@
       "truncateTarget" : false,
       "bulkApiDBTarget" : false,
       "customFuncCfg" : { },
-      "customQuery" : "select count(*) as pilot_batch_count, source_system_code from $$operations_schema.batch_load_summary\nwhere source_system_code = '$$SourceSystemCode'  and batch_id =0 and target_schema_name = '$$bronze_schema'\ngroup by source_system_code",
+      "customQuery" : "select count(*) as pilot_batch_count, source_system_code from $$operations_schema.batch_load_summary\nwhere source_system_code = '$$SourceSystemCode'  and batch_id =0 and target_schema_name = '$$target_schema_name'\ngroup by source_system_code",
       "commandType" : 0,
       "handleSpecialChars" : false,
       "handleDecimalRoundOff" : false,
@@ -78,7 +78,7 @@
       "truncateTarget" : false,
       "bulkApiDBTarget" : false,
       "customFuncCfg" : { },
-      "customQuery" : "select  count(*) as recent_batch_count, '$$SourceSystemCode' as source_system_id from (\nselect  source_system_code, MAX(recent_b_query.batch_id) as latest_batch, recent_b_query.target_table_name, recent_b_query.recent_b_status\nfrom (\nselect batch_id, target_table_name, batch_status,source_system_code, last_value(batch_status) over(partition by batch_id, target_table_name \norder by batch_status asc rows between unbounded preceding and unbounded following) as recent_b_status\nfrom (select * from $$operations_schema.batch_load_summary\nwhere source_system_code = '$$SourceSystemCode' and batch_status in ('Success', 'Failure', 'Inprogress') \nand  batch_id !=0 and target_schema_name = '$$bronze_schema')\norder by batch_id) recent_b_query\ngroup by batch_id,target_table_name, recent_b_status, source_system_code\norder by batch_id desc ,target_table_name, recent_b_status\n)\nwhere latest_batch = (SELECT COALESCE(MAX(batch_id), 1) AS batch_id\n  FROM $$operations_schema.batch_load_summary where target_schema_name = '$$bronze_schema')",
+      "customQuery" : "select  count(*) as recent_batch_count, '$$SourceSystemCode' as source_system_id from (\nselect  source_system_code, MAX(recent_b_query.batch_id) as latest_batch, recent_b_query.target_table_name, recent_b_query.recent_b_status\nfrom (\nselect batch_id, target_table_name, batch_status,source_system_code, last_value(batch_status) over(partition by batch_id, target_table_name \norder by batch_status asc rows between unbounded preceding and unbounded following) as recent_b_status\nfrom (select * from $$operations_schema.batch_load_summary\nwhere source_system_code = '$$SourceSystemCode' and batch_status in ('Success', 'Failure', 'Inprogress') \nand  batch_id !=0 and target_schema_name = '$$target_schema_name')\norder by batch_id) recent_b_query\ngroup by batch_id,target_table_name, recent_b_status, source_system_code\norder by batch_id desc ,target_table_name, recent_b_status\n)\nwhere latest_batch = (SELECT COALESCE(MAX(batch_id), 1) AS batch_id\n  FROM $$operations_schema.batch_load_summary where target_schema_name = '$$target_schema_name')",
       "commandType" : 0,
       "handleSpecialChars" : false,
       "handleDecimalRoundOff" : false,
@@ -306,7 +306,7 @@
         "Pre-build lookup cache" : "AUTO",
         "Include Only Required Fields" : "false"
       },
-      "customQuery" : "select * from (\nselect  source_system_code, MAX(recent_b_query.batch_id) as latest_batch,\nrecent_b_query.target_table_name, recent_b_query.recent_b_status\nfrom (\nselect batch_id, target_table_name, batch_status,source_system_code, \nlast_value(batch_status) over(partition by batch_id, target_table_name \norder by batch_status asc rows between unbounded preceding and unbounded following) as recent_b_status\nfrom (select * from $$operations_schema.batch_load_summary\nwhere source_system_code = '$$SourceSystemCode'  and batch_status in ('Success', 'Failure', 'Inprogress') \nand  batch_id !=0 and target_schema_name = '$$bronze_schema'\n)\norder by batch_id) recent_b_query\ngroup by batch_id,target_table_name, recent_b_status, source_system_code\norder by batch_id desc ,target_table_name, recent_b_status\n)\nwhere latest_batch = (SELECT COALESCE(MAX(batch_id), 0) AS batch_id\n  FROM $$operations_schema.batch_load_summary where target_schema_name = '$$bronze_schema')",
+      "customQuery" : "select * from (\nselect  source_system_code, MAX(recent_b_query.batch_id) as latest_batch,\nrecent_b_query.target_table_name, recent_b_query.recent_b_status\nfrom (\nselect batch_id, target_table_name, batch_status,source_system_code, \nlast_value(batch_status) over(partition by batch_id, target_table_name \norder by batch_status asc rows between unbounded preceding and unbounded following) as recent_b_status\nfrom (select * from $$operations_schema.batch_load_summary\nwhere source_system_code = '$$SourceSystemCode'  and batch_status in ('Success', 'Failure', 'Inprogress') \nand  batch_id !=0 and target_schema_name = '$$target_schema_name'\n)\norder by batch_id) recent_b_query\ngroup by batch_id,target_table_name, recent_b_status, source_system_code\norder by batch_id desc ,target_table_name, recent_b_status\n)\nwhere latest_batch = (SELECT COALESCE(MAX(batch_id), 0) AS batch_id\n  FROM $$operations_schema.batch_load_summary where target_schema_name = '$$target_schema_name')",
       "commandType" : 0,
       "handleSpecialChars" : false,
       "handleDecimalRoundOff" : false,
@@ -375,7 +375,7 @@
         "Pre-build lookup cache" : "AUTO",
         "Include Only Required Fields" : "false"
       },
-      "customQuery" : "SELECT MAX(batch_id) AS batch_id, source_system_code\nfrom $$operations_schema.batch_load_summary WHERE source_system_code = '$$SourceSystemCode' and target_schema_name = '$$bronze_schema' group by source_system_code",
+      "customQuery" : "SELECT MAX(batch_id) AS batch_id, source_system_code\nfrom $$operations_schema.batch_load_summary WHERE source_system_code = '$$SourceSystemCode' and target_schema_name = '$$target_schema_name' group by source_system_code",
       "commandType" : 0,
       "handleSpecialChars" : false,
       "handleDecimalRoundOff" : false,
@@ -444,7 +444,7 @@
         "Pre-build lookup cache" : "AUTO",
         "Include Only Required Fields" : "false"
       },
-      "customQuery" : "select source_system_code, batch_id, max(batch_start_datetime) as prev_batch_start_datetime from $$operations_schema.batch_load_summary\nwhere source_system_code = '$$SourceSystemCode' and target_schema_name = '$$bronze_schema' group by source_system_code, batch_id order by source_system_code, batch_id  desc",
+      "customQuery" : "select source_system_code, batch_id, max(batch_start_datetime) as prev_batch_start_datetime from $$operations_schema.batch_load_summary\nwhere source_system_code = '$$SourceSystemCode' and target_schema_name = '$$target_schema_name' group by source_system_code, batch_id order by source_system_code, batch_id  desc",
       "commandType" : 0,
       "handleSpecialChars" : false,
       "handleDecimalRoundOff" : false,
@@ -575,42 +575,6 @@
       "fileList" : false
     },
     {
-      "name" : "$bronze_schema$",
-      "type" : "STRING",
-      "text" : "bronze",
-      "label" : "bronze_schema",
-      "uiProperties" : {
-        "paramName" : "bronze_schema",
-        "paramType-mapping" : "String",
-        "originalPath" : "Expression"
-      },
-      "newFlatFile" : false,
-      "newObject" : false,
-      "showBusinessNames" : true,
-      "naturalOrder" : true,
-      "truncateTarget" : false,
-      "bulkApiDBTarget" : false,
-      "customFuncCfg" : { },
-      "commandType" : 0,
-      "handleSpecialChars" : false,
-      "handleDecimalRoundOff" : false,
-      "frsAsset" : false,
-      "dynamicFileName" : false,
-      "excludeDynamicFileNameField" : false,
-      "currentlyProcessedFileName" : false,
-      "retainFieldMetadata" : false,
-      "useExactSrcNames" : false,
-      "userUpdated" : true,
-      "fetchMode" : "ORIGINAL",
-      "runtimeParameterData" : {
-        "connectionRuntimeParameter" : false,
-        "objectRuntimeParameter" : false
-      },
-      "restmodernSource" : true,
-      "unspecified" : false,
-      "fileList" : false
-    },
-    {
       "name" : "$row_created_by$",
       "type" : "STRING",
       "text" : "'IICS_User'",
@@ -648,6 +612,7 @@
     }
   ],
   "verbose" : false,
+  "lastRunTime" : 1760635197000,
   "mappingId" : "@7WU6qzFiNMaellySto1Ikb",
   "mappingTemplateName" : "cdi_map_batch_load",
   "sessionPropertiesList" : [
@@ -682,6 +647,16 @@
       "retentionPolicy" : "NEVER",
       "aggregationType" : "MAX",
       "currentValue" : "operations"
+    },
+    {
+      "name" : "target_schema_name",
+      "initialValue" : "bronze",
+      "datatype" : "STRING",
+      "precision" : "50",
+      "scale" : "0",
+      "retentionPolicy" : "NEVER",
+      "aggregationType" : "MAX",
+      "currentValue" : "bronze"
     }
   ],
   "hidden" : false,
@@ -698,5 +673,5 @@
   "allowMaxFieldLength" : false,
   "specialCharacterSupport" : false,
   "midstreamPreview" : false,
-  "vcsExportTime" : "2025-08-14 09:49:55 PDT"
+  "vcsExportTime" : "2025-10-16 12:35:46 PDT"
 }
