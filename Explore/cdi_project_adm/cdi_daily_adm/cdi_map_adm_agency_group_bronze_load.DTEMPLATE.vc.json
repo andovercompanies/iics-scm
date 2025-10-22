@@ -4,18 +4,18 @@
     "allowMaxFieldLength" : "false",
     "bigIntConvertType" : "ONLY_BIGINT",
     "documentType" : "MAPPING",
-    "name" : "cdi_map_adm_address_guidewire_bronze_load",
+    "name" : "cdi_map_adm_agency_group_bronze_load",
     "specialCharacterSupport" : "false",
     "links" : [
       {
-        "link" : "src_delta_changes_address_guidewire -> exp_datatype_conversion"
+        "link" : "src_delta_changes_metal_adm_agency_group -> exp_datatype_conversion"
       },
       {
         "link" : "exp_ins_upd_flags -> rtr_ins_upd",
         "groupLink" : "DefaultGroup -> INPUT"
       },
       {
-        "link" : "src_tgt_bronze_adm_address_guidewire_Query -> exp_pass_thru"
+        "link" : "src_tgt_bronze_adm_agency_group_Query -> exp_pass_thru"
       },
       {
         "link" : "exp_pass_thru -> jnr_src_tgt",
@@ -33,18 +33,18 @@
         "link" : "exp_datatype_conversion -> exp_MD5_calc"
       },
       {
-        "link" : "exp_upd -> tgt_bronze_adm_address_guidewire_updt_endate"
+        "link" : "exp_upd -> tgt_bronze_adm_agency_group_updt_endate"
       },
       {
         "link" : "rtr_ins_upd -> exp_upd",
         "groupLink" : "Update -> DefaultGroup"
       },
       {
-        "link" : "rtr_ins_upd -> tgt_bronze_adm_address_guidewire_insrt",
+        "link" : "rtr_ins_upd -> tgt_bronze_adm_agency_group_insrt",
         "groupLink" : "Insert -> DefaultGroup"
       },
       {
-        "link" : "rtr_ins_upd -> tgt_bronze_adm_address_guidewire_updt",
+        "link" : "rtr_ins_upd -> tgt_bronze_adm_agency_group_updt",
         "groupLink" : "Update -> DefaultGroup"
       }
     ],
@@ -91,7 +91,7 @@
       {
         "description" : "This source is designed to capture daily updates from the metal table and join with the target table to ensure that duplicate records are not loaded.",
         "createTime" : "2025-04-29T16:54:45.081Z",
-        "name" : "src_delta_changes_address_guidewire",
+        "name" : "src_delta_changes_metal_adm_agency_group",
         "advancedProperties" : [
           {
             "name" : "Tracing Level",
@@ -137,31 +137,9 @@
           },
           {
             "adapterField" : {
-              "name" : "address1"
+              "name" : "id"
             },
-            "name" : "address1",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 127,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "address2"
-            },
-            "name" : "address2",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 63,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "agency_nup"
-            },
-            "name" : "agency_nup",
+            "name" : "id",
             "platformType" : {
               "name" : "string"
             },
@@ -170,24 +148,35 @@
           },
           {
             "adapterField" : {
-              "name" : "city"
+              "name" : "name"
             },
-            "name" : "city",
+            "name" : "name",
             "platformType" : {
               "name" : "string"
             },
-            "precision" : 31,
+            "precision" : 511,
             "scale" : 0
           },
           {
             "adapterField" : {
-              "name" : "country"
+              "name" : "number"
             },
-            "name" : "country",
+            "name" : "number",
             "platformType" : {
               "name" : "string"
             },
-            "precision" : 63,
+            "precision" : 7,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "modified_by"
+            },
+            "name" : "modified_by",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 511,
             "scale" : 0
           },
           {
@@ -203,17 +192,6 @@
           },
           {
             "adapterField" : {
-              "name" : "id"
-            },
-            "name" : "id",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 15,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
               "name" : "modified"
             },
             "name" : "modified",
@@ -221,39 +199,6 @@
               "name" : "string"
             },
             "precision" : 31,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "state"
-            },
-            "name" : "state",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 7,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "type"
-            },
-            "name" : "type",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 7,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "zip"
-            },
-            "name" : "zip",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 15,
             "scale" : 0
           },
           {
@@ -277,8 +222,8 @@
           "typeSystem" : "TOOLKIT",
           "useDynamicFileName" : "false",
           "object" : {
-            "customQuery" : "WITH current_batch AS (\n    SELECT \n        bls.batch_id,\n        bls.source_start_cutoff_datetime,\n        bls.source_end_cutoff_datetime\n    FROM $$operational_schema.batch_load_summary bls\n    WHERE bls.source_system_code = '$$sourcesystemcode'\n      AND bls.batch_status = 'Inprogress'\n      AND bls.batch_id = (\n          SELECT MAX(batch_id)\n          FROM $$operational_schema.batch_load_summary\n          WHERE source_system_code = '$$sourcesystemcode'\n            AND batch_status = 'Inprogress'\n      )\n)\n\nSELECT DISTINCT\nmetal_aag.source_name, \nmetal_aag.load_type,\nmetal_aag.address1,\nmetal_aag.address2,\nmetal_aag.agency_nup,\nmetal_aag.city,\nmetal_aag.country,\nmetal_aag.created,\nmetal_aag.id,\nmetal_aag.modified,\nmetal_aag.state,\nmetal_aag.type,\nmetal_aag.zip,\ncurrent_batch.batch_id\nFROM $$raw_schema.adm_address_guidewire metal_aag\nCROSS JOIN current_batch\nORDER BY \nmetal_aag.agency_nup,\nmetal_aag.created,\nmetal_aag.modified;",
-            "retainMetadata" : "true",
+            "customQuery" : "WITH current_batch AS (\n    SELECT \n        bls.batch_id,\n        bls.source_start_cutoff_datetime,\n        bls.source_end_cutoff_datetime\n    FROM $$operational_schema.batch_load_summary bls\n    WHERE bls.source_system_code = '$$sourcesystemcode'\n      AND bls.batch_status = 'Inprogress'\n      AND bls.batch_id = (\n          SELECT MAX(batch_id)\n          FROM $$operational_schema.batch_load_summary\n          WHERE source_system_code = '$$sourcesystemcode'\n            AND batch_status = 'Inprogress'\n      )\n)\nSELECT DISTINCT\nmetal_aag.source_name, \nmetal_aag.load_type,\nmetal_aag.id,\nmetal_aag.name,\nmetal_aag.number,\nmetal_aag.modified_by,\nmetal_aag.created,\nmetal_aag.modified,\ncurrent_batch.batch_id\nFROM $$raw_schema.adm_agency_group metal_aag\nCROSS JOIN current_batch\nORDER BY \nmetal_aag.id,\nmetal_aag.created,\nmetal_aag.modified;",
+            "retainMetadata" : "false",
             "fields" : [
               {
                 "name" : "source_name",
@@ -313,42 +258,10 @@
                 ]
               },
               {
-                "name" : "address1",
+                "name" : "id",
                 "fieldType" : "CONNECTOR",
-                "label" : "address1",
-                "nativeName" : "address1",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 127,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "INFARS_CUSTOM_SCHEMA"
-                  }
-                ]
-              },
-              {
-                "name" : "address2",
-                "fieldType" : "CONNECTOR",
-                "label" : "address2",
-                "nativeName" : "address2",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 63,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "INFARS_CUSTOM_SCHEMA"
-                  }
-                ]
-              },
-              {
-                "name" : "agency_nup",
-                "fieldType" : "CONNECTOR",
-                "label" : "agency_nup",
-                "nativeName" : "agency_nup",
+                "label" : "id",
+                "nativeName" : "id",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 15,
@@ -361,13 +274,13 @@
                 ]
               },
               {
-                "name" : "city",
+                "name" : "name",
                 "fieldType" : "CONNECTOR",
-                "label" : "city",
-                "nativeName" : "city",
+                "label" : "name",
+                "nativeName" : "name",
                 "nativeType" : "varchar",
                 "original" : "false",
-                "precision" : 31,
+                "precision" : 511,
                 "scale" : 0,
                 "properties" : [
                   {
@@ -377,13 +290,29 @@
                 ]
               },
               {
-                "name" : "country",
+                "name" : "number",
                 "fieldType" : "CONNECTOR",
-                "label" : "country",
-                "nativeName" : "country",
+                "label" : "number",
+                "nativeName" : "number",
                 "nativeType" : "varchar",
                 "original" : "false",
-                "precision" : 63,
+                "precision" : 7,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "modified_by",
+                "fieldType" : "CONNECTOR",
+                "label" : "modified_by",
+                "nativeName" : "modified_by",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 511,
                 "scale" : 0,
                 "properties" : [
                   {
@@ -409,22 +338,6 @@
                 ]
               },
               {
-                "name" : "id",
-                "fieldType" : "CONNECTOR",
-                "label" : "id",
-                "nativeName" : "id",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 15,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "INFARS_CUSTOM_SCHEMA"
-                  }
-                ]
-              },
-              {
                 "name" : "modified",
                 "fieldType" : "CONNECTOR",
                 "label" : "modified",
@@ -432,54 +345,6 @@
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 31,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "INFARS_CUSTOM_SCHEMA"
-                  }
-                ]
-              },
-              {
-                "name" : "state",
-                "fieldType" : "CONNECTOR",
-                "label" : "state",
-                "nativeName" : "state",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 7,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "INFARS_CUSTOM_SCHEMA"
-                  }
-                ]
-              },
-              {
-                "name" : "type",
-                "fieldType" : "CONNECTOR",
-                "label" : "type",
-                "nativeName" : "type",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 7,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "INFARS_CUSTOM_SCHEMA"
-                  }
-                ]
-              },
-              {
-                "name" : "zip",
-                "fieldType" : "CONNECTOR",
-                "label" : "zip",
-                "nativeName" : "zip",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 15,
                 "scale" : 0,
                 "properties" : [
                   {
@@ -601,11 +466,11 @@
             "precision" : 10,
             "scale" : 0,
             "expFieldType" : "OUTPUT",
-            "expression" : "IIF(isnull(tgt_adm_address_guidewire_row_id),'I','X')"
+            "expression" : "IIF(isnull(tgt_adm_agency_group_row_id),'I','X')"
           },
           {
             "defaultValue" : "ERROR('transformation error')",
-            "name" : "o_address_guidewire_row_effective_end_datetime",
+            "name" : "o_adm_agency_group_row_effective_end_datetime",
             "platformType" : {
               "name" : "date/time"
             },
@@ -616,7 +481,7 @@
           },
           {
             "defaultValue" : "ERROR('transformation error')",
-            "name" : "o_address_guidewire_row_effective_start_datetime",
+            "name" : "o_adm_agency_group_row_effective_start_datetime",
             "platformType" : {
               "name" : "date/time"
             },
@@ -634,7 +499,7 @@
             "precision" : 10,
             "scale" : 0,
             "expFieldType" : "OUTPUT",
-            "expression" : "iif(NOT ISNULL(tgt_adm_address_guidewire_row_id) AND MD5_hash_value <> tgt_adm_address_guidewire_row_md5checksum,'U','X')"
+            "expression" : "iif(NOT ISNULL(tgt_adm_agency_group_row_id) AND MD5_hash_value <> tgt_adm_agency_group_row_md5checksum,'U','X')"
           },
           {
             "defaultValue" : "ERROR('transformation error')",
@@ -705,16 +570,6 @@
             "scale" : 9,
             "expFieldType" : "OUTPUT",
             "expression" : "TO_DATE(to_char(modified), 'YYYY-MM-DD HH24:MI:SS')"
-          },
-          {
-            "name" : "o_agency_nup",
-            "platformType" : {
-              "name" : "integer"
-            },
-            "precision" : 10,
-            "scale" : 0,
-            "expFieldType" : "OUTPUT",
-            "expression" : "to_integer(agency_nup)"
           },
           {
             "defaultValue" : "ERROR('transformation error')",
@@ -793,7 +648,7 @@
       },
       {
         "createTime" : "2025-05-07T18:02:32.704Z",
-        "name" : "tgt_bronze_adm_address_guidewire_insrt",
+        "name" : "tgt_bronze_adm_agency_group_insrt",
         "advancedProperties" : [
           {
             "name" : "Forward Rejected Rows",
@@ -824,9 +679,9 @@
         "fields" : [
           {
             "adapterField" : {
-              "name" : "adm_address_guidewire_row_id"
+              "name" : "adm_agency_group_row_id"
             },
-            "name" : "adm_address_guidewire_row_id",
+            "name" : "adm_agency_group_row_id",
             "platformType" : {
               "name" : "bigint"
             },
@@ -835,24 +690,13 @@
           },
           {
             "adapterField" : {
-              "name" : "adm_address_guidewire_batch_id"
+              "name" : "adm_agency_group_batch_id"
             },
-            "name" : "adm_address_guidewire_batch_id",
+            "name" : "adm_agency_group_batch_id",
             "platformType" : {
               "name" : "bigint"
             },
             "precision" : 19,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "adm_address_guidewire_row_md5checksum"
-            },
-            "name" : "adm_address_guidewire_row_md5checksum",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 255,
             "scale" : 0
           },
           {
@@ -879,9 +723,20 @@
           },
           {
             "adapterField" : {
-              "name" : "adm_address_guidewire_row_effective_start_datetime"
+              "name" : "adm_agency_group_row_md5checksum"
             },
-            "name" : "adm_address_guidewire_row_effective_start_datetime",
+            "name" : "adm_agency_group_row_md5checksum",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 1023,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "adm_agency_group_row_effective_start_datetime"
+            },
+            "name" : "adm_agency_group_row_effective_start_datetime",
             "platformType" : {
               "name" : "date/time"
             },
@@ -890,9 +745,9 @@
           },
           {
             "adapterField" : {
-              "name" : "adm_address_guidewire_row_effective_end_datetime"
+              "name" : "adm_agency_group_row_effective_end_datetime"
             },
-            "name" : "adm_address_guidewire_row_effective_end_datetime",
+            "name" : "adm_agency_group_row_effective_end_datetime",
             "platformType" : {
               "name" : "date/time"
             },
@@ -901,9 +756,9 @@
           },
           {
             "adapterField" : {
-              "name" : "adm_address_guidewire_row_status"
+              "name" : "adm_agency_group_row_status"
             },
-            "name" : "adm_address_guidewire_row_status",
+            "name" : "adm_agency_group_row_status",
             "platformType" : {
               "name" : "string"
             },
@@ -912,31 +767,9 @@
           },
           {
             "adapterField" : {
-              "name" : "address1"
+              "name" : "id"
             },
-            "name" : "address1",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 127,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "address2"
-            },
-            "name" : "address2",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 63,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "agency_nup"
-            },
-            "name" : "agency_nup",
+            "name" : "id",
             "platformType" : {
               "name" : "integer"
             },
@@ -945,24 +778,35 @@
           },
           {
             "adapterField" : {
-              "name" : "city"
+              "name" : "name"
             },
-            "name" : "city",
+            "name" : "name",
             "platformType" : {
               "name" : "string"
             },
-            "precision" : 31,
+            "precision" : 511,
             "scale" : 0
           },
           {
             "adapterField" : {
-              "name" : "country"
+              "name" : "number"
             },
-            "name" : "country",
+            "name" : "number",
             "platformType" : {
               "name" : "string"
             },
-            "precision" : 63,
+            "precision" : 7,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "modified_by"
+            },
+            "name" : "modified_by",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 511,
             "scale" : 0
           },
           {
@@ -978,17 +822,6 @@
           },
           {
             "adapterField" : {
-              "name" : "id"
-            },
-            "name" : "id",
-            "platformType" : {
-              "name" : "integer"
-            },
-            "precision" : 10,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
               "name" : "modified"
             },
             "name" : "modified",
@@ -997,39 +830,6 @@
             },
             "precision" : 29,
             "scale" : 9
-          },
-          {
-            "adapterField" : {
-              "name" : "state"
-            },
-            "name" : "state",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 7,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "type"
-            },
-            "name" : "type",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 7,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "zip"
-            },
-            "name" : "zip",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 15,
-            "scale" : 0
           }
         ],
         "dataAdapter" : {
@@ -1041,18 +841,18 @@
           "typeSystem" : "TOOLKIT",
           "useDynamicFileName" : "false",
           "object" : {
-            "name" : "bronze/adm_address_guidewire",
-            "label" : "bronze/adm_address_guidewire",
-            "objectName" : "adm_address_guidewire",
+            "name" : "bronze/adm_agency_group",
+            "label" : "bronze/adm_agency_group",
+            "objectName" : "adm_agency_group",
             "objectType" : "amazonredshift",
-            "path" : "bronze/adm_address_guidewire",
+            "path" : "bronze/adm_agency_group",
             "retainMetadata" : "false",
             "fields" : [
               {
-                "name" : "adm_address_guidewire_row_id",
+                "name" : "adm_agency_group_row_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "adm_address_guidewire_row_id",
-                "nativeName" : "adm_address_guidewire_row_id",
+                "label" : "adm_agency_group_row_id",
+                "nativeName" : "adm_agency_group_row_id",
                 "nativeType" : "int8",
                 "original" : "false",
                 "precision" : 19,
@@ -1060,15 +860,15 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_address_guidewire"
+                    "value" : "adm_agency_group"
                   }
                 ]
               },
               {
-                "name" : "adm_address_guidewire_batch_id",
+                "name" : "adm_agency_group_batch_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "adm_address_guidewire_batch_id",
-                "nativeName" : "adm_address_guidewire_batch_id",
+                "label" : "adm_agency_group_batch_id",
+                "nativeName" : "adm_agency_group_batch_id",
                 "nativeType" : "int8",
                 "original" : "false",
                 "precision" : 19,
@@ -1076,23 +876,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_address_guidewire"
-                  }
-                ]
-              },
-              {
-                "name" : "adm_address_guidewire_row_md5checksum",
-                "fieldType" : "CONNECTOR",
-                "label" : "adm_address_guidewire_row_md5checksum",
-                "nativeName" : "adm_address_guidewire_row_md5checksum",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 255,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_address_guidewire"
+                    "value" : "adm_agency_group"
                   }
                 ]
               },
@@ -1108,7 +892,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_address_guidewire"
+                    "value" : "adm_agency_group"
                   }
                 ]
               },
@@ -1124,15 +908,31 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_address_guidewire"
+                    "value" : "adm_agency_group"
                   }
                 ]
               },
               {
-                "name" : "adm_address_guidewire_row_effective_start_datetime",
+                "name" : "adm_agency_group_row_md5checksum",
                 "fieldType" : "CONNECTOR",
-                "label" : "adm_address_guidewire_row_effective_start_datetime",
-                "nativeName" : "adm_address_guidewire_row_effective_start_datetime",
+                "label" : "adm_agency_group_row_md5checksum",
+                "nativeName" : "adm_agency_group_row_md5checksum",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 1023,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_agency_group"
+                  }
+                ]
+              },
+              {
+                "name" : "adm_agency_group_row_effective_start_datetime",
+                "fieldType" : "CONNECTOR",
+                "label" : "adm_agency_group_row_effective_start_datetime",
+                "nativeName" : "adm_agency_group_row_effective_start_datetime",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 29,
@@ -1140,15 +940,15 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_address_guidewire"
+                    "value" : "adm_agency_group"
                   }
                 ]
               },
               {
-                "name" : "adm_address_guidewire_row_effective_end_datetime",
+                "name" : "adm_agency_group_row_effective_end_datetime",
                 "fieldType" : "CONNECTOR",
-                "label" : "adm_address_guidewire_row_effective_end_datetime",
-                "nativeName" : "adm_address_guidewire_row_effective_end_datetime",
+                "label" : "adm_agency_group_row_effective_end_datetime",
+                "nativeName" : "adm_agency_group_row_effective_end_datetime",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 29,
@@ -1156,15 +956,15 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_address_guidewire"
+                    "value" : "adm_agency_group"
                   }
                 ]
               },
               {
-                "name" : "adm_address_guidewire_row_status",
+                "name" : "adm_agency_group_row_status",
                 "fieldType" : "CONNECTOR",
-                "label" : "adm_address_guidewire_row_status",
-                "nativeName" : "adm_address_guidewire_row_status",
+                "label" : "adm_agency_group_row_status",
+                "nativeName" : "adm_agency_group_row_status",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 63,
@@ -1172,103 +972,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_address_guidewire"
-                  }
-                ]
-              },
-              {
-                "name" : "address1",
-                "fieldType" : "CONNECTOR",
-                "label" : "address1",
-                "nativeName" : "address1",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 127,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_address_guidewire"
-                  }
-                ]
-              },
-              {
-                "name" : "address2",
-                "fieldType" : "CONNECTOR",
-                "label" : "address2",
-                "nativeName" : "address2",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 63,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_address_guidewire"
-                  }
-                ]
-              },
-              {
-                "name" : "agency_nup",
-                "fieldType" : "CONNECTOR",
-                "label" : "agency_nup",
-                "nativeName" : "agency_nup",
-                "nativeType" : "int4",
-                "original" : "false",
-                "precision" : 10,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_address_guidewire"
-                  }
-                ]
-              },
-              {
-                "name" : "city",
-                "fieldType" : "CONNECTOR",
-                "label" : "city",
-                "nativeName" : "city",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 31,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_address_guidewire"
-                  }
-                ]
-              },
-              {
-                "name" : "country",
-                "fieldType" : "CONNECTOR",
-                "label" : "country",
-                "nativeName" : "country",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 63,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_address_guidewire"
-                  }
-                ]
-              },
-              {
-                "name" : "created",
-                "fieldType" : "CONNECTOR",
-                "label" : "created",
-                "nativeName" : "created",
-                "nativeType" : "timestamp",
-                "original" : "false",
-                "precision" : 29,
-                "scale" : 6,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_address_guidewire"
+                    "value" : "adm_agency_group"
                   }
                 ]
               },
@@ -1284,7 +988,71 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_address_guidewire"
+                    "value" : "adm_agency_group"
+                  }
+                ]
+              },
+              {
+                "name" : "name",
+                "fieldType" : "CONNECTOR",
+                "label" : "name",
+                "nativeName" : "name",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 511,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_agency_group"
+                  }
+                ]
+              },
+              {
+                "name" : "number",
+                "fieldType" : "CONNECTOR",
+                "label" : "number",
+                "nativeName" : "number",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 7,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_agency_group"
+                  }
+                ]
+              },
+              {
+                "name" : "modified_by",
+                "fieldType" : "CONNECTOR",
+                "label" : "modified_by",
+                "nativeName" : "modified_by",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 511,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_agency_group"
+                  }
+                ]
+              },
+              {
+                "name" : "created",
+                "fieldType" : "CONNECTOR",
+                "label" : "created",
+                "nativeName" : "created",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_agency_group"
                   }
                 ]
               },
@@ -1300,55 +1068,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_address_guidewire"
-                  }
-                ]
-              },
-              {
-                "name" : "state",
-                "fieldType" : "CONNECTOR",
-                "label" : "state",
-                "nativeName" : "state",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 7,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_address_guidewire"
-                  }
-                ]
-              },
-              {
-                "name" : "type",
-                "fieldType" : "CONNECTOR",
-                "label" : "type",
-                "nativeName" : "type",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 7,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_address_guidewire"
-                  }
-                ]
-              },
-              {
-                "name" : "zip",
-                "fieldType" : "CONNECTOR",
-                "label" : "zip",
-                "nativeName" : "zip",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 15,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_address_guidewire"
+                    "value" : "adm_agency_group"
                   }
                 ]
               }
@@ -1452,7 +1172,7 @@
             {
               "fromFieldName" : "batch_id",
               "toField" : {
-                "name" : "adm_address_guidewire_batch_id"
+                "name" : "adm_agency_group_batch_id"
               },
               "fromFieldNames" : null
             },
@@ -1471,72 +1191,37 @@
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "address1",
+              "fromFieldName" : "o_adm_agency_group_row_effective_start_datetime",
               "toField" : {
-                "name" : "address1"
+                "name" : "adm_agency_group_row_effective_start_datetime"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "address2",
+              "fromFieldName" : "o_adm_agency_group_row_effective_end_datetime",
               "toField" : {
-                "name" : "address2"
+                "name" : "adm_agency_group_row_effective_end_datetime"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "city",
+              "fromFieldName" : "name",
               "toField" : {
-                "name" : "city"
+                "name" : "name"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "country",
+              "fromFieldName" : "number",
               "toField" : {
-                "name" : "country"
+                "name" : "number"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "state",
+              "fromFieldName" : "modified_by",
               "toField" : {
-                "name" : "state"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "type",
-              "toField" : {
-                "name" : "type"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "zip",
-              "toField" : {
-                "name" : "zip"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "MD5_hash_value",
-              "toField" : {
-                "name" : "adm_address_guidewire_row_md5checksum"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "o_address_guidewire_row_effective_start_datetime",
-              "toField" : {
-                "name" : "adm_address_guidewire_row_effective_start_datetime"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "o_address_guidewire_row_effective_end_datetime",
-              "toField" : {
-                "name" : "adm_address_guidewire_row_effective_end_datetime"
+                "name" : "modified_by"
               },
               "fromFieldNames" : null
             },
@@ -1562,16 +1247,16 @@
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "o_agency_nup",
+              "fromFieldName" : "MD5_hash_value",
               "toField" : {
-                "name" : "agency_nup"
+                "name" : "adm_agency_group_row_md5checksum"
               },
               "fromFieldNames" : null
             },
             {
               "fromFieldName" : "o_row_status_active",
               "toField" : {
-                "name" : "adm_address_guidewire_row_status"
+                "name" : "adm_agency_group_row_status"
               },
               "fromFieldNames" : null
             }
@@ -1580,7 +1265,7 @@
       },
       {
         "createTime" : "2025-05-07T18:02:36.176Z",
-        "name" : "tgt_bronze_adm_address_guidewire_updt",
+        "name" : "tgt_bronze_adm_agency_group_updt",
         "advancedProperties" : [
           {
             "name" : "Forward Rejected Rows",
@@ -1611,9 +1296,9 @@
         "fields" : [
           {
             "adapterField" : {
-              "name" : "adm_address_guidewire_row_id"
+              "name" : "adm_agency_group_row_id"
             },
-            "name" : "adm_address_guidewire_row_id",
+            "name" : "adm_agency_group_row_id",
             "platformType" : {
               "name" : "bigint"
             },
@@ -1622,24 +1307,13 @@
           },
           {
             "adapterField" : {
-              "name" : "adm_address_guidewire_batch_id"
+              "name" : "adm_agency_group_batch_id"
             },
-            "name" : "adm_address_guidewire_batch_id",
+            "name" : "adm_agency_group_batch_id",
             "platformType" : {
               "name" : "bigint"
             },
             "precision" : 19,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "adm_address_guidewire_row_md5checksum"
-            },
-            "name" : "adm_address_guidewire_row_md5checksum",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 255,
             "scale" : 0
           },
           {
@@ -1666,9 +1340,20 @@
           },
           {
             "adapterField" : {
-              "name" : "adm_address_guidewire_row_effective_start_datetime"
+              "name" : "adm_agency_group_row_md5checksum"
             },
-            "name" : "adm_address_guidewire_row_effective_start_datetime",
+            "name" : "adm_agency_group_row_md5checksum",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 1023,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "adm_agency_group_row_effective_start_datetime"
+            },
+            "name" : "adm_agency_group_row_effective_start_datetime",
             "platformType" : {
               "name" : "date/time"
             },
@@ -1677,9 +1362,9 @@
           },
           {
             "adapterField" : {
-              "name" : "adm_address_guidewire_row_effective_end_datetime"
+              "name" : "adm_agency_group_row_effective_end_datetime"
             },
-            "name" : "adm_address_guidewire_row_effective_end_datetime",
+            "name" : "adm_agency_group_row_effective_end_datetime",
             "platformType" : {
               "name" : "date/time"
             },
@@ -1688,9 +1373,9 @@
           },
           {
             "adapterField" : {
-              "name" : "adm_address_guidewire_row_status"
+              "name" : "adm_agency_group_row_status"
             },
-            "name" : "adm_address_guidewire_row_status",
+            "name" : "adm_agency_group_row_status",
             "platformType" : {
               "name" : "string"
             },
@@ -1699,31 +1384,9 @@
           },
           {
             "adapterField" : {
-              "name" : "address1"
+              "name" : "id"
             },
-            "name" : "address1",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 127,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "address2"
-            },
-            "name" : "address2",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 63,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "agency_nup"
-            },
-            "name" : "agency_nup",
+            "name" : "id",
             "platformType" : {
               "name" : "integer"
             },
@@ -1732,24 +1395,35 @@
           },
           {
             "adapterField" : {
-              "name" : "city"
+              "name" : "name"
             },
-            "name" : "city",
+            "name" : "name",
             "platformType" : {
               "name" : "string"
             },
-            "precision" : 31,
+            "precision" : 511,
             "scale" : 0
           },
           {
             "adapterField" : {
-              "name" : "country"
+              "name" : "number"
             },
-            "name" : "country",
+            "name" : "number",
             "platformType" : {
               "name" : "string"
             },
-            "precision" : 63,
+            "precision" : 7,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "modified_by"
+            },
+            "name" : "modified_by",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 511,
             "scale" : 0
           },
           {
@@ -1765,17 +1439,6 @@
           },
           {
             "adapterField" : {
-              "name" : "id"
-            },
-            "name" : "id",
-            "platformType" : {
-              "name" : "integer"
-            },
-            "precision" : 10,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
               "name" : "modified"
             },
             "name" : "modified",
@@ -1784,39 +1447,6 @@
             },
             "precision" : 29,
             "scale" : 9
-          },
-          {
-            "adapterField" : {
-              "name" : "state"
-            },
-            "name" : "state",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 7,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "type"
-            },
-            "name" : "type",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 7,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "zip"
-            },
-            "name" : "zip",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 15,
-            "scale" : 0
           }
         ],
         "dataAdapter" : {
@@ -1839,18 +1469,18 @@
             "useBulkApiV2" : "false"
           },
           "object" : {
-            "name" : "bronze/adm_address_guidewire",
-            "label" : "bronze/adm_address_guidewire",
-            "objectName" : "adm_address_guidewire",
+            "name" : "bronze/adm_agency_group",
+            "label" : "bronze/adm_agency_group",
+            "objectName" : "adm_agency_group",
             "objectType" : "amazonredshift",
-            "path" : "bronze/adm_address_guidewire",
+            "path" : "bronze/adm_agency_group",
             "retainMetadata" : "false",
             "fields" : [
               {
-                "name" : "adm_address_guidewire_row_id",
+                "name" : "adm_agency_group_row_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "adm_address_guidewire_row_id",
-                "nativeName" : "adm_address_guidewire_row_id",
+                "label" : "adm_agency_group_row_id",
+                "nativeName" : "adm_agency_group_row_id",
                 "nativeType" : "int8",
                 "original" : "false",
                 "precision" : 19,
@@ -1858,15 +1488,15 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_address_guidewire"
+                    "value" : "adm_agency_group"
                   }
                 ]
               },
               {
-                "name" : "adm_address_guidewire_batch_id",
+                "name" : "adm_agency_group_batch_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "adm_address_guidewire_batch_id",
-                "nativeName" : "adm_address_guidewire_batch_id",
+                "label" : "adm_agency_group_batch_id",
+                "nativeName" : "adm_agency_group_batch_id",
                 "nativeType" : "int8",
                 "original" : "false",
                 "precision" : 19,
@@ -1874,23 +1504,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_address_guidewire"
-                  }
-                ]
-              },
-              {
-                "name" : "adm_address_guidewire_row_md5checksum",
-                "fieldType" : "CONNECTOR",
-                "label" : "adm_address_guidewire_row_md5checksum",
-                "nativeName" : "adm_address_guidewire_row_md5checksum",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 255,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_address_guidewire"
+                    "value" : "adm_agency_group"
                   }
                 ]
               },
@@ -1906,7 +1520,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_address_guidewire"
+                    "value" : "adm_agency_group"
                   }
                 ]
               },
@@ -1922,15 +1536,31 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_address_guidewire"
+                    "value" : "adm_agency_group"
                   }
                 ]
               },
               {
-                "name" : "adm_address_guidewire_row_effective_start_datetime",
+                "name" : "adm_agency_group_row_md5checksum",
                 "fieldType" : "CONNECTOR",
-                "label" : "adm_address_guidewire_row_effective_start_datetime",
-                "nativeName" : "adm_address_guidewire_row_effective_start_datetime",
+                "label" : "adm_agency_group_row_md5checksum",
+                "nativeName" : "adm_agency_group_row_md5checksum",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 1023,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_agency_group"
+                  }
+                ]
+              },
+              {
+                "name" : "adm_agency_group_row_effective_start_datetime",
+                "fieldType" : "CONNECTOR",
+                "label" : "adm_agency_group_row_effective_start_datetime",
+                "nativeName" : "adm_agency_group_row_effective_start_datetime",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 29,
@@ -1938,15 +1568,15 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_address_guidewire"
+                    "value" : "adm_agency_group"
                   }
                 ]
               },
               {
-                "name" : "adm_address_guidewire_row_effective_end_datetime",
+                "name" : "adm_agency_group_row_effective_end_datetime",
                 "fieldType" : "CONNECTOR",
-                "label" : "adm_address_guidewire_row_effective_end_datetime",
-                "nativeName" : "adm_address_guidewire_row_effective_end_datetime",
+                "label" : "adm_agency_group_row_effective_end_datetime",
+                "nativeName" : "adm_agency_group_row_effective_end_datetime",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 29,
@@ -1954,15 +1584,15 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_address_guidewire"
+                    "value" : "adm_agency_group"
                   }
                 ]
               },
               {
-                "name" : "adm_address_guidewire_row_status",
+                "name" : "adm_agency_group_row_status",
                 "fieldType" : "CONNECTOR",
-                "label" : "adm_address_guidewire_row_status",
-                "nativeName" : "adm_address_guidewire_row_status",
+                "label" : "adm_agency_group_row_status",
+                "nativeName" : "adm_agency_group_row_status",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 63,
@@ -1970,103 +1600,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_address_guidewire"
-                  }
-                ]
-              },
-              {
-                "name" : "address1",
-                "fieldType" : "CONNECTOR",
-                "label" : "address1",
-                "nativeName" : "address1",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 127,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_address_guidewire"
-                  }
-                ]
-              },
-              {
-                "name" : "address2",
-                "fieldType" : "CONNECTOR",
-                "label" : "address2",
-                "nativeName" : "address2",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 63,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_address_guidewire"
-                  }
-                ]
-              },
-              {
-                "name" : "agency_nup",
-                "fieldType" : "CONNECTOR",
-                "label" : "agency_nup",
-                "nativeName" : "agency_nup",
-                "nativeType" : "int4",
-                "original" : "false",
-                "precision" : 10,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_address_guidewire"
-                  }
-                ]
-              },
-              {
-                "name" : "city",
-                "fieldType" : "CONNECTOR",
-                "label" : "city",
-                "nativeName" : "city",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 31,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_address_guidewire"
-                  }
-                ]
-              },
-              {
-                "name" : "country",
-                "fieldType" : "CONNECTOR",
-                "label" : "country",
-                "nativeName" : "country",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 63,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_address_guidewire"
-                  }
-                ]
-              },
-              {
-                "name" : "created",
-                "fieldType" : "CONNECTOR",
-                "label" : "created",
-                "nativeName" : "created",
-                "nativeType" : "timestamp",
-                "original" : "false",
-                "precision" : 29,
-                "scale" : 6,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_address_guidewire"
+                    "value" : "adm_agency_group"
                   }
                 ]
               },
@@ -2082,7 +1616,71 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_address_guidewire"
+                    "value" : "adm_agency_group"
+                  }
+                ]
+              },
+              {
+                "name" : "name",
+                "fieldType" : "CONNECTOR",
+                "label" : "name",
+                "nativeName" : "name",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 511,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_agency_group"
+                  }
+                ]
+              },
+              {
+                "name" : "number",
+                "fieldType" : "CONNECTOR",
+                "label" : "number",
+                "nativeName" : "number",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 7,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_agency_group"
+                  }
+                ]
+              },
+              {
+                "name" : "modified_by",
+                "fieldType" : "CONNECTOR",
+                "label" : "modified_by",
+                "nativeName" : "modified_by",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 511,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_agency_group"
+                  }
+                ]
+              },
+              {
+                "name" : "created",
+                "fieldType" : "CONNECTOR",
+                "label" : "created",
+                "nativeName" : "created",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_agency_group"
                   }
                 ]
               },
@@ -2098,55 +1696,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_address_guidewire"
-                  }
-                ]
-              },
-              {
-                "name" : "state",
-                "fieldType" : "CONNECTOR",
-                "label" : "state",
-                "nativeName" : "state",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 7,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_address_guidewire"
-                  }
-                ]
-              },
-              {
-                "name" : "type",
-                "fieldType" : "CONNECTOR",
-                "label" : "type",
-                "nativeName" : "type",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 7,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_address_guidewire"
-                  }
-                ]
-              },
-              {
-                "name" : "zip",
-                "fieldType" : "CONNECTOR",
-                "label" : "zip",
-                "nativeName" : "zip",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 15,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_address_guidewire"
+                    "value" : "adm_agency_group"
                   }
                 ]
               }
@@ -2250,7 +1800,7 @@
             {
               "fromFieldName" : "batch_id",
               "toField" : {
-                "name" : "adm_address_guidewire_batch_id"
+                "name" : "adm_agency_group_batch_id"
               },
               "fromFieldNames" : null
             },
@@ -2269,93 +1819,30 @@
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "address1",
-              "toField" : {
-                "name" : "address1"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "address2",
-              "toField" : {
-                "name" : "address2"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "city",
-              "toField" : {
-                "name" : "city"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "country",
-              "toField" : {
-                "name" : "country"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "state",
-              "toField" : {
-                "name" : "state"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "type",
-              "toField" : {
-                "name" : "type"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "zip",
-              "toField" : {
-                "name" : "zip"
-              },
-              "fromFieldNames" : null
-            },
-            {
               "fromFieldName" : "MD5_hash_value",
               "toField" : {
-                "name" : "adm_address_guidewire_row_md5checksum"
+                "name" : "adm_agency_group_row_md5checksum"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "o_address_guidewire_row_effective_start_datetime",
+              "fromFieldName" : "o_adm_agency_group_row_effective_start_datetime",
               "toField" : {
-                "name" : "adm_address_guidewire_row_effective_start_datetime"
+                "name" : "adm_agency_group_row_effective_start_datetime"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "o_address_guidewire_row_effective_end_datetime",
+              "fromFieldName" : "o_adm_agency_group_row_effective_end_datetime",
               "toField" : {
-                "name" : "adm_address_guidewire_row_effective_end_datetime"
+                "name" : "adm_agency_group_row_effective_end_datetime"
               },
               "fromFieldNames" : null
             },
             {
               "fromFieldName" : "o_row_status_active",
               "toField" : {
-                "name" : "adm_address_guidewire_row_status"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "o_agency_nup",
-              "toField" : {
-                "name" : "agency_nup"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "o_created",
-              "toField" : {
-                "name" : "created"
+                "name" : "adm_agency_group_row_status"
               },
               "fromFieldNames" : null
             },
@@ -2363,6 +1850,34 @@
               "fromFieldName" : "o_id",
               "toField" : {
                 "name" : "id"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "name",
+              "toField" : {
+                "name" : "name"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "number",
+              "toField" : {
+                "name" : "number"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "modified_by",
+              "toField" : {
+                "name" : "modified_by"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_created",
+              "toField" : {
+                "name" : "created"
               },
               "fromFieldNames" : null
             },
@@ -2378,7 +1893,7 @@
       },
       {
         "createTime" : "2025-05-08T17:56:24.799Z",
-        "name" : "src_tgt_bronze_adm_address_guidewire_Query",
+        "name" : "src_tgt_bronze_adm_agency_group_Query",
         "advancedProperties" : [
           {
             "name" : "Tracing Level",
@@ -2402,9 +1917,9 @@
         "fields" : [
           {
             "adapterField" : {
-              "name" : "adm_address_guidewire_row_id"
+              "name" : "adm_agency_group_row_id"
             },
-            "name" : "adm_address_guidewire_row_id",
+            "name" : "adm_agency_group_row_id",
             "platformType" : {
               "name" : "bigint"
             },
@@ -2413,20 +1928,20 @@
           },
           {
             "adapterField" : {
-              "name" : "adm_address_guidewire_row_md5checksum"
+              "name" : "adm_agency_group_row_md5checksum"
             },
-            "name" : "adm_address_guidewire_row_md5checksum",
+            "name" : "adm_agency_group_row_md5checksum",
             "platformType" : {
               "name" : "string"
             },
-            "precision" : 255,
+            "precision" : 1023,
             "scale" : 0
           },
           {
             "adapterField" : {
-              "name" : "adm_address_guidewire_batch_id"
+              "name" : "adm_agency_group_batch_id"
             },
-            "name" : "adm_address_guidewire_batch_id",
+            "name" : "adm_agency_group_batch_id",
             "platformType" : {
               "name" : "bigint"
             },
@@ -2446,25 +1961,14 @@
           },
           {
             "adapterField" : {
-              "name" : "adm_address_guidewire_row_effective_end_datetime"
+              "name" : "adm_agency_group_row_effective_end_datetime"
             },
-            "name" : "adm_address_guidewire_row_effective_end_datetime",
+            "name" : "adm_agency_group_row_effective_end_datetime",
             "platformType" : {
               "name" : "date/time"
             },
             "precision" : 29,
             "scale" : 9
-          },
-          {
-            "adapterField" : {
-              "name" : "agency_nup"
-            },
-            "name" : "agency_nup",
-            "platformType" : {
-              "name" : "integer"
-            },
-            "precision" : 10,
-            "scale" : 0
           },
           {
             "adapterField" : {
@@ -2476,25 +1980,47 @@
             },
             "precision" : 10,
             "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "name"
+            },
+            "name" : "name",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 511,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "number"
+            },
+            "name" : "number",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 7,
+            "scale" : 0
           }
         ],
         "dataAdapter" : {
           "connectionId$" : {
-            "name" : "DBConnection_UDM_TGT"
+            "name" : "DBConnection_UDM_SRC"
           },
           "excludeDynamicFileNameField" : "false",
           "objectType" : "QUERY",
           "typeSystem" : "TOOLKIT",
           "useDynamicFileName" : "false",
           "object" : {
-            "customQuery" : "SELECT \nadm_address_guidewire_row_id, \nadm_address_guidewire_row_md5checksum, \nadm_address_guidewire_batch_id,  \nmodified,\nadm_address_guidewire_row_effective_end_datetime,\nagency_nup,\nid\nFROM $$staging_schema.adm_address_guidewire \nwhere  adm_address_guidewire_row_effective_end_datetime = '9999-12-31 00:00:00.000'",
+            "customQuery" : "SELECT \nadm_agency_group_row_id,\nadm_agency_group_row_md5checksum,\nadm_agency_group_batch_id,\nmodified,\nadm_agency_group_row_effective_end_datetime,\nid,\n\"name\",\n\"number\"\nFROM $$staging_schema.adm_agency_group\nwhere  adm_agency_group_row_effective_end_datetime = '9999-12-31 00:00:00.000'",
             "retainMetadata" : "false",
             "fields" : [
               {
-                "name" : "adm_address_guidewire_row_id",
+                "name" : "adm_agency_group_row_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "adm_address_guidewire_row_id",
-                "nativeName" : "adm_address_guidewire_row_id",
+                "label" : "adm_agency_group_row_id",
+                "nativeName" : "adm_agency_group_row_id",
                 "nativeType" : "int8",
                 "original" : "false",
                 "precision" : 19,
@@ -2507,13 +2033,13 @@
                 ]
               },
               {
-                "name" : "adm_address_guidewire_row_md5checksum",
+                "name" : "adm_agency_group_row_md5checksum",
                 "fieldType" : "CONNECTOR",
-                "label" : "adm_address_guidewire_row_md5checksum",
-                "nativeName" : "adm_address_guidewire_row_md5checksum",
+                "label" : "adm_agency_group_row_md5checksum",
+                "nativeName" : "adm_agency_group_row_md5checksum",
                 "nativeType" : "varchar",
                 "original" : "false",
-                "precision" : 255,
+                "precision" : 1023,
                 "scale" : 0,
                 "properties" : [
                   {
@@ -2523,10 +2049,10 @@
                 ]
               },
               {
-                "name" : "adm_address_guidewire_batch_id",
+                "name" : "adm_agency_group_batch_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "adm_address_guidewire_batch_id",
-                "nativeName" : "adm_address_guidewire_batch_id",
+                "label" : "adm_agency_group_batch_id",
+                "nativeName" : "adm_agency_group_batch_id",
                 "nativeType" : "int8",
                 "original" : "false",
                 "precision" : 19,
@@ -2555,30 +2081,14 @@
                 ]
               },
               {
-                "name" : "adm_address_guidewire_row_effective_end_datetime",
+                "name" : "adm_agency_group_row_effective_end_datetime",
                 "fieldType" : "CONNECTOR",
-                "label" : "adm_address_guidewire_row_effective_end_datetime",
-                "nativeName" : "adm_address_guidewire_row_effective_end_datetime",
+                "label" : "adm_agency_group_row_effective_end_datetime",
+                "nativeName" : "adm_agency_group_row_effective_end_datetime",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 29,
                 "scale" : 6,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "INFARS_CUSTOM_SCHEMA"
-                  }
-                ]
-              },
-              {
-                "name" : "agency_nup",
-                "fieldType" : "CONNECTOR",
-                "label" : "agency_nup",
-                "nativeName" : "agency_nup",
-                "nativeType" : "int4",
-                "original" : "false",
-                "precision" : 10,
-                "scale" : 0,
                 "properties" : [
                   {
                     "name" : "parentObject",
@@ -2594,6 +2104,38 @@
                 "nativeType" : "int4",
                 "original" : "false",
                 "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "name",
+                "fieldType" : "CONNECTOR",
+                "label" : "name",
+                "nativeName" : "name",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 511,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "number",
+                "fieldType" : "CONNECTOR",
+                "label" : "number",
+                "nativeName" : "number",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 7,
                 "scale" : 0,
                 "properties" : [
                   {
@@ -2723,14 +2265,19 @@
         "joinType" : "Detail Outer Join",
         "joinConditions" : [
           {
-            "leftOperand" : "o_agency_nup",
+            "leftOperand" : "name",
             "operator" : "=",
-            "rightOperand" : "tgt_agency_nup"
+            "rightOperand" : "tgt_name"
           },
           {
             "leftOperand" : "o_id",
             "operator" : "=",
             "rightOperand" : "tgt_id"
+          },
+          {
+            "leftOperand" : "number",
+            "operator" : "=",
+            "rightOperand" : "tgt_number"
           }
         ]
       },
@@ -2762,7 +2309,7 @@
             "precision" : 1000,
             "scale" : 0,
             "expFieldType" : "OUTPUT",
-            "expression" : "MD5(\n'source_name' || source_name ||\n'load_type' || load_type ||\n'address1' || address1 ||\n'address2' || address2 ||\n'agency_nup' || o_agency_nup ||\n'city' || city ||\n'country' || country ||\n'created' || o_created ||\n'id' || o_id ||\n'modified' || o_modified ||\n'state' || state ||\n'type' || type ||\n'zip' || zip\n)"
+            "expression" : "MD5(\n'source_name' || source_name ||\n'load_type' || load_type ||\n'id' || o_id ||\n'name' || name ||\n'number' || number ||\n'modified_by' || modified_by ||\n'created' || o_created ||\n'modified' || o_modified \n)"
           }
         ],
         "windowSpec" : {
@@ -2814,7 +2361,7 @@
       },
       {
         "createTime" : "2025-05-07T18:02:36.176Z",
-        "name" : "tgt_bronze_adm_address_guidewire_updt_endate",
+        "name" : "tgt_bronze_adm_agency_group_updt_endate",
         "advancedProperties" : [
           {
             "name" : "Forward Rejected Rows",
@@ -2840,16 +2387,16 @@
         "schemaProviderType" : "SELECTED_OBJECT",
         "targetFieldsOrdered" : "false",
         "updateColumns" : [
-          "adm_address_guidewire_row_id"
+          "adm_agency_group_row_id"
         ],
         "useLabels" : "false",
         "useSequenceFields" : "false",
         "fields" : [
           {
             "adapterField" : {
-              "name" : "adm_address_guidewire_row_id"
+              "name" : "adm_agency_group_row_id"
             },
-            "name" : "adm_address_guidewire_row_id",
+            "name" : "adm_agency_group_row_id",
             "platformType" : {
               "name" : "bigint"
             },
@@ -2858,24 +2405,13 @@
           },
           {
             "adapterField" : {
-              "name" : "adm_address_guidewire_batch_id"
+              "name" : "adm_agency_group_batch_id"
             },
-            "name" : "adm_address_guidewire_batch_id",
+            "name" : "adm_agency_group_batch_id",
             "platformType" : {
               "name" : "bigint"
             },
             "precision" : 19,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "adm_address_guidewire_row_md5checksum"
-            },
-            "name" : "adm_address_guidewire_row_md5checksum",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 255,
             "scale" : 0
           },
           {
@@ -2902,9 +2438,20 @@
           },
           {
             "adapterField" : {
-              "name" : "adm_address_guidewire_row_effective_start_datetime"
+              "name" : "adm_agency_group_row_md5checksum"
             },
-            "name" : "adm_address_guidewire_row_effective_start_datetime",
+            "name" : "adm_agency_group_row_md5checksum",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 1023,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "adm_agency_group_row_effective_start_datetime"
+            },
+            "name" : "adm_agency_group_row_effective_start_datetime",
             "platformType" : {
               "name" : "date/time"
             },
@@ -2913,9 +2460,9 @@
           },
           {
             "adapterField" : {
-              "name" : "adm_address_guidewire_row_effective_end_datetime"
+              "name" : "adm_agency_group_row_effective_end_datetime"
             },
-            "name" : "adm_address_guidewire_row_effective_end_datetime",
+            "name" : "adm_agency_group_row_effective_end_datetime",
             "platformType" : {
               "name" : "date/time"
             },
@@ -2924,9 +2471,9 @@
           },
           {
             "adapterField" : {
-              "name" : "adm_address_guidewire_row_status"
+              "name" : "adm_agency_group_row_status"
             },
-            "name" : "adm_address_guidewire_row_status",
+            "name" : "adm_agency_group_row_status",
             "platformType" : {
               "name" : "string"
             },
@@ -2935,31 +2482,9 @@
           },
           {
             "adapterField" : {
-              "name" : "address1"
+              "name" : "id"
             },
-            "name" : "address1",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 127,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "address2"
-            },
-            "name" : "address2",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 63,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "agency_nup"
-            },
-            "name" : "agency_nup",
+            "name" : "id",
             "platformType" : {
               "name" : "integer"
             },
@@ -2968,24 +2493,35 @@
           },
           {
             "adapterField" : {
-              "name" : "city"
+              "name" : "name"
             },
-            "name" : "city",
+            "name" : "name",
             "platformType" : {
               "name" : "string"
             },
-            "precision" : 31,
+            "precision" : 511,
             "scale" : 0
           },
           {
             "adapterField" : {
-              "name" : "country"
+              "name" : "number"
             },
-            "name" : "country",
+            "name" : "number",
             "platformType" : {
               "name" : "string"
             },
-            "precision" : 63,
+            "precision" : 7,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "modified_by"
+            },
+            "name" : "modified_by",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 511,
             "scale" : 0
           },
           {
@@ -3001,17 +2537,6 @@
           },
           {
             "adapterField" : {
-              "name" : "id"
-            },
-            "name" : "id",
-            "platformType" : {
-              "name" : "integer"
-            },
-            "precision" : 10,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
               "name" : "modified"
             },
             "name" : "modified",
@@ -3020,39 +2545,6 @@
             },
             "precision" : 29,
             "scale" : 9
-          },
-          {
-            "adapterField" : {
-              "name" : "state"
-            },
-            "name" : "state",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 7,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "type"
-            },
-            "name" : "type",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 7,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "zip"
-            },
-            "name" : "zip",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 15,
-            "scale" : 0
           }
         ],
         "dataAdapter" : {
@@ -3075,18 +2567,18 @@
             "useBulkApiV2" : "false"
           },
           "object" : {
-            "name" : "bronze/adm_address_guidewire",
-            "label" : "bronze/adm_address_guidewire",
-            "objectName" : "adm_address_guidewire",
+            "name" : "bronze/adm_agency_group",
+            "label" : "bronze/adm_agency_group",
+            "objectName" : "adm_agency_group",
             "objectType" : "amazonredshift",
-            "path" : "bronze/adm_address_guidewire",
+            "path" : "bronze/adm_agency_group",
             "retainMetadata" : "false",
             "fields" : [
               {
-                "name" : "adm_address_guidewire_row_id",
+                "name" : "adm_agency_group_row_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "adm_address_guidewire_row_id",
-                "nativeName" : "adm_address_guidewire_row_id",
+                "label" : "adm_agency_group_row_id",
+                "nativeName" : "adm_agency_group_row_id",
                 "nativeType" : "int8",
                 "original" : "false",
                 "precision" : 19,
@@ -3094,15 +2586,15 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_address_guidewire"
+                    "value" : "adm_agency_group"
                   }
                 ]
               },
               {
-                "name" : "adm_address_guidewire_batch_id",
+                "name" : "adm_agency_group_batch_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "adm_address_guidewire_batch_id",
-                "nativeName" : "adm_address_guidewire_batch_id",
+                "label" : "adm_agency_group_batch_id",
+                "nativeName" : "adm_agency_group_batch_id",
                 "nativeType" : "int8",
                 "original" : "false",
                 "precision" : 19,
@@ -3110,23 +2602,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_address_guidewire"
-                  }
-                ]
-              },
-              {
-                "name" : "adm_address_guidewire_row_md5checksum",
-                "fieldType" : "CONNECTOR",
-                "label" : "adm_address_guidewire_row_md5checksum",
-                "nativeName" : "adm_address_guidewire_row_md5checksum",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 255,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_address_guidewire"
+                    "value" : "adm_agency_group"
                   }
                 ]
               },
@@ -3142,7 +2618,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_address_guidewire"
+                    "value" : "adm_agency_group"
                   }
                 ]
               },
@@ -3158,15 +2634,31 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_address_guidewire"
+                    "value" : "adm_agency_group"
                   }
                 ]
               },
               {
-                "name" : "adm_address_guidewire_row_effective_start_datetime",
+                "name" : "adm_agency_group_row_md5checksum",
                 "fieldType" : "CONNECTOR",
-                "label" : "adm_address_guidewire_row_effective_start_datetime",
-                "nativeName" : "adm_address_guidewire_row_effective_start_datetime",
+                "label" : "adm_agency_group_row_md5checksum",
+                "nativeName" : "adm_agency_group_row_md5checksum",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 1023,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_agency_group"
+                  }
+                ]
+              },
+              {
+                "name" : "adm_agency_group_row_effective_start_datetime",
+                "fieldType" : "CONNECTOR",
+                "label" : "adm_agency_group_row_effective_start_datetime",
+                "nativeName" : "adm_agency_group_row_effective_start_datetime",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 29,
@@ -3174,15 +2666,15 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_address_guidewire"
+                    "value" : "adm_agency_group"
                   }
                 ]
               },
               {
-                "name" : "adm_address_guidewire_row_effective_end_datetime",
+                "name" : "adm_agency_group_row_effective_end_datetime",
                 "fieldType" : "CONNECTOR",
-                "label" : "adm_address_guidewire_row_effective_end_datetime",
-                "nativeName" : "adm_address_guidewire_row_effective_end_datetime",
+                "label" : "adm_agency_group_row_effective_end_datetime",
+                "nativeName" : "adm_agency_group_row_effective_end_datetime",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 29,
@@ -3190,15 +2682,15 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_address_guidewire"
+                    "value" : "adm_agency_group"
                   }
                 ]
               },
               {
-                "name" : "adm_address_guidewire_row_status",
+                "name" : "adm_agency_group_row_status",
                 "fieldType" : "CONNECTOR",
-                "label" : "adm_address_guidewire_row_status",
-                "nativeName" : "adm_address_guidewire_row_status",
+                "label" : "adm_agency_group_row_status",
+                "nativeName" : "adm_agency_group_row_status",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 63,
@@ -3206,103 +2698,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_address_guidewire"
-                  }
-                ]
-              },
-              {
-                "name" : "address1",
-                "fieldType" : "CONNECTOR",
-                "label" : "address1",
-                "nativeName" : "address1",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 127,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_address_guidewire"
-                  }
-                ]
-              },
-              {
-                "name" : "address2",
-                "fieldType" : "CONNECTOR",
-                "label" : "address2",
-                "nativeName" : "address2",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 63,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_address_guidewire"
-                  }
-                ]
-              },
-              {
-                "name" : "agency_nup",
-                "fieldType" : "CONNECTOR",
-                "label" : "agency_nup",
-                "nativeName" : "agency_nup",
-                "nativeType" : "int4",
-                "original" : "false",
-                "precision" : 10,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_address_guidewire"
-                  }
-                ]
-              },
-              {
-                "name" : "city",
-                "fieldType" : "CONNECTOR",
-                "label" : "city",
-                "nativeName" : "city",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 31,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_address_guidewire"
-                  }
-                ]
-              },
-              {
-                "name" : "country",
-                "fieldType" : "CONNECTOR",
-                "label" : "country",
-                "nativeName" : "country",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 63,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_address_guidewire"
-                  }
-                ]
-              },
-              {
-                "name" : "created",
-                "fieldType" : "CONNECTOR",
-                "label" : "created",
-                "nativeName" : "created",
-                "nativeType" : "timestamp",
-                "original" : "false",
-                "precision" : 29,
-                "scale" : 6,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_address_guidewire"
+                    "value" : "adm_agency_group"
                   }
                 ]
               },
@@ -3318,7 +2714,71 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_address_guidewire"
+                    "value" : "adm_agency_group"
+                  }
+                ]
+              },
+              {
+                "name" : "name",
+                "fieldType" : "CONNECTOR",
+                "label" : "name",
+                "nativeName" : "name",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 511,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_agency_group"
+                  }
+                ]
+              },
+              {
+                "name" : "number",
+                "fieldType" : "CONNECTOR",
+                "label" : "number",
+                "nativeName" : "number",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 7,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_agency_group"
+                  }
+                ]
+              },
+              {
+                "name" : "modified_by",
+                "fieldType" : "CONNECTOR",
+                "label" : "modified_by",
+                "nativeName" : "modified_by",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 511,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_agency_group"
+                  }
+                ]
+              },
+              {
+                "name" : "created",
+                "fieldType" : "CONNECTOR",
+                "label" : "created",
+                "nativeName" : "created",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_agency_group"
                   }
                 ]
               },
@@ -3334,55 +2794,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_address_guidewire"
-                  }
-                ]
-              },
-              {
-                "name" : "state",
-                "fieldType" : "CONNECTOR",
-                "label" : "state",
-                "nativeName" : "state",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 7,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_address_guidewire"
-                  }
-                ]
-              },
-              {
-                "name" : "type",
-                "fieldType" : "CONNECTOR",
-                "label" : "type",
-                "nativeName" : "type",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 7,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_address_guidewire"
-                  }
-                ]
-              },
-              {
-                "name" : "zip",
-                "fieldType" : "CONNECTOR",
-                "label" : "zip",
-                "nativeName" : "zip",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 15,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_address_guidewire"
+                    "value" : "adm_agency_group"
                   }
                 ]
               }
@@ -3484,23 +2896,23 @@
         "manualMappings" : {
           "mappingList" : [
             {
-              "fromFieldName" : "tgt_adm_address_guidewire_row_id",
+              "fromFieldName" : "tgt_adm_agency_group_row_id",
               "toField" : {
-                "name" : "adm_address_guidewire_row_id"
+                "name" : "adm_agency_group_row_id"
               },
               "fromFieldNames" : null
             },
             {
               "fromFieldName" : "o_row_status_expired",
               "toField" : {
-                "name" : "adm_address_guidewire_row_status"
+                "name" : "adm_agency_group_row_status"
               },
               "fromFieldNames" : null
             },
             {
               "fromFieldName" : "o_enddate_sysdate",
               "toField" : {
-                "name" : "adm_address_guidewire_row_effective_end_datetime"
+                "name" : "adm_agency_group_row_effective_end_datetime"
               },
               "fromFieldNames" : null
             }
@@ -3559,5 +2971,5 @@
       }
     ]
   },
-  "vcsExportTime" : "2025-10-17 15:30:48 PDT"
+  "vcsExportTime" : "2025-10-21 13:44:27 PDT"
 }
