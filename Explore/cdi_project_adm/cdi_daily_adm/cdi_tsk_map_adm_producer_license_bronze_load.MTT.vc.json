@@ -30,7 +30,7 @@
       "truncateTarget" : false,
       "bulkApiDBTarget" : false,
       "customFuncCfg" : { },
-      "customQuery" : "with current_batch as (\nselect\n\tbls.batch_id,\n\tbls.source_start_cutoff_datetime,\n\tbls.source_end_cutoff_datetime\nfrom\n\tmetal.batch_load_summary bls\nwhere\n\tbls.source_system_code = 'ADM'\n\tand bls.batch_status = 'Inprogress'\n\tand bls.batch_id = (\n\tselect\n\t\tMAX(batch_id)\n\tfrom\n\t\tmetal.batch_load_summary\n\twhere\n\t\tsource_system_code = 'ADM'\n\t\tand batch_status = 'Inprogress'\n      )\n)\t\n\t\n\tselect\n\tdistinct\n\tmetal_apl.source_name,\n\tmetal_apl.load_type,\n\tmetal_apl.agency_code,\n\tmetal_apl.appointed_date,\n\tmetal_apl.cancellation_date,\n\tmetal_apl.company,\n\tmetal_apl.created,\n\tmetal_apl.expiration_date,\n\tmetal_apl.gw_producer_id,\n\tmetal_apl.id,\n\tmetal_apl.license_number,\n\tmetal_apl.license_type,\n\tmetal_apl.lob,\n\tmetal_apl.modified,\n\tmetal_apl.producer_id,\n\tmetal_apl.state,\n\tmetal_apl.term_flag,\n\tmetal_apl.term_id,\n\tcurrent_batch.batch_id\nfrom\n\tmetal.adm_producer_license metal_apl\ncross join current_batch\norder by\n\tmetal_apl.id,\n\tmetal_apl.created,\n\tmetal_apl.modified;",
+      "customQuery" : "with current_batch as (\nselect\n\tbls.batch_id,\n\tbls.source_start_cutoff_datetime,\n\tbls.source_end_cutoff_datetime\nfrom\n\t$$operational_schema.batch_load_summary bls\nwhere\n\tbls.source_system_code = '$$sourcesystemcode'\n\tand bls.batch_status = 'Inprogress'\n\tand bls.batch_id = (\n\tselect\n\t\tMAX(batch_id)\n\tfrom\n\t\t$$operational_schema.batch_load_summary\n\twhere\n\t\tsource_system_code = '$$sourcesystemcode'\n\t\tand batch_status = 'Inprogress'\n      )\n)\t\n\t\n\tselect\n\tdistinct\n\tmetal_apl.source_name,\n\tmetal_apl.load_type,\n\tmetal_apl.agency_code,\n\tmetal_apl.appointed_date,\n\tmetal_apl.cancellation_date,\n\tmetal_apl.company,\n\tmetal_apl.created,\n\tmetal_apl.expiration_date,\n\tmetal_apl.gw_producer_id,\n\tmetal_apl.id,\n\tmetal_apl.license_number,\n\tmetal_apl.license_type,\n\tmetal_apl.lob,\n\tmetal_apl.modified,\n\tmetal_apl.producer_id,\n\tmetal_apl.state,\n\tmetal_apl.term_flag,\n\tmetal_apl.term_id,\n        metal_apl.license_class,\n\tcurrent_batch.batch_id\nfrom\n\t$$raw_schema.adm_producer_license metal_apl\ncross join current_batch\norder by\n\tmetal_apl.id,\n\tmetal_apl.created,\n\tmetal_apl.modified",
       "commandType" : 0,
       "handleSpecialChars" : false,
       "handleDecimalRoundOff" : false,
@@ -42,14 +42,13 @@
       "objectName" : "DUMMY_src_delta_changes_producer_license",
       "useExactSrcNames" : false,
       "userUpdated" : true,
-      "unspecified" : false,
-      "fetchMode" : "ORIGINAL",
       "runtimeParameterData" : {
         "connectionParameterName" : "DBConnection_UDM_SRC",
         "connectionRuntimeParameter" : false,
         "objectRuntimeParameter" : false
       },
       "restmodernSource" : true,
+      "unspecified" : false,
       "fileList" : false
     },
     {
@@ -77,7 +76,7 @@
       "truncateTarget" : false,
       "bulkApiDBTarget" : false,
       "customFuncCfg" : { },
-      "customQuery" : "select\n\tproducer_licenses_row_id ,\n\tproducer_licenses_batch_id,\n\tproducer_licenses_row_md5checksum ,\n\tlicense_id,\n\tproducer_licenses_row_effective_end_datetime\nfrom\n\tbronze.adm_producer_licenses\nwhere\n\tproducer_licenses_row_effective_end_datetime = '9999-12-31 00:00:00.000'",
+      "customQuery" : "select\n\tadm_producer_license_row_id AS producer_licenses_row_id,\n\tadm_producer_license_batch_id AS producer_licenses_batch_id,\n\tadm_producer_license_row_md5checksum AS producer_licenses_row_md5checksum,\n\tid AS license_id,\n\tadm_producer_license_row_effective_end_datetime AS producer_licenses_row_effective_end_datetime\nfrom\n\t$$staging_schema.adm_producer_license\nwhere\n\tadm_producer_license_row_effective_end_datetime = '9999-12-31 00:00:00.000'",
       "commandType" : 0,
       "handleSpecialChars" : false,
       "handleDecimalRoundOff" : false,
@@ -89,14 +88,13 @@
       "objectName" : "DUMMY_src_tgt_query",
       "useExactSrcNames" : false,
       "userUpdated" : true,
-      "unspecified" : false,
-      "fetchMode" : "ORIGINAL",
       "runtimeParameterData" : {
         "connectionParameterName" : "DBConnection_UDM_SRC",
         "connectionRuntimeParameter" : false,
         "objectRuntimeParameter" : false
       },
       "restmodernSource" : true,
+      "unspecified" : false,
       "fileList" : false
     },
     {
@@ -109,7 +107,7 @@
         "paramName" : "DBConnection_UDM_TGT",
         "paramType-mapping" : "Connection",
         "logcnx" : "DBConnection_UDM_TGT",
-        "default" : "bronze/adm_producer_licenses",
+        "default" : "bronze/adm_producer_license",
         "objectParameterized" : "false",
         "visible" : "false",
         "supportApplyDDLChanges" : "false",
@@ -117,8 +115,8 @@
       },
       "targetConnectionId" : "@aYZ4ekzHgIPeKpiaoqDLKP",
       "connectionName" : "redshift_nonprod_andover_dw_dev",
-      "targetObject" : "bronze/adm_producer_licenses",
-      "targetObjectLabel" : "bronze/adm_producer_licenses",
+      "targetObject" : "bronze/adm_producer_license",
+      "targetObjectLabel" : "bronze/adm_producer_license",
       "newFlatFile" : false,
       "newObject" : false,
       "showBusinessNames" : true,
@@ -138,19 +136,17 @@
       "excludeDynamicFileNameField" : false,
       "currentlyProcessedFileName" : false,
       "retainFieldMetadata" : false,
-      "objectName" : "bronze/adm_producer_licenses",
-      "objectLabel" : "bronze/adm_producer_licenses",
+      "objectName" : "bronze/adm_producer_license",
+      "objectLabel" : "bronze/adm_producer_license",
       "useExactSrcNames" : false,
       "userUpdated" : true,
-      "unspecified" : false,
-      "fetchMode" : "ORIGINAL",
       "runtimeParameterData" : {
         "connectionParameterName" : "DBConnection_UDM_TGT",
         "connectionRuntimeParameter" : false,
         "objectRuntimeParameter" : false
       },
-      "targetSchemaProviderType" : "SELECTED_OBJECT",
       "restmodernSource" : true,
+      "unspecified" : false,
       "fileList" : false
     },
     {
@@ -163,17 +159,17 @@
         "paramName" : "DBConnection_UDM_TGT",
         "paramType-mapping" : "Connection",
         "logcnx" : "DBConnection_UDM_TGT",
-        "default" : "bronze/adm_producer_licenses",
+        "default" : "bronze/adm_producer_license",
         "objectParameterized" : "false",
         "visible" : "false",
-        "defaultTargetUpdateColumns" : "producer_licenses_row_id",
+        "defaultTargetUpdateColumns" : "adm_producer_license_row_id",
         "supportApplyDDLChanges" : "false",
         "originalPath" : "tgt_update_closeout"
       },
       "targetConnectionId" : "@aYZ4ekzHgIPeKpiaoqDLKP",
       "connectionName" : "redshift_nonprod_andover_dw_dev",
-      "targetObject" : "bronze/adm_producer_licenses",
-      "targetObjectLabel" : "bronze/adm_producer_licenses",
+      "targetObject" : "bronze/adm_producer_license",
+      "targetObjectLabel" : "bronze/adm_producer_license",
       "newFlatFile" : false,
       "newObject" : false,
       "showBusinessNames" : true,
@@ -183,7 +179,7 @@
       "operationType" : "Update",
       "customFuncCfg" : { },
       "targetUpdateColumns" : [
-        "producer_licenses_row_id"
+        "adm_producer_license_row_id"
       ],
       "extendedObject" : {
         "singleMode" : true
@@ -196,19 +192,17 @@
       "excludeDynamicFileNameField" : false,
       "currentlyProcessedFileName" : false,
       "retainFieldMetadata" : false,
-      "objectName" : "bronze/adm_producer_licenses",
-      "objectLabel" : "bronze/adm_producer_licenses",
+      "objectName" : "bronze/adm_producer_license",
+      "objectLabel" : "bronze/adm_producer_license",
       "useExactSrcNames" : false,
       "userUpdated" : true,
-      "unspecified" : false,
-      "fetchMode" : "ORIGINAL",
       "runtimeParameterData" : {
         "connectionParameterName" : "DBConnection_UDM_TGT",
         "connectionRuntimeParameter" : false,
         "objectRuntimeParameter" : false
       },
-      "targetSchemaProviderType" : "SELECTED_OBJECT",
       "restmodernSource" : true,
+      "unspecified" : false,
       "fileList" : false
     },
     {
@@ -221,7 +215,7 @@
         "paramName" : "DBConnection_UDM_TGT",
         "paramType-mapping" : "Connection",
         "logcnx" : "DBConnection_UDM_TGT",
-        "default" : "bronze/adm_producer_licenses",
+        "default" : "bronze/adm_producer_license",
         "objectParameterized" : "false",
         "visible" : "false",
         "supportApplyDDLChanges" : "false",
@@ -229,8 +223,8 @@
       },
       "targetConnectionId" : "@aYZ4ekzHgIPeKpiaoqDLKP",
       "connectionName" : "redshift_nonprod_andover_dw_dev",
-      "targetObject" : "bronze/adm_producer_licenses",
-      "targetObjectLabel" : "bronze/adm_producer_licenses",
+      "targetObject" : "bronze/adm_producer_license",
+      "targetObjectLabel" : "bronze/adm_producer_license",
       "newFlatFile" : false,
       "newObject" : false,
       "showBusinessNames" : true,
@@ -250,24 +244,22 @@
       "excludeDynamicFileNameField" : false,
       "currentlyProcessedFileName" : false,
       "retainFieldMetadata" : false,
-      "objectName" : "bronze/adm_producer_licenses",
-      "objectLabel" : "bronze/adm_producer_licenses",
+      "objectName" : "bronze/adm_producer_license",
+      "objectLabel" : "bronze/adm_producer_license",
       "useExactSrcNames" : false,
       "userUpdated" : true,
-      "unspecified" : false,
-      "fetchMode" : "ORIGINAL",
       "runtimeParameterData" : {
         "connectionParameterName" : "DBConnection_UDM_TGT",
         "connectionRuntimeParameter" : false,
         "objectRuntimeParameter" : false
       },
-      "targetSchemaProviderType" : "SELECTED_OBJECT",
       "restmodernSource" : true,
+      "unspecified" : false,
       "fileList" : false
     }
   ],
   "verbose" : false,
-  "lastRunTime" : 1752085448000,
+  "lastRunTime" : 1761073296000,
   "mappingId" : "@kNjwjglB36Ai8DWtaXv4iP",
   "mappingTemplateName" : "cdi_map_adm_producer_license_bronze_load",
   "sessionPropertiesList" : [
@@ -284,6 +276,48 @@
       "value" : "Partial PDO"
     }
   ],
+  "inOutParameters" : [
+    {
+      "name" : "raw_schema",
+      "initialValue" : "metal",
+      "datatype" : "STRING",
+      "precision" : "100",
+      "scale" : "0",
+      "retentionPolicy" : "NEVER",
+      "aggregationType" : "MAX",
+      "currentValue" : "metal"
+    },
+    {
+      "name" : "staging_schema",
+      "initialValue" : "bronze",
+      "datatype" : "STRING",
+      "precision" : "100",
+      "scale" : "0",
+      "retentionPolicy" : "NEVER",
+      "aggregationType" : "MAX",
+      "currentValue" : "bronze"
+    },
+    {
+      "name" : "operational_schema",
+      "initialValue" : "operations",
+      "datatype" : "STRING",
+      "precision" : "100",
+      "scale" : "0",
+      "retentionPolicy" : "NEVER",
+      "aggregationType" : "MAX",
+      "currentValue" : "operations"
+    },
+    {
+      "name" : "sourcesystemcode",
+      "initialValue" : "ADM",
+      "datatype" : "STRING",
+      "precision" : "10",
+      "scale" : "0",
+      "retentionPolicy" : "NEVER",
+      "aggregationType" : "MAX",
+      "currentValue" : "ADM"
+    }
+  ],
   "hidden" : false,
   "enableCrossSchemaPushdown" : true,
   "enableParallelRun" : false,
@@ -296,6 +330,7 @@
   "valid" : true,
   "optimizationPlan" : "NONE",
   "allowMaxFieldLength" : false,
+  "specialCharacterSupport" : false,
   "midstreamPreview" : false,
-  "vcsExportTime" : "2025-07-09 14:29:43 EDT"
+  "vcsExportTime" : "2025-10-22 11:22:45 EDT"
 }
