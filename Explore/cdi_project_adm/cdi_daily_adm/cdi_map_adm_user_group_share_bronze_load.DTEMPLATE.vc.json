@@ -4,6 +4,7 @@
     "bigIntConvertType" : "ONLY_BIGINT",
     "documentType" : "MAPPING",
     "name" : "cdi_map_adm_user_group_share_bronze_load",
+    "specialCharacterSupport" : "false",
     "links" : [
       {
         "link" : "src_metal_user_group_share -> exp_convert_datatype"
@@ -38,12 +39,18 @@
         "link" : "src_tgt_query -> exp_passthrough"
       },
       {
-        "link" : "rtr_insert_update_path -> tgt_update_records",
-        "groupLink" : "update_group -> DefaultGroup"
+        "link" : "exp_NewInserts -> tgt_insert_records"
       },
       {
-        "link" : "rtr_insert_update_path -> tgt_insert_records",
+        "link" : "rtr_insert_update_path -> exp_NewInserts",
         "groupLink" : "insert_group -> DefaultGroup"
+      },
+      {
+        "link" : "exp_upd_Insert -> tgt_update_records"
+      },
+      {
+        "link" : "rtr_insert_update_path -> exp_upd_Insert",
+        "groupLink" : "update_group -> DefaultGroup"
       }
     ],
     "parameters" : [
@@ -208,8 +215,8 @@
           "typeSystem" : "TOOLKIT",
           "useDynamicFileName" : "false",
           "object" : {
-            "customQuery" : "WITH current_batch AS (\n    SELECT \n        bls.batch_id,\n        bls.source_start_cutoff_datetime,\n        bls.source_end_cutoff_datetime\n    FROM metal.batch_load_summary bls\n    WHERE bls.source_system_code = 'ADM'\n      AND bls.batch_status = 'Inprogress'\n      AND bls.batch_id = (\n          SELECT MAX(batch_id)\n          FROM metal.batch_load_summary\n          WHERE source_system_code = 'ADM'\n            AND batch_status = 'Inprogress'\n      )\n)\nSELECT DISTINCT  \n\t\tmetal_ugs.source_name, \n\t\tmetal_ugs.load_type, \n\t\tmetal_ugs.id, \n\t\tmetal_ugs.agency_nup, \n\t\tmetal_ugs.sharedagency, \n\t\tmetal_ugs.created, \n\t\tmetal_ugs.modified, \n\t\tcurrent_batch.batch_id\nFROM metal.adm_user_group_share metal_ugs\nCROSS JOIN current_batch\nORDER BY \n    metal_ugs.id,\n    metal_ugs.created,\n    metal_ugs.modified;",
-            "retainMetadata" : "false",
+            "customQuery" : "WITH current_batch AS (\n    SELECT \n        bls.batch_id,\n        bls.source_start_cutoff_datetime,\n        bls.source_end_cutoff_datetime\n    FROM $$operational_schema.batch_load_summary bls\n    WHERE bls.source_system_code = '$$sourcesystemcode'\n      AND bls.batch_status = 'Inprogress'\n      AND bls.batch_id = (\n          SELECT MAX(batch_id)\n          FROM $$operational_schema.batch_load_summary\n          WHERE source_system_code = '$$sourcesystemcode'\n            AND batch_status = 'Inprogress'\n      )\n)\nSELECT DISTINCT  \n\t\tmetal_ugs.source_name, \n\t\tmetal_ugs.load_type, \n\t\tmetal_ugs.id, \n\t\tmetal_ugs.agency_nup, \n\t\tmetal_ugs.sharedagency, \n\t\tmetal_ugs.created, \n\t\tmetal_ugs.modified, \n\t\tcurrent_batch.batch_id\nFROM $$raw_schema.adm_user_grp_share metal_ugs\nCROSS JOIN current_batch\nORDER BY \n    metal_ugs.id,\n    metal_ugs.created,\n    metal_ugs.modified",
+            "retainMetadata" : "true",
             "fields" : [
               {
                 "name" : "source_name",
@@ -422,7 +429,7 @@
         "fields" : [
           {
             "defaultValue" : "ERROR('transformation error')",
-            "name" : "o_user_group_share_datetime_created",
+            "name" : "o_created",
             "platformType" : {
               "name" : "date/time"
             },
@@ -433,7 +440,7 @@
           },
           {
             "defaultValue" : "ERROR('transformation error')",
-            "name" : "o_user_group_share_datetime_modified",
+            "name" : "o_modified",
             "platformType" : {
               "name" : "date/time"
             },
@@ -444,7 +451,7 @@
           },
           {
             "defaultValue" : "ERROR('transformation error')",
-            "name" : "o_user_group_share_id",
+            "name" : "o_id",
             "platformType" : {
               "name" : "integer"
             },
@@ -455,7 +462,7 @@
           },
           {
             "defaultValue" : "ERROR('transformation error')",
-            "name" : "o_user_group_share_agency_id",
+            "name" : "o_agency_nup",
             "platformType" : {
               "name" : "integer"
             },
@@ -466,7 +473,7 @@
           },
           {
             "defaultValue" : "ERROR('transformation error')",
-            "name" : "o_user_group_share_sharedagency",
+            "name" : "o_sharedagency",
             "platformType" : {
               "name" : "integer"
             },
@@ -511,7 +518,7 @@
             "precision" : 255,
             "scale" : 0,
             "expFieldType" : "OUTPUT",
-            "expression" : "MD5('source_name' || source_name || \n\t'load_type' || load_type || \n\t'o_user_group_share_datetime_created' || to_char(o_user_group_share_datetime_created) || \n\t'o_user_group_share_datetime_modified' || to_char(o_user_group_share_datetime_modified) || \n\t'o_user_group_share_id' || to_char(o_user_group_share_id) || 'o_user_group_share_agency_id' || to_char(o_user_group_share_agency_id) || 'o_user_group_share_sharedagency' || to_char(o_user_group_share_sharedagency)\n    )"
+            "expression" : "MD5('source_name' || source_name || \n\t'load_type' || load_type || \n\t'o_created' || to_char(o_created) || \n\t'o_modified' || to_char(o_modified) || \n\t'o_id' || to_char(o_id) ||\n    'o_agency_nup' || to_char(o_agency_nup) ||           'o_sharedagency' || to_char(o_sharedagency)\n    )"
           }
         ],
         "windowSpec" : {
@@ -548,9 +555,9 @@
         "fields" : [
           {
             "adapterField" : {
-              "name" : "user_group_share_row_id"
+              "name" : "adm_user_grp_share_row_id"
             },
-            "name" : "user_group_share_row_id",
+            "name" : "adm_user_grp_share_row_id",
             "platformType" : {
               "name" : "bigint"
             },
@@ -559,9 +566,9 @@
           },
           {
             "adapterField" : {
-              "name" : "user_group_share_row_md5checksum"
+              "name" : "adm_user_grp_share_row_md5checksum"
             },
-            "name" : "user_group_share_row_md5checksum",
+            "name" : "adm_user_grp_share_row_md5checksum",
             "platformType" : {
               "name" : "string"
             },
@@ -570,9 +577,9 @@
           },
           {
             "adapterField" : {
-              "name" : "user_group_share_id"
+              "name" : "id"
             },
-            "name" : "user_group_share_id",
+            "name" : "id",
             "platformType" : {
               "name" : "integer"
             },
@@ -581,9 +588,9 @@
           },
           {
             "adapterField" : {
-              "name" : "user_group_share_datetime_modified"
+              "name" : "adm_user_grp_share_row_effective_start_datetime"
             },
-            "name" : "user_group_share_datetime_modified",
+            "name" : "adm_user_grp_share_row_effective_start_datetime",
             "platformType" : {
               "name" : "date/time"
             },
@@ -592,9 +599,9 @@
           },
           {
             "adapterField" : {
-              "name" : "user_group_share_row_effective_end_datetime"
+              "name" : "adm_user_grp_share_row_effective_end_datetime"
             },
-            "name" : "user_group_share_row_effective_end_datetime",
+            "name" : "adm_user_grp_share_row_effective_end_datetime",
             "platformType" : {
               "name" : "date/time"
             },
@@ -604,21 +611,21 @@
         ],
         "dataAdapter" : {
           "connectionId$" : {
-            "name" : "DBConnection_UDM_SRC"
+            "name" : "DBConnection_UDM_TGT"
           },
           "excludeDynamicFileNameField" : "false",
           "objectType" : "QUERY",
           "typeSystem" : "TOOLKIT",
           "useDynamicFileName" : "false",
           "object" : {
-            "customQuery" : "SELECT \n        user_group_share_row_id, \n        user_group_share_row_md5checksum, \n        user_group_share_id,  \n  user_group_share_datetime_modified,\n  user_group_share_row_effective_end_datetime\t\n    FROM bronze.adm_user_group_share\n    where  user_group_share_row_effective_end_datetime\t= '9999-12-31 00:00:00.000'",
-            "retainMetadata" : "false",
+            "customQuery" : "SELECT \n        adm_user_grp_share_row_id, \n        adm_user_grp_share_row_md5checksum, \n    id,\n  adm_user_grp_share_row_effective_start_datetime,\n  adm_user_grp_share_row_effective_end_datetime\t\n    FROM $$staging_schema.adm_user_grp_share\n    where  adm_user_grp_share_row_effective_end_datetime = '9999-12-31 00:00:00.000'",
+            "retainMetadata" : "true",
             "fields" : [
               {
-                "name" : "user_group_share_row_id",
+                "name" : "adm_user_grp_share_row_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "user_group_share_row_id",
-                "nativeName" : "user_group_share_row_id",
+                "label" : "adm_user_grp_share_row_id",
+                "nativeName" : "adm_user_grp_share_row_id",
                 "nativeType" : "int8",
                 "original" : "false",
                 "precision" : 19,
@@ -631,10 +638,10 @@
                 ]
               },
               {
-                "name" : "user_group_share_row_md5checksum",
+                "name" : "adm_user_grp_share_row_md5checksum",
                 "fieldType" : "CONNECTOR",
-                "label" : "user_group_share_row_md5checksum",
-                "nativeName" : "user_group_share_row_md5checksum",
+                "label" : "adm_user_grp_share_row_md5checksum",
+                "nativeName" : "adm_user_grp_share_row_md5checksum",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 255,
@@ -647,10 +654,10 @@
                 ]
               },
               {
-                "name" : "user_group_share_id",
+                "name" : "id",
                 "fieldType" : "CONNECTOR",
-                "label" : "user_group_share_id",
-                "nativeName" : "user_group_share_id",
+                "label" : "id",
+                "nativeName" : "id",
                 "nativeType" : "int4",
                 "original" : "false",
                 "precision" : 10,
@@ -663,10 +670,10 @@
                 ]
               },
               {
-                "name" : "user_group_share_datetime_modified",
+                "name" : "adm_user_grp_share_row_effective_start_datetime",
                 "fieldType" : "CONNECTOR",
-                "label" : "user_group_share_datetime_modified",
-                "nativeName" : "user_group_share_datetime_modified",
+                "label" : "adm_user_grp_share_row_effective_start_datetime",
+                "nativeName" : "adm_user_grp_share_row_effective_start_datetime",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 29,
@@ -679,10 +686,10 @@
                 ]
               },
               {
-                "name" : "user_group_share_row_effective_end_datetime",
+                "name" : "adm_user_grp_share_row_effective_end_datetime",
                 "fieldType" : "CONNECTOR",
-                "label" : "user_group_share_row_effective_end_datetime",
-                "nativeName" : "user_group_share_row_effective_end_datetime",
+                "label" : "adm_user_grp_share_row_effective_end_datetime",
+                "nativeName" : "adm_user_grp_share_row_effective_end_datetime",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 29,
@@ -776,7 +783,7 @@
             "precision" : 10,
             "scale" : 0,
             "expFieldType" : "OUTPUT",
-            "expression" : "IIF(ISNULL(user_group_share_row_id),'I','X')"
+            "expression" : "IIF(ISNULL(tgt_o_tgtAsSrc_id),'I','X')"
           },
           {
             "defaultValue" : "ERROR('transformation error')",
@@ -809,7 +816,7 @@
             "precision" : 10,
             "scale" : 0,
             "expFieldType" : "OUTPUT",
-            "expression" : "IIF(NOT ISNULL(user_group_share_row_id) AND user_group_share_row_md5checksum <> o_src_md5_hash_value, 'U','X')"
+            "expression" : "IIF(NOT ISNULL(tgt_o_tgtAsSrc_id) AND tgt_adm_user_grp_share_row_md5checksum <> src_o_src_md5_hash_value, 'U','X')"
           }
         ],
         "windowSpec" : {
@@ -902,6 +909,17 @@
             "scale" : 9,
             "expFieldType" : "OUTPUT",
             "expression" : "SYSDATE"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_record_status",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "'Expired'"
           }
         ],
         "windowSpec" : {
@@ -938,15 +956,16 @@
         "fieldMappingMode" : "MANUAL",
         "inputSorted" : "false",
         "schemaProviderType" : "SELECTED_OBJECT",
+        "targetFieldsOrdered" : "false",
         "updateColumns" : null,
         "useLabels" : "false",
         "useSequenceFields" : "false",
         "fields" : [
           {
             "adapterField" : {
-              "name" : "user_group_share_row_id"
+              "name" : "adm_user_grp_share_row_id"
             },
-            "name" : "user_group_share_row_id",
+            "name" : "adm_user_grp_share_row_id",
             "platformType" : {
               "name" : "bigint"
             },
@@ -955,9 +974,9 @@
           },
           {
             "adapterField" : {
-              "name" : "user_group_share_batch_id"
+              "name" : "adm_user_grp_share_batch_id"
             },
-            "name" : "user_group_share_batch_id",
+            "name" : "adm_user_grp_share_batch_id",
             "platformType" : {
               "name" : "bigint"
             },
@@ -966,9 +985,9 @@
           },
           {
             "adapterField" : {
-              "name" : "source_name"
+              "name" : "originating_source_name"
             },
-            "name" : "source_name",
+            "name" : "originating_source_name",
             "platformType" : {
               "name" : "string"
             },
@@ -977,9 +996,9 @@
           },
           {
             "adapterField" : {
-              "name" : "load_type"
+              "name" : "originating_load_type"
             },
-            "name" : "load_type",
+            "name" : "originating_load_type",
             "platformType" : {
               "name" : "string"
             },
@@ -988,9 +1007,9 @@
           },
           {
             "adapterField" : {
-              "name" : "user_group_share_row_md5checksum"
+              "name" : "adm_user_grp_share_row_md5checksum"
             },
-            "name" : "user_group_share_row_md5checksum",
+            "name" : "adm_user_grp_share_row_md5checksum",
             "platformType" : {
               "name" : "string"
             },
@@ -999,9 +1018,9 @@
           },
           {
             "adapterField" : {
-              "name" : "user_group_share_datetime_created"
+              "name" : "adm_user_grp_share_row_effective_start_datetime"
             },
-            "name" : "user_group_share_datetime_created",
+            "name" : "adm_user_grp_share_row_effective_start_datetime",
             "platformType" : {
               "name" : "date/time"
             },
@@ -1010,9 +1029,9 @@
           },
           {
             "adapterField" : {
-              "name" : "user_group_share_datetime_modified"
+              "name" : "adm_user_grp_share_row_effective_end_datetime"
             },
-            "name" : "user_group_share_datetime_modified",
+            "name" : "adm_user_grp_share_row_effective_end_datetime",
             "platformType" : {
               "name" : "date/time"
             },
@@ -1021,31 +1040,20 @@
           },
           {
             "adapterField" : {
-              "name" : "user_group_share_row_effective_start_datetime"
+              "name" : "adm_user_grp_share_row_status"
             },
-            "name" : "user_group_share_row_effective_start_datetime",
+            "name" : "adm_user_grp_share_row_status",
             "platformType" : {
-              "name" : "date/time"
+              "name" : "string"
             },
-            "precision" : 29,
-            "scale" : 9
+            "precision" : 63,
+            "scale" : 0
           },
           {
             "adapterField" : {
-              "name" : "user_group_share_row_effective_end_datetime"
+              "name" : "id"
             },
-            "name" : "user_group_share_row_effective_end_datetime",
-            "platformType" : {
-              "name" : "date/time"
-            },
-            "precision" : 29,
-            "scale" : 9
-          },
-          {
-            "adapterField" : {
-              "name" : "user_group_share_id"
-            },
-            "name" : "user_group_share_id",
+            "name" : "id",
             "platformType" : {
               "name" : "integer"
             },
@@ -1054,9 +1062,9 @@
           },
           {
             "adapterField" : {
-              "name" : "agency_id"
+              "name" : "agency_nup"
             },
-            "name" : "agency_id",
+            "name" : "agency_nup",
             "platformType" : {
               "name" : "integer"
             },
@@ -1065,14 +1073,36 @@
           },
           {
             "adapterField" : {
-              "name" : "shared_agency_id"
+              "name" : "shared_agency"
             },
-            "name" : "shared_agency_id",
+            "name" : "shared_agency",
             "platformType" : {
               "name" : "integer"
             },
             "precision" : 10,
             "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "created"
+            },
+            "name" : "created",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "modified"
+            },
+            "name" : "modified",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
           }
         ],
         "dataAdapter" : {
@@ -1084,18 +1114,18 @@
           "typeSystem" : "TOOLKIT",
           "useDynamicFileName" : "false",
           "object" : {
-            "name" : "bronze/adm_user_group_share",
-            "label" : "bronze/adm_user_group_share",
-            "objectName" : "adm_user_group_share",
+            "name" : "bronze/adm_user_grp_share",
+            "label" : "bronze/adm_user_grp_share",
+            "objectName" : "adm_user_grp_share",
             "objectType" : "amazonredshift",
-            "path" : "bronze/adm_user_group_share",
+            "path" : "bronze/adm_user_grp_share",
             "retainMetadata" : "false",
             "fields" : [
               {
-                "name" : "user_group_share_row_id",
+                "name" : "adm_user_grp_share_row_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "user_group_share_row_id",
-                "nativeName" : "user_group_share_row_id",
+                "label" : "adm_user_grp_share_row_id",
+                "nativeName" : "adm_user_grp_share_row_id",
                 "nativeType" : "int8",
                 "original" : "false",
                 "precision" : 19,
@@ -1103,15 +1133,15 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_user_group_share"
+                    "value" : "adm_user_grp_share"
                   }
                 ]
               },
               {
-                "name" : "user_group_share_batch_id",
+                "name" : "adm_user_grp_share_batch_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "user_group_share_batch_id",
-                "nativeName" : "user_group_share_batch_id",
+                "label" : "adm_user_grp_share_batch_id",
+                "nativeName" : "adm_user_grp_share_batch_id",
                 "nativeType" : "int8",
                 "original" : "false",
                 "precision" : 19,
@@ -1119,15 +1149,15 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_user_group_share"
+                    "value" : "adm_user_grp_share"
                   }
                 ]
               },
               {
-                "name" : "source_name",
+                "name" : "originating_source_name",
                 "fieldType" : "CONNECTOR",
-                "label" : "source_name",
-                "nativeName" : "source_name",
+                "label" : "originating_source_name",
+                "nativeName" : "originating_source_name",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 127,
@@ -1135,15 +1165,15 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_user_group_share"
+                    "value" : "adm_user_grp_share"
                   }
                 ]
               },
               {
-                "name" : "load_type",
+                "name" : "originating_load_type",
                 "fieldType" : "CONNECTOR",
-                "label" : "load_type",
-                "nativeName" : "load_type",
+                "label" : "originating_load_type",
+                "nativeName" : "originating_load_type",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 63,
@@ -1151,15 +1181,15 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_user_group_share"
+                    "value" : "adm_user_grp_share"
                   }
                 ]
               },
               {
-                "name" : "user_group_share_row_md5checksum",
+                "name" : "adm_user_grp_share_row_md5checksum",
                 "fieldType" : "CONNECTOR",
-                "label" : "user_group_share_row_md5checksum",
-                "nativeName" : "user_group_share_row_md5checksum",
+                "label" : "adm_user_grp_share_row_md5checksum",
+                "nativeName" : "adm_user_grp_share_row_md5checksum",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 255,
@@ -1167,15 +1197,15 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_user_group_share"
+                    "value" : "adm_user_grp_share"
                   }
                 ]
               },
               {
-                "name" : "user_group_share_datetime_created",
+                "name" : "adm_user_grp_share_row_effective_start_datetime",
                 "fieldType" : "CONNECTOR",
-                "label" : "user_group_share_datetime_created",
-                "nativeName" : "user_group_share_datetime_created",
+                "label" : "adm_user_grp_share_row_effective_start_datetime",
+                "nativeName" : "adm_user_grp_share_row_effective_start_datetime",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 29,
@@ -1183,15 +1213,15 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_user_group_share"
+                    "value" : "adm_user_grp_share"
                   }
                 ]
               },
               {
-                "name" : "user_group_share_datetime_modified",
+                "name" : "adm_user_grp_share_row_effective_end_datetime",
                 "fieldType" : "CONNECTOR",
-                "label" : "user_group_share_datetime_modified",
-                "nativeName" : "user_group_share_datetime_modified",
+                "label" : "adm_user_grp_share_row_effective_end_datetime",
+                "nativeName" : "adm_user_grp_share_row_effective_end_datetime",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 29,
@@ -1199,47 +1229,31 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_user_group_share"
+                    "value" : "adm_user_grp_share"
                   }
                 ]
               },
               {
-                "name" : "user_group_share_row_effective_start_datetime",
+                "name" : "adm_user_grp_share_row_status",
                 "fieldType" : "CONNECTOR",
-                "label" : "user_group_share_row_effective_start_datetime",
-                "nativeName" : "user_group_share_row_effective_start_datetime",
-                "nativeType" : "timestamp",
+                "label" : "adm_user_grp_share_row_status",
+                "nativeName" : "adm_user_grp_share_row_status",
+                "nativeType" : "varchar",
                 "original" : "false",
-                "precision" : 29,
-                "scale" : 6,
+                "precision" : 63,
+                "scale" : 0,
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_user_group_share"
+                    "value" : "adm_user_grp_share"
                   }
                 ]
               },
               {
-                "name" : "user_group_share_row_effective_end_datetime",
+                "name" : "id",
                 "fieldType" : "CONNECTOR",
-                "label" : "user_group_share_row_effective_end_datetime",
-                "nativeName" : "user_group_share_row_effective_end_datetime",
-                "nativeType" : "timestamp",
-                "original" : "false",
-                "precision" : 29,
-                "scale" : 6,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_user_group_share"
-                  }
-                ]
-              },
-              {
-                "name" : "user_group_share_id",
-                "fieldType" : "CONNECTOR",
-                "label" : "user_group_share_id",
-                "nativeName" : "user_group_share_id",
+                "label" : "id",
+                "nativeName" : "id",
                 "nativeType" : "int4",
                 "original" : "false",
                 "precision" : 10,
@@ -1247,15 +1261,15 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_user_group_share"
+                    "value" : "adm_user_grp_share"
                   }
                 ]
               },
               {
-                "name" : "agency_id",
+                "name" : "agency_nup",
                 "fieldType" : "CONNECTOR",
-                "label" : "agency_id",
-                "nativeName" : "agency_id",
+                "label" : "agency_nup",
+                "nativeName" : "agency_nup",
                 "nativeType" : "int4",
                 "original" : "false",
                 "precision" : 10,
@@ -1263,15 +1277,15 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_user_group_share"
+                    "value" : "adm_user_grp_share"
                   }
                 ]
               },
               {
-                "name" : "shared_agency_id",
+                "name" : "shared_agency",
                 "fieldType" : "CONNECTOR",
-                "label" : "shared_agency_id",
-                "nativeName" : "shared_agency_id",
+                "label" : "shared_agency",
+                "nativeName" : "shared_agency",
                 "nativeType" : "int4",
                 "original" : "false",
                 "precision" : 10,
@@ -1279,7 +1293,39 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_user_group_share"
+                    "value" : "adm_user_grp_share"
+                  }
+                ]
+              },
+              {
+                "name" : "created",
+                "fieldType" : "CONNECTOR",
+                "label" : "created",
+                "nativeName" : "created",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_user_grp_share"
+                  }
+                ]
+              },
+              {
+                "name" : "modified",
+                "fieldType" : "CONNECTOR",
+                "label" : "modified",
+                "nativeName" : "modified",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_user_grp_share"
                   }
                 ]
               }
@@ -1377,79 +1423,86 @@
         "manualMappings" : {
           "mappingList" : [
             {
-              "fromFieldName" : "batch_id",
-              "toField" : {
-                "name" : "user_group_share_batch_id"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "source_name",
-              "toField" : {
-                "name" : "source_name"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "load_type",
-              "toField" : {
-                "name" : "load_type"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "o_src_md5_hash_value",
-              "toField" : {
-                "name" : "user_group_share_row_md5checksum"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "o_user_group_share_datetime_created",
-              "toField" : {
-                "name" : "user_group_share_datetime_created"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "o_user_group_share_datetime_modified",
-              "toField" : {
-                "name" : "user_group_share_datetime_modified"
-              },
-              "fromFieldNames" : null
-            },
-            {
               "fromFieldName" : "o_user_group_share_row_effective_end_datetime",
               "toField" : {
-                "name" : "user_group_share_row_effective_end_datetime"
+                "name" : "adm_user_grp_share_row_effective_end_datetime"
               },
               "fromFieldNames" : null
             },
             {
               "fromFieldName" : "o_user_group_share_row_effective_start_datetime",
               "toField" : {
-                "name" : "user_group_share_row_effective_start_datetime"
+                "name" : "adm_user_grp_share_row_effective_start_datetime"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "o_user_group_share_id",
+              "fromFieldName" : "o_record_status",
               "toField" : {
-                "name" : "user_group_share_id"
+                "name" : "adm_user_grp_share_row_status"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "o_user_group_share_agency_id",
+              "fromFieldName" : "src_batch_id",
               "toField" : {
-                "name" : "agency_id"
+                "name" : "adm_user_grp_share_batch_id"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "o_user_group_share_sharedagency",
+              "fromFieldName" : "src_source_name",
               "toField" : {
-                "name" : "shared_agency_id"
+                "name" : "originating_source_name"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "src_load_type",
+              "toField" : {
+                "name" : "originating_load_type"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "src_o_created",
+              "toField" : {
+                "name" : "created"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "src_o_modified",
+              "toField" : {
+                "name" : "modified"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "src_o_agency_nup",
+              "toField" : {
+                "name" : "agency_nup"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "src_o_sharedagency",
+              "toField" : {
+                "name" : "shared_agency"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "src_o_id",
+              "toField" : {
+                "name" : "id"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "src_o_src_md5_hash_value",
+              "toField" : {
+                "name" : "adm_user_grp_share_row_md5checksum"
               },
               "fromFieldNames" : null
             }
@@ -1482,17 +1535,18 @@
         "fieldMappingMode" : "MANUAL",
         "inputSorted" : "false",
         "schemaProviderType" : "SELECTED_OBJECT",
+        "targetFieldsOrdered" : "false",
         "updateColumns" : [
-          "user_group_share_row_id"
+          "adm_user_grp_share_row_id"
         ],
         "useLabels" : "false",
         "useSequenceFields" : "false",
         "fields" : [
           {
             "adapterField" : {
-              "name" : "user_group_share_row_id"
+              "name" : "adm_user_grp_share_row_id"
             },
-            "name" : "user_group_share_row_id",
+            "name" : "adm_user_grp_share_row_id",
             "platformType" : {
               "name" : "bigint"
             },
@@ -1501,9 +1555,9 @@
           },
           {
             "adapterField" : {
-              "name" : "user_group_share_batch_id"
+              "name" : "adm_user_grp_share_batch_id"
             },
-            "name" : "user_group_share_batch_id",
+            "name" : "adm_user_grp_share_batch_id",
             "platformType" : {
               "name" : "bigint"
             },
@@ -1512,9 +1566,9 @@
           },
           {
             "adapterField" : {
-              "name" : "source_name"
+              "name" : "originating_source_name"
             },
-            "name" : "source_name",
+            "name" : "originating_source_name",
             "platformType" : {
               "name" : "string"
             },
@@ -1523,9 +1577,9 @@
           },
           {
             "adapterField" : {
-              "name" : "load_type"
+              "name" : "originating_load_type"
             },
-            "name" : "load_type",
+            "name" : "originating_load_type",
             "platformType" : {
               "name" : "string"
             },
@@ -1534,9 +1588,9 @@
           },
           {
             "adapterField" : {
-              "name" : "user_group_share_row_md5checksum"
+              "name" : "adm_user_grp_share_row_md5checksum"
             },
-            "name" : "user_group_share_row_md5checksum",
+            "name" : "adm_user_grp_share_row_md5checksum",
             "platformType" : {
               "name" : "string"
             },
@@ -1545,9 +1599,9 @@
           },
           {
             "adapterField" : {
-              "name" : "user_group_share_datetime_created"
+              "name" : "adm_user_grp_share_row_effective_start_datetime"
             },
-            "name" : "user_group_share_datetime_created",
+            "name" : "adm_user_grp_share_row_effective_start_datetime",
             "platformType" : {
               "name" : "date/time"
             },
@@ -1556,9 +1610,9 @@
           },
           {
             "adapterField" : {
-              "name" : "user_group_share_datetime_modified"
+              "name" : "adm_user_grp_share_row_effective_end_datetime"
             },
-            "name" : "user_group_share_datetime_modified",
+            "name" : "adm_user_grp_share_row_effective_end_datetime",
             "platformType" : {
               "name" : "date/time"
             },
@@ -1567,31 +1621,20 @@
           },
           {
             "adapterField" : {
-              "name" : "user_group_share_row_effective_start_datetime"
+              "name" : "adm_user_grp_share_row_status"
             },
-            "name" : "user_group_share_row_effective_start_datetime",
+            "name" : "adm_user_grp_share_row_status",
             "platformType" : {
-              "name" : "date/time"
+              "name" : "string"
             },
-            "precision" : 29,
-            "scale" : 9
+            "precision" : 63,
+            "scale" : 0
           },
           {
             "adapterField" : {
-              "name" : "user_group_share_row_effective_end_datetime"
+              "name" : "id"
             },
-            "name" : "user_group_share_row_effective_end_datetime",
-            "platformType" : {
-              "name" : "date/time"
-            },
-            "precision" : 29,
-            "scale" : 9
-          },
-          {
-            "adapterField" : {
-              "name" : "user_group_share_id"
-            },
-            "name" : "user_group_share_id",
+            "name" : "id",
             "platformType" : {
               "name" : "integer"
             },
@@ -1600,9 +1643,9 @@
           },
           {
             "adapterField" : {
-              "name" : "agency_id"
+              "name" : "agency_nup"
             },
-            "name" : "agency_id",
+            "name" : "agency_nup",
             "platformType" : {
               "name" : "integer"
             },
@@ -1611,14 +1654,36 @@
           },
           {
             "adapterField" : {
-              "name" : "shared_agency_id"
+              "name" : "shared_agency"
             },
-            "name" : "shared_agency_id",
+            "name" : "shared_agency",
             "platformType" : {
               "name" : "integer"
             },
             "precision" : 10,
             "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "created"
+            },
+            "name" : "created",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "modified"
+            },
+            "name" : "modified",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
           }
         ],
         "dataAdapter" : {
@@ -1641,18 +1706,18 @@
             "useBulkApiV2" : "false"
           },
           "object" : {
-            "name" : "bronze/adm_user_group_share",
-            "label" : "bronze/adm_user_group_share",
-            "objectName" : "adm_user_group_share",
+            "name" : "bronze/adm_user_grp_share",
+            "label" : "bronze/adm_user_grp_share",
+            "objectName" : "adm_user_grp_share",
             "objectType" : "amazonredshift",
-            "path" : "bronze/adm_user_group_share",
+            "path" : "bronze/adm_user_grp_share",
             "retainMetadata" : "false",
             "fields" : [
               {
-                "name" : "user_group_share_row_id",
+                "name" : "adm_user_grp_share_row_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "user_group_share_row_id",
-                "nativeName" : "user_group_share_row_id",
+                "label" : "adm_user_grp_share_row_id",
+                "nativeName" : "adm_user_grp_share_row_id",
                 "nativeType" : "int8",
                 "original" : "false",
                 "precision" : 19,
@@ -1660,15 +1725,15 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_user_group_share"
+                    "value" : "adm_user_grp_share"
                   }
                 ]
               },
               {
-                "name" : "user_group_share_batch_id",
+                "name" : "adm_user_grp_share_batch_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "user_group_share_batch_id",
-                "nativeName" : "user_group_share_batch_id",
+                "label" : "adm_user_grp_share_batch_id",
+                "nativeName" : "adm_user_grp_share_batch_id",
                 "nativeType" : "int8",
                 "original" : "false",
                 "precision" : 19,
@@ -1676,15 +1741,15 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_user_group_share"
+                    "value" : "adm_user_grp_share"
                   }
                 ]
               },
               {
-                "name" : "source_name",
+                "name" : "originating_source_name",
                 "fieldType" : "CONNECTOR",
-                "label" : "source_name",
-                "nativeName" : "source_name",
+                "label" : "originating_source_name",
+                "nativeName" : "originating_source_name",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 127,
@@ -1692,15 +1757,15 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_user_group_share"
+                    "value" : "adm_user_grp_share"
                   }
                 ]
               },
               {
-                "name" : "load_type",
+                "name" : "originating_load_type",
                 "fieldType" : "CONNECTOR",
-                "label" : "load_type",
-                "nativeName" : "load_type",
+                "label" : "originating_load_type",
+                "nativeName" : "originating_load_type",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 63,
@@ -1708,15 +1773,15 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_user_group_share"
+                    "value" : "adm_user_grp_share"
                   }
                 ]
               },
               {
-                "name" : "user_group_share_row_md5checksum",
+                "name" : "adm_user_grp_share_row_md5checksum",
                 "fieldType" : "CONNECTOR",
-                "label" : "user_group_share_row_md5checksum",
-                "nativeName" : "user_group_share_row_md5checksum",
+                "label" : "adm_user_grp_share_row_md5checksum",
+                "nativeName" : "adm_user_grp_share_row_md5checksum",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 255,
@@ -1724,15 +1789,15 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_user_group_share"
+                    "value" : "adm_user_grp_share"
                   }
                 ]
               },
               {
-                "name" : "user_group_share_datetime_created",
+                "name" : "adm_user_grp_share_row_effective_start_datetime",
                 "fieldType" : "CONNECTOR",
-                "label" : "user_group_share_datetime_created",
-                "nativeName" : "user_group_share_datetime_created",
+                "label" : "adm_user_grp_share_row_effective_start_datetime",
+                "nativeName" : "adm_user_grp_share_row_effective_start_datetime",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 29,
@@ -1740,15 +1805,15 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_user_group_share"
+                    "value" : "adm_user_grp_share"
                   }
                 ]
               },
               {
-                "name" : "user_group_share_datetime_modified",
+                "name" : "adm_user_grp_share_row_effective_end_datetime",
                 "fieldType" : "CONNECTOR",
-                "label" : "user_group_share_datetime_modified",
-                "nativeName" : "user_group_share_datetime_modified",
+                "label" : "adm_user_grp_share_row_effective_end_datetime",
+                "nativeName" : "adm_user_grp_share_row_effective_end_datetime",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 29,
@@ -1756,47 +1821,31 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_user_group_share"
+                    "value" : "adm_user_grp_share"
                   }
                 ]
               },
               {
-                "name" : "user_group_share_row_effective_start_datetime",
+                "name" : "adm_user_grp_share_row_status",
                 "fieldType" : "CONNECTOR",
-                "label" : "user_group_share_row_effective_start_datetime",
-                "nativeName" : "user_group_share_row_effective_start_datetime",
-                "nativeType" : "timestamp",
+                "label" : "adm_user_grp_share_row_status",
+                "nativeName" : "adm_user_grp_share_row_status",
+                "nativeType" : "varchar",
                 "original" : "false",
-                "precision" : 29,
-                "scale" : 6,
+                "precision" : 63,
+                "scale" : 0,
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_user_group_share"
+                    "value" : "adm_user_grp_share"
                   }
                 ]
               },
               {
-                "name" : "user_group_share_row_effective_end_datetime",
+                "name" : "id",
                 "fieldType" : "CONNECTOR",
-                "label" : "user_group_share_row_effective_end_datetime",
-                "nativeName" : "user_group_share_row_effective_end_datetime",
-                "nativeType" : "timestamp",
-                "original" : "false",
-                "precision" : 29,
-                "scale" : 6,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_user_group_share"
-                  }
-                ]
-              },
-              {
-                "name" : "user_group_share_id",
-                "fieldType" : "CONNECTOR",
-                "label" : "user_group_share_id",
-                "nativeName" : "user_group_share_id",
+                "label" : "id",
+                "nativeName" : "id",
                 "nativeType" : "int4",
                 "original" : "false",
                 "precision" : 10,
@@ -1804,15 +1853,15 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_user_group_share"
+                    "value" : "adm_user_grp_share"
                   }
                 ]
               },
               {
-                "name" : "agency_id",
+                "name" : "agency_nup",
                 "fieldType" : "CONNECTOR",
-                "label" : "agency_id",
-                "nativeName" : "agency_id",
+                "label" : "agency_nup",
+                "nativeName" : "agency_nup",
                 "nativeType" : "int4",
                 "original" : "false",
                 "precision" : 10,
@@ -1820,15 +1869,15 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_user_group_share"
+                    "value" : "adm_user_grp_share"
                   }
                 ]
               },
               {
-                "name" : "shared_agency_id",
+                "name" : "shared_agency",
                 "fieldType" : "CONNECTOR",
-                "label" : "shared_agency_id",
-                "nativeName" : "shared_agency_id",
+                "label" : "shared_agency",
+                "nativeName" : "shared_agency",
                 "nativeType" : "int4",
                 "original" : "false",
                 "precision" : 10,
@@ -1836,7 +1885,39 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_user_group_share"
+                    "value" : "adm_user_grp_share"
+                  }
+                ]
+              },
+              {
+                "name" : "created",
+                "fieldType" : "CONNECTOR",
+                "label" : "created",
+                "nativeName" : "created",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_user_grp_share"
+                  }
+                ]
+              },
+              {
+                "name" : "modified",
+                "fieldType" : "CONNECTOR",
+                "label" : "modified",
+                "nativeName" : "modified",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_user_grp_share"
                   }
                 ]
               }
@@ -1934,16 +2015,23 @@
         "manualMappings" : {
           "mappingList" : [
             {
-              "fromFieldName" : "user_group_share_row_id",
+              "fromFieldName" : "o_retire_old_record",
               "toField" : {
-                "name" : "user_group_share_row_id"
+                "name" : "adm_user_grp_share_row_effective_end_datetime"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "o_retire_old_record",
+              "fromFieldName" : "o_record_status",
               "toField" : {
-                "name" : "user_group_share_row_effective_end_datetime"
+                "name" : "adm_user_grp_share_row_status"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "tgt_adm_user_grp_share_row_id",
+              "toField" : {
+                "name" : "adm_user_grp_share_row_id"
               },
               "fromFieldNames" : null
             }
@@ -1958,6 +2046,20 @@
             "input" : "true",
             "name" : "Master",
             "output" : "false",
+            "conflictResolutions" : [
+              {
+                "precedingGroupName" : "DefaultGroup",
+                "precedingTxName" : "exp_MD5",
+                "rule" : {
+                  "bulkRename" : "true",
+                  "include" : "true",
+                  "bulkRenameOption" : {
+                    "literal" : "src_",
+                    "suffix" : "false"
+                  }
+                }
+              }
+            ],
             "rules" : [
               {
                 "bulkRename" : "false",
@@ -1969,6 +2071,20 @@
             "input" : "true",
             "name" : "Detail",
             "output" : "false",
+            "conflictResolutions" : [
+              {
+                "precedingGroupName" : "DefaultGroup",
+                "precedingTxName" : "exp_passthrough",
+                "rule" : {
+                  "bulkRename" : "true",
+                  "include" : "true",
+                  "bulkRenameOption" : {
+                    "literal" : "tgt_",
+                    "suffix" : "false"
+                  }
+                }
+              }
+            ],
             "rules" : [
               {
                 "bulkRename" : "false",
@@ -1989,9 +2105,9 @@
         "joinType" : "Detail Outer Join",
         "joinConditions" : [
           {
-            "leftOperand" : "o_user_group_share_id",
+            "leftOperand" : "src_o_id",
             "operator" : "=",
-            "rightOperand" : "user_group_share_id"
+            "rightOperand" : "tgt_o_tgtAsSrc_id"
           }
         ]
       },
@@ -2012,6 +2128,19 @@
           }
         ],
         "windowConfigurationEnabled" : "false",
+        "fields" : [
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_tgtAsSrc_id",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "IIF(ISNULL(id), NULL, to_integer(ltrim(rtrim(id))))"
+          }
+        ],
         "windowSpec" : {
           "allRowsFollowing" : "false",
           "allRowsPreceding" : "false",
@@ -2046,15 +2175,16 @@
         "fieldMappingMode" : "MANUAL",
         "inputSorted" : "false",
         "schemaProviderType" : "SELECTED_OBJECT",
+        "targetFieldsOrdered" : "false",
         "updateColumns" : null,
         "useLabels" : "false",
         "useSequenceFields" : "false",
         "fields" : [
           {
             "adapterField" : {
-              "name" : "user_group_share_row_id"
+              "name" : "adm_user_grp_share_row_id"
             },
-            "name" : "user_group_share_row_id",
+            "name" : "adm_user_grp_share_row_id",
             "platformType" : {
               "name" : "bigint"
             },
@@ -2063,9 +2193,9 @@
           },
           {
             "adapterField" : {
-              "name" : "user_group_share_batch_id"
+              "name" : "adm_user_grp_share_batch_id"
             },
-            "name" : "user_group_share_batch_id",
+            "name" : "adm_user_grp_share_batch_id",
             "platformType" : {
               "name" : "bigint"
             },
@@ -2074,9 +2204,9 @@
           },
           {
             "adapterField" : {
-              "name" : "source_name"
+              "name" : "originating_source_name"
             },
-            "name" : "source_name",
+            "name" : "originating_source_name",
             "platformType" : {
               "name" : "string"
             },
@@ -2085,9 +2215,9 @@
           },
           {
             "adapterField" : {
-              "name" : "load_type"
+              "name" : "originating_load_type"
             },
-            "name" : "load_type",
+            "name" : "originating_load_type",
             "platformType" : {
               "name" : "string"
             },
@@ -2096,9 +2226,9 @@
           },
           {
             "adapterField" : {
-              "name" : "user_group_share_row_md5checksum"
+              "name" : "adm_user_grp_share_row_md5checksum"
             },
-            "name" : "user_group_share_row_md5checksum",
+            "name" : "adm_user_grp_share_row_md5checksum",
             "platformType" : {
               "name" : "string"
             },
@@ -2107,9 +2237,9 @@
           },
           {
             "adapterField" : {
-              "name" : "user_group_share_datetime_created"
+              "name" : "adm_user_grp_share_row_effective_start_datetime"
             },
-            "name" : "user_group_share_datetime_created",
+            "name" : "adm_user_grp_share_row_effective_start_datetime",
             "platformType" : {
               "name" : "date/time"
             },
@@ -2118,9 +2248,9 @@
           },
           {
             "adapterField" : {
-              "name" : "user_group_share_datetime_modified"
+              "name" : "adm_user_grp_share_row_effective_end_datetime"
             },
-            "name" : "user_group_share_datetime_modified",
+            "name" : "adm_user_grp_share_row_effective_end_datetime",
             "platformType" : {
               "name" : "date/time"
             },
@@ -2129,31 +2259,20 @@
           },
           {
             "adapterField" : {
-              "name" : "user_group_share_row_effective_start_datetime"
+              "name" : "adm_user_grp_share_row_status"
             },
-            "name" : "user_group_share_row_effective_start_datetime",
+            "name" : "adm_user_grp_share_row_status",
             "platformType" : {
-              "name" : "date/time"
+              "name" : "string"
             },
-            "precision" : 29,
-            "scale" : 9
+            "precision" : 63,
+            "scale" : 0
           },
           {
             "adapterField" : {
-              "name" : "user_group_share_row_effective_end_datetime"
+              "name" : "id"
             },
-            "name" : "user_group_share_row_effective_end_datetime",
-            "platformType" : {
-              "name" : "date/time"
-            },
-            "precision" : 29,
-            "scale" : 9
-          },
-          {
-            "adapterField" : {
-              "name" : "user_group_share_id"
-            },
-            "name" : "user_group_share_id",
+            "name" : "id",
             "platformType" : {
               "name" : "integer"
             },
@@ -2162,9 +2281,9 @@
           },
           {
             "adapterField" : {
-              "name" : "agency_id"
+              "name" : "agency_nup"
             },
-            "name" : "agency_id",
+            "name" : "agency_nup",
             "platformType" : {
               "name" : "integer"
             },
@@ -2173,14 +2292,36 @@
           },
           {
             "adapterField" : {
-              "name" : "shared_agency_id"
+              "name" : "shared_agency"
             },
-            "name" : "shared_agency_id",
+            "name" : "shared_agency",
             "platformType" : {
               "name" : "integer"
             },
             "precision" : 10,
             "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "created"
+            },
+            "name" : "created",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "modified"
+            },
+            "name" : "modified",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
           }
         ],
         "dataAdapter" : {
@@ -2192,18 +2333,18 @@
           "typeSystem" : "TOOLKIT",
           "useDynamicFileName" : "false",
           "object" : {
-            "name" : "bronze/adm_user_group_share",
-            "label" : "bronze/adm_user_group_share",
-            "objectName" : "adm_user_group_share",
+            "name" : "bronze/adm_user_grp_share",
+            "label" : "bronze/adm_user_grp_share",
+            "objectName" : "adm_user_grp_share",
             "objectType" : "amazonredshift",
-            "path" : "bronze/adm_user_group_share",
+            "path" : "bronze/adm_user_grp_share",
             "retainMetadata" : "false",
             "fields" : [
               {
-                "name" : "user_group_share_row_id",
+                "name" : "adm_user_grp_share_row_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "user_group_share_row_id",
-                "nativeName" : "user_group_share_row_id",
+                "label" : "adm_user_grp_share_row_id",
+                "nativeName" : "adm_user_grp_share_row_id",
                 "nativeType" : "int8",
                 "original" : "false",
                 "precision" : 19,
@@ -2211,15 +2352,15 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_user_group_share"
+                    "value" : "adm_user_grp_share"
                   }
                 ]
               },
               {
-                "name" : "user_group_share_batch_id",
+                "name" : "adm_user_grp_share_batch_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "user_group_share_batch_id",
-                "nativeName" : "user_group_share_batch_id",
+                "label" : "adm_user_grp_share_batch_id",
+                "nativeName" : "adm_user_grp_share_batch_id",
                 "nativeType" : "int8",
                 "original" : "false",
                 "precision" : 19,
@@ -2227,15 +2368,15 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_user_group_share"
+                    "value" : "adm_user_grp_share"
                   }
                 ]
               },
               {
-                "name" : "source_name",
+                "name" : "originating_source_name",
                 "fieldType" : "CONNECTOR",
-                "label" : "source_name",
-                "nativeName" : "source_name",
+                "label" : "originating_source_name",
+                "nativeName" : "originating_source_name",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 127,
@@ -2243,15 +2384,15 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_user_group_share"
+                    "value" : "adm_user_grp_share"
                   }
                 ]
               },
               {
-                "name" : "load_type",
+                "name" : "originating_load_type",
                 "fieldType" : "CONNECTOR",
-                "label" : "load_type",
-                "nativeName" : "load_type",
+                "label" : "originating_load_type",
+                "nativeName" : "originating_load_type",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 63,
@@ -2259,15 +2400,15 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_user_group_share"
+                    "value" : "adm_user_grp_share"
                   }
                 ]
               },
               {
-                "name" : "user_group_share_row_md5checksum",
+                "name" : "adm_user_grp_share_row_md5checksum",
                 "fieldType" : "CONNECTOR",
-                "label" : "user_group_share_row_md5checksum",
-                "nativeName" : "user_group_share_row_md5checksum",
+                "label" : "adm_user_grp_share_row_md5checksum",
+                "nativeName" : "adm_user_grp_share_row_md5checksum",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 255,
@@ -2275,15 +2416,15 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_user_group_share"
+                    "value" : "adm_user_grp_share"
                   }
                 ]
               },
               {
-                "name" : "user_group_share_datetime_created",
+                "name" : "adm_user_grp_share_row_effective_start_datetime",
                 "fieldType" : "CONNECTOR",
-                "label" : "user_group_share_datetime_created",
-                "nativeName" : "user_group_share_datetime_created",
+                "label" : "adm_user_grp_share_row_effective_start_datetime",
+                "nativeName" : "adm_user_grp_share_row_effective_start_datetime",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 29,
@@ -2291,15 +2432,15 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_user_group_share"
+                    "value" : "adm_user_grp_share"
                   }
                 ]
               },
               {
-                "name" : "user_group_share_datetime_modified",
+                "name" : "adm_user_grp_share_row_effective_end_datetime",
                 "fieldType" : "CONNECTOR",
-                "label" : "user_group_share_datetime_modified",
-                "nativeName" : "user_group_share_datetime_modified",
+                "label" : "adm_user_grp_share_row_effective_end_datetime",
+                "nativeName" : "adm_user_grp_share_row_effective_end_datetime",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 29,
@@ -2307,47 +2448,31 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_user_group_share"
+                    "value" : "adm_user_grp_share"
                   }
                 ]
               },
               {
-                "name" : "user_group_share_row_effective_start_datetime",
+                "name" : "adm_user_grp_share_row_status",
                 "fieldType" : "CONNECTOR",
-                "label" : "user_group_share_row_effective_start_datetime",
-                "nativeName" : "user_group_share_row_effective_start_datetime",
-                "nativeType" : "timestamp",
+                "label" : "adm_user_grp_share_row_status",
+                "nativeName" : "adm_user_grp_share_row_status",
+                "nativeType" : "varchar",
                 "original" : "false",
-                "precision" : 29,
-                "scale" : 6,
+                "precision" : 63,
+                "scale" : 0,
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_user_group_share"
+                    "value" : "adm_user_grp_share"
                   }
                 ]
               },
               {
-                "name" : "user_group_share_row_effective_end_datetime",
+                "name" : "id",
                 "fieldType" : "CONNECTOR",
-                "label" : "user_group_share_row_effective_end_datetime",
-                "nativeName" : "user_group_share_row_effective_end_datetime",
-                "nativeType" : "timestamp",
-                "original" : "false",
-                "precision" : 29,
-                "scale" : 6,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_user_group_share"
-                  }
-                ]
-              },
-              {
-                "name" : "user_group_share_id",
-                "fieldType" : "CONNECTOR",
-                "label" : "user_group_share_id",
-                "nativeName" : "user_group_share_id",
+                "label" : "id",
+                "nativeName" : "id",
                 "nativeType" : "int4",
                 "original" : "false",
                 "precision" : 10,
@@ -2355,15 +2480,15 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_user_group_share"
+                    "value" : "adm_user_grp_share"
                   }
                 ]
               },
               {
-                "name" : "agency_id",
+                "name" : "agency_nup",
                 "fieldType" : "CONNECTOR",
-                "label" : "agency_id",
-                "nativeName" : "agency_id",
+                "label" : "agency_nup",
+                "nativeName" : "agency_nup",
                 "nativeType" : "int4",
                 "original" : "false",
                 "precision" : 10,
@@ -2371,15 +2496,15 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_user_group_share"
+                    "value" : "adm_user_grp_share"
                   }
                 ]
               },
               {
-                "name" : "shared_agency_id",
+                "name" : "shared_agency",
                 "fieldType" : "CONNECTOR",
-                "label" : "shared_agency_id",
-                "nativeName" : "shared_agency_id",
+                "label" : "shared_agency",
+                "nativeName" : "shared_agency",
                 "nativeType" : "int4",
                 "original" : "false",
                 "precision" : 10,
@@ -2387,7 +2512,39 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_user_group_share"
+                    "value" : "adm_user_grp_share"
+                  }
+                ]
+              },
+              {
+                "name" : "created",
+                "fieldType" : "CONNECTOR",
+                "label" : "created",
+                "nativeName" : "created",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_user_grp_share"
+                  }
+                ]
+              },
+              {
+                "name" : "modified",
+                "fieldType" : "CONNECTOR",
+                "label" : "modified",
+                "nativeName" : "modified",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_user_grp_share"
                   }
                 ]
               }
@@ -2485,86 +2642,215 @@
         "manualMappings" : {
           "mappingList" : [
             {
-              "fromFieldName" : "batch_id",
+              "fromFieldName" : "o_user_group_share_row_effective_end_datetime",
               "toField" : {
-                "name" : "user_group_share_batch_id"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "source_name",
-              "toField" : {
-                "name" : "source_name"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "load_type",
-              "toField" : {
-                "name" : "load_type"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "o_src_md5_hash_value",
-              "toField" : {
-                "name" : "user_group_share_row_md5checksum"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "o_user_group_share_datetime_created",
-              "toField" : {
-                "name" : "user_group_share_datetime_created"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "o_user_group_share_datetime_modified",
-              "toField" : {
-                "name" : "user_group_share_datetime_modified"
+                "name" : "adm_user_grp_share_row_effective_end_datetime"
               },
               "fromFieldNames" : null
             },
             {
               "fromFieldName" : "o_user_group_share_row_effective_start_datetime",
               "toField" : {
-                "name" : "user_group_share_row_effective_start_datetime"
+                "name" : "adm_user_grp_share_row_effective_start_datetime"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "o_user_group_share_row_effective_end_datetime",
+              "fromFieldName" : "o_record_status",
               "toField" : {
-                "name" : "user_group_share_row_effective_end_datetime"
+                "name" : "adm_user_grp_share_row_status"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "o_user_group_share_id",
+              "fromFieldName" : "src_o_id",
               "toField" : {
-                "name" : "user_group_share_id"
+                "name" : "id"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "o_user_group_share_agency_id",
+              "fromFieldName" : "src_o_agency_nup",
               "toField" : {
-                "name" : "agency_id"
+                "name" : "agency_nup"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "o_user_group_share_sharedagency",
+              "fromFieldName" : "src_o_sharedagency",
               "toField" : {
-                "name" : "shared_agency_id"
+                "name" : "shared_agency"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "src_o_modified",
+              "toField" : {
+                "name" : "modified"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "src_o_created",
+              "toField" : {
+                "name" : "created"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "src_o_src_md5_hash_value",
+              "toField" : {
+                "name" : "adm_user_grp_share_row_md5checksum"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "src_load_type",
+              "toField" : {
+                "name" : "originating_load_type"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "src_source_name",
+              "toField" : {
+                "name" : "originating_source_name"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "src_batch_id",
+              "toField" : {
+                "name" : "adm_user_grp_share_batch_id"
               },
               "fromFieldNames" : null
             }
           ]
         }
+      },
+      {
+        "createTime" : "2025-10-23T18:04:15.555Z",
+        "name" : "exp_NewInserts",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "windowConfigurationEnabled" : "false",
+        "fields" : [
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_record_status",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "'Active'"
+          }
+        ],
+        "windowSpec" : {
+          "allRowsFollowing" : "false",
+          "allRowsPreceding" : "false",
+          "endOffset" : 0,
+          "startOffset" : 0,
+          "partitionKeys" : null
+        }
+      },
+      {
+        "createTime" : "2025-10-23T18:06:58.472Z",
+        "name" : "exp_upd_Insert",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "windowConfigurationEnabled" : "false",
+        "fields" : [
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_record_status",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "'Active'"
+          }
+        ],
+        "windowSpec" : {
+          "allRowsFollowing" : "false",
+          "allRowsPreceding" : "false",
+          "endOffset" : 0,
+          "startOffset" : 0,
+          "partitionKeys" : null
+        }
+      }
+    ],
+    "variables" : [
+      {
+        "aggregationType" : "MAX",
+        "expressionVariable" : "false",
+        "name" : "raw_schema",
+        "platformType" : {
+          "name" : "string"
+        },
+        "precision" : 30,
+        "retentionPolicy" : "NEVER",
+        "scale" : 0
+      },
+      {
+        "aggregationType" : "MAX",
+        "expressionVariable" : "false",
+        "name" : "staging_schema",
+        "platformType" : {
+          "name" : "string"
+        },
+        "precision" : 30,
+        "retentionPolicy" : "NEVER",
+        "scale" : 0
+      },
+      {
+        "aggregationType" : "MAX",
+        "expressionVariable" : "false",
+        "name" : "operational_schema",
+        "platformType" : {
+          "name" : "string"
+        },
+        "precision" : 30,
+        "retentionPolicy" : "NEVER",
+        "scale" : 0
+      },
+      {
+        "aggregationType" : "MAX",
+        "expressionVariable" : "false",
+        "name" : "sourcesystemcode",
+        "platformType" : {
+          "name" : "string"
+        },
+        "precision" : 30,
+        "retentionPolicy" : "NEVER",
+        "scale" : 0
       }
     ]
   },
-  "vcsExportTime" : "2025-06-20 13:44:24 PDT"
+  "vcsExportTime" : "2025-10-24 09:22:45 PDT"
 }
