@@ -17,6 +17,7 @@
         "isSelectDistinct" : "false",
         "objectParameterized" : "false",
         "visible" : "false",
+        "isCustomQueryRetainMetaData" : "true",
         "originalPath" : "src_metal_user_group_share"
       },
       "sourceConnectionId" : "@aYZ4ekzHgIPeKpiaoqDLKP",
@@ -29,7 +30,7 @@
       "truncateTarget" : false,
       "bulkApiDBTarget" : false,
       "customFuncCfg" : { },
-      "customQuery" : "WITH current_batch AS (\n    SELECT \n        bls.batch_id,\n        bls.source_start_cutoff_datetime,\n        bls.source_end_cutoff_datetime\n    FROM metal.batch_load_summary bls\n    WHERE bls.source_system_code = 'ADM'\n      AND bls.batch_status = 'Inprogress'\n      AND bls.batch_id = (\n          SELECT MAX(batch_id)\n          FROM metal.batch_load_summary\n          WHERE source_system_code = 'ADM'\n            AND batch_status = 'Inprogress'\n      )\n)\nSELECT DISTINCT  \n\t\tmetal_ugs.source_name, \n\t\tmetal_ugs.load_type, \n\t\tmetal_ugs.id, \n\t\tmetal_ugs.agency_nup, \n\t\tmetal_ugs.sharedagency, \n\t\tmetal_ugs.created, \n\t\tmetal_ugs.modified, \n\t\tcurrent_batch.batch_id\nFROM metal.adm_user_group_share metal_ugs\nCROSS JOIN current_batch\nORDER BY \n    metal_ugs.id,\n    metal_ugs.created,\n    metal_ugs.modified;",
+      "customQuery" : "WITH current_batch AS (\n    SELECT \n        bls.batch_id,\n        bls.source_start_cutoff_datetime,\n        bls.source_end_cutoff_datetime\n    FROM $$operational_schema.batch_load_summary bls\n    WHERE bls.source_system_code = '$$sourcesystemcode'\n      AND bls.batch_status = 'Inprogress'\n      AND bls.batch_id = (\n          SELECT MAX(batch_id)\n          FROM $$operational_schema.batch_load_summary\n          WHERE source_system_code = '$$sourcesystemcode'\n            AND batch_status = 'Inprogress'\n      )\n)\nSELECT DISTINCT  \n\t\tmetal_ugs.source_name, \n\t\tmetal_ugs.load_type, \n\t\tmetal_ugs.id, \n\t\tmetal_ugs.agency_nup, \n\t\tmetal_ugs.sharedagency, \n\t\tmetal_ugs.created, \n\t\tmetal_ugs.modified, \n\t\tcurrent_batch.batch_id\nFROM $$raw_schema.adm_user_grp_share metal_ugs\nCROSS JOIN current_batch\nORDER BY \n    metal_ugs.id,\n    metal_ugs.created,\n    metal_ugs.modified",
       "commandType" : 0,
       "handleSpecialChars" : false,
       "handleDecimalRoundOff" : false,
@@ -41,28 +42,29 @@
       "objectName" : "DUMMY_src_metal_user_group_share",
       "useExactSrcNames" : false,
       "userUpdated" : true,
-      "unspecified" : false,
       "runtimeParameterData" : {
         "connectionParameterName" : "DBConnection_UDM_SRC",
         "connectionRuntimeParameter" : false,
         "objectRuntimeParameter" : false
       },
       "restmodernSource" : true,
+      "unspecified" : false,
       "fileList" : false
     },
     {
       "name" : "$src_tgt_query$",
       "type" : "SOURCE",
-      "label" : "DBConnection_UDM_SRC",
+      "label" : "DBConnection_UDM_TGT",
       "uiProperties" : {
         "cnxtype" : "Amazon Redshift v2",
         "connectionParameterized" : "true",
-        "paramName" : "DBConnection_UDM_SRC",
+        "paramName" : "DBConnection_UDM_TGT",
         "paramType-mapping" : "Connection",
-        "logcnx" : "DBConnection_UDM_SRC",
+        "logcnx" : "DBConnection_UDM_TGT",
         "isSelectDistinct" : "false",
         "objectParameterized" : "false",
         "visible" : "false",
+        "isCustomQueryRetainMetaData" : "true",
         "originalPath" : "src_tgt_query"
       },
       "sourceConnectionId" : "@aYZ4ekzHgIPeKpiaoqDLKP",
@@ -75,7 +77,7 @@
       "truncateTarget" : false,
       "bulkApiDBTarget" : false,
       "customFuncCfg" : { },
-      "customQuery" : "SELECT \n        user_group_share_row_id, \n        user_group_share_row_md5checksum, \n        user_group_share_id,  \n  user_group_share_datetime_modified,\n  user_group_share_row_effective_end_datetime\t\n    FROM bronze.adm_user_group_share\n    where  user_group_share_row_effective_end_datetime\t= '9999-12-31 00:00:00.000'",
+      "customQuery" : "SELECT \n        adm_user_grp_share_row_id, \n        adm_user_grp_share_row_md5checksum, \n    id,\n  adm_user_grp_share_row_effective_start_datetime,\n  adm_user_grp_share_row_effective_end_datetime\t\n    FROM $$staging_schema.adm_user_grp_share\n    where  adm_user_grp_share_row_effective_end_datetime = '9999-12-31 00:00:00.000'",
       "commandType" : 0,
       "handleSpecialChars" : false,
       "handleDecimalRoundOff" : false,
@@ -87,13 +89,13 @@
       "objectName" : "DUMMY_src_tgt_query",
       "useExactSrcNames" : false,
       "userUpdated" : true,
-      "unspecified" : false,
       "runtimeParameterData" : {
-        "connectionParameterName" : "DBConnection_UDM_SRC",
+        "connectionParameterName" : "DBConnection_UDM_TGT",
         "connectionRuntimeParameter" : false,
         "objectRuntimeParameter" : false
       },
       "restmodernSource" : true,
+      "unspecified" : false,
       "fileList" : false
     },
     {
@@ -106,7 +108,7 @@
         "paramName" : "DBConnection_UDM_TGT",
         "paramType-mapping" : "Connection",
         "logcnx" : "DBConnection_UDM_TGT",
-        "default" : "bronze/adm_user_group_share",
+        "default" : "bronze/adm_user_grp_share",
         "objectParameterized" : "false",
         "visible" : "false",
         "supportApplyDDLChanges" : "false",
@@ -114,8 +116,8 @@
       },
       "targetConnectionId" : "@aYZ4ekzHgIPeKpiaoqDLKP",
       "connectionName" : "redshift_nonprod_andover_dw_dev",
-      "targetObject" : "bronze/adm_user_group_share",
-      "targetObjectLabel" : "bronze/adm_user_group_share",
+      "targetObject" : "bronze/adm_user_grp_share",
+      "targetObjectLabel" : "bronze/adm_user_grp_share",
       "newFlatFile" : false,
       "newObject" : false,
       "showBusinessNames" : true,
@@ -135,17 +137,17 @@
       "excludeDynamicFileNameField" : false,
       "currentlyProcessedFileName" : false,
       "retainFieldMetadata" : false,
-      "objectName" : "bronze/adm_user_group_share",
-      "objectLabel" : "bronze/adm_user_group_share",
+      "objectName" : "bronze/adm_user_grp_share",
+      "objectLabel" : "bronze/adm_user_grp_share",
       "useExactSrcNames" : false,
       "userUpdated" : true,
-      "unspecified" : false,
       "runtimeParameterData" : {
         "connectionParameterName" : "DBConnection_UDM_TGT",
         "connectionRuntimeParameter" : false,
         "objectRuntimeParameter" : false
       },
       "restmodernSource" : true,
+      "unspecified" : false,
       "fileList" : false
     },
     {
@@ -158,17 +160,17 @@
         "paramName" : "DBConnection_UDM_TGT",
         "paramType-mapping" : "Connection",
         "logcnx" : "DBConnection_UDM_TGT",
-        "default" : "bronze/adm_user_group_share",
+        "default" : "bronze/adm_user_grp_share",
         "objectParameterized" : "false",
         "visible" : "false",
-        "defaultTargetUpdateColumns" : "user_group_share_row_id",
+        "defaultTargetUpdateColumns" : "adm_user_grp_share_row_id",
         "supportApplyDDLChanges" : "false",
         "originalPath" : "tgt_update_closeout"
       },
       "targetConnectionId" : "@aYZ4ekzHgIPeKpiaoqDLKP",
       "connectionName" : "redshift_nonprod_andover_dw_dev",
-      "targetObject" : "bronze/adm_user_group_share",
-      "targetObjectLabel" : "bronze/adm_user_group_share",
+      "targetObject" : "bronze/adm_user_grp_share",
+      "targetObjectLabel" : "bronze/adm_user_grp_share",
       "newFlatFile" : false,
       "newObject" : false,
       "showBusinessNames" : true,
@@ -178,7 +180,7 @@
       "operationType" : "Update",
       "customFuncCfg" : { },
       "targetUpdateColumns" : [
-        "user_group_share_row_id"
+        "adm_user_grp_share_row_id"
       ],
       "extendedObject" : {
         "singleMode" : true
@@ -191,17 +193,17 @@
       "excludeDynamicFileNameField" : false,
       "currentlyProcessedFileName" : false,
       "retainFieldMetadata" : false,
-      "objectName" : "bronze/adm_user_group_share",
-      "objectLabel" : "bronze/adm_user_group_share",
+      "objectName" : "bronze/adm_user_grp_share",
+      "objectLabel" : "bronze/adm_user_grp_share",
       "useExactSrcNames" : false,
       "userUpdated" : true,
-      "unspecified" : false,
       "runtimeParameterData" : {
         "connectionParameterName" : "DBConnection_UDM_TGT",
         "connectionRuntimeParameter" : false,
         "objectRuntimeParameter" : false
       },
       "restmodernSource" : true,
+      "unspecified" : false,
       "fileList" : false
     },
     {
@@ -214,7 +216,7 @@
         "paramName" : "DBConnection_UDM_TGT",
         "paramType-mapping" : "Connection",
         "logcnx" : "DBConnection_UDM_TGT",
-        "default" : "bronze/adm_user_group_share",
+        "default" : "bronze/adm_user_grp_share",
         "objectParameterized" : "false",
         "visible" : "false",
         "supportApplyDDLChanges" : "false",
@@ -222,8 +224,8 @@
       },
       "targetConnectionId" : "@aYZ4ekzHgIPeKpiaoqDLKP",
       "connectionName" : "redshift_nonprod_andover_dw_dev",
-      "targetObject" : "bronze/adm_user_group_share",
-      "targetObjectLabel" : "bronze/adm_user_group_share",
+      "targetObject" : "bronze/adm_user_grp_share",
+      "targetObjectLabel" : "bronze/adm_user_grp_share",
       "newFlatFile" : false,
       "newObject" : false,
       "showBusinessNames" : true,
@@ -243,21 +245,22 @@
       "excludeDynamicFileNameField" : false,
       "currentlyProcessedFileName" : false,
       "retainFieldMetadata" : false,
-      "objectName" : "bronze/adm_user_group_share",
-      "objectLabel" : "bronze/adm_user_group_share",
+      "objectName" : "bronze/adm_user_grp_share",
+      "objectLabel" : "bronze/adm_user_grp_share",
       "useExactSrcNames" : false,
       "userUpdated" : true,
-      "unspecified" : false,
       "runtimeParameterData" : {
         "connectionParameterName" : "DBConnection_UDM_TGT",
         "connectionRuntimeParameter" : false,
         "objectRuntimeParameter" : false
       },
       "restmodernSource" : true,
+      "unspecified" : false,
       "fileList" : false
     }
   ],
   "verbose" : false,
+  "lastRunTime" : 1761284943000,
   "mappingId" : "@1UKDfiNRSnJjclsh7lJqce",
   "mappingTemplateName" : "cdi_map_adm_user_group_share_bronze_load",
   "sessionPropertiesList" : [
@@ -274,6 +277,40 @@
       "value" : "Partial PDO"
     }
   ],
+  "inOutParameters" : [
+    {
+      "name" : "raw_schema",
+      "datatype" : "STRING",
+      "precision" : "30",
+      "scale" : "0",
+      "retentionPolicy" : "NEVER",
+      "aggregationType" : "MAX"
+    },
+    {
+      "name" : "staging_schema",
+      "datatype" : "STRING",
+      "precision" : "30",
+      "scale" : "0",
+      "retentionPolicy" : "NEVER",
+      "aggregationType" : "MAX"
+    },
+    {
+      "name" : "operational_schema",
+      "datatype" : "STRING",
+      "precision" : "30",
+      "scale" : "0",
+      "retentionPolicy" : "NEVER",
+      "aggregationType" : "MAX"
+    },
+    {
+      "name" : "sourcesystemcode",
+      "datatype" : "STRING",
+      "precision" : "30",
+      "scale" : "0",
+      "retentionPolicy" : "NEVER",
+      "aggregationType" : "MAX"
+    }
+  ],
   "hidden" : false,
   "enableCrossSchemaPushdown" : true,
   "enableParallelRun" : false,
@@ -286,6 +323,7 @@
   "valid" : true,
   "optimizationPlan" : "NONE",
   "allowMaxFieldLength" : false,
+  "specialCharacterSupport" : false,
   "midstreamPreview" : false,
-  "vcsExportTime" : "2025-06-20 13:44:24 PDT"
+  "vcsExportTime" : "2025-10-24 09:22:45 PDT"
 }
