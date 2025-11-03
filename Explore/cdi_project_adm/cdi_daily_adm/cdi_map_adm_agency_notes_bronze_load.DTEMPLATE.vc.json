@@ -5,6 +5,7 @@
     "bigIntConvertType" : "ONLY_BIGINT",
     "documentType" : "MAPPING",
     "name" : "cdi_map_adm_agency_notes_bronze_load",
+    "specialCharacterSupport" : "false",
     "links" : [
       {
         "link" : "src_delta_changes_agency -> exp_datatype_conversion"
@@ -32,18 +33,24 @@
         "link" : "exp_datatype_conversion -> exp_MD5_calc"
       },
       {
-        "link" : "exp_upd -> tgt_bronze_adm_agency_notes_updt_endate"
+        "link" : "exp_Upd -> tgt_bronze_adm_agency_notes_updt_endate"
       },
       {
-        "link" : "rtr_ins_upd -> exp_upd",
+        "link" : "rtr_ins_upd -> exp_Upd",
         "groupLink" : "Update -> DefaultGroup"
       },
       {
-        "link" : "rtr_ins_upd -> tgt_bronze_adm_agency_notes_insrt",
+        "link" : "Exp_Insert -> tgt_bronze_adm_agency_notes_insrt"
+      },
+      {
+        "link" : "rtr_ins_upd -> Exp_Insert",
         "groupLink" : "Insert -> DefaultGroup"
       },
       {
-        "link" : "rtr_ins_upd -> tgt_bronze_adm_agency_notes_updt",
+        "link" : "Exp_Ins_Update -> tgt_bronze_adm_agency_notes_updt"
+      },
+      {
+        "link" : "rtr_ins_upd -> Exp_Ins_Update",
         "groupLink" : "Update -> DefaultGroup"
       }
     ],
@@ -221,7 +228,7 @@
           "typeSystem" : "TOOLKIT",
           "useDynamicFileName" : "false",
           "object" : {
-            "customQuery" : "WITH current_batch AS (\n    SELECT \n        bls.batch_id,\n        bls.source_start_cutoff_datetime,\n        bls.source_end_cutoff_datetime\n    FROM metal.batch_load_summary bls\n    WHERE bls.source_system_code = 'ADM'\n      AND bls.batch_status = 'Inprogress'\n      AND bls.batch_id = (\n          SELECT MAX(batch_id)\n          FROM metal.batch_load_summary\n          WHERE source_system_code = 'ADM'\n            AND batch_status = 'Inprogress'\n      )\n)\n\nSELECT DISTINCT\nmetal_aan.source_name, \nmetal_aan.load_type,\nmetal_aan.agency_nup,\nmetal_aan.created_date,\nmetal_aan.modified_date,\nmetal_aan.note_id,\nmetal_aan.note_text,\nmetal_aan.note_type,\ncurrent_batch.batch_id\nFROM metal.adm_agency_notes metal_aan\nCROSS JOIN current_batch\nORDER BY \nmetal_aan.agency_nup,\nmetal_aan.created_date,\nmetal_aan.modified_date;",
+            "customQuery" : "WITH current_batch AS (\n    SELECT \n        bls.batch_id,\n        bls.source_start_cutoff_datetime,\n        bls.source_end_cutoff_datetime\n    FROM $$operational_schema.batch_load_summary bls\n    WHERE bls.source_system_code = '$$sourcesystemcode'\n      AND bls.batch_status = 'Inprogress'\n      AND bls.batch_id = (\n          SELECT MAX(batch_id)\n          FROM $$operational_schema.batch_load_summary\n          WHERE source_system_code = '$$sourcesystemcode'\n            AND batch_status = 'Inprogress'\n      )\n)\n\nSELECT DISTINCT\nmetal_aan.source_name, \nmetal_aan.load_type,\nmetal_aan.agency_nup,\nmetal_aan.created_date,\nmetal_aan.modified_date,\nmetal_aan.note_id,\nmetal_aan.note_text,\nmetal_aan.note_type,\ncurrent_batch.batch_id\nFROM $$raw_schema.adm_agency_notes metal_aan\nCROSS JOIN current_batch\nORDER BY \nmetal_aan.agency_nup,\nmetal_aan.created_date,\nmetal_aan.modified_date",
             "retainMetadata" : "false",
             "fields" : [
               {
@@ -388,16 +395,12 @@
                 "value" : "10000"
               },
               {
-                "name" : "S3 Bucket Name",
-                "value" : "$$S3_Staging_Bucket"
-              },
-              {
                 "name" : "Enable Compression",
-                "value" : "YES"
+                "value" : "NO"
               },
               {
                 "name" : "Temporary Credential Duration",
-                "value" : "900"
+                "value" : "43200"
               },
               {
                 "name" : "Treat NULL Value as NULL",
@@ -659,15 +662,16 @@
         "fieldMappingMode" : "MANUAL",
         "inputSorted" : "false",
         "schemaProviderType" : "SELECTED_OBJECT",
+        "targetFieldsOrdered" : "false",
         "updateColumns" : null,
         "useLabels" : "false",
         "useSequenceFields" : "false",
         "fields" : [
           {
             "adapterField" : {
-              "name" : "agency_notes_row_id"
+              "name" : "adm_agency_notes_row_id"
             },
-            "name" : "agency_notes_row_id",
+            "name" : "adm_agency_notes_row_id",
             "platformType" : {
               "name" : "bigint"
             },
@@ -676,9 +680,9 @@
           },
           {
             "adapterField" : {
-              "name" : "agency_notes_batch_id"
+              "name" : "adm_agency_notes_batch_id"
             },
-            "name" : "agency_notes_batch_id",
+            "name" : "adm_agency_notes_batch_id",
             "platformType" : {
               "name" : "bigint"
             },
@@ -687,9 +691,9 @@
           },
           {
             "adapterField" : {
-              "name" : "source_name"
+              "name" : "originating_source_name"
             },
-            "name" : "source_name",
+            "name" : "originating_source_name",
             "platformType" : {
               "name" : "string"
             },
@@ -698,9 +702,9 @@
           },
           {
             "adapterField" : {
-              "name" : "load_type"
+              "name" : "originating_load_type"
             },
-            "name" : "load_type",
+            "name" : "originating_load_type",
             "platformType" : {
               "name" : "string"
             },
@@ -709,9 +713,9 @@
           },
           {
             "adapterField" : {
-              "name" : "agency_notes_row_md5checksum"
+              "name" : "adm_agency_notes_row_md5checksum"
             },
-            "name" : "agency_notes_row_md5checksum",
+            "name" : "adm_agency_notes_row_md5checksum",
             "platformType" : {
               "name" : "string"
             },
@@ -720,9 +724,9 @@
           },
           {
             "adapterField" : {
-              "name" : "agency_notes_datetime_created"
+              "name" : "adm_agency_notes_row_effective_start_datetime"
             },
-            "name" : "agency_notes_datetime_created",
+            "name" : "adm_agency_notes_row_effective_start_datetime",
             "platformType" : {
               "name" : "date/time"
             },
@@ -731,9 +735,9 @@
           },
           {
             "adapterField" : {
-              "name" : "agency_notes_datetime_modified"
+              "name" : "adm_agency_notes_row_effective_end_datetime"
             },
-            "name" : "agency_notes_datetime_modified",
+            "name" : "adm_agency_notes_row_effective_end_datetime",
             "platformType" : {
               "name" : "date/time"
             },
@@ -742,36 +746,47 @@
           },
           {
             "adapterField" : {
-              "name" : "agency_notes_row_effective_start_datetime"
+              "name" : "adm_agency_notes_row_status"
             },
-            "name" : "agency_notes_row_effective_start_datetime",
+            "name" : "adm_agency_notes_row_status",
             "platformType" : {
-              "name" : "date/time"
+              "name" : "string"
             },
-            "precision" : 29,
-            "scale" : 9
+            "precision" : 63,
+            "scale" : 0
           },
           {
             "adapterField" : {
-              "name" : "agency_notes_row_effective_end_datetime"
+              "name" : "agency_nup"
             },
-            "name" : "agency_notes_row_effective_end_datetime",
-            "platformType" : {
-              "name" : "date/time"
-            },
-            "precision" : 29,
-            "scale" : 9
-          },
-          {
-            "adapterField" : {
-              "name" : "agency_id"
-            },
-            "name" : "agency_id",
+            "name" : "agency_nup",
             "platformType" : {
               "name" : "integer"
             },
             "precision" : 10,
             "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "created_date"
+            },
+            "name" : "created_date",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "modified_date"
+            },
+            "name" : "modified_date",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
           },
           {
             "adapterField" : {
@@ -824,10 +839,10 @@
             "retainMetadata" : "false",
             "fields" : [
               {
-                "name" : "agency_notes_row_id",
+                "name" : "adm_agency_notes_row_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "agency_notes_row_id",
-                "nativeName" : "agency_notes_row_id",
+                "label" : "adm_agency_notes_row_id",
+                "nativeName" : "adm_agency_notes_row_id",
                 "nativeType" : "int8",
                 "original" : "false",
                 "precision" : 19,
@@ -840,10 +855,10 @@
                 ]
               },
               {
-                "name" : "agency_notes_batch_id",
+                "name" : "adm_agency_notes_batch_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "agency_notes_batch_id",
-                "nativeName" : "agency_notes_batch_id",
+                "label" : "adm_agency_notes_batch_id",
+                "nativeName" : "adm_agency_notes_batch_id",
                 "nativeType" : "int8",
                 "original" : "false",
                 "precision" : 19,
@@ -856,10 +871,10 @@
                 ]
               },
               {
-                "name" : "source_name",
+                "name" : "originating_source_name",
                 "fieldType" : "CONNECTOR",
-                "label" : "source_name",
-                "nativeName" : "source_name",
+                "label" : "originating_source_name",
+                "nativeName" : "originating_source_name",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 127,
@@ -872,10 +887,10 @@
                 ]
               },
               {
-                "name" : "load_type",
+                "name" : "originating_load_type",
                 "fieldType" : "CONNECTOR",
-                "label" : "load_type",
-                "nativeName" : "load_type",
+                "label" : "originating_load_type",
+                "nativeName" : "originating_load_type",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 63,
@@ -888,10 +903,10 @@
                 ]
               },
               {
-                "name" : "agency_notes_row_md5checksum",
+                "name" : "adm_agency_notes_row_md5checksum",
                 "fieldType" : "CONNECTOR",
-                "label" : "agency_notes_row_md5checksum",
-                "nativeName" : "agency_notes_row_md5checksum",
+                "label" : "adm_agency_notes_row_md5checksum",
+                "nativeName" : "adm_agency_notes_row_md5checksum",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 255,
@@ -904,10 +919,10 @@
                 ]
               },
               {
-                "name" : "agency_notes_datetime_created",
+                "name" : "adm_agency_notes_row_effective_start_datetime",
                 "fieldType" : "CONNECTOR",
-                "label" : "agency_notes_datetime_created",
-                "nativeName" : "agency_notes_datetime_created",
+                "label" : "adm_agency_notes_row_effective_start_datetime",
+                "nativeName" : "adm_agency_notes_row_effective_start_datetime",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 29,
@@ -920,10 +935,10 @@
                 ]
               },
               {
-                "name" : "agency_notes_datetime_modified",
+                "name" : "adm_agency_notes_row_effective_end_datetime",
                 "fieldType" : "CONNECTOR",
-                "label" : "agency_notes_datetime_modified",
-                "nativeName" : "agency_notes_datetime_modified",
+                "label" : "adm_agency_notes_row_effective_end_datetime",
+                "nativeName" : "adm_agency_notes_row_effective_end_datetime",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 29,
@@ -936,14 +951,14 @@
                 ]
               },
               {
-                "name" : "agency_notes_row_effective_start_datetime",
+                "name" : "adm_agency_notes_row_status",
                 "fieldType" : "CONNECTOR",
-                "label" : "agency_notes_row_effective_start_datetime",
-                "nativeName" : "agency_notes_row_effective_start_datetime",
-                "nativeType" : "timestamp",
+                "label" : "adm_agency_notes_row_status",
+                "nativeName" : "adm_agency_notes_row_status",
+                "nativeType" : "varchar",
                 "original" : "false",
-                "precision" : 29,
-                "scale" : 6,
+                "precision" : 63,
+                "scale" : 0,
                 "properties" : [
                   {
                     "name" : "parentObject",
@@ -952,30 +967,46 @@
                 ]
               },
               {
-                "name" : "agency_notes_row_effective_end_datetime",
+                "name" : "agency_nup",
                 "fieldType" : "CONNECTOR",
-                "label" : "agency_notes_row_effective_end_datetime",
-                "nativeName" : "agency_notes_row_effective_end_datetime",
-                "nativeType" : "timestamp",
-                "original" : "false",
-                "precision" : 29,
-                "scale" : 6,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_agency_notes"
-                  }
-                ]
-              },
-              {
-                "name" : "agency_id",
-                "fieldType" : "CONNECTOR",
-                "label" : "agency_id",
-                "nativeName" : "agency_id",
+                "label" : "agency_nup",
+                "nativeName" : "agency_nup",
                 "nativeType" : "int4",
                 "original" : "false",
                 "precision" : 10,
                 "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_agency_notes"
+                  }
+                ]
+              },
+              {
+                "name" : "created_date",
+                "fieldType" : "CONNECTOR",
+                "label" : "created_date",
+                "nativeName" : "created_date",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_agency_notes"
+                  }
+                ]
+              },
+              {
+                "name" : "modified_date",
+                "fieldType" : "CONNECTOR",
+                "label" : "modified_date",
+                "nativeName" : "modified_date",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
                 "properties" : [
                   {
                     "name" : "parentObject",
@@ -1067,7 +1098,7 @@
               },
               {
                 "name" : "Temporary Credential Duration",
-                "value" : "900"
+                "value" : "43200"
               },
               {
                 "name" : "S3 Server Side Encryption",
@@ -1098,6 +1129,10 @@
                 "value" : "5242880"
               },
               {
+                "name" : "Schema Name",
+                "value" : "$$staging_schema"
+              },
+              {
                 "name" : "Preserve record order on write",
                 "value" : "NO"
               },
@@ -1125,30 +1160,72 @@
         "manualMappings" : {
           "mappingList" : [
             {
-              "fromFieldName" : "src_o_created_date",
+              "fromFieldName" : "src_batch_id",
               "toField" : {
-                "name" : "agency_notes_datetime_created"
+                "name" : "adm_agency_notes_batch_id"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "src_o_modified_date",
+              "fromFieldName" : "src_source_name",
               "toField" : {
-                "name" : "agency_notes_datetime_modified"
+                "name" : "originating_source_name"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "src_load_type",
+              "toField" : {
+                "name" : "originating_load_type"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "src_MD5_hash_value",
+              "toField" : {
+                "name" : "adm_agency_notes_row_md5checksum"
               },
               "fromFieldNames" : null
             },
             {
               "fromFieldName" : "o_agency_notes_row_effective_start_datetime",
               "toField" : {
-                "name" : "agency_notes_row_effective_start_datetime"
+                "name" : "adm_agency_notes_row_effective_start_datetime"
               },
               "fromFieldNames" : null
             },
             {
               "fromFieldName" : "o_agency_notes_row_effective_end_datetime",
               "toField" : {
-                "name" : "agency_notes_row_effective_end_datetime"
+                "name" : "adm_agency_notes_row_effective_end_datetime"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_row_status",
+              "toField" : {
+                "name" : "adm_agency_notes_row_status"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "src_o_created_date",
+              "toField" : {
+                "name" : "created_date"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "src_o_modified_date",
+              "toField" : {
+                "name" : "modified_date"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "src_o_note_id",
+              "toField" : {
+                "name" : "note_id"
               },
               "fromFieldNames" : null
             },
@@ -1167,44 +1244,9 @@
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "src_source_name",
-              "toField" : {
-                "name" : "source_name"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "src_load_type",
-              "toField" : {
-                "name" : "load_type"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "src_MD5_hash_value",
-              "toField" : {
-                "name" : "agency_notes_row_md5checksum"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "src_batch_id",
-              "toField" : {
-                "name" : "agency_notes_batch_id"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "src_o_note_id",
-              "toField" : {
-                "name" : "note_id"
-              },
-              "fromFieldNames" : null
-            },
-            {
               "fromFieldName" : "src_o_agency_nup",
               "toField" : {
-                "name" : "agency_id"
+                "name" : "agency_nup"
               },
               "fromFieldNames" : null
             }
@@ -1237,15 +1279,16 @@
         "fieldMappingMode" : "MANUAL",
         "inputSorted" : "false",
         "schemaProviderType" : "SELECTED_OBJECT",
+        "targetFieldsOrdered" : "false",
         "updateColumns" : null,
         "useLabels" : "false",
         "useSequenceFields" : "false",
         "fields" : [
           {
             "adapterField" : {
-              "name" : "agency_notes_row_id"
+              "name" : "adm_agency_notes_row_id"
             },
-            "name" : "agency_notes_row_id",
+            "name" : "adm_agency_notes_row_id",
             "platformType" : {
               "name" : "bigint"
             },
@@ -1254,9 +1297,9 @@
           },
           {
             "adapterField" : {
-              "name" : "agency_notes_batch_id"
+              "name" : "adm_agency_notes_batch_id"
             },
-            "name" : "agency_notes_batch_id",
+            "name" : "adm_agency_notes_batch_id",
             "platformType" : {
               "name" : "bigint"
             },
@@ -1265,9 +1308,9 @@
           },
           {
             "adapterField" : {
-              "name" : "source_name"
+              "name" : "originating_source_name"
             },
-            "name" : "source_name",
+            "name" : "originating_source_name",
             "platformType" : {
               "name" : "string"
             },
@@ -1276,9 +1319,9 @@
           },
           {
             "adapterField" : {
-              "name" : "load_type"
+              "name" : "originating_load_type"
             },
-            "name" : "load_type",
+            "name" : "originating_load_type",
             "platformType" : {
               "name" : "string"
             },
@@ -1287,9 +1330,9 @@
           },
           {
             "adapterField" : {
-              "name" : "agency_notes_row_md5checksum"
+              "name" : "adm_agency_notes_row_md5checksum"
             },
-            "name" : "agency_notes_row_md5checksum",
+            "name" : "adm_agency_notes_row_md5checksum",
             "platformType" : {
               "name" : "string"
             },
@@ -1298,9 +1341,9 @@
           },
           {
             "adapterField" : {
-              "name" : "agency_notes_datetime_created"
+              "name" : "adm_agency_notes_row_effective_start_datetime"
             },
-            "name" : "agency_notes_datetime_created",
+            "name" : "adm_agency_notes_row_effective_start_datetime",
             "platformType" : {
               "name" : "date/time"
             },
@@ -1309,9 +1352,9 @@
           },
           {
             "adapterField" : {
-              "name" : "agency_notes_datetime_modified"
+              "name" : "adm_agency_notes_row_effective_end_datetime"
             },
-            "name" : "agency_notes_datetime_modified",
+            "name" : "adm_agency_notes_row_effective_end_datetime",
             "platformType" : {
               "name" : "date/time"
             },
@@ -1320,36 +1363,47 @@
           },
           {
             "adapterField" : {
-              "name" : "agency_notes_row_effective_start_datetime"
+              "name" : "adm_agency_notes_row_status"
             },
-            "name" : "agency_notes_row_effective_start_datetime",
+            "name" : "adm_agency_notes_row_status",
             "platformType" : {
-              "name" : "date/time"
+              "name" : "string"
             },
-            "precision" : 29,
-            "scale" : 9
+            "precision" : 63,
+            "scale" : 0
           },
           {
             "adapterField" : {
-              "name" : "agency_notes_row_effective_end_datetime"
+              "name" : "agency_nup"
             },
-            "name" : "agency_notes_row_effective_end_datetime",
-            "platformType" : {
-              "name" : "date/time"
-            },
-            "precision" : 29,
-            "scale" : 9
-          },
-          {
-            "adapterField" : {
-              "name" : "agency_id"
-            },
-            "name" : "agency_id",
+            "name" : "agency_nup",
             "platformType" : {
               "name" : "integer"
             },
             "precision" : 10,
             "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "created_date"
+            },
+            "name" : "created_date",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "modified_date"
+            },
+            "name" : "modified_date",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
           },
           {
             "adapterField" : {
@@ -1413,10 +1467,10 @@
             "retainMetadata" : "false",
             "fields" : [
               {
-                "name" : "agency_notes_row_id",
+                "name" : "adm_agency_notes_row_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "agency_notes_row_id",
-                "nativeName" : "agency_notes_row_id",
+                "label" : "adm_agency_notes_row_id",
+                "nativeName" : "adm_agency_notes_row_id",
                 "nativeType" : "int8",
                 "original" : "false",
                 "precision" : 19,
@@ -1429,10 +1483,10 @@
                 ]
               },
               {
-                "name" : "agency_notes_batch_id",
+                "name" : "adm_agency_notes_batch_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "agency_notes_batch_id",
-                "nativeName" : "agency_notes_batch_id",
+                "label" : "adm_agency_notes_batch_id",
+                "nativeName" : "adm_agency_notes_batch_id",
                 "nativeType" : "int8",
                 "original" : "false",
                 "precision" : 19,
@@ -1445,10 +1499,10 @@
                 ]
               },
               {
-                "name" : "source_name",
+                "name" : "originating_source_name",
                 "fieldType" : "CONNECTOR",
-                "label" : "source_name",
-                "nativeName" : "source_name",
+                "label" : "originating_source_name",
+                "nativeName" : "originating_source_name",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 127,
@@ -1461,10 +1515,10 @@
                 ]
               },
               {
-                "name" : "load_type",
+                "name" : "originating_load_type",
                 "fieldType" : "CONNECTOR",
-                "label" : "load_type",
-                "nativeName" : "load_type",
+                "label" : "originating_load_type",
+                "nativeName" : "originating_load_type",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 63,
@@ -1477,10 +1531,10 @@
                 ]
               },
               {
-                "name" : "agency_notes_row_md5checksum",
+                "name" : "adm_agency_notes_row_md5checksum",
                 "fieldType" : "CONNECTOR",
-                "label" : "agency_notes_row_md5checksum",
-                "nativeName" : "agency_notes_row_md5checksum",
+                "label" : "adm_agency_notes_row_md5checksum",
+                "nativeName" : "adm_agency_notes_row_md5checksum",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 255,
@@ -1493,10 +1547,10 @@
                 ]
               },
               {
-                "name" : "agency_notes_datetime_created",
+                "name" : "adm_agency_notes_row_effective_start_datetime",
                 "fieldType" : "CONNECTOR",
-                "label" : "agency_notes_datetime_created",
-                "nativeName" : "agency_notes_datetime_created",
+                "label" : "adm_agency_notes_row_effective_start_datetime",
+                "nativeName" : "adm_agency_notes_row_effective_start_datetime",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 29,
@@ -1509,10 +1563,10 @@
                 ]
               },
               {
-                "name" : "agency_notes_datetime_modified",
+                "name" : "adm_agency_notes_row_effective_end_datetime",
                 "fieldType" : "CONNECTOR",
-                "label" : "agency_notes_datetime_modified",
-                "nativeName" : "agency_notes_datetime_modified",
+                "label" : "adm_agency_notes_row_effective_end_datetime",
+                "nativeName" : "adm_agency_notes_row_effective_end_datetime",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 29,
@@ -1525,14 +1579,14 @@
                 ]
               },
               {
-                "name" : "agency_notes_row_effective_start_datetime",
+                "name" : "adm_agency_notes_row_status",
                 "fieldType" : "CONNECTOR",
-                "label" : "agency_notes_row_effective_start_datetime",
-                "nativeName" : "agency_notes_row_effective_start_datetime",
-                "nativeType" : "timestamp",
+                "label" : "adm_agency_notes_row_status",
+                "nativeName" : "adm_agency_notes_row_status",
+                "nativeType" : "varchar",
                 "original" : "false",
-                "precision" : 29,
-                "scale" : 6,
+                "precision" : 63,
+                "scale" : 0,
                 "properties" : [
                   {
                     "name" : "parentObject",
@@ -1541,30 +1595,46 @@
                 ]
               },
               {
-                "name" : "agency_notes_row_effective_end_datetime",
+                "name" : "agency_nup",
                 "fieldType" : "CONNECTOR",
-                "label" : "agency_notes_row_effective_end_datetime",
-                "nativeName" : "agency_notes_row_effective_end_datetime",
-                "nativeType" : "timestamp",
-                "original" : "false",
-                "precision" : 29,
-                "scale" : 6,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_agency_notes"
-                  }
-                ]
-              },
-              {
-                "name" : "agency_id",
-                "fieldType" : "CONNECTOR",
-                "label" : "agency_id",
-                "nativeName" : "agency_id",
+                "label" : "agency_nup",
+                "nativeName" : "agency_nup",
                 "nativeType" : "int4",
                 "original" : "false",
                 "precision" : 10,
                 "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_agency_notes"
+                  }
+                ]
+              },
+              {
+                "name" : "created_date",
+                "fieldType" : "CONNECTOR",
+                "label" : "created_date",
+                "nativeName" : "created_date",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_agency_notes"
+                  }
+                ]
+              },
+              {
+                "name" : "modified_date",
+                "fieldType" : "CONNECTOR",
+                "label" : "modified_date",
+                "nativeName" : "modified_date",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
                 "properties" : [
                   {
                     "name" : "parentObject",
@@ -1656,7 +1726,7 @@
               },
               {
                 "name" : "Temporary Credential Duration",
-                "value" : "900"
+                "value" : "43200"
               },
               {
                 "name" : "S3 Server Side Encryption",
@@ -1687,6 +1757,10 @@
                 "value" : "5242880"
               },
               {
+                "name" : "Schema Name",
+                "value" : "$$staging_schema"
+              },
+              {
                 "name" : "Preserve record order on write",
                 "value" : "NO"
               },
@@ -1714,16 +1788,72 @@
         "manualMappings" : {
           "mappingList" : [
             {
-              "fromFieldName" : "src_note_text",
+              "fromFieldName" : "src_batch_id",
               "toField" : {
-                "name" : "note_text"
+                "name" : "adm_agency_notes_batch_id"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "src_note_type",
+              "fromFieldName" : "src_source_name",
               "toField" : {
-                "name" : "note_type"
+                "name" : "originating_source_name"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "src_load_type",
+              "toField" : {
+                "name" : "originating_load_type"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "src_MD5_hash_value",
+              "toField" : {
+                "name" : "adm_agency_notes_row_md5checksum"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_agency_notes_row_effective_end_datetime",
+              "toField" : {
+                "name" : "adm_agency_notes_row_effective_end_datetime"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_agency_notes_row_effective_start_datetime",
+              "toField" : {
+                "name" : "adm_agency_notes_row_effective_start_datetime"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_row_status",
+              "toField" : {
+                "name" : "adm_agency_notes_row_status"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "src_o_agency_nup",
+              "toField" : {
+                "name" : "agency_nup"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "src_o_created_date",
+              "toField" : {
+                "name" : "created_date"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "src_o_modified_date",
+              "toField" : {
+                "name" : "modified_date"
               },
               "fromFieldNames" : null
             },
@@ -1735,65 +1865,16 @@
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "src_o_agency_nup",
+              "fromFieldName" : "src_note_text",
               "toField" : {
-                "name" : "agency_id"
+                "name" : "note_text"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "o_agency_notes_row_effective_start_datetime",
+              "fromFieldName" : "src_note_type",
               "toField" : {
-                "name" : "agency_notes_row_effective_start_datetime"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "o_agency_notes_row_effective_end_datetime",
-              "toField" : {
-                "name" : "agency_notes_row_effective_end_datetime"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "src_o_created_date",
-              "toField" : {
-                "name" : "agency_notes_datetime_created"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "src_o_modified_date",
-              "toField" : {
-                "name" : "agency_notes_datetime_modified"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "src_MD5_hash_value",
-              "toField" : {
-                "name" : "agency_notes_row_md5checksum"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "src_source_name",
-              "toField" : {
-                "name" : "source_name"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "src_load_type",
-              "toField" : {
-                "name" : "load_type"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "src_batch_id",
-              "toField" : {
-                "name" : "agency_notes_batch_id"
+                "name" : "note_type"
               },
               "fromFieldNames" : null
             }
@@ -1911,7 +1992,7 @@
           "typeSystem" : "TOOLKIT",
           "useDynamicFileName" : "false",
           "object" : {
-            "customQuery" : "SELECT \nagency_notes_row_id, \nagency_notes_row_md5checksum, \nagency_notes_batch_id,  \nagency_notes_datetime_modified,\nagency_notes_row_effective_end_datetime,\nagency_id,\nnote_id\nFROM bronze.adm_agency_notes \nwhere  agency_notes_row_effective_end_datetime = '9999-12-31 00:00:00.000'",
+            "customQuery" : "SELECT \nadm_agency_notes_row_id as agency_notes_row_id, \nadm_agency_notes_row_md5checksum as agency_notes_row_md5checksum, \nadm_agency_notes_batch_id as agency_notes_batch_id,  \nmodified_date as agency_notes_datetime_modified,\nadm_agency_notes_row_effective_end_datetime as agency_notes_row_effective_end_datetime,\nagency_nup as agency_id,\nnote_id\nFROM bronze.adm_agency_notes \nwhere  agency_notes_row_effective_end_datetime = '9999-12-31 00:00:00.000'",
             "retainMetadata" : "false",
             "fields" : [
               {
@@ -2046,16 +2127,12 @@
                 "value" : "10000"
               },
               {
-                "name" : "S3 Bucket Name",
-                "value" : "$$S3_Staging_Bucket"
-              },
-              {
                 "name" : "Enable Compression",
-                "value" : "YES"
+                "value" : "NO"
               },
               {
                 "name" : "Temporary Credential Duration",
-                "value" : "900"
+                "value" : "43200"
               },
               {
                 "name" : "Treat NULL Value as NULL",
@@ -2210,7 +2287,7 @@
       {
         "description" : "This Expression transformation is to update the target records",
         "createTime" : "2025-05-07T18:01:14.671Z",
-        "name" : "exp_upd",
+        "name" : "exp_Upd",
         "groups" : [
           {
             "input" : "true",
@@ -2236,6 +2313,17 @@
             "scale" : 9,
             "expFieldType" : "OUTPUT",
             "expression" : "SYSDATE"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_row_status",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 10,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "'Expired'"
           }
         ],
         "windowSpec" : {
@@ -2272,17 +2360,18 @@
         "fieldMappingMode" : "MANUAL",
         "inputSorted" : "false",
         "schemaProviderType" : "SELECTED_OBJECT",
+        "targetFieldsOrdered" : "false",
         "updateColumns" : [
-          "agency_notes_row_id"
+          "adm_agency_notes_row_id"
         ],
         "useLabels" : "false",
         "useSequenceFields" : "false",
         "fields" : [
           {
             "adapterField" : {
-              "name" : "agency_notes_row_id"
+              "name" : "adm_agency_notes_row_id"
             },
-            "name" : "agency_notes_row_id",
+            "name" : "adm_agency_notes_row_id",
             "platformType" : {
               "name" : "bigint"
             },
@@ -2291,9 +2380,9 @@
           },
           {
             "adapterField" : {
-              "name" : "agency_notes_batch_id"
+              "name" : "adm_agency_notes_batch_id"
             },
-            "name" : "agency_notes_batch_id",
+            "name" : "adm_agency_notes_batch_id",
             "platformType" : {
               "name" : "bigint"
             },
@@ -2302,9 +2391,9 @@
           },
           {
             "adapterField" : {
-              "name" : "source_name"
+              "name" : "originating_source_name"
             },
-            "name" : "source_name",
+            "name" : "originating_source_name",
             "platformType" : {
               "name" : "string"
             },
@@ -2313,9 +2402,9 @@
           },
           {
             "adapterField" : {
-              "name" : "load_type"
+              "name" : "originating_load_type"
             },
-            "name" : "load_type",
+            "name" : "originating_load_type",
             "platformType" : {
               "name" : "string"
             },
@@ -2324,9 +2413,9 @@
           },
           {
             "adapterField" : {
-              "name" : "agency_notes_row_md5checksum"
+              "name" : "adm_agency_notes_row_md5checksum"
             },
-            "name" : "agency_notes_row_md5checksum",
+            "name" : "adm_agency_notes_row_md5checksum",
             "platformType" : {
               "name" : "string"
             },
@@ -2335,9 +2424,9 @@
           },
           {
             "adapterField" : {
-              "name" : "agency_notes_datetime_created"
+              "name" : "adm_agency_notes_row_effective_start_datetime"
             },
-            "name" : "agency_notes_datetime_created",
+            "name" : "adm_agency_notes_row_effective_start_datetime",
             "platformType" : {
               "name" : "date/time"
             },
@@ -2346,9 +2435,9 @@
           },
           {
             "adapterField" : {
-              "name" : "agency_notes_datetime_modified"
+              "name" : "adm_agency_notes_row_effective_end_datetime"
             },
-            "name" : "agency_notes_datetime_modified",
+            "name" : "adm_agency_notes_row_effective_end_datetime",
             "platformType" : {
               "name" : "date/time"
             },
@@ -2357,36 +2446,47 @@
           },
           {
             "adapterField" : {
-              "name" : "agency_notes_row_effective_start_datetime"
+              "name" : "adm_agency_notes_row_status"
             },
-            "name" : "agency_notes_row_effective_start_datetime",
+            "name" : "adm_agency_notes_row_status",
             "platformType" : {
-              "name" : "date/time"
+              "name" : "string"
             },
-            "precision" : 29,
-            "scale" : 9
+            "precision" : 63,
+            "scale" : 0
           },
           {
             "adapterField" : {
-              "name" : "agency_notes_row_effective_end_datetime"
+              "name" : "agency_nup"
             },
-            "name" : "agency_notes_row_effective_end_datetime",
-            "platformType" : {
-              "name" : "date/time"
-            },
-            "precision" : 29,
-            "scale" : 9
-          },
-          {
-            "adapterField" : {
-              "name" : "agency_id"
-            },
-            "name" : "agency_id",
+            "name" : "agency_nup",
             "platformType" : {
               "name" : "integer"
             },
             "precision" : 10,
             "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "created_date"
+            },
+            "name" : "created_date",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "modified_date"
+            },
+            "name" : "modified_date",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
           },
           {
             "adapterField" : {
@@ -2450,10 +2550,10 @@
             "retainMetadata" : "false",
             "fields" : [
               {
-                "name" : "agency_notes_row_id",
+                "name" : "adm_agency_notes_row_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "agency_notes_row_id",
-                "nativeName" : "agency_notes_row_id",
+                "label" : "adm_agency_notes_row_id",
+                "nativeName" : "adm_agency_notes_row_id",
                 "nativeType" : "int8",
                 "original" : "false",
                 "precision" : 19,
@@ -2466,10 +2566,10 @@
                 ]
               },
               {
-                "name" : "agency_notes_batch_id",
+                "name" : "adm_agency_notes_batch_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "agency_notes_batch_id",
-                "nativeName" : "agency_notes_batch_id",
+                "label" : "adm_agency_notes_batch_id",
+                "nativeName" : "adm_agency_notes_batch_id",
                 "nativeType" : "int8",
                 "original" : "false",
                 "precision" : 19,
@@ -2482,10 +2582,10 @@
                 ]
               },
               {
-                "name" : "source_name",
+                "name" : "originating_source_name",
                 "fieldType" : "CONNECTOR",
-                "label" : "source_name",
-                "nativeName" : "source_name",
+                "label" : "originating_source_name",
+                "nativeName" : "originating_source_name",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 127,
@@ -2498,10 +2598,10 @@
                 ]
               },
               {
-                "name" : "load_type",
+                "name" : "originating_load_type",
                 "fieldType" : "CONNECTOR",
-                "label" : "load_type",
-                "nativeName" : "load_type",
+                "label" : "originating_load_type",
+                "nativeName" : "originating_load_type",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 63,
@@ -2514,10 +2614,10 @@
                 ]
               },
               {
-                "name" : "agency_notes_row_md5checksum",
+                "name" : "adm_agency_notes_row_md5checksum",
                 "fieldType" : "CONNECTOR",
-                "label" : "agency_notes_row_md5checksum",
-                "nativeName" : "agency_notes_row_md5checksum",
+                "label" : "adm_agency_notes_row_md5checksum",
+                "nativeName" : "adm_agency_notes_row_md5checksum",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 255,
@@ -2530,10 +2630,10 @@
                 ]
               },
               {
-                "name" : "agency_notes_datetime_created",
+                "name" : "adm_agency_notes_row_effective_start_datetime",
                 "fieldType" : "CONNECTOR",
-                "label" : "agency_notes_datetime_created",
-                "nativeName" : "agency_notes_datetime_created",
+                "label" : "adm_agency_notes_row_effective_start_datetime",
+                "nativeName" : "adm_agency_notes_row_effective_start_datetime",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 29,
@@ -2546,10 +2646,10 @@
                 ]
               },
               {
-                "name" : "agency_notes_datetime_modified",
+                "name" : "adm_agency_notes_row_effective_end_datetime",
                 "fieldType" : "CONNECTOR",
-                "label" : "agency_notes_datetime_modified",
-                "nativeName" : "agency_notes_datetime_modified",
+                "label" : "adm_agency_notes_row_effective_end_datetime",
+                "nativeName" : "adm_agency_notes_row_effective_end_datetime",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 29,
@@ -2562,14 +2662,14 @@
                 ]
               },
               {
-                "name" : "agency_notes_row_effective_start_datetime",
+                "name" : "adm_agency_notes_row_status",
                 "fieldType" : "CONNECTOR",
-                "label" : "agency_notes_row_effective_start_datetime",
-                "nativeName" : "agency_notes_row_effective_start_datetime",
-                "nativeType" : "timestamp",
+                "label" : "adm_agency_notes_row_status",
+                "nativeName" : "adm_agency_notes_row_status",
+                "nativeType" : "varchar",
                 "original" : "false",
-                "precision" : 29,
-                "scale" : 6,
+                "precision" : 63,
+                "scale" : 0,
                 "properties" : [
                   {
                     "name" : "parentObject",
@@ -2578,30 +2678,46 @@
                 ]
               },
               {
-                "name" : "agency_notes_row_effective_end_datetime",
+                "name" : "agency_nup",
                 "fieldType" : "CONNECTOR",
-                "label" : "agency_notes_row_effective_end_datetime",
-                "nativeName" : "agency_notes_row_effective_end_datetime",
-                "nativeType" : "timestamp",
-                "original" : "false",
-                "precision" : 29,
-                "scale" : 6,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_agency_notes"
-                  }
-                ]
-              },
-              {
-                "name" : "agency_id",
-                "fieldType" : "CONNECTOR",
-                "label" : "agency_id",
-                "nativeName" : "agency_id",
+                "label" : "agency_nup",
+                "nativeName" : "agency_nup",
                 "nativeType" : "int4",
                 "original" : "false",
                 "precision" : 10,
                 "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_agency_notes"
+                  }
+                ]
+              },
+              {
+                "name" : "created_date",
+                "fieldType" : "CONNECTOR",
+                "label" : "created_date",
+                "nativeName" : "created_date",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_agency_notes"
+                  }
+                ]
+              },
+              {
+                "name" : "modified_date",
+                "fieldType" : "CONNECTOR",
+                "label" : "modified_date",
+                "nativeName" : "modified_date",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
                 "properties" : [
                   {
                     "name" : "parentObject",
@@ -2693,7 +2809,7 @@
               },
               {
                 "name" : "Temporary Credential Duration",
-                "value" : "900"
+                "value" : "43200"
               },
               {
                 "name" : "S3 Server Side Encryption",
@@ -2722,6 +2838,10 @@
               {
                 "name" : "Minimum Upload Part Size",
                 "value" : "5242880"
+              },
+              {
+                "name" : "Schema Name",
+                "value" : "$$staging_schema"
               },
               {
                 "name" : "Preserve record order on write",
@@ -2753,21 +2873,158 @@
             {
               "fromFieldName" : "agency_notes_row_id",
               "toField" : {
-                "name" : "agency_notes_row_id"
+                "name" : "adm_agency_notes_row_id"
               },
               "fromFieldNames" : null
             },
             {
               "fromFieldName" : "o_enddate_sysdate",
               "toField" : {
-                "name" : "agency_notes_row_effective_end_datetime"
+                "name" : "adm_agency_notes_row_effective_end_datetime"
               },
               "fromFieldNames" : null
             }
           ]
         }
+      },
+      {
+        "createTime" : "2025-10-28T20:53:39.676Z",
+        "name" : "Exp_Insert",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "windowConfigurationEnabled" : "false",
+        "fields" : [
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_row_status",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 10,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "'Active'"
+          }
+        ],
+        "windowSpec" : {
+          "allRowsFollowing" : "false",
+          "allRowsPreceding" : "false",
+          "endOffset" : 0,
+          "startOffset" : 0,
+          "partitionKeys" : null
+        }
+      },
+      {
+        "createTime" : "2025-10-28T20:56:56.877Z",
+        "name" : "Exp_Ins_Update",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "windowConfigurationEnabled" : "false",
+        "fields" : [
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_retire_old_record",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9,
+            "expFieldType" : "OUTPUT",
+            "expression" : "SYSDATE"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_row_status",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 10,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "'Active'"
+          }
+        ],
+        "windowSpec" : {
+          "allRowsFollowing" : "false",
+          "allRowsPreceding" : "false",
+          "endOffset" : 0,
+          "startOffset" : 0,
+          "partitionKeys" : null
+        }
+      }
+    ],
+    "variables" : [
+      {
+        "aggregationType" : "MAX",
+        "expressionVariable" : "false",
+        "name" : "raw_schema",
+        "platformType" : {
+          "name" : "string"
+        },
+        "precision" : 100,
+        "retentionPolicy" : "NEVER",
+        "scale" : 0,
+        "defaultValue" : "metal"
+      },
+      {
+        "aggregationType" : "MAX",
+        "expressionVariable" : "false",
+        "name" : "staging_schema",
+        "platformType" : {
+          "name" : "string"
+        },
+        "precision" : 100,
+        "retentionPolicy" : "NEVER",
+        "scale" : 0,
+        "defaultValue" : "bronze"
+      },
+      {
+        "aggregationType" : "MAX",
+        "expressionVariable" : "false",
+        "name" : "operational_schema",
+        "platformType" : {
+          "name" : "string"
+        },
+        "precision" : 100,
+        "retentionPolicy" : "NEVER",
+        "scale" : 0,
+        "defaultValue" : "operations"
+      },
+      {
+        "aggregationType" : "MAX",
+        "expressionVariable" : "false",
+        "name" : "sourcesystemcode",
+        "platformType" : {
+          "name" : "string"
+        },
+        "precision" : 10,
+        "retentionPolicy" : "NEVER",
+        "scale" : 0,
+        "defaultValue" : "ADM"
       }
     ]
   },
-  "vcsExportTime" : "2025-06-18 13:24:57 PDT"
+  "vcsExportTime" : "2025-11-03 13:32:01 EST"
 }

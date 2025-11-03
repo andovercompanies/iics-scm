@@ -30,7 +30,7 @@
       "truncateTarget" : false,
       "bulkApiDBTarget" : false,
       "customFuncCfg" : { },
-      "customQuery" : "WITH current_batch AS (\n    SELECT \n        bls.batch_id,\n        bls.source_start_cutoff_datetime,\n        bls.source_end_cutoff_datetime\n    FROM metal.batch_load_summary bls\n    WHERE bls.source_system_code = 'ADM'\n      AND bls.batch_status = 'Inprogress'\n      AND bls.batch_id = (\n          SELECT MAX(batch_id)\n          FROM metal.batch_load_summary\n          WHERE source_system_code = 'ADM'\n            AND batch_status = 'Inprogress'\n      )\n)\n\nSELECT DISTINCT\nmetal_aan.source_name, \nmetal_aan.load_type,\nmetal_aan.agency_nup,\nmetal_aan.created_date,\nmetal_aan.modified_date,\nmetal_aan.note_id,\nmetal_aan.note_text,\nmetal_aan.note_type,\ncurrent_batch.batch_id\nFROM metal.adm_agency_notes metal_aan\nCROSS JOIN current_batch\nORDER BY \nmetal_aan.agency_nup,\nmetal_aan.created_date,\nmetal_aan.modified_date;",
+      "customQuery" : "WITH current_batch AS (\n    SELECT \n        bls.batch_id,\n        bls.source_start_cutoff_datetime,\n        bls.source_end_cutoff_datetime\n    FROM $$operational_schema.batch_load_summary bls\n    WHERE bls.source_system_code = '$$sourcesystemcode'\n      AND bls.batch_status = 'Inprogress'\n      AND bls.batch_id = (\n          SELECT MAX(batch_id)\n          FROM $$operational_schema.batch_load_summary\n          WHERE source_system_code = '$$sourcesystemcode'\n            AND batch_status = 'Inprogress'\n      )\n)\n\nSELECT DISTINCT\nmetal_aan.source_name, \nmetal_aan.load_type,\nmetal_aan.agency_nup,\nmetal_aan.created_date,\nmetal_aan.modified_date,\nmetal_aan.note_id,\nmetal_aan.note_text,\nmetal_aan.note_type,\ncurrent_batch.batch_id\nFROM $$raw_schema.adm_agency_notes metal_aan\nCROSS JOIN current_batch\nORDER BY \nmetal_aan.agency_nup,\nmetal_aan.created_date,\nmetal_aan.modified_date",
       "commandType" : 0,
       "handleSpecialChars" : false,
       "handleDecimalRoundOff" : false,
@@ -42,13 +42,13 @@
       "objectName" : "DUMMY_src_delta_changes_agency",
       "useExactSrcNames" : false,
       "userUpdated" : true,
-      "unspecified" : false,
       "runtimeParameterData" : {
         "connectionParameterName" : "DBConnection_UDM_SRC",
         "connectionRuntimeParameter" : false,
         "objectRuntimeParameter" : false
       },
       "restmodernSource" : true,
+      "unspecified" : false,
       "fileList" : false
     },
     {
@@ -76,7 +76,7 @@
       "truncateTarget" : false,
       "bulkApiDBTarget" : false,
       "customFuncCfg" : { },
-      "customQuery" : "SELECT \nagency_notes_row_id, \nagency_notes_row_md5checksum, \nagency_notes_batch_id,  \nagency_notes_datetime_modified,\nagency_notes_row_effective_end_datetime,\nagency_id,\nnote_id\nFROM bronze.adm_agency_notes \nwhere  agency_notes_row_effective_end_datetime = '9999-12-31 00:00:00.000'",
+      "customQuery" : "SELECT \nadm_agency_notes_row_id as agency_notes_row_id, \nadm_agency_notes_row_md5checksum as agency_notes_row_md5checksum, \nadm_agency_notes_batch_id as agency_notes_batch_id,  \nmodified_date as agency_notes_datetime_modified,\nadm_agency_notes_row_effective_end_datetime as agency_notes_row_effective_end_datetime,\nagency_nup as agency_id,\nnote_id\nFROM bronze.adm_agency_notes \nwhere  agency_notes_row_effective_end_datetime = '9999-12-31 00:00:00.000'",
       "commandType" : 0,
       "handleSpecialChars" : false,
       "handleDecimalRoundOff" : false,
@@ -88,13 +88,13 @@
       "objectName" : "DUMMY_src_tgt_bronze_adm_agency_notes_Query",
       "useExactSrcNames" : false,
       "userUpdated" : true,
-      "unspecified" : false,
       "runtimeParameterData" : {
         "connectionParameterName" : "DBConnection_UDM_SRC",
         "connectionRuntimeParameter" : false,
         "objectRuntimeParameter" : false
       },
       "restmodernSource" : true,
+      "unspecified" : false,
       "fileList" : false
     },
     {
@@ -140,13 +140,13 @@
       "objectLabel" : "bronze/adm_agency_notes",
       "useExactSrcNames" : false,
       "userUpdated" : true,
-      "unspecified" : false,
       "runtimeParameterData" : {
         "connectionParameterName" : "DBConnection_UDM_TGT",
         "connectionRuntimeParameter" : false,
         "objectRuntimeParameter" : false
       },
       "restmodernSource" : true,
+      "unspecified" : false,
       "fileList" : false
     },
     {
@@ -192,13 +192,13 @@
       "objectLabel" : "bronze/adm_agency_notes",
       "useExactSrcNames" : false,
       "userUpdated" : true,
-      "unspecified" : false,
       "runtimeParameterData" : {
         "connectionParameterName" : "DBConnection_UDM_TGT",
         "connectionRuntimeParameter" : false,
         "objectRuntimeParameter" : false
       },
       "restmodernSource" : true,
+      "unspecified" : false,
       "fileList" : false
     },
     {
@@ -214,7 +214,7 @@
         "default" : "bronze/adm_agency_notes",
         "objectParameterized" : "false",
         "visible" : "false",
-        "defaultTargetUpdateColumns" : "agency_notes_row_id",
+        "defaultTargetUpdateColumns" : "adm_agency_notes_row_id",
         "supportApplyDDLChanges" : "false",
         "originalPath" : "tgt_bronze_adm_agency_notes_updt_endate"
       },
@@ -231,7 +231,7 @@
       "operationType" : "Update",
       "customFuncCfg" : { },
       "targetUpdateColumns" : [
-        "agency_notes_row_id"
+        "adm_agency_notes_row_id"
       ],
       "extendedObject" : {
         "singleMode" : true
@@ -248,18 +248,18 @@
       "objectLabel" : "bronze/adm_agency_notes",
       "useExactSrcNames" : false,
       "userUpdated" : true,
-      "unspecified" : false,
       "runtimeParameterData" : {
         "connectionParameterName" : "DBConnection_UDM_TGT",
         "connectionRuntimeParameter" : false,
         "objectRuntimeParameter" : false
       },
       "restmodernSource" : true,
+      "unspecified" : false,
       "fileList" : false
     }
   ],
   "verbose" : false,
-  "lastRunTime" : 1750277993000,
+  "lastRunTime" : 1762177534000,
   "mappingId" : "@04R4SRDSMQVgRsIbXdnFCP",
   "mappingTemplateName" : "cdi_map_adm_agency_notes_bronze_load",
   "sessionPropertiesList" : [
@@ -276,6 +276,48 @@
       "value" : "Partial PDO"
     }
   ],
+  "inOutParameters" : [
+    {
+      "name" : "raw_schema",
+      "initialValue" : "metal",
+      "datatype" : "STRING",
+      "precision" : "100",
+      "scale" : "0",
+      "retentionPolicy" : "NEVER",
+      "aggregationType" : "MAX",
+      "currentValue" : "metal"
+    },
+    {
+      "name" : "staging_schema",
+      "initialValue" : "bronze",
+      "datatype" : "STRING",
+      "precision" : "100",
+      "scale" : "0",
+      "retentionPolicy" : "NEVER",
+      "aggregationType" : "MAX",
+      "currentValue" : "bronze"
+    },
+    {
+      "name" : "operational_schema",
+      "initialValue" : "operations",
+      "datatype" : "STRING",
+      "precision" : "100",
+      "scale" : "0",
+      "retentionPolicy" : "NEVER",
+      "aggregationType" : "MAX",
+      "currentValue" : "operations"
+    },
+    {
+      "name" : "sourcesystemcode",
+      "initialValue" : "ADM",
+      "datatype" : "STRING",
+      "precision" : "10",
+      "scale" : "0",
+      "retentionPolicy" : "NEVER",
+      "aggregationType" : "MAX",
+      "currentValue" : "ADM"
+    }
+  ],
   "hidden" : false,
   "enableCrossSchemaPushdown" : true,
   "enableParallelRun" : false,
@@ -288,6 +330,7 @@
   "valid" : true,
   "optimizationPlan" : "NONE",
   "allowMaxFieldLength" : false,
+  "specialCharacterSupport" : false,
   "midstreamPreview" : false,
-  "vcsExportTime" : "2025-06-18 13:24:57 PDT"
+  "vcsExportTime" : "2025-11-03 13:32:02 EST"
 }
