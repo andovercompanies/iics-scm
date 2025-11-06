@@ -5,6 +5,7 @@
     "bigIntConvertType" : "ONLY_BIGINT",
     "documentType" : "MAPPING",
     "name" : "cdi_map_adm_super_group_metal_stg_load",
+    "specialCharacterSupport" : "false",
     "links" : [
       {
         "link" : "exp_read_all_fields -> tgt_adm_super_group"
@@ -28,7 +29,7 @@
         "output" : "false",
         "precision" : 0,
         "scale" : 0,
-        "allowRuntimeOverride" : "false",
+        "allowRuntimeOverride" : "true",
         "expressionVariable" : "false",
         "name" : "DBConnection_ADM_SRC",
         "anonymousType" : {
@@ -41,7 +42,7 @@
         "output" : "false",
         "precision" : 0,
         "scale" : 0,
-        "allowRuntimeOverride" : "false",
+        "allowRuntimeOverride" : "true",
         "expressionVariable" : "false",
         "name" : "DBConnection_UDM_TGT",
         "anonymousType" : {
@@ -142,7 +143,7 @@
           "typeSystem" : "MySQL",
           "useDynamicFileName" : "false",
           "object" : {
-            "customQuery" : "SELECT id, name, number, created, modified\nFROM agencymanagement.super_group\nWHERE modified >=$LASTRUNTIME\nORDER BY modified DESC;",
+            "customQuery" : "SELECT id, name, number, created, modified\nFROM $$adm_source_schema.super_group\nORDER BY modified DESC;",
             "retainMetadata" : "false",
             "fields" : [
               {
@@ -263,6 +264,7 @@
         "fieldMappingMode" : "MANUAL",
         "inputSorted" : "false",
         "schemaProviderType" : "SELECTED_OBJECT",
+        "targetFieldsOrdered" : "false",
         "updateColumns" : null,
         "useLabels" : "false",
         "useSequenceFields" : "false",
@@ -540,6 +542,10 @@
                 "value" : "5242880"
               },
               {
+                "name" : "Schema Name",
+                "value" : "$$raw_schema"
+              },
+              {
                 "name" : "Preserve record order on write",
                 "value" : "NO"
               },
@@ -570,13 +576,6 @@
               "fromFieldName" : "o_source_name",
               "toField" : {
                 "name" : "source_name"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "o_load_type",
-              "toField" : {
-                "name" : "load_type"
               },
               "fromFieldNames" : null
             },
@@ -614,6 +613,13 @@
                 "name" : "modified"
               },
               "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_load_type",
+              "toField" : {
+                "name" : "load_type"
+              },
+              "fromFieldNames" : null
             }
           ]
         }
@@ -643,7 +649,7 @@
             "platformType" : {
               "name" : "string"
             },
-            "precision" : 20,
+            "precision" : 30,
             "scale" : 0,
             "expFieldType" : "OUTPUT",
             "expression" : "'super_group'"
@@ -654,10 +660,10 @@
             "platformType" : {
               "name" : "string"
             },
-            "precision" : 10,
+            "precision" : 30,
             "scale" : 0,
             "expFieldType" : "OUTPUT",
-            "expression" : "'Daily'"
+            "expression" : "'Daily full refresh'"
           },
           {
             "defaultValue" : "ERROR('transformation error')",
@@ -690,7 +696,33 @@
           "partitionKeys" : null
         }
       }
+    ],
+    "variables" : [
+      {
+        "aggregationType" : "MAX",
+        "expressionVariable" : "false",
+        "name" : "raw_schema",
+        "platformType" : {
+          "name" : "string"
+        },
+        "precision" : 10,
+        "retentionPolicy" : "ON_SUCCESS_OR_WARNING",
+        "scale" : 0,
+        "defaultValue" : "metal"
+      },
+      {
+        "aggregationType" : "MAX",
+        "expressionVariable" : "false",
+        "name" : "adm_source_schema",
+        "platformType" : {
+          "name" : "string"
+        },
+        "precision" : 10,
+        "retentionPolicy" : "ON_SUCCESS_OR_WARNING",
+        "scale" : 0,
+        "defaultValue" : "agencymanagement"
+      }
     ]
   },
-  "vcsExportTime" : "2025-06-13 10:47:34 PDT"
+  "vcsExportTime" : "2025-11-06 08:40:22 PST"
 }
