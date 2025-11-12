@@ -29,7 +29,7 @@
       "truncateTarget" : false,
       "bulkApiDBTarget" : false,
       "customFuncCfg" : { },
-      "customQuery" : "WITH current_batch AS (\n    SELECT \n        bls.batch_id,\n        bls.source_start_cutoff_datetime,\n        bls.source_end_cutoff_datetime\n    FROM $$operational_schema.batch_load_summary bls\n    WHERE bls.source_system_code = '$$sourcesystemcode'\n      AND bls.batch_status = 'Inprogress'\n      AND bls.batch_id = (\n          SELECT MAX(batch_id)\n          FROM $$operational_schema.batch_load_summary\n          WHERE source_system_code = '$$sourcesystemcode'\n            AND batch_status = 'Inprogress'\n      )\n)\nSELECT \nds_left.left_straight_through_processing_data_staging_id,\nds_left.left_straight_through_processing_validated_data_source_system as stp_validated_data_source_system,\n'Straight Through Processing' AS stp_validated_data_domain,\nds_left.left_straight_through_processing_validated_data_type AS stp_validated_data_type,\nGETDATE() AS stp_validated_data_row_effective_start_datetime,\n'9999-12-31 00:00:00.000000' AS stp_validated_data_row_effective_end_datetime,\n'Loaded' AS stp_validated_data_load_state,\nds_left.left_originating_source_name,\nds_left.left_originating_load_type,\nds_left.left_straight_through_processing_validated_data_row_source_system_key,\nds_left.left_policy_source_system_id,\nds_left.left_policy_number,\nds_left.left_policy_module_number,\nds_left.left_line_of_business,\nds_left.left_policy_effective_date,\nds_left.left_risk_id,\nds_left.left_risk_state,\nds_left.left_insured_name,\nds_left.left_customer_number,\nds_left.left_transaction_code,\nds_left.left_transaction_datetime,\nds_left.left_user_type_code,\nds_left.left_source_schema_name,\nds_left.left_source_table_name,\nds_left.left_source_field_name,\ncase \n\twhen ds_left.left_source_field_name ='birthdt'  and ds_left.left_source_value <> 'NULL' then cast(EXTRACT(YEAR FROM SYSDATE) - LEFT(ds_left.left_source_value, 4) as varchar)\n    when ds_left.left_source_field_name ='building_number_of_dangerous_trees' and (ds_left.left_source_value is null or ds_left.left_source_value ='NULL') then '0' \n    when ds_left.left_source_field_name ='limit_coverage_limit1' and (ds_left.left_source_value is null or ds_left.left_source_value ='NULL') then '0' \n\telse ds_left.left_source_value \n\tend as left_source_value,\nds_right.right_straight_through_processing_data_staging_id,\nds_right.right_originating_source_name,\nds_right.right_originating_load_type,\nds_right.right_straight_through_processing_validated_data_row_source_system_key,\nds_right.right_source_schema_name,\nds_right.right_source_table_name,\nds_right.right_source_field_name,\nds_right.right_source_value,\nds_left.left_straight_through_processing_rule_row_id,\nds_left.rule_id,\nds_left.rule_type,\nds_left.rule_name,\nds_left.condition_group_number,\nds_left.condition_order_number,\nds_left.condition_column_name_left,\nds_left.calculation_operator,\nds_right.condition_column_name_right,\nds_left.calculation_operator as calculation_operator,\nds_left.calculation_constant_value,\nds_left.comparative_operator,\nds_left.comparative_type,\nds_left.threshold_value,\nds_left.logical_operator,\nds_left.action_flag,\nds_left.priority_order_number,\ncb.batch_id as batch_id\nFROM \n(\n  select\n    ds1.straight_through_processing_data_staging_id AS left_straight_through_processing_data_staging_id,\n    ds1.straight_through_processing_data_staging_source_system AS left_straight_through_processing_validated_data_source_system,\n    ds1.straight_through_processing_data_staging_type AS left_straight_through_processing_validated_data_type,\n    ds1.originating_source_name AS left_originating_source_name,\n    ds1.originating_load_type AS left_originating_load_type,\n    ds1.straight_through_processing_data_staging_row_source_system_key AS left_straight_through_processing_validated_data_row_source_system_key,\n    ds1.policy_source_system_id AS left_policy_source_system_id,\n    ds1.policy_number AS left_policy_number,\n    ds1.policy_module_number AS left_policy_module_number,\n    ds1.line_of_business AS left_line_of_business,\n    ds1.policy_effective_date AS left_policy_effective_date,\n    ds1.risk_id AS left_risk_id,\n    ds1.risk_state AS left_risk_state,\n    ds1.insured_name AS left_insured_name,\n    ds1.customer_number AS left_customer_number,\n    ds1.transaction_code AS left_transaction_code,\n    ds1.transaction_datetime AS left_transaction_datetime,\n    ds1.user_type_code AS left_user_type_code,\n    ds1.source_schema_name AS left_source_schema_name,\n    ds1.source_table_name AS left_source_table_name,\n    ds1.source_field_name AS left_source_field_name,\n    ds1.source_value AS left_source_value,\n    r1.straight_through_processing_rule_row_id as left_straight_through_processing_rule_row_id,\n    r1.rule_id,\n    r1.rule_type,\n    r1.rule_name,\n    r1.condition_group_number,\n    r1.condition_order_number,\n    r1.condition_schema_name_left,\n    r1.condition_object_name_left,\n    r1.condition_column_name_left,\n    r1.calculation_operator,\n    r1.calculation_constant_value,\n    r1.comparative_operator,\n    r1.comparative_type,\n    r1.threshold_value,\n    r1.logical_operator,\n    r1.action_flag,\n    r1.priority_order_number\n  FROM $$refined_schema.straight_through_processing_data_staging ds1\n  JOIN $$reference_schema.straight_through_processing_rules r1 \n  ON ds1.source_schema_name = r1.condition_schema_name_left\n  AND ds1.source_table_name = r1.condition_object_name_left\n  AND ds1.source_field_name = r1.condition_column_name_left\n  and  r1.straight_through_processing_rule_row_effective_end_datetime='9999-12-31 00:00:00.000'\n  ) ds_left\nLEFT JOIN \n(\n  SELECT\n    ds2.straight_through_processing_data_staging_id AS right_straight_through_processing_data_staging_id,\n    ds2.straight_through_processing_data_staging_source_system AS right_straight_through_processing_validated_data_source_system,\n    ds2.straight_through_processing_data_staging_type AS right_straight_through_processing_validated_data_type,\n    ds2.originating_source_name AS right_originating_source_name,\n    ds2.originating_load_type AS right_originating_load_type,\n    ds2.straight_through_processing_data_staging_row_source_system_key AS right_straight_through_processing_validated_data_row_source_system_key,\n    ds2.policy_source_system_id AS right_policy_source_system_id,\n    ds2.policy_number AS right_policy_number,\n    ds2.policy_module_number AS right_policy_module_number,\n    ds2.line_of_business AS right_line_of_business,\n    ds2.policy_effective_date AS right_policy_effective_date,\n    ds2.risk_id AS right_risk_id,\n    ds2.risk_state AS right_risk_state,\n    ds2.insured_name AS right_insured_name,\n    ds2.customer_number AS right_customer_number,\n    ds2.transaction_code AS right_transaction_code,\n    ds2.transaction_datetime AS right_transaction_datetime,\n    ds2.user_type_code AS right_user_type_code,\n    ds2.source_schema_name AS right_source_schema_name,\n    ds2.source_table_name AS right_source_table_name,\n    ds2.source_field_name AS right_source_field_name,\n    ds2.source_value AS right_source_value,\n    r2.straight_through_processing_rule_row_id AS right_straight_through_processing_rule_row_id,\n    r2.condition_schema_name_right,\n    r2.condition_object_name_right,\n    r2.condition_column_name_right\n  FROM $$refined_schema.straight_through_processing_data_staging ds2\n  JOIN $$reference_schema.straight_through_processing_rules  r2\n  ON ds2.source_schema_name = r2.condition_schema_name_right\n  AND ds2.source_table_name = r2.condition_object_name_right\n  AND ds2.source_field_name = r2.condition_column_name_right\n  and r2.straight_through_processing_rule_row_effective_end_datetime='9999-12-31 00:00:00.000'\n) ds_right\nON ds_left.left_straight_through_processing_rule_row_id = ds_right.right_straight_through_processing_rule_row_id\nAND ds_left.left_policy_source_system_id = ds_right.right_policy_source_system_id\nCROSS JOIN current_batch cb\nleft join $$refined_schema.straight_through_processing_validated_data vd\non ds_left.left_policy_number = vd.policy_number and ds_left.left_policy_source_system_id = vd.policy_source_system_id \nand vd.stp_validated_data_row_effective_end_datetime ='9999-12-31 00:00:00.000000'\nwhere 1=1  \nand ds_left.left_risk_state in ($$state_list) and ds_left.left_line_of_business ='$$line_of_business' --added this as part of the pilot\nand (vd.policy_number is null or ds_left.left_transaction_datetime > vd.transaction_datetime )\norder by ds_left.left_policy_number, ds_left.left_policy_number, cast(substring(ds_left.rule_id, 2) as int), ds_left.condition_order_number;",
+      "customQuery" : "WITH current_batch AS (\n    SELECT \n        bls.batch_id,\n        bls.source_start_cutoff_datetime,\n        bls.source_end_cutoff_datetime\n    FROM $$operational_schema.batch_load_summary bls\n    WHERE bls.source_system_code = '$$sourcesystemcode'\n      AND bls.batch_status = 'Inprogress'\n      AND bls.batch_id = (\n          SELECT MAX(batch_id)\n          FROM $$operational_schema.batch_load_summary\n          WHERE source_system_code = '$$sourcesystemcode'\n            AND batch_status = 'Inprogress'\n      )\n)\nSELECT \nds_left.left_straight_through_processing_data_staging_id,\nds_left.left_straight_through_processing_validated_data_source_system as stp_validated_data_source_system,\n'Straight Through Processing' AS stp_validated_data_domain,\nds_left.left_straight_through_processing_validated_data_type AS stp_validated_data_type,\nGETDATE() AS stp_validated_data_row_effective_start_datetime,\n'9999-12-31 00:00:00.000000' AS stp_validated_data_row_effective_end_datetime,\n'Loaded' AS stp_validated_data_load_state,\nds_left.left_originating_source_name,\nds_left.left_originating_load_type,\nds_left.left_straight_through_processing_validated_data_row_source_system_key,\nds_left.left_policy_source_system_id,\nds_left.left_policy_number,\nds_left.left_policy_module_number,\nds_left.left_line_of_business,\nds_left.left_policy_effective_date,\nds_left.left_risk_id,\nds_left.left_risk_state,\nds_left.left_insured_name,\nds_left.left_customer_number,\nds_left.left_transaction_code,\nds_left.left_transaction_datetime,\nds_left.left_user_type_code,\nds_left.left_source_schema_name,\nds_left.left_source_table_name,\nds_left.left_source_field_name,\ncase \n\twhen ds_left.left_source_field_name ='birthdt'  and ds_left.left_source_value <> 'NULL' then cast(EXTRACT(YEAR FROM SYSDATE) - LEFT(ds_left.left_source_value, 4) as varchar)\n    when ds_left.left_source_field_name ='building_number_of_dangerous_trees' and (ds_left.left_source_value is null or ds_left.left_source_value ='NULL') then '0' \n    when ds_left.left_source_field_name ='limit_coverage_limit1' and (ds_left.left_source_value is null or ds_left.left_source_value ='NULL') then '0' \n\telse ds_left.left_source_value \n\tend as left_source_value,\nds_right.right_straight_through_processing_data_staging_id,\nds_right.right_originating_source_name,\nds_right.right_originating_load_type,\nds_right.right_straight_through_processing_validated_data_row_source_system_key,\nds_right.right_source_schema_name,\nds_right.right_source_table_name,\nds_right.right_source_field_name,\nds_right.right_source_value,\nds_left.left_straight_through_processing_rule_row_id,\nds_left.rule_id,\nds_left.rule_type,\nds_left.rule_name,\nds_left.condition_group_number,\nds_left.condition_order_number,\nds_left.condition_column_name_left,\nds_left.calculation_operator,\nds_right.condition_column_name_right,\nds_left.calculation_operator as calculation_operator,\nds_left.calculation_constant_value,\nds_left.comparative_operator,\nds_left.comparative_type,\nds_left.threshold_value,\nds_left.logical_operator,\nds_left.action_flag,\nds_left.priority_order_number,\ncb.batch_id as batch_id\nFROM \n(\n  select\n    ds1.straight_through_processing_data_staging_id AS left_straight_through_processing_data_staging_id,\n    ds1.straight_through_processing_data_staging_source_system AS left_straight_through_processing_validated_data_source_system,\n    ds1.straight_through_processing_data_staging_type AS left_straight_through_processing_validated_data_type,\n    ds1.originating_source_name AS left_originating_source_name,\n    ds1.originating_load_type AS left_originating_load_type,\n    ds1.straight_through_processing_data_staging_row_source_system_key AS left_straight_through_processing_validated_data_row_source_system_key,\n    ds1.policy_source_system_id AS left_policy_source_system_id,\n    ds1.policy_number AS left_policy_number,\n    ds1.policy_module_number AS left_policy_module_number,\n    ds1.line_of_business AS left_line_of_business,\n    ds1.policy_effective_date AS left_policy_effective_date,\n    ds1.risk_id AS left_risk_id,\n    ds1.risk_state AS left_risk_state,\n    ds1.insured_name AS left_insured_name,\n    ds1.customer_number AS left_customer_number,\n    ds1.transaction_code AS left_transaction_code,\n    ds1.transaction_datetime AS left_transaction_datetime,\n    ds1.user_type_code AS left_user_type_code,\n    ds1.source_schema_name AS left_source_schema_name,\n    ds1.source_table_name AS left_source_table_name,\n    ds1.source_field_name AS left_source_field_name,\n    ds1.source_value AS left_source_value,\n    r1.straight_through_processing_rule_row_id as left_straight_through_processing_rule_row_id,\n    r1.rule_id,\n    r1.rule_type,\n    r1.rule_name,\n    r1.condition_group_number,\n    r1.condition_order_number,\n    r1.condition_schema_name_left,\n    r1.condition_object_name_left,\n    r1.condition_column_name_left,\n    r1.calculation_operator,\n    r1.calculation_constant_value,\n    r1.comparative_operator,\n    r1.comparative_type,\n    r1.threshold_value,\n    r1.logical_operator,\n    r1.action_flag,\n    r1.priority_order_number\n  FROM $$refined_schema.straight_through_processing_data_staging ds1\n  JOIN $$reference_schema.straight_through_processing_rules r1 \n  ON ds1.source_schema_name = r1.condition_schema_name_left\n  AND ds1.source_table_name = r1.condition_object_name_left\n  AND ds1.source_field_name = r1.condition_column_name_left\n  and  r1.straight_through_processing_rule_row_effective_end_datetime='9999-12-31 00:00:00.000'\n  ) ds_left\nLEFT JOIN \n(\n  SELECT\n    ds2.straight_through_processing_data_staging_id AS right_straight_through_processing_data_staging_id,\n    ds2.straight_through_processing_data_staging_source_system AS right_straight_through_processing_validated_data_source_system,\n    ds2.straight_through_processing_data_staging_type AS right_straight_through_processing_validated_data_type,\n    ds2.originating_source_name AS right_originating_source_name,\n    ds2.originating_load_type AS right_originating_load_type,\n    ds2.straight_through_processing_data_staging_row_source_system_key AS right_straight_through_processing_validated_data_row_source_system_key,\n    ds2.policy_source_system_id AS right_policy_source_system_id,\n    ds2.policy_number AS right_policy_number,\n    ds2.policy_module_number AS right_policy_module_number,\n    ds2.line_of_business AS right_line_of_business,\n    ds2.policy_effective_date AS right_policy_effective_date,\n    ds2.risk_id AS right_risk_id,\n    ds2.risk_state AS right_risk_state,\n    ds2.insured_name AS right_insured_name,\n    ds2.customer_number AS right_customer_number,\n    ds2.transaction_code AS right_transaction_code,\n    ds2.transaction_datetime AS right_transaction_datetime,\n    ds2.user_type_code AS right_user_type_code,\n    ds2.source_schema_name AS right_source_schema_name,\n    ds2.source_table_name AS right_source_table_name,\n    ds2.source_field_name AS right_source_field_name,\n    ds2.source_value AS right_source_value,\n    r2.straight_through_processing_rule_row_id AS right_straight_through_processing_rule_row_id,\n    r2.condition_schema_name_right,\n    r2.condition_object_name_right,\n    r2.condition_column_name_right\n  FROM $$refined_schema.straight_through_processing_data_staging ds2\n  JOIN $$reference_schema.straight_through_processing_rules  r2\n  ON ds2.source_schema_name = r2.condition_schema_name_right\n  AND ds2.source_table_name = r2.condition_object_name_right\n  AND ds2.source_field_name = r2.condition_column_name_right\n  and r2.straight_through_processing_rule_row_effective_end_datetime='9999-12-31 00:00:00.000'\n) ds_right\nON ds_left.left_straight_through_processing_rule_row_id = ds_right.right_straight_through_processing_rule_row_id\nAND ds_left.left_policy_source_system_id = ds_right.right_policy_source_system_id\nCROSS JOIN current_batch cb\nleft join $$refined_schema.straight_through_processing_validated_data vd\non ds_left.left_policy_number = vd.policy_number and ds_left.left_policy_source_system_id = vd.policy_source_system_id \nand vd.stp_validated_data_row_effective_end_datetime ='9999-12-31 00:00:00.000000'\nwhere 1=1  \nand ds_left.left_risk_state in ($$state_list) and ds_left.left_line_of_business in ($$line_of_business) \nand (vd.policy_number is null or ds_left.left_transaction_datetime > vd.transaction_datetime )\norder by ds_left.left_policy_number, ds_left.left_policy_number, cast(substring(ds_left.rule_id, 2) as int), ds_left.condition_order_number;",
       "commandType" : 0,
       "handleSpecialChars" : false,
       "handleDecimalRoundOff" : false,
@@ -105,6 +105,73 @@
       "fileList" : false
     },
     {
+      "name" : "$lkp_straight_through_processing_data_staging_source_value$",
+      "type" : "LOOKUP",
+      "label" : "DBConnection_SRC",
+      "uiProperties" : {
+        "cnxtype" : "Amazon Redshift v2",
+        "connectionParameterized" : "true",
+        "paramName" : "DBConnection_SRC",
+        "paramType-mapping" : "Connection",
+        "logcnx" : "DBConnection_SRC",
+        "isCachedLookup" : "true",
+        "multipleMatchPolicy" : "Use Any Value",
+        "objectParameterized" : "false",
+        "visible" : "false",
+        "originalPath" : "lkp_straight_through_processing_data_staging_source_value"
+      },
+      "lookupConnectionId" : "@aYZ4ekzHgIPeKpiaoqDLKP",
+      "connectionName" : "redshift_nonprod_andover_dw_dev",
+      "lookupObject" : "DUMMY_lkp_straight_through_processing_data_staging_source_value",
+      "newFlatFile" : false,
+      "newObject" : false,
+      "showBusinessNames" : true,
+      "naturalOrder" : true,
+      "truncateTarget" : false,
+      "bulkApiDBTarget" : false,
+      "customFuncCfg" : { },
+      "runtimeAttrs" : {
+        "Lookup Index Cache Size" : "AUTO",
+        "Optional" : "true",
+        "Lookup cache persistent" : "false",
+        "Lookup source is static" : "false",
+        "Update Dynamic Cache Condition" : "TRUE",
+        "Case Sensitive String Comparison" : "false",
+        "Re-cache from lookup source" : "false",
+        "Insert Else Update" : "false",
+        "Lookup caching enabled" : "true",
+        "Lookup Data Cache Size" : "AUTO",
+        "Tracing Level" : "Normal",
+        "Sorted Input" : "false",
+        "Lookup cache directory name" : "$PMCacheDir",
+        "Output Old Value On Update" : "false",
+        "Dynamic Lookup Cache" : "false",
+        "Pre-build lookup cache" : "AUTO",
+        "Include Only Required Fields" : "false"
+      },
+      "customQuery" : "select policy_source_system_id, risk_id, source_field_name, source_value  from $$refined_schema.straight_through_processing_data_staging \nwhere risk_state in ($$state_list) and line_of_business in ($$line_of_business)",
+      "commandType" : 0,
+      "handleSpecialChars" : false,
+      "handleDecimalRoundOff" : false,
+      "frsAsset" : false,
+      "dynamicFileName" : false,
+      "excludeDynamicFileNameField" : false,
+      "currentlyProcessedFileName" : false,
+      "retainFieldMetadata" : false,
+      "objectName" : "DUMMY_lkp_straight_through_processing_data_staging_source_value",
+      "useExactSrcNames" : false,
+      "userUpdated" : true,
+      "fetchMode" : "ORIGINAL",
+      "runtimeParameterData" : {
+        "connectionParameterName" : "DBConnection_SRC",
+        "connectionRuntimeParameter" : true,
+        "objectRuntimeParameter" : false
+      },
+      "restmodernSource" : true,
+      "unspecified" : false,
+      "fileList" : false
+    },
+    {
       "name" : "$lkp_straight_through_processing_rules$",
       "type" : "LOOKUP",
       "label" : "DBConnection_SRC",
@@ -172,7 +239,7 @@
       "fileList" : false
     },
     {
-      "name" : "$lkp_straight_through_processing_rules_3_Calculation_operator$",
+      "name" : "$lkp_straight_through_processing_rules_2_Calculation_operator$",
       "type" : "LOOKUP",
       "label" : "DBConnection_SRC",
       "uiProperties" : {
@@ -185,11 +252,11 @@
         "multipleMatchPolicy" : "Use Any Value",
         "objectParameterized" : "false",
         "visible" : "false",
-        "originalPath" : "lkp_straight_through_processing_rules_3_Calculation_operator"
+        "originalPath" : "lkp_straight_through_processing_rules_2_Calculation_operator"
       },
       "lookupConnectionId" : "@aYZ4ekzHgIPeKpiaoqDLKP",
       "connectionName" : "redshift_nonprod_andover_dw_dev",
-      "lookupObject" : "DUMMY_lkp_straight_through_processing_rules_3_Calculation_operator",
+      "lookupObject" : "DUMMY_lkp_straight_through_processing_rules_2_Calculation_operator",
       "newFlatFile" : false,
       "newObject" : false,
       "showBusinessNames" : true,
@@ -216,7 +283,7 @@
         "Pre-build lookup cache" : "AUTO",
         "Include Only Required Fields" : "false"
       },
-      "customQuery" : "select Rule_ID, calculation_operator as rule_calculation_operator  from $$reference_schema.straight_through_processing_rules\nwhere straight_through_processing_rule_row_effective_end_datetime = '9999-12-31 00:00:00.000' and condition_order_number =3\norder by cast(substring(rule_id, 2) as int)",
+      "customQuery" : "select Rule_ID, calculation_operator as rule_calculation_operator, condition_order_number as rule_condition_order_number from $$reference_schema.straight_through_processing_rules\nwhere straight_through_processing_rule_row_effective_end_datetime = '9999-12-31 00:00:00.000' \norder by cast(substring(rule_id, 2) as int)",
       "commandType" : 0,
       "handleSpecialChars" : false,
       "handleDecimalRoundOff" : false,
@@ -225,7 +292,7 @@
       "excludeDynamicFileNameField" : false,
       "currentlyProcessedFileName" : false,
       "retainFieldMetadata" : false,
-      "objectName" : "DUMMY_lkp_straight_through_processing_rules_3_Calculation_operator",
+      "objectName" : "DUMMY_lkp_straight_through_processing_rules_2_Calculation_operator",
       "useExactSrcNames" : false,
       "userUpdated" : true,
       "fetchMode" : "ORIGINAL",
@@ -374,7 +441,7 @@
     }
   ],
   "verbose" : false,
-  "lastRunTime" : 1761861978000,
+  "lastRunTime" : 1762905197000,
   "mappingId" : "@665fH4S3Jy1dXmGCzhPiUN",
   "mappingTemplateName" : "cdi_map_stp_validated_data_silver_load",
   "sessionPropertiesList" : [
@@ -444,13 +511,13 @@
     },
     {
       "name" : "line_of_business",
-      "initialValue" : "Homeowners",
+      "initialValue" : "'Homeowners'",
       "datatype" : "STRING",
       "precision" : "50",
       "scale" : "0",
       "retentionPolicy" : "NEVER",
       "aggregationType" : "MAX",
-      "currentValue" : "Homeowners"
+      "currentValue" : "'Homeowners'"
     },
     {
       "name" : "reference_schema",
@@ -477,5 +544,5 @@
   "allowMaxFieldLength" : false,
   "specialCharacterSupport" : false,
   "midstreamPreview" : false,
-  "vcsExportTime" : "2025-11-05 11:26:40 PST"
+  "vcsExportTime" : "2025-11-11 16:11:15 PST"
 }
