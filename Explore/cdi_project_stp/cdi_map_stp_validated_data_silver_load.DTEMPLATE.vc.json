@@ -670,7 +670,7 @@
           "typeSystem" : "TOOLKIT",
           "useDynamicFileName" : "false",
           "object" : {
-            "customQuery" : "WITH current_batch AS (\n    SELECT \n        bls.batch_id,\n        bls.source_start_cutoff_datetime,\n        bls.source_end_cutoff_datetime\n    FROM $$operational_schema.batch_load_summary bls\n    WHERE bls.source_system_code = '$$sourcesystemcode'\n      AND bls.batch_status = 'Inprogress'\n      AND bls.batch_id = (\n          SELECT MAX(batch_id)\n          FROM $$operational_schema.batch_load_summary\n          WHERE source_system_code = '$$sourcesystemcode'\n            AND batch_status = 'Inprogress'\n      )\n)\nSELECT \nds_left.left_straight_through_processing_data_staging_id,\nds_left.left_straight_through_processing_validated_data_source_system as stp_validated_data_source_system,\n'Straight Through Processing' AS stp_validated_data_domain,\nds_left.left_straight_through_processing_validated_data_type AS stp_validated_data_type,\nGETDATE() AS stp_validated_data_row_effective_start_datetime,\n'9999-12-31 00:00:00.000000' AS stp_validated_data_row_effective_end_datetime,\n'Loaded' AS stp_validated_data_load_state,\nds_left.left_originating_source_name,\nds_left.left_originating_load_type,\nds_left.left_straight_through_processing_validated_data_row_source_system_key,\nds_left.left_policy_source_system_id,\nds_left.left_policy_number,\nds_left.left_policy_module_number,\nds_left.left_line_of_business,\nds_left.left_policy_effective_date,\nds_left.left_risk_id,\nds_left.left_risk_state,\nds_left.left_insured_name,\nds_left.left_customer_number,\nds_left.left_transaction_code,\nds_left.left_transaction_datetime,\nds_left.left_user_type_code,\nds_left.left_source_schema_name,\nds_left.left_source_table_name,\nds_left.left_source_field_name,\ncase \n\twhen ds_left.left_source_field_name ='birthdt'  and ds_left.left_source_value <> 'NULL' then cast(EXTRACT(YEAR FROM SYSDATE) - LEFT(ds_left.left_source_value, 4) as varchar)\n    when ds_left.left_source_field_name ='building_number_of_dangerous_trees' and (ds_left.left_source_value is null or ds_left.left_source_value ='NULL') then '0' \n    when ds_left.left_source_field_name ='limit_coverage_limit1' and (ds_left.left_source_value is null or ds_left.left_source_value ='NULL') then '0' \n\telse ds_left.left_source_value \n\tend as left_source_value,\nds_right.right_straight_through_processing_data_staging_id,\nds_right.right_originating_source_name,\nds_right.right_originating_load_type,\nds_right.right_straight_through_processing_validated_data_row_source_system_key,\nds_right.right_source_schema_name,\nds_right.right_source_table_name,\nds_right.right_source_field_name,\nds_right.right_source_value,\nds_left.left_straight_through_processing_rule_row_id,\nds_left.rule_id,\nds_left.rule_type,\nds_left.rule_name,\nds_left.condition_group_number,\nds_left.condition_order_number,\nds_left.condition_column_name_left,\nds_left.calculation_operator,\nds_right.condition_column_name_right,\nds_left.calculation_operator as calculation_operator,\nds_left.calculation_constant_value,\nds_left.comparative_operator,\nds_left.comparative_type,\nds_left.threshold_value,\nds_left.logical_operator,\nds_left.action_flag,\nds_left.priority_order_number,\ncb.batch_id as batch_id\nFROM \n(\n  select\n    ds1.straight_through_processing_data_staging_id AS left_straight_through_processing_data_staging_id,\n    ds1.straight_through_processing_data_staging_source_system AS left_straight_through_processing_validated_data_source_system,\n    ds1.straight_through_processing_data_staging_type AS left_straight_through_processing_validated_data_type,\n    ds1.originating_source_name AS left_originating_source_name,\n    ds1.originating_load_type AS left_originating_load_type,\n    ds1.straight_through_processing_data_staging_row_source_system_key AS left_straight_through_processing_validated_data_row_source_system_key,\n    ds1.policy_source_system_id AS left_policy_source_system_id,\n    ds1.policy_number AS left_policy_number,\n    ds1.policy_module_number AS left_policy_module_number,\n    ds1.line_of_business AS left_line_of_business,\n    ds1.policy_effective_date AS left_policy_effective_date,\n    ds1.risk_id AS left_risk_id,\n    ds1.risk_state AS left_risk_state,\n    ds1.insured_name AS left_insured_name,\n    ds1.customer_number AS left_customer_number,\n    ds1.transaction_code AS left_transaction_code,\n    ds1.transaction_datetime AS left_transaction_datetime,\n    ds1.user_type_code AS left_user_type_code,\n    ds1.source_schema_name AS left_source_schema_name,\n    ds1.source_table_name AS left_source_table_name,\n    ds1.source_field_name AS left_source_field_name,\n    ds1.source_value AS left_source_value,\n    r1.straight_through_processing_rule_row_id as left_straight_through_processing_rule_row_id,\n    r1.rule_id,\n    r1.rule_type,\n    r1.rule_name,\n    r1.condition_group_number,\n    r1.condition_order_number,\n    r1.condition_schema_name_left,\n    r1.condition_object_name_left,\n    r1.condition_column_name_left,\n    r1.calculation_operator,\n    r1.calculation_constant_value,\n    r1.comparative_operator,\n    r1.comparative_type,\n    r1.threshold_value,\n    r1.logical_operator,\n    r1.action_flag,\n    r1.priority_order_number\n  FROM $$refined_schema.straight_through_processing_data_staging ds1\n  JOIN $$reference_schema.straight_through_processing_rules r1 \n  ON ds1.source_schema_name = r1.condition_schema_name_left\n  AND ds1.source_table_name = r1.condition_object_name_left\n  AND ds1.source_field_name = r1.condition_column_name_left\n  and  r1.straight_through_processing_rule_row_effective_end_datetime='9999-12-31 00:00:00.000'\n  ) ds_left\nLEFT JOIN \n(\n  SELECT\n    ds2.straight_through_processing_data_staging_id AS right_straight_through_processing_data_staging_id,\n    ds2.straight_through_processing_data_staging_source_system AS right_straight_through_processing_validated_data_source_system,\n    ds2.straight_through_processing_data_staging_type AS right_straight_through_processing_validated_data_type,\n    ds2.originating_source_name AS right_originating_source_name,\n    ds2.originating_load_type AS right_originating_load_type,\n    ds2.straight_through_processing_data_staging_row_source_system_key AS right_straight_through_processing_validated_data_row_source_system_key,\n    ds2.policy_source_system_id AS right_policy_source_system_id,\n    ds2.policy_number AS right_policy_number,\n    ds2.policy_module_number AS right_policy_module_number,\n    ds2.line_of_business AS right_line_of_business,\n    ds2.policy_effective_date AS right_policy_effective_date,\n    ds2.risk_id AS right_risk_id,\n    ds2.risk_state AS right_risk_state,\n    ds2.insured_name AS right_insured_name,\n    ds2.customer_number AS right_customer_number,\n    ds2.transaction_code AS right_transaction_code,\n    ds2.transaction_datetime AS right_transaction_datetime,\n    ds2.user_type_code AS right_user_type_code,\n    ds2.source_schema_name AS right_source_schema_name,\n    ds2.source_table_name AS right_source_table_name,\n    ds2.source_field_name AS right_source_field_name,\n    ds2.source_value AS right_source_value,\n    r2.straight_through_processing_rule_row_id AS right_straight_through_processing_rule_row_id,\n    r2.condition_schema_name_right,\n    r2.condition_object_name_right,\n    r2.condition_column_name_right\n  FROM $$refined_schema.straight_through_processing_data_staging ds2\n  JOIN $$reference_schema.straight_through_processing_rules  r2\n  ON ds2.source_schema_name = r2.condition_schema_name_right\n  AND ds2.source_table_name = r2.condition_object_name_right\n  AND ds2.source_field_name = r2.condition_column_name_right\n  and r2.straight_through_processing_rule_row_effective_end_datetime='9999-12-31 00:00:00.000'\n) ds_right\nON ds_left.left_straight_through_processing_rule_row_id = ds_right.right_straight_through_processing_rule_row_id\nAND ds_left.left_policy_source_system_id = ds_right.right_policy_source_system_id\nCROSS JOIN current_batch cb\nleft join $$refined_schema.straight_through_processing_validated_data vd\non ds_left.left_policy_number = vd.policy_number and ds_left.left_policy_source_system_id = vd.policy_source_system_id \nand vd.stp_validated_data_row_effective_end_datetime ='9999-12-31 00:00:00.000000'\nwhere 1=1  \nand ds_left.left_risk_state in ($$state_list) and ds_left.left_line_of_business ='$$line_of_business' --added this as part of the pilot\nand (vd.policy_number is null or ds_left.left_transaction_datetime > vd.transaction_datetime )\norder by ds_left.left_policy_number, ds_left.left_policy_number, cast(substring(ds_left.rule_id, 2) as int), ds_left.condition_order_number;",
+            "customQuery" : "WITH current_batch AS (\n    SELECT \n        bls.batch_id,\n        bls.source_start_cutoff_datetime,\n        bls.source_end_cutoff_datetime\n    FROM $$operational_schema.batch_load_summary bls\n    WHERE bls.source_system_code = '$$sourcesystemcode'\n      AND bls.batch_status = 'Inprogress'\n      AND bls.batch_id = (\n          SELECT MAX(batch_id)\n          FROM $$operational_schema.batch_load_summary\n          WHERE source_system_code = '$$sourcesystemcode'\n            AND batch_status = 'Inprogress'\n      )\n)\nSELECT \nds_left.left_straight_through_processing_data_staging_id,\nds_left.left_straight_through_processing_validated_data_source_system as stp_validated_data_source_system,\n'Straight Through Processing' AS stp_validated_data_domain,\nds_left.left_straight_through_processing_validated_data_type AS stp_validated_data_type,\nGETDATE() AS stp_validated_data_row_effective_start_datetime,\n'9999-12-31 00:00:00.000000' AS stp_validated_data_row_effective_end_datetime,\n'Loaded' AS stp_validated_data_load_state,\nds_left.left_originating_source_name,\nds_left.left_originating_load_type,\nds_left.left_straight_through_processing_validated_data_row_source_system_key,\nds_left.left_policy_source_system_id,\nds_left.left_policy_number,\nds_left.left_policy_module_number,\nds_left.left_line_of_business,\nds_left.left_policy_effective_date,\nds_left.left_risk_id,\nds_left.left_risk_state,\nds_left.left_insured_name,\nds_left.left_customer_number,\nds_left.left_transaction_code,\nds_left.left_transaction_datetime,\nds_left.left_user_type_code,\nds_left.left_source_schema_name,\nds_left.left_source_table_name,\nds_left.left_source_field_name,\ncase \n\twhen ds_left.left_source_field_name ='birthdt'  and ds_left.left_source_value <> 'NULL' then cast(EXTRACT(YEAR FROM SYSDATE) - LEFT(ds_left.left_source_value, 4) as varchar)\n    when ds_left.left_source_field_name ='building_number_of_dangerous_trees' and (ds_left.left_source_value is null or ds_left.left_source_value ='NULL') then '0' \n    when ds_left.left_source_field_name ='limit_coverage_limit1' and (ds_left.left_source_value is null or ds_left.left_source_value ='NULL') then '0' \n\telse ds_left.left_source_value \n\tend as left_source_value,\nds_right.right_straight_through_processing_data_staging_id,\nds_right.right_originating_source_name,\nds_right.right_originating_load_type,\nds_right.right_straight_through_processing_validated_data_row_source_system_key,\nds_right.right_source_schema_name,\nds_right.right_source_table_name,\nds_right.right_source_field_name,\nds_right.right_source_value,\nds_left.left_straight_through_processing_rule_row_id,\nds_left.rule_id,\nds_left.rule_type,\nds_left.rule_name,\nds_left.condition_group_number,\nds_left.condition_order_number,\nds_left.condition_column_name_left,\nds_left.calculation_operator,\nds_right.condition_column_name_right,\nds_left.calculation_operator as calculation_operator,\nds_left.calculation_constant_value,\nds_left.comparative_operator,\nds_left.comparative_type,\nds_left.threshold_value,\nds_left.logical_operator,\nds_left.action_flag,\nds_left.priority_order_number,\ncb.batch_id as batch_id\nFROM \n(\n  select\n    ds1.straight_through_processing_data_staging_id AS left_straight_through_processing_data_staging_id,\n    ds1.straight_through_processing_data_staging_source_system AS left_straight_through_processing_validated_data_source_system,\n    ds1.straight_through_processing_data_staging_type AS left_straight_through_processing_validated_data_type,\n    ds1.originating_source_name AS left_originating_source_name,\n    ds1.originating_load_type AS left_originating_load_type,\n    ds1.straight_through_processing_data_staging_row_source_system_key AS left_straight_through_processing_validated_data_row_source_system_key,\n    ds1.policy_source_system_id AS left_policy_source_system_id,\n    ds1.policy_number AS left_policy_number,\n    ds1.policy_module_number AS left_policy_module_number,\n    ds1.line_of_business AS left_line_of_business,\n    ds1.policy_effective_date AS left_policy_effective_date,\n    ds1.risk_id AS left_risk_id,\n    ds1.risk_state AS left_risk_state,\n    ds1.insured_name AS left_insured_name,\n    ds1.customer_number AS left_customer_number,\n    ds1.transaction_code AS left_transaction_code,\n    ds1.transaction_datetime AS left_transaction_datetime,\n    ds1.user_type_code AS left_user_type_code,\n    ds1.source_schema_name AS left_source_schema_name,\n    ds1.source_table_name AS left_source_table_name,\n    ds1.source_field_name AS left_source_field_name,\n    ds1.source_value AS left_source_value,\n    r1.straight_through_processing_rule_row_id as left_straight_through_processing_rule_row_id,\n    r1.rule_id,\n    r1.rule_type,\n    r1.rule_name,\n    r1.condition_group_number,\n    r1.condition_order_number,\n    r1.condition_schema_name_left,\n    r1.condition_object_name_left,\n    r1.condition_column_name_left,\n    r1.calculation_operator,\n    r1.calculation_constant_value,\n    r1.comparative_operator,\n    r1.comparative_type,\n    r1.threshold_value,\n    r1.logical_operator,\n    r1.action_flag,\n    r1.priority_order_number\n  FROM $$refined_schema.straight_through_processing_data_staging ds1\n  JOIN $$reference_schema.straight_through_processing_rules r1 \n  ON ds1.source_schema_name = r1.condition_schema_name_left\n  AND ds1.source_table_name = r1.condition_object_name_left\n  AND ds1.source_field_name = r1.condition_column_name_left\n  and  r1.straight_through_processing_rule_row_effective_end_datetime='9999-12-31 00:00:00.000'\n  ) ds_left\nLEFT JOIN \n(\n  SELECT\n    ds2.straight_through_processing_data_staging_id AS right_straight_through_processing_data_staging_id,\n    ds2.straight_through_processing_data_staging_source_system AS right_straight_through_processing_validated_data_source_system,\n    ds2.straight_through_processing_data_staging_type AS right_straight_through_processing_validated_data_type,\n    ds2.originating_source_name AS right_originating_source_name,\n    ds2.originating_load_type AS right_originating_load_type,\n    ds2.straight_through_processing_data_staging_row_source_system_key AS right_straight_through_processing_validated_data_row_source_system_key,\n    ds2.policy_source_system_id AS right_policy_source_system_id,\n    ds2.policy_number AS right_policy_number,\n    ds2.policy_module_number AS right_policy_module_number,\n    ds2.line_of_business AS right_line_of_business,\n    ds2.policy_effective_date AS right_policy_effective_date,\n    ds2.risk_id AS right_risk_id,\n    ds2.risk_state AS right_risk_state,\n    ds2.insured_name AS right_insured_name,\n    ds2.customer_number AS right_customer_number,\n    ds2.transaction_code AS right_transaction_code,\n    ds2.transaction_datetime AS right_transaction_datetime,\n    ds2.user_type_code AS right_user_type_code,\n    ds2.source_schema_name AS right_source_schema_name,\n    ds2.source_table_name AS right_source_table_name,\n    ds2.source_field_name AS right_source_field_name,\n    ds2.source_value AS right_source_value,\n    r2.straight_through_processing_rule_row_id AS right_straight_through_processing_rule_row_id,\n    r2.condition_schema_name_right,\n    r2.condition_object_name_right,\n    r2.condition_column_name_right\n  FROM $$refined_schema.straight_through_processing_data_staging ds2\n  JOIN $$reference_schema.straight_through_processing_rules  r2\n  ON ds2.source_schema_name = r2.condition_schema_name_right\n  AND ds2.source_table_name = r2.condition_object_name_right\n  AND ds2.source_field_name = r2.condition_column_name_right\n  and r2.straight_through_processing_rule_row_effective_end_datetime='9999-12-31 00:00:00.000'\n) ds_right\nON ds_left.left_straight_through_processing_rule_row_id = ds_right.right_straight_through_processing_rule_row_id\nAND ds_left.left_policy_source_system_id = ds_right.right_policy_source_system_id\nCROSS JOIN current_batch cb\nleft join $$refined_schema.straight_through_processing_validated_data vd\non ds_left.left_policy_number = vd.policy_number and ds_left.left_policy_source_system_id = vd.policy_source_system_id \nand vd.stp_validated_data_row_effective_end_datetime ='9999-12-31 00:00:00.000000'\nwhere 1=1  \nand ds_left.left_risk_state in ($$state_list) and ds_left.left_line_of_business in ($$line_of_business) \nand (vd.policy_number is null or ds_left.left_transaction_datetime > vd.transaction_datetime )\norder by ds_left.left_policy_number, ds_left.left_policy_number, cast(substring(ds_left.rule_id, 2) as int), ds_left.condition_order_number;",
             "retainMetadata" : "false",
             "fields" : [
               {
@@ -3113,13 +3113,6 @@
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "o_final_value",
-              "toField" : {
-                "name" : "final_value"
-              },
-              "fromFieldNames" : null
-            },
-            {
               "fromFieldName" : "rule_row_pass_fail_indicator",
               "toField" : {
                 "name" : "rule_row_pass_fail_indicator"
@@ -3130,6 +3123,13 @@
               "fromFieldName" : "rule_row_pass_fail_indicator",
               "toField" : {
                 "name" : "overall_rule_pass_fail_indicator"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_final_value",
+              "toField" : {
+                "name" : "final_value"
               },
               "fromFieldNames" : null
             }
@@ -3163,16 +3163,6 @@
             "scale" : 0,
             "expFieldType" : "VARIABLE",
             "expression" : ":LKP.lkp_straight_through_processing_rules(rule_id)"
-          },
-          {
-            "name" : "v_Rule_3_Calculation_operator",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 10,
-            "scale" : 0,
-            "expFieldType" : "VARIABLE",
-            "expression" : ":LKP.lkp_straight_through_processing_rules_3_Calculation_operator(rule_id)"
           },
           {
             "name" : "v_Rule_Condition_Column_left",
@@ -3272,7 +3262,7 @@
             "precision" : 10,
             "scale" : 0,
             "expFieldType" : "VARIABLE",
-            "expression" : "DECODE(TRUE,\n\n--Beginning of Numeric Operators with only 1 condition, with no calculation operator--\nv_Rule_ID_Count = 1 \nAND ISNULL(calculation_operator)\nAND comparative_type = 'Numeric' \nAND comparative_operator = '>=' \nAND TO_DECIMAL(left_source_value,6) >= TO_DECIMAL(threshold_value,6) , 'PASS',\n\nv_Rule_ID_Count = 1 \nAND ISNULL(calculation_operator)\nAND comparative_type = 'Numeric' \nAND comparative_operator = '<=' \nAND TO_DECIMAL(left_source_value,6) <= TO_DECIMAL(threshold_value,6) , 'PASS',\n\nv_Rule_ID_Count = 1 \nAND ISNULL(calculation_operator)\nAND comparative_type = 'Numeric' \nAND comparative_operator = '=' \nAND TO_DECIMAL(left_source_value,6) = TO_DECIMAL(threshold_value,6) , 'PASS',\n\nv_Rule_ID_Count = 1 \nAND ISNULL(calculation_operator)\nAND comparative_type = 'Numeric' \nAND comparative_operator = '<>' \nAND TO_DECIMAL(left_source_value,6) != TO_DECIMAL(threshold_value,6) , 'PASS',\n\nv_Rule_ID_Count = 1 \nAND ISNULL(calculation_operator)\nAND comparative_type = 'Numeric' \nAND comparative_operator = '<' \nAND TO_DECIMAL(left_source_value,6) < TO_DECIMAL(threshold_value,6) , 'PASS',\n\nv_Rule_ID_Count = 1 \nAND ISNULL(calculation_operator)\nAND comparative_type = 'Numeric' \nAND comparative_operator = '>' \nAND TO_DECIMAL(left_source_value,6) > TO_DECIMAL(threshold_value,6) , 'PASS',\n--Ending of Numeric Operators with only 1 condition, with no calculation operator--\n\n\n--Beginning of Text Operators with only 1 condition, with no calculation operator--\nv_Rule_ID_Count = 1 \nAND ISNULL(calculation_operator)\nAND comparative_type = 'Text' \nAND comparative_operator = '=' \nAND left_source_value = threshold_value , 'PASS',\n\nv_Rule_ID_Count = 1 \nAND ISNULL(calculation_operator)\nAND comparative_type = 'Text' \nAND comparative_operator = '<>' \nAND left_source_value != threshold_value , 'PASS',\n\nv_Rule_ID_Count = 1 \nAND ISNULL(calculation_operator)\nAND comparative_type = 'Text' \nAND comparative_operator = 'IN' \nAND INSTR(threshold_value, left_source_value), 'PASS',\n\nv_Rule_ID_Count = 1 \nAND ISNULL(calculation_operator)\nAND comparative_type = 'Text' \nAND comparative_operator = 'NOT IN' \nAND NOT INSTR(threshold_value, left_source_value), 'PASS',\n--Ending of Text Operators with only 1 condition, with no calculation operator--\n\n--Beginning of Date Operators with only 1 condition, with no calculation operator, with -25 years  --\nv_Rule_ID_Count = 1 \nAND ISNULL(calculation_operator)\nAND comparative_type = 'Date' AND INSTR(threshold_value,'GETDATE') AND INSTR(threshold_value,'-25')\nAND comparative_operator = '<' \nAND TO_INTEGER(left_source_value) < TO_INTEGER(GET_DATE_PART(SESSSTARTTIME, 'YYYY'))-25 , 'PASS',\n\nv_Rule_ID_Count = 1 \nAND ISNULL(calculation_operator)\nAND comparative_type = 'Date' AND INSTR(threshold_value,'GETDATE') AND INSTR(threshold_value,'-25')\nAND comparative_operator = '>' \nAND TO_INTEGER(left_source_value) > TO_INTEGER(GET_DATE_PART(SESSSTARTTIME, 'YYYY'))-25 , 'PASS',\n\nv_Rule_ID_Count = 1 \nAND ISNULL(calculation_operator)\nAND comparative_type = 'Date' AND INSTR(threshold_value,'GETDATE') AND INSTR(threshold_value,'-25')\nAND comparative_operator = '=' \nAND TO_INTEGER(left_source_value) = TO_INTEGER(GET_DATE_PART(SESSSTARTTIME, 'YYYY'))-25 , 'PASS',\n\nv_Rule_ID_Count = 1 \nAND ISNULL(calculation_operator)\nAND comparative_type = 'Date' AND INSTR(threshold_value,'GETDATE') AND INSTR(threshold_value,'-25')\nAND comparative_operator = '<>' \nAND TO_INTEGER(left_source_value) != TO_INTEGER(GET_DATE_PART(SESSSTARTTIME, 'YYYY'))-25 , 'PASS',\n\nv_Rule_ID_Count = 1 \nAND ISNULL(calculation_operator)\nAND comparative_type = 'Date' AND INSTR(threshold_value,'GETDATE') AND INSTR(threshold_value,'-25')\nAND comparative_operator = '<=' \nAND TO_INTEGER(left_source_value) <= TO_INTEGER(GET_DATE_PART(SESSSTARTTIME, 'YYYY'))-25 , 'PASS',\n\nv_Rule_ID_Count = 1 \nAND ISNULL(calculation_operator)\nAND comparative_type = 'Date' AND INSTR(threshold_value,'GETDATE') AND INSTR(threshold_value,'-25')\nAND comparative_operator = '>=' \nAND TO_INTEGER(left_source_value) >= TO_INTEGER(GET_DATE_PART(SESSSTARTTIME, 'YYYY'))-25 , 'PASS',\n--Ending of Date Operators with only 1 condition, with no calculation operator, with -25 years--\n\n--Beginning of Date Operators with only 1 condition, with no calculation operator--\nv_Rule_ID_Count = 1 \nAND ISNULL(calculation_operator)\nAND comparative_type = 'Date' AND INSTR(threshold_value,'GETDATE')\nAND comparative_operator = '<' \nAND TO_INTEGER(left_source_value) < TO_INTEGER(GET_DATE_PART(SESSSTARTTIME, 'YYYY')) , 'PASS',\n\nv_Rule_ID_Count = 1 \nAND ISNULL(calculation_operator)\nAND comparative_type = 'Date' AND INSTR(threshold_value,'GETDATE')\nAND comparative_operator = '>' \nAND TO_INTEGER(left_source_value) > TO_INTEGER(GET_DATE_PART(SESSSTARTTIME, 'YYYY')) , 'PASS',\n\nv_Rule_ID_Count = 1 \nAND ISNULL(calculation_operator)\nAND comparative_type = 'Date' AND INSTR(threshold_value,'GETDATE')\nAND comparative_operator = '=' \nAND TO_INTEGER(left_source_value) = TO_INTEGER(GET_DATE_PART(SESSSTARTTIME, 'YYYY')) , 'PASS',\n\nv_Rule_ID_Count = 1 \nAND ISNULL(calculation_operator)\nAND comparative_type = 'Date' AND INSTR(threshold_value,'GETDATE')\nAND comparative_operator = '<>' \nAND TO_INTEGER(left_source_value) != TO_INTEGER(GET_DATE_PART(SESSSTARTTIME, 'YYYY')) , 'PASS',\n\nv_Rule_ID_Count = 1 \nAND ISNULL(calculation_operator)\nAND comparative_type = 'Date' AND INSTR(threshold_value,'GETDATE')\nAND comparative_operator = '<=' \nAND TO_INTEGER(left_source_value) <= TO_INTEGER(GET_DATE_PART(SESSSTARTTIME, 'YYYY')) , 'PASS',\n\nv_Rule_ID_Count = 1 \nAND ISNULL(calculation_operator)\nAND comparative_type = 'Date' AND INSTR(threshold_value,'GETDATE')\nAND comparative_operator = '>=' \nAND TO_INTEGER(left_source_value) >= TO_INTEGER(GET_DATE_PART(SESSSTARTTIME, 'YYYY')) , 'PASS',\n--Ending of Date Operators with only 1 condition, with no calculation operator--\n\n\n\n--Beginning of Numeric Operators with only 1 condition, with calculation operator - Division--\nv_Rule_ID_Count = 1 \nAND calculation_operator = '/'\nAND comparative_type = 'Numeric' \nAND comparative_operator = '<' \nAND TO_DECIMAL(left_source_value,6)/ TO_DECIMAL(right_source_value,6) < TO_DECIMAL(threshold_value,6) , 'PASS',\n\nv_Rule_ID_Count = 1 \nAND calculation_operator = '/'\nAND comparative_type = 'Numeric' \nAND comparative_operator = '>' \nAND TO_DECIMAL(left_source_value,6)/ TO_DECIMAL(right_source_value,6) > TO_DECIMAL(threshold_value,6), 'PASS',\n\nv_Rule_ID_Count = 1 \nAND calculation_operator = '/'\nAND comparative_type = 'Numeric' \nAND comparative_operator = '=' \nAND TO_DECIMAL(left_source_value,6)/ TO_DECIMAL(right_source_value,6) = TO_DECIMAL(threshold_value,6), 'PASS',\n\nv_Rule_ID_Count = 1 \nAND calculation_operator = '/'\nAND comparative_type = 'Numeric' \nAND comparative_operator = '<>' \nAND TO_DECIMAL(left_source_value,6)/ TO_DECIMAL(right_source_value,6) != TO_DECIMAL(threshold_value,6), 'PASS',\n\nv_Rule_ID_Count = 1 \nAND calculation_operator = '/'\nAND comparative_type = 'Numeric' \nAND comparative_operator = '>=' \nAND TO_DECIMAL(left_source_value,6)/ TO_DECIMAL(right_source_value,6) >= TO_DECIMAL(threshold_value,6), 'PASS',\n\nv_Rule_ID_Count = 1 \nAND calculation_operator = '/'\nAND comparative_type = 'Numeric' \nAND comparative_operator = '<=' \nAND TO_DECIMAL(left_source_value,6)/ TO_DECIMAL(right_source_value,6) <= TO_DECIMAL(threshold_value,6) , 'PASS',\n--Ending of Numeric Operators with only 1 condition, with calculation operator - Division--\n\n--Beginning of Numeric Operators with only 1 condition, with calculation operator - Addition--\nv_Rule_ID_Count = 1 \nAND calculation_operator = '+'\nAND comparative_type = 'Numeric' \nAND comparative_operator = '<' \nAND TO_DECIMAL(left_source_value,6) + TO_DECIMAL(right_source_value,6) < TO_DECIMAL(threshold_value, 6) , 'PASS',\n\nv_Rule_ID_Count = 1 \nAND calculation_operator = '+'\nAND comparative_type = 'Numeric' \nAND comparative_operator = '>' \nAND TO_DECIMAL(left_source_value,6) + TO_DECIMAL(right_source_value,6) > TO_DECIMAL(threshold_value, 6), 'PASS',\n\nv_Rule_ID_Count = 1 \nAND calculation_operator = '+'\nAND comparative_type = 'Numeric' \nAND comparative_operator = '=' \nAND TO_DECIMAL(left_source_value,6) + TO_DECIMAL(right_source_value,6) = TO_DECIMAL(threshold_value, 6) , 'PASS',\n\nv_Rule_ID_Count = 1 \nAND calculation_operator = '+'\nAND comparative_type = 'Numeric' \nAND comparative_operator = '<>' \nAND TO_DECIMAL(left_source_value,6) + TO_DECIMAL(right_source_value,6) != TO_DECIMAL(threshold_value, 6) , 'PASS',\n\nv_Rule_ID_Count = 1 \nAND calculation_operator = '+'\nAND comparative_type = 'Numeric' \nAND comparative_operator = '>=' \nAND TO_DECIMAL(left_source_value,6) + TO_DECIMAL(right_source_value,6) >= TO_DECIMAL(threshold_value, 6) , 'PASS',\n\nv_Rule_ID_Count = 1 \nAND calculation_operator = '+'\nAND comparative_type = 'Numeric' \nAND comparative_operator = '<=' \nAND TO_DECIMAL(left_source_value,6) + TO_DECIMAL(right_source_value,6) <= TO_DECIMAL(threshold_value, 6) , 'PASS',\n--Ending of Numeric Operators with only 1 condition, with calculation operator - Addition--\n\n--Beginning of Numeric Operators with only 1 condition, with calculation operator - Subtraction--\nv_Rule_ID_Count = 1 \nAND calculation_operator = '-'\nAND comparative_type = 'Numeric' \nAND comparative_operator = '<' \nAND TO_DECIMAL(left_source_value,6) - TO_DECIMAL(right_source_value,6) < TO_DECIMAL(threshold_value,6) , 'PASS',\n\nv_Rule_ID_Count = 1 \nAND calculation_operator = '-'\nAND comparative_type = 'Numeric' \nAND comparative_operator = '>' \nAND TO_DECIMAL(left_source_value,6) - TO_DECIMAL(right_source_value,6) > TO_DECIMAL(threshold_value,6), 'PASS',\n\nv_Rule_ID_Count = 1 \nAND calculation_operator = '-'\nAND comparative_type = 'Numeric' \nAND comparative_operator = '=' \nAND TO_DECIMAL(left_source_value,6) - TO_DECIMAL(right_source_value,6) = TO_DECIMAL(threshold_value,6) , 'PASS',\n\nv_Rule_ID_Count = 1 \nAND calculation_operator = '-'\nAND comparative_type = 'Numeric' \nAND comparative_operator = '<>' \nAND TO_DECIMAL(left_source_value,6) - TO_DECIMAL(right_source_value,6) != TO_DECIMAL(threshold_value,6) , 'PASS',\n\nv_Rule_ID_Count = 1 \nAND calculation_operator = '-'\nAND comparative_type = 'Numeric' \nAND comparative_operator = '>=' \nAND TO_DECIMAL(left_source_value,6) - TO_DECIMAL(right_source_value,6) >= TO_DECIMAL(threshold_value,6) , 'PASS',\n\nv_Rule_ID_Count = 1 \nAND calculation_operator = '-'\nAND comparative_type = 'Numeric' \nAND comparative_operator = '<=' \nAND TO_DECIMAL(left_source_value,6) - TO_DECIMAL(right_source_value,6) <= TO_DECIMAL(threshold_value,6), 'PASS',\n--Ending of Numeric Operators with only 1 condition, with calculation operator - Subtraction--\n\n--Beginning of Numeric Operators with only 1 condition, with calculation operator - Multiplication--\nv_Rule_ID_Count = 1 \nAND calculation_operator = '*'\nAND comparative_type = 'Numeric' \nAND comparative_operator = '<' \nAND TO_DECIMAL(left_source_value,6) * TO_DECIMAL(right_source_value,6) < TO_DECIMAL(threshold_value,6) , 'PASS',\n\nv_Rule_ID_Count = 1 \nAND calculation_operator = '*'\nAND comparative_type = 'Numeric' \nAND comparative_operator = '>' \nAND TO_DECIMAL(left_source_value,6) * TO_DECIMAL(right_source_value,6) > TO_DECIMAL(threshold_value,6) , 'PASS',\n\nv_Rule_ID_Count = 1 \nAND calculation_operator = '*'\nAND comparative_type = 'Numeric' \nAND comparative_operator = '=' \nAND TO_DECIMAL(left_source_value,6) * TO_DECIMAL(right_source_value,6) = TO_DECIMAL(threshold_value,6), 'PASS',\n\nv_Rule_ID_Count = 1 \nAND calculation_operator = '*'\nAND comparative_type = 'Numeric' \nAND comparative_operator = '<>' \nAND TO_DECIMAL(left_source_value,6) * TO_DECIMAL(right_source_value,6) != TO_DECIMAL(threshold_value,6), 'PASS',\n\nv_Rule_ID_Count = 1 \nAND calculation_operator = '*'\nAND comparative_type = 'Numeric' \nAND comparative_operator = '>=' \nAND TO_DECIMAL(left_source_value,6) * TO_DECIMAL(right_source_value,6) >= TO_DECIMAL(threshold_value,6) , 'PASS',\n\nv_Rule_ID_Count = 1 \nAND calculation_operator = '*'\nAND comparative_type = 'Numeric' \nAND comparative_operator = '<=' \nAND TO_DECIMAL(left_source_value,6) * TO_DECIMAL(right_source_value,6) <= TO_DECIMAL(threshold_value,6) , 'PASS'\n--Ending of Numeric Operators with only 1 condition, with calculation operator - Multiplication--\n\n\n\n)"
+            "expression" : "DECODE(TRUE,\n\n--Beginning of Numeric Operators with only 1 condition, with no calculation operator--\nv_Rule_ID_Count = 1 \nAND ISNULL(calculation_operator)\nAND comparative_type = 'Numeric' \nAND comparative_operator = '>=' \nAND TO_DECIMAL(left_source_value,6) >= TO_DECIMAL(threshold_value,6) , 'PASS',\n\nv_Rule_ID_Count = 1 \nAND ISNULL(calculation_operator)\nAND comparative_type = 'Numeric' \nAND comparative_operator = '<=' \nAND TO_DECIMAL(left_source_value,6) <= TO_DECIMAL(threshold_value,6) , 'PASS',\n\nv_Rule_ID_Count = 1 \nAND ISNULL(calculation_operator)\nAND comparative_type = 'Numeric' \nAND comparative_operator = '=' \nAND TO_DECIMAL(left_source_value,6) = TO_DECIMAL(threshold_value,6) , 'PASS',\n\nv_Rule_ID_Count = 1 \nAND ISNULL(calculation_operator)\nAND comparative_type = 'Numeric' \nAND comparative_operator = '<>' \nAND TO_DECIMAL(left_source_value,6) != TO_DECIMAL(threshold_value,6) , 'PASS',\n\nv_Rule_ID_Count = 1 \nAND ISNULL(calculation_operator)\nAND comparative_type = 'Numeric' \nAND comparative_operator = '<' \nAND TO_DECIMAL(left_source_value,6) < TO_DECIMAL(threshold_value,6) , 'PASS',\n\nv_Rule_ID_Count = 1 \nAND ISNULL(calculation_operator)\nAND comparative_type = 'Numeric' \nAND comparative_operator = '>' \nAND TO_DECIMAL(left_source_value,6) > TO_DECIMAL(threshold_value,6) , 'PASS',\n--Ending of Numeric Operators with only 1 condition, with no calculation operator--\n\n\n--Beginning of Text Operators with only 1 condition, with no calculation operator--\nv_Rule_ID_Count = 1 \nAND ISNULL(calculation_operator)\nAND comparative_type = 'Text' \nAND comparative_operator = '=' \nAND left_source_value = threshold_value , 'PASS',\n\nv_Rule_ID_Count = 1 \nAND ISNULL(calculation_operator)\nAND comparative_type = 'Text' \nAND comparative_operator = '<>' \nAND left_source_value != threshold_value , 'PASS',\n\nv_Rule_ID_Count = 1 \nAND ISNULL(calculation_operator)\nAND comparative_type = 'Text' \nAND comparative_operator = 'IN' \nAND INSTR(threshold_value, CHR(39) || left_source_value || CHR(39)), 'PASS',\n\nv_Rule_ID_Count = 1 \nAND ISNULL(calculation_operator)\nAND comparative_type = 'Text' \nAND comparative_operator = 'NOT IN' \nAND NOT INSTR(threshold_value, CHR(39) || left_source_value || CHR(39)), 'PASS',\n--Ending of Text Operators with only 1 condition, with no calculation operator--\n\n--Beginning of Date Operators with only 1 condition, with no calculation operator, with -25 years  --\nv_Rule_ID_Count = 1 \nAND ISNULL(calculation_operator)\nAND comparative_type = 'Date' AND INSTR(threshold_value,'GETDATE') AND INSTR(threshold_value,'-25')\nAND comparative_operator = '<' \nAND TO_INTEGER(left_source_value) < TO_INTEGER(GET_DATE_PART(SESSSTARTTIME, 'YYYY'))-25 , 'PASS',\n\nv_Rule_ID_Count = 1 \nAND ISNULL(calculation_operator)\nAND comparative_type = 'Date' AND INSTR(threshold_value,'GETDATE') AND INSTR(threshold_value,'-25')\nAND comparative_operator = '>' \nAND TO_INTEGER(left_source_value) > TO_INTEGER(GET_DATE_PART(SESSSTARTTIME, 'YYYY'))-25 , 'PASS',\n\nv_Rule_ID_Count = 1 \nAND ISNULL(calculation_operator)\nAND comparative_type = 'Date' AND INSTR(threshold_value,'GETDATE') AND INSTR(threshold_value,'-25')\nAND comparative_operator = '=' \nAND TO_INTEGER(left_source_value) = TO_INTEGER(GET_DATE_PART(SESSSTARTTIME, 'YYYY'))-25 , 'PASS',\n\nv_Rule_ID_Count = 1 \nAND ISNULL(calculation_operator)\nAND comparative_type = 'Date' AND INSTR(threshold_value,'GETDATE') AND INSTR(threshold_value,'-25')\nAND comparative_operator = '<>' \nAND TO_INTEGER(left_source_value) != TO_INTEGER(GET_DATE_PART(SESSSTARTTIME, 'YYYY'))-25 , 'PASS',\n\nv_Rule_ID_Count = 1 \nAND ISNULL(calculation_operator)\nAND comparative_type = 'Date' AND INSTR(threshold_value,'GETDATE') AND INSTR(threshold_value,'-25')\nAND comparative_operator = '<=' \nAND TO_INTEGER(left_source_value) <= TO_INTEGER(GET_DATE_PART(SESSSTARTTIME, 'YYYY'))-25 , 'PASS',\n\nv_Rule_ID_Count = 1 \nAND ISNULL(calculation_operator)\nAND comparative_type = 'Date' AND INSTR(threshold_value,'GETDATE') AND INSTR(threshold_value,'-25')\nAND comparative_operator = '>=' \nAND TO_INTEGER(left_source_value) >= TO_INTEGER(GET_DATE_PART(SESSSTARTTIME, 'YYYY'))-25 , 'PASS',\n--Ending of Date Operators with only 1 condition, with no calculation operator, with -25 years--\n\n--Beginning of Date Operators with only 1 condition, with no calculation operator--\nv_Rule_ID_Count = 1 \nAND ISNULL(calculation_operator)\nAND comparative_type = 'Date' AND INSTR(threshold_value,'GETDATE')\nAND comparative_operator = '<' \nAND TO_INTEGER(left_source_value) < TO_INTEGER(GET_DATE_PART(SESSSTARTTIME, 'YYYY')) , 'PASS',\n\nv_Rule_ID_Count = 1 \nAND ISNULL(calculation_operator)\nAND comparative_type = 'Date' AND INSTR(threshold_value,'GETDATE')\nAND comparative_operator = '>' \nAND TO_INTEGER(left_source_value) > TO_INTEGER(GET_DATE_PART(SESSSTARTTIME, 'YYYY')) , 'PASS',\n\nv_Rule_ID_Count = 1 \nAND ISNULL(calculation_operator)\nAND comparative_type = 'Date' AND INSTR(threshold_value,'GETDATE')\nAND comparative_operator = '=' \nAND TO_INTEGER(left_source_value) = TO_INTEGER(GET_DATE_PART(SESSSTARTTIME, 'YYYY')) , 'PASS',\n\nv_Rule_ID_Count = 1 \nAND ISNULL(calculation_operator)\nAND comparative_type = 'Date' AND INSTR(threshold_value,'GETDATE')\nAND comparative_operator = '<>' \nAND TO_INTEGER(left_source_value) != TO_INTEGER(GET_DATE_PART(SESSSTARTTIME, 'YYYY')) , 'PASS',\n\nv_Rule_ID_Count = 1 \nAND ISNULL(calculation_operator)\nAND comparative_type = 'Date' AND INSTR(threshold_value,'GETDATE')\nAND comparative_operator = '<=' \nAND TO_INTEGER(left_source_value) <= TO_INTEGER(GET_DATE_PART(SESSSTARTTIME, 'YYYY')) , 'PASS',\n\nv_Rule_ID_Count = 1 \nAND ISNULL(calculation_operator)\nAND comparative_type = 'Date' AND INSTR(threshold_value,'GETDATE')\nAND comparative_operator = '>=' \nAND TO_INTEGER(left_source_value) >= TO_INTEGER(GET_DATE_PART(SESSSTARTTIME, 'YYYY')) , 'PASS',\n--Ending of Date Operators with only 1 condition, with no calculation operator--\n\n\n\n--Beginning of Numeric Operators with only 1 condition, with calculation operator - Division--\nv_Rule_ID_Count = 1 \nAND calculation_operator = '/'\nAND comparative_type = 'Numeric' \nAND comparative_operator = '<' \nAND TO_DECIMAL(left_source_value,6)/ TO_DECIMAL(right_source_value,6) < TO_DECIMAL(threshold_value,6) , 'PASS',\n\nv_Rule_ID_Count = 1 \nAND calculation_operator = '/'\nAND comparative_type = 'Numeric' \nAND comparative_operator = '>' \nAND TO_DECIMAL(left_source_value,6)/ TO_DECIMAL(right_source_value,6) > TO_DECIMAL(threshold_value,6), 'PASS',\n\nv_Rule_ID_Count = 1 \nAND calculation_operator = '/'\nAND comparative_type = 'Numeric' \nAND comparative_operator = '=' \nAND TO_DECIMAL(left_source_value,6)/ TO_DECIMAL(right_source_value,6) = TO_DECIMAL(threshold_value,6), 'PASS',\n\nv_Rule_ID_Count = 1 \nAND calculation_operator = '/'\nAND comparative_type = 'Numeric' \nAND comparative_operator = '<>' \nAND TO_DECIMAL(left_source_value,6)/ TO_DECIMAL(right_source_value,6) != TO_DECIMAL(threshold_value,6), 'PASS',\n\nv_Rule_ID_Count = 1 \nAND calculation_operator = '/'\nAND comparative_type = 'Numeric' \nAND comparative_operator = '>=' \nAND TO_DECIMAL(left_source_value,6)/ TO_DECIMAL(right_source_value,6) >= TO_DECIMAL(threshold_value,6), 'PASS',\n\nv_Rule_ID_Count = 1 \nAND calculation_operator = '/'\nAND comparative_type = 'Numeric' \nAND comparative_operator = '<=' \nAND TO_DECIMAL(left_source_value,6)/ TO_DECIMAL(right_source_value,6) <= TO_DECIMAL(threshold_value,6) , 'PASS',\n--Ending of Numeric Operators with only 1 condition, with calculation operator - Division--\n\n--Beginning of Numeric Operators with only 1 condition, with calculation operator - Addition--\nv_Rule_ID_Count = 1 \nAND calculation_operator = '+'\nAND comparative_type = 'Numeric' \nAND comparative_operator = '<' \nAND TO_DECIMAL(left_source_value,6) + TO_DECIMAL(right_source_value,6) < TO_DECIMAL(threshold_value, 6) , 'PASS',\n\nv_Rule_ID_Count = 1 \nAND calculation_operator = '+'\nAND comparative_type = 'Numeric' \nAND comparative_operator = '>' \nAND TO_DECIMAL(left_source_value,6) + TO_DECIMAL(right_source_value,6) > TO_DECIMAL(threshold_value, 6), 'PASS',\n\nv_Rule_ID_Count = 1 \nAND calculation_operator = '+'\nAND comparative_type = 'Numeric' \nAND comparative_operator = '=' \nAND TO_DECIMAL(left_source_value,6) + TO_DECIMAL(right_source_value,6) = TO_DECIMAL(threshold_value, 6) , 'PASS',\n\nv_Rule_ID_Count = 1 \nAND calculation_operator = '+'\nAND comparative_type = 'Numeric' \nAND comparative_operator = '<>' \nAND TO_DECIMAL(left_source_value,6) + TO_DECIMAL(right_source_value,6) != TO_DECIMAL(threshold_value, 6) , 'PASS',\n\nv_Rule_ID_Count = 1 \nAND calculation_operator = '+'\nAND comparative_type = 'Numeric' \nAND comparative_operator = '>=' \nAND TO_DECIMAL(left_source_value,6) + TO_DECIMAL(right_source_value,6) >= TO_DECIMAL(threshold_value, 6) , 'PASS',\n\nv_Rule_ID_Count = 1 \nAND calculation_operator = '+'\nAND comparative_type = 'Numeric' \nAND comparative_operator = '<=' \nAND TO_DECIMAL(left_source_value,6) + TO_DECIMAL(right_source_value,6) <= TO_DECIMAL(threshold_value, 6) , 'PASS',\n--Ending of Numeric Operators with only 1 condition, with calculation operator - Addition--\n\n--Beginning of Numeric Operators with only 1 condition, with calculation operator - Subtraction--\nv_Rule_ID_Count = 1 \nAND calculation_operator = '-'\nAND comparative_type = 'Numeric' \nAND comparative_operator = '<' \nAND TO_DECIMAL(left_source_value,6) - TO_DECIMAL(right_source_value,6) < TO_DECIMAL(threshold_value,6) , 'PASS',\n\nv_Rule_ID_Count = 1 \nAND calculation_operator = '-'\nAND comparative_type = 'Numeric' \nAND comparative_operator = '>' \nAND TO_DECIMAL(left_source_value,6) - TO_DECIMAL(right_source_value,6) > TO_DECIMAL(threshold_value,6), 'PASS',\n\nv_Rule_ID_Count = 1 \nAND calculation_operator = '-'\nAND comparative_type = 'Numeric' \nAND comparative_operator = '=' \nAND TO_DECIMAL(left_source_value,6) - TO_DECIMAL(right_source_value,6) = TO_DECIMAL(threshold_value,6) , 'PASS',\n\nv_Rule_ID_Count = 1 \nAND calculation_operator = '-'\nAND comparative_type = 'Numeric' \nAND comparative_operator = '<>' \nAND TO_DECIMAL(left_source_value,6) - TO_DECIMAL(right_source_value,6) != TO_DECIMAL(threshold_value,6) , 'PASS',\n\nv_Rule_ID_Count = 1 \nAND calculation_operator = '-'\nAND comparative_type = 'Numeric' \nAND comparative_operator = '>=' \nAND TO_DECIMAL(left_source_value,6) - TO_DECIMAL(right_source_value,6) >= TO_DECIMAL(threshold_value,6) , 'PASS',\n\nv_Rule_ID_Count = 1 \nAND calculation_operator = '-'\nAND comparative_type = 'Numeric' \nAND comparative_operator = '<=' \nAND TO_DECIMAL(left_source_value,6) - TO_DECIMAL(right_source_value,6) <= TO_DECIMAL(threshold_value,6), 'PASS',\n--Ending of Numeric Operators with only 1 condition, with calculation operator - Subtraction--\n\n--Beginning of Numeric Operators with only 1 condition, with calculation operator - Multiplication--\nv_Rule_ID_Count = 1 \nAND calculation_operator = '*'\nAND comparative_type = 'Numeric' \nAND comparative_operator = '<' \nAND TO_DECIMAL(left_source_value,6) * TO_DECIMAL(right_source_value,6) < TO_DECIMAL(threshold_value,6) , 'PASS',\n\nv_Rule_ID_Count = 1 \nAND calculation_operator = '*'\nAND comparative_type = 'Numeric' \nAND comparative_operator = '>' \nAND TO_DECIMAL(left_source_value,6) * TO_DECIMAL(right_source_value,6) > TO_DECIMAL(threshold_value,6) , 'PASS',\n\nv_Rule_ID_Count = 1 \nAND calculation_operator = '*'\nAND comparative_type = 'Numeric' \nAND comparative_operator = '=' \nAND TO_DECIMAL(left_source_value,6) * TO_DECIMAL(right_source_value,6) = TO_DECIMAL(threshold_value,6), 'PASS',\n\nv_Rule_ID_Count = 1 \nAND calculation_operator = '*'\nAND comparative_type = 'Numeric' \nAND comparative_operator = '<>' \nAND TO_DECIMAL(left_source_value,6) * TO_DECIMAL(right_source_value,6) != TO_DECIMAL(threshold_value,6), 'PASS',\n\nv_Rule_ID_Count = 1 \nAND calculation_operator = '*'\nAND comparative_type = 'Numeric' \nAND comparative_operator = '>=' \nAND TO_DECIMAL(left_source_value,6) * TO_DECIMAL(right_source_value,6) >= TO_DECIMAL(threshold_value,6) , 'PASS',\n\nv_Rule_ID_Count = 1 \nAND calculation_operator = '*'\nAND comparative_type = 'Numeric' \nAND comparative_operator = '<=' \nAND TO_DECIMAL(left_source_value,6) * TO_DECIMAL(right_source_value,6) <= TO_DECIMAL(threshold_value,6) , 'PASS'\n--Ending of Numeric Operators with only 1 condition, with calculation operator - Multiplication--\n\n\n\n)"
           },
           {
             "name" : "o_rule_row_pass_fail_indicator_One_Condition_Set",
@@ -3292,7 +3282,7 @@
             "precision" : 10,
             "scale" : 0,
             "expFieldType" : "VARIABLE",
-            "expression" : "DECODE(TRUE,\n\n--Beginning of Numeric Operators for 2-1 condition, with no calculation operator--\nv_Rule_ID_Count = 2 \nAND ISNULL(calculation_operator) AND condition_order_number = 1\nAND comparative_type = 'Numeric' \nAND comparative_operator = '>=' \nAND TO_DECIMAL(left_source_value,6) >= TO_DECIMAL(threshold_value,6) , 'PASS',\n\nv_Rule_ID_Count = 2 \nAND ISNULL(calculation_operator)\nAND comparative_type = 'Numeric' AND condition_order_number = 1\nAND comparative_operator = '<=' \nAND TO_DECIMAL(left_source_value,6) <= TO_DECIMAL(threshold_value,6) , 'PASS',\n\nv_Rule_ID_Count = 2 \nAND ISNULL(calculation_operator)\nAND comparative_type = 'Numeric' AND condition_order_number = 1\nAND comparative_operator = '=' \nAND TO_DECIMAL(left_source_value,6) = TO_DECIMAL(threshold_value,6) , 'PASS',\n\nv_Rule_ID_Count = 2 \nAND ISNULL(calculation_operator)\nAND comparative_type = 'Numeric' AND condition_order_number = 1\nAND comparative_operator = '<>' \nAND TO_DECIMAL(left_source_value,6) != TO_DECIMAL(threshold_value,6) , 'PASS',\n\nv_Rule_ID_Count = 2 \nAND ISNULL(calculation_operator)\nAND comparative_type = 'Numeric' AND condition_order_number = 1\nAND comparative_operator = '<' \nAND TO_DECIMAL(left_source_value,6) < TO_DECIMAL(threshold_value,6) , 'PASS',\n\nv_Rule_ID_Count = 2 \nAND ISNULL(calculation_operator)\nAND comparative_type = 'Numeric' AND condition_order_number = 1\nAND comparative_operator = '>' \nAND TO_DECIMAL(left_source_value,6) > TO_DECIMAL(threshold_value,6) , 'PASS',\n--Ending of Numeric Operators for 2-1 condition, with no calculation operator--\n\n\n--Beginning of Text Operators  for 2-1 condition, with no calculation operator--\nv_Rule_ID_Count = 2 \nAND ISNULL(calculation_operator)\nAND comparative_type = 'Text' AND condition_order_number = 1\nAND comparative_operator = '=' \nAND left_source_value = threshold_value , 'PASS',\n\nv_Rule_ID_Count = 2 \nAND ISNULL(calculation_operator)\nAND comparative_type = 'Text' AND condition_order_number = 1\nAND comparative_operator = '<>' \nAND left_source_value != threshold_value , 'PASS',\n\nv_Rule_ID_Count = 2 \nAND ISNULL(calculation_operator)\nAND comparative_type = 'Text' AND condition_order_number = 1\nAND comparative_operator = 'IN' \nAND INSTR(threshold_value, left_source_value), 'PASS',\n\nv_Rule_ID_Count = 2 \nAND ISNULL(calculation_operator)\nAND comparative_type = 'Text' AND condition_order_number = 1\nAND comparative_operator = 'NOT IN' \nAND NOT INSTR(threshold_value, left_source_value), 'PASS',\n--Ending of Text Operators  for 2-1 condition, with no calculation operator--\n\n--Beginning of Date Operators  for 2-1 condition, with no calculation operator, with -25 years--\nv_Rule_ID_Count = 2 \nAND ISNULL(calculation_operator)\nAND comparative_type = 'Date' AND INSTR(threshold_value,'GETDATE') AND INSTR(threshold_value,'-25') AND condition_order_number = 1\nAND comparative_operator = '<' \nAND TO_INTEGER(left_source_value) < TO_INTEGER(GET_DATE_PART(SESSSTARTTIME, 'YYYY'))-25 , 'PASS',\n\nv_Rule_ID_Count = 2 \nAND ISNULL(calculation_operator)\nAND comparative_type = 'Date' AND INSTR(threshold_value,'GETDATE') AND INSTR(threshold_value,'-25') AND condition_order_number = 1\nAND comparative_operator = '>' \nAND TO_INTEGER(left_source_value) > TO_INTEGER(GET_DATE_PART(SESSSTARTTIME, 'YYYY'))-25, 'PASS',\n\nv_Rule_ID_Count = 2 \nAND ISNULL(calculation_operator)\nAND comparative_type = 'Date' AND INSTR(threshold_value,'GETDATE') AND INSTR(threshold_value,'-25') AND condition_order_number = 1\nAND comparative_operator = '=' \nAND TO_INTEGER(left_source_value) = TO_INTEGER(GET_DATE_PART(SESSSTARTTIME, 'YYYY'))-25, 'PASS',\n\nv_Rule_ID_Count = 2 \nAND ISNULL(calculation_operator)\nAND comparative_type = 'Date' AND INSTR(threshold_value,'GETDATE') AND INSTR(threshold_value,'-25') AND condition_order_number = 1\nAND comparative_operator = '<>' \nAND TO_INTEGER(left_source_value) != TO_INTEGER(GET_DATE_PART(SESSSTARTTIME, 'YYYY'))-25, 'PASS',\n\nv_Rule_ID_Count = 2 \nAND ISNULL(calculation_operator)\nAND comparative_type = 'Date' AND INSTR(threshold_value,'GETDATE') AND INSTR(threshold_value,'-25') AND condition_order_number = 1\nAND comparative_operator = '<=' \nAND TO_INTEGER(left_source_value) <= TO_INTEGER(GET_DATE_PART(SESSSTARTTIME, 'YYYY'))-25, 'PASS',\n\nv_Rule_ID_Count = 2 \nAND ISNULL(calculation_operator)\nAND comparative_type = 'Date' AND INSTR(threshold_value,'GETDATE') AND INSTR(threshold_value,'-25') AND condition_order_number = 1\nAND comparative_operator = '>=' \nAND TO_INTEGER(left_source_value) >= TO_INTEGER(GET_DATE_PART(SESSSTARTTIME, 'YYYY'))-25, 'PASS',\n--Ending of Date Operators  for 2-1 condition, with no calculation operator,  with -25 years--\n\n--Beginning of Date Operators  for 2-1 condition, with no calculation operator--\nv_Rule_ID_Count = 2 \nAND ISNULL(calculation_operator)\nAND comparative_type = 'Date' AND INSTR(threshold_value,'GETDATE') AND condition_order_number = 1\nAND comparative_operator = '<' \nAND TO_INTEGER(left_source_value) < TO_INTEGER(GET_DATE_PART(SESSSTARTTIME, 'YYYY')) , 'PASS',\n\nv_Rule_ID_Count = 2 \nAND ISNULL(calculation_operator)\nAND comparative_type = 'Date' AND INSTR(threshold_value,'GETDATE') AND condition_order_number = 1\nAND comparative_operator = '>' \nAND TO_INTEGER(left_source_value) > TO_INTEGER(GET_DATE_PART(SESSSTARTTIME, 'YYYY')) , 'PASS',\n\nv_Rule_ID_Count = 2 \nAND ISNULL(calculation_operator)\nAND comparative_type = 'Date' AND INSTR(threshold_value,'GETDATE') AND condition_order_number = 1\nAND comparative_operator = '=' \nAND TO_INTEGER(left_source_value) = TO_INTEGER(GET_DATE_PART(SESSSTARTTIME, 'YYYY')) , 'PASS',\n\nv_Rule_ID_Count = 2 \nAND ISNULL(calculation_operator)\nAND comparative_type = 'Date' AND INSTR(threshold_value,'GETDATE') AND condition_order_number = 1\nAND comparative_operator = '<>' \nAND TO_INTEGER(left_source_value) != TO_INTEGER(GET_DATE_PART(SESSSTARTTIME, 'YYYY')) , 'PASS',\n\nv_Rule_ID_Count = 2 \nAND ISNULL(calculation_operator)\nAND comparative_type = 'Date' AND INSTR(threshold_value,'GETDATE') AND condition_order_number = 1\nAND comparative_operator = '<=' \nAND TO_INTEGER(left_source_value) <= TO_INTEGER(GET_DATE_PART(SESSSTARTTIME, 'YYYY')) , 'PASS',\n\nv_Rule_ID_Count = 2 \nAND ISNULL(calculation_operator)\nAND comparative_type = 'Date' AND INSTR(threshold_value,'GETDATE') AND condition_order_number = 1\nAND comparative_operator = '>=' \nAND TO_INTEGER(left_source_value) >= TO_INTEGER(GET_DATE_PART(SESSSTARTTIME, 'YYYY')) , 'PASS'\n--Ending of Date Operators  for 2-1 condition, with no calculation operator--\n\n\n)"
+            "expression" : "DECODE(TRUE,\n\n--Beginning of Numeric Operators for 2-1 condition, with no calculation operator--\nv_Rule_ID_Count = 2 AND NOT ISNULL(threshold_value)\nAND ISNULL(calculation_operator) AND condition_order_number = 1\nAND comparative_type = 'Numeric' \nAND comparative_operator = '>=' \nAND TO_DECIMAL(left_source_value,6) >= TO_DECIMAL(threshold_value,6) , 'PASS',\n\nv_Rule_ID_Count = 2 AND NOT ISNULL(threshold_value)\nAND ISNULL(calculation_operator)\nAND comparative_type = 'Numeric' AND condition_order_number = 1\nAND comparative_operator = '<=' \nAND TO_DECIMAL(left_source_value,6) <= TO_DECIMAL(threshold_value,6) , 'PASS',\n\nv_Rule_ID_Count = 2 AND NOT ISNULL(threshold_value)\nAND ISNULL(calculation_operator)\nAND comparative_type = 'Numeric' AND condition_order_number = 1\nAND comparative_operator = '=' \nAND TO_DECIMAL(left_source_value,6) = TO_DECIMAL(threshold_value,6) , 'PASS',\n\nv_Rule_ID_Count = 2 AND NOT ISNULL(threshold_value)\nAND ISNULL(calculation_operator)\nAND comparative_type = 'Numeric' AND condition_order_number = 1\nAND comparative_operator = '<>' \nAND TO_DECIMAL(left_source_value,6) != TO_DECIMAL(threshold_value,6) , 'PASS',\n\nv_Rule_ID_Count = 2 AND NOT ISNULL(threshold_value)\nAND ISNULL(calculation_operator)\nAND comparative_type = 'Numeric' AND condition_order_number = 1\nAND comparative_operator = '<' \nAND TO_DECIMAL(left_source_value,6) < TO_DECIMAL(threshold_value,6) , 'PASS',\n\nv_Rule_ID_Count = 2 AND NOT ISNULL(threshold_value)\nAND ISNULL(calculation_operator)\nAND comparative_type = 'Numeric' AND condition_order_number = 1\nAND comparative_operator = '>' \nAND TO_DECIMAL(left_source_value,6) > TO_DECIMAL(threshold_value,6) , 'PASS',\n--Ending of Numeric Operators for 2-1 condition, with no calculation operator--\n\n\n--Beginning of Text Operators  for 2-1 condition, with no calculation operator--\nv_Rule_ID_Count = 2 AND NOT ISNULL(threshold_value)\nAND ISNULL(calculation_operator)\nAND comparative_type = 'Text' AND condition_order_number = 1\nAND comparative_operator = '=' \nAND left_source_value = threshold_value , 'PASS',\n\nv_Rule_ID_Count = 2 AND NOT ISNULL(threshold_value)\nAND ISNULL(calculation_operator)\nAND comparative_type = 'Text' AND condition_order_number = 1\nAND comparative_operator = '<>' \nAND left_source_value != threshold_value , 'PASS',\n\nv_Rule_ID_Count = 2 AND NOT ISNULL(threshold_value)\nAND ISNULL(calculation_operator)\nAND comparative_type = 'Text' AND condition_order_number = 1\nAND comparative_operator = 'IN' \nAND INSTR(threshold_value, CHR(39) || left_source_value || CHR(39)), 'PASS',\n\nv_Rule_ID_Count = 2 AND NOT ISNULL(threshold_value)\nAND ISNULL(calculation_operator)\nAND comparative_type = 'Text' AND condition_order_number = 1\nAND comparative_operator = 'NOT IN' \nAND NOT INSTR(threshold_value, CHR(39) || left_source_value || CHR(39)), 'PASS',\n--Ending of Text Operators  for 2-1 condition, with no calculation operator--\n\n--Beginning of Date Operators  for 2-1 condition, with no calculation operator, with -25 years--\nv_Rule_ID_Count = 2 AND NOT ISNULL(threshold_value)\nAND ISNULL(calculation_operator)\nAND comparative_type = 'Date' AND INSTR(threshold_value,'GETDATE') AND INSTR(threshold_value,'-25') AND condition_order_number = 1\nAND comparative_operator = '<' \nAND TO_INTEGER(left_source_value) < TO_INTEGER(GET_DATE_PART(SESSSTARTTIME, 'YYYY'))-25 , 'PASS',\n\nv_Rule_ID_Count = 2 AND NOT ISNULL(threshold_value)\nAND ISNULL(calculation_operator)\nAND comparative_type = 'Date' AND INSTR(threshold_value,'GETDATE') AND INSTR(threshold_value,'-25') AND condition_order_number = 1\nAND comparative_operator = '>' \nAND TO_INTEGER(left_source_value) > TO_INTEGER(GET_DATE_PART(SESSSTARTTIME, 'YYYY'))-25, 'PASS',\n\nv_Rule_ID_Count = 2 AND NOT ISNULL(threshold_value)\nAND ISNULL(calculation_operator)\nAND comparative_type = 'Date' AND INSTR(threshold_value,'GETDATE') AND INSTR(threshold_value,'-25') AND condition_order_number = 1\nAND comparative_operator = '=' \nAND TO_INTEGER(left_source_value) = TO_INTEGER(GET_DATE_PART(SESSSTARTTIME, 'YYYY'))-25, 'PASS',\n\nv_Rule_ID_Count = 2 AND NOT ISNULL(threshold_value)\nAND ISNULL(calculation_operator)\nAND comparative_type = 'Date' AND INSTR(threshold_value,'GETDATE') AND INSTR(threshold_value,'-25') AND condition_order_number = 1\nAND comparative_operator = '<>' \nAND TO_INTEGER(left_source_value) != TO_INTEGER(GET_DATE_PART(SESSSTARTTIME, 'YYYY'))-25, 'PASS',\n\nv_Rule_ID_Count = 2 AND NOT ISNULL(threshold_value)\nAND ISNULL(calculation_operator)\nAND comparative_type = 'Date' AND INSTR(threshold_value,'GETDATE') AND INSTR(threshold_value,'-25') AND condition_order_number = 1\nAND comparative_operator = '<=' \nAND TO_INTEGER(left_source_value) <= TO_INTEGER(GET_DATE_PART(SESSSTARTTIME, 'YYYY'))-25, 'PASS',\n\nv_Rule_ID_Count = 2 AND NOT ISNULL(threshold_value)\nAND ISNULL(calculation_operator)\nAND comparative_type = 'Date' AND INSTR(threshold_value,'GETDATE') AND INSTR(threshold_value,'-25') AND condition_order_number = 1\nAND comparative_operator = '>=' \nAND TO_INTEGER(left_source_value) >= TO_INTEGER(GET_DATE_PART(SESSSTARTTIME, 'YYYY'))-25, 'PASS',\n--Ending of Date Operators  for 2-1 condition, with no calculation operator,  with -25 years--\n\n--Beginning of Date Operators  for 2-1 condition, with no calculation operator--\nv_Rule_ID_Count = 2 AND NOT ISNULL(threshold_value)\nAND ISNULL(calculation_operator)\nAND comparative_type = 'Date' AND INSTR(threshold_value,'GETDATE') AND condition_order_number = 1\nAND comparative_operator = '<' \nAND TO_INTEGER(left_source_value) < TO_INTEGER(GET_DATE_PART(SESSSTARTTIME, 'YYYY')) , 'PASS',\n\nv_Rule_ID_Count = 2 AND NOT ISNULL(threshold_value)\nAND ISNULL(calculation_operator)\nAND comparative_type = 'Date' AND INSTR(threshold_value,'GETDATE') AND condition_order_number = 1\nAND comparative_operator = '>' \nAND TO_INTEGER(left_source_value) > TO_INTEGER(GET_DATE_PART(SESSSTARTTIME, 'YYYY')) , 'PASS',\n\nv_Rule_ID_Count = 2 AND NOT ISNULL(threshold_value)\nAND ISNULL(calculation_operator)\nAND comparative_type = 'Date' AND INSTR(threshold_value,'GETDATE') AND condition_order_number = 1\nAND comparative_operator = '=' \nAND TO_INTEGER(left_source_value) = TO_INTEGER(GET_DATE_PART(SESSSTARTTIME, 'YYYY')) , 'PASS',\n\nv_Rule_ID_Count = 2 AND NOT ISNULL(threshold_value)\nAND ISNULL(calculation_operator)\nAND comparative_type = 'Date' AND INSTR(threshold_value,'GETDATE') AND condition_order_number = 1\nAND comparative_operator = '<>' \nAND TO_INTEGER(left_source_value) != TO_INTEGER(GET_DATE_PART(SESSSTARTTIME, 'YYYY')) , 'PASS',\n\nv_Rule_ID_Count = 2 AND NOT ISNULL(threshold_value)\nAND ISNULL(calculation_operator)\nAND comparative_type = 'Date' AND INSTR(threshold_value,'GETDATE') AND condition_order_number = 1\nAND comparative_operator = '<=' \nAND TO_INTEGER(left_source_value) <= TO_INTEGER(GET_DATE_PART(SESSSTARTTIME, 'YYYY')) , 'PASS',\n\nv_Rule_ID_Count = 2 AND NOT ISNULL(threshold_value)\nAND ISNULL(calculation_operator)\nAND comparative_type = 'Date' AND INSTR(threshold_value,'GETDATE') AND condition_order_number = 1\nAND comparative_operator = '>=' \nAND TO_INTEGER(left_source_value) >= TO_INTEGER(GET_DATE_PART(SESSSTARTTIME, 'YYYY')) , 'PASS'\n--Ending of Date Operators  for 2-1 condition, with no calculation operator--\n\n\n)"
           },
           {
             "name" : "o_rule_row_pass_fail_indicator_two_Condition_set_1_NC",
@@ -3312,7 +3302,7 @@
             "precision" : 10,
             "scale" : 0,
             "expFieldType" : "VARIABLE",
-            "expression" : "DECODE(TRUE,\n\n--Beginning of Numeric Operators for 2-2 condition, with no calculation operator--\nv_Rule_ID_Count = 2 \nAND ISNULL(calculation_operator) AND condition_order_number = 2\nAND comparative_type = 'Numeric' \nAND comparative_operator = '>=' \nAND TO_DECIMAL(left_source_value,6) >= TO_DECIMAL(threshold_value,6) , 'PASS',\n\nv_Rule_ID_Count = 2 \nAND ISNULL(calculation_operator)\nAND comparative_type = 'Numeric' AND condition_order_number = 2\nAND comparative_operator = '<=' \nAND TO_DECIMAL(left_source_value,6) <= TO_DECIMAL(threshold_value,6) , 'PASS',\n\nv_Rule_ID_Count = 2 \nAND ISNULL(calculation_operator)\nAND comparative_type = 'Numeric' AND condition_order_number = 2\nAND comparative_operator = '=' \nAND TO_DECIMAL(left_source_value,6) = TO_DECIMAL(threshold_value,6), 'PASS',\n\nv_Rule_ID_Count = 2 \nAND ISNULL(calculation_operator)\nAND comparative_type = 'Numeric' AND condition_order_number = 2\nAND comparative_operator = '<>' \nAND TO_DECIMAL(left_source_value,6) != TO_DECIMAL(threshold_value,6), 'PASS',\n\nv_Rule_ID_Count = 2 \nAND ISNULL(calculation_operator)\nAND comparative_type = 'Numeric' AND condition_order_number = 2\nAND comparative_operator = '<' \nAND TO_DECIMAL(left_source_value,6) > TO_DECIMAL(threshold_value,6), 'PASS',\n\nv_Rule_ID_Count = 2 \nAND ISNULL(calculation_operator)\nAND comparative_type = 'Numeric' AND condition_order_number = 2\nAND comparative_operator = '>' \nAND TO_DECIMAL(left_source_value,6) > TO_DECIMAL(threshold_value,6), 'PASS',\n--Ending of Numeric Operators for 2-2 condition, with no calculation operator--\n\n\n--Beginning of Text Operators  for 2-2 condition, with no calculation operator--\nv_Rule_ID_Count = 2 \nAND ISNULL(calculation_operator)\nAND comparative_type = 'Text' AND condition_order_number = 2\nAND comparative_operator = '=' \nAND left_source_value = threshold_value , 'PASS',\n\nv_Rule_ID_Count = 2 \nAND ISNULL(calculation_operator)\nAND comparative_type = 'Text' AND condition_order_number = 2\nAND comparative_operator = '<>' \nAND left_source_value != threshold_value , 'PASS',\n\nv_Rule_ID_Count = 2 \nAND ISNULL(calculation_operator)\nAND comparative_type = 'Text' AND condition_order_number = 2\nAND comparative_operator = 'IN' \nAND INSTR(threshold_value, left_source_value), 'PASS',\n\nv_Rule_ID_Count = 2 \nAND ISNULL(calculation_operator)\nAND comparative_type = 'Text' AND condition_order_number = 2\nAND comparative_operator = 'NOT IN' \nAND NOT INSTR(threshold_value, left_source_value), 'PASS',\n--Ending of Text Operators  for 2-2 condition, with no calculation operator--\n\n--Beginning of Date Operators  for 2-2 condition, with no calculation operator, with -25 years--\nv_Rule_ID_Count = 2 \nAND ISNULL(calculation_operator)\nAND comparative_type = 'Date' AND INSTR(threshold_value,'GETDATE') AND INSTR(threshold_value,'-25') AND condition_order_number = 2\nAND comparative_operator = '<' \nAND TO_INTEGER(left_source_value) < TO_INTEGER(GET_DATE_PART(SESSSTARTTIME, 'YYYY'))-25 , 'PASS',\n\nv_Rule_ID_Count = 2 \nAND ISNULL(calculation_operator)\nAND comparative_type = 'Date' AND INSTR(threshold_value,'GETDATE') AND INSTR(threshold_value,'-25') AND condition_order_number = 2\nAND comparative_operator = '>' \nAND TO_INTEGER(left_source_value) > TO_INTEGER(GET_DATE_PART(SESSSTARTTIME, 'YYYY'))-25 , 'PASS',\n\nv_Rule_ID_Count = 2 \nAND ISNULL(calculation_operator)\nAND comparative_type = 'Date' AND INSTR(threshold_value,'GETDATE') AND INSTR(threshold_value,'-25') AND condition_order_number = 2\nAND comparative_operator = '=' \nAND TO_INTEGER(left_source_value) = TO_INTEGER(GET_DATE_PART(SESSSTARTTIME, 'YYYY'))-25 , 'PASS',\n\nv_Rule_ID_Count = 2 \nAND ISNULL(calculation_operator)\nAND comparative_type = 'Date' AND INSTR(threshold_value,'GETDATE') AND INSTR(threshold_value,'-25') AND condition_order_number = 2\nAND comparative_operator = '<>' \nAND TO_INTEGER(left_source_value) != TO_INTEGER(GET_DATE_PART(SESSSTARTTIME, 'YYYY'))-25 , 'PASS',\n\nv_Rule_ID_Count = 2 \nAND ISNULL(calculation_operator)\nAND comparative_type = 'Date' AND INSTR(threshold_value,'GETDATE') AND INSTR(threshold_value,'-25') AND condition_order_number = 2\nAND comparative_operator = '<=' \nAND TO_INTEGER(left_source_value) <= TO_INTEGER(GET_DATE_PART(SESSSTARTTIME, 'YYYY'))-25 , 'PASS',\n\nv_Rule_ID_Count = 2 \nAND ISNULL(calculation_operator)\nAND comparative_type = 'Date' AND INSTR(threshold_value,'GETDATE') AND INSTR(threshold_value,'-25') AND condition_order_number = 2\nAND comparative_operator = '>=' \nAND TO_INTEGER(left_source_value) >= TO_INTEGER(GET_DATE_PART(SESSSTARTTIME, 'YYYY'))-25 , 'PASS',\n--Ending of Date Operators  for 2-2 condition, with no calculation operator, with -25 years--\n\n\n--Beginning of Date Operators  for 2-2 condition, with no calculation operator--\nv_Rule_ID_Count = 2 \nAND ISNULL(calculation_operator)\nAND comparative_type = 'Date' AND INSTR(threshold_value,'GETDATE') AND condition_order_number = 2\nAND comparative_operator = '<' \nAND TO_INTEGER(left_source_value) < TO_INTEGER(GET_DATE_PART(SESSSTARTTIME, 'YYYY')) , 'PASS',\n\nv_Rule_ID_Count = 2 \nAND ISNULL(calculation_operator)\nAND comparative_type = 'Date' AND INSTR(threshold_value,'GETDATE') AND condition_order_number = 2\nAND comparative_operator = '>' \nAND TO_INTEGER(left_source_value) > TO_INTEGER(GET_DATE_PART(SESSSTARTTIME, 'YYYY')) , 'PASS',\n\nv_Rule_ID_Count = 2 \nAND ISNULL(calculation_operator)\nAND comparative_type = 'Date' AND INSTR(threshold_value,'GETDATE') AND condition_order_number = 2\nAND comparative_operator = '=' \nAND TO_INTEGER(left_source_value) = TO_INTEGER(GET_DATE_PART(SESSSTARTTIME, 'YYYY')) , 'PASS',\n\nv_Rule_ID_Count = 2 \nAND ISNULL(calculation_operator)\nAND comparative_type = 'Date' AND INSTR(threshold_value,'GETDATE') AND condition_order_number = 2\nAND comparative_operator = '<>' \nAND TO_INTEGER(left_source_value) != TO_INTEGER(GET_DATE_PART(SESSSTARTTIME, 'YYYY')) , 'PASS',\n\nv_Rule_ID_Count = 2 \nAND ISNULL(calculation_operator)\nAND comparative_type = 'Date' AND INSTR(threshold_value,'GETDATE') AND condition_order_number = 2\nAND comparative_operator = '<=' \nAND TO_INTEGER(left_source_value) <= TO_INTEGER(GET_DATE_PART(SESSSTARTTIME, 'YYYY')) , 'PASS',\n\nv_Rule_ID_Count = 2 \nAND ISNULL(calculation_operator)\nAND comparative_type = 'Date' AND INSTR(threshold_value,'GETDATE') AND condition_order_number = 2\nAND comparative_operator = '>=' \nAND TO_INTEGER(left_source_value) >= TO_INTEGER(GET_DATE_PART(SESSSTARTTIME, 'YYYY')) , 'PASS'\n--Ending of Date Operators  for 2-2 condition, with no calculation operator--\n\n\n)"
+            "expression" : "DECODE(TRUE,\n\n--Beginning of Numeric Operators for 2-2 condition, with no calculation operator--\nv_Rule_ID_Count = 2  AND NOT ISNULL(threshold_value)\nAND ISNULL(calculation_operator) AND condition_order_number = 2\nAND comparative_type = 'Numeric' \nAND comparative_operator = '>=' \nAND TO_DECIMAL(left_source_value,6) >= TO_DECIMAL(threshold_value,6) , 'PASS',\n\nv_Rule_ID_Count = 2 AND NOT ISNULL(threshold_value)\nAND ISNULL(calculation_operator)\nAND comparative_type = 'Numeric' AND condition_order_number = 2\nAND comparative_operator = '<=' \nAND TO_DECIMAL(left_source_value,6) <= TO_DECIMAL(threshold_value,6) , 'PASS',\n\nv_Rule_ID_Count = 2 AND NOT ISNULL(threshold_value)\nAND ISNULL(calculation_operator)\nAND comparative_type = 'Numeric' AND condition_order_number = 2\nAND comparative_operator = '=' \nAND TO_DECIMAL(left_source_value,6) = TO_DECIMAL(threshold_value,6), 'PASS',\n\nv_Rule_ID_Count = 2 AND NOT ISNULL(threshold_value)\nAND ISNULL(calculation_operator)\nAND comparative_type = 'Numeric' AND condition_order_number = 2\nAND comparative_operator = '<>' \nAND TO_DECIMAL(left_source_value,6) != TO_DECIMAL(threshold_value,6), 'PASS',\n\nv_Rule_ID_Count = 2 AND NOT ISNULL(threshold_value)\nAND ISNULL(calculation_operator)\nAND comparative_type = 'Numeric' AND condition_order_number = 2\nAND comparative_operator = '<' \nAND TO_DECIMAL(left_source_value,6) > TO_DECIMAL(threshold_value,6), 'PASS',\n\nv_Rule_ID_Count = 2 AND NOT ISNULL(threshold_value)\nAND ISNULL(calculation_operator)\nAND comparative_type = 'Numeric' AND condition_order_number = 2\nAND comparative_operator = '>' \nAND TO_DECIMAL(left_source_value,6) > TO_DECIMAL(threshold_value,6), 'PASS',\n--Ending of Numeric Operators for 2-2 condition, with no calculation operator--\n\n\n--Beginning of Text Operators  for 2-2 condition, with no calculation operator--\nv_Rule_ID_Count = 2 AND NOT ISNULL(threshold_value)\nAND ISNULL(calculation_operator)\nAND comparative_type = 'Text' AND condition_order_number = 2\nAND comparative_operator = '=' \nAND left_source_value = threshold_value , 'PASS',\n\nv_Rule_ID_Count = 2 AND NOT ISNULL(threshold_value)\nAND ISNULL(calculation_operator)\nAND comparative_type = 'Text' AND condition_order_number = 2\nAND comparative_operator = '<>' \nAND left_source_value != threshold_value , 'PASS',\n\nv_Rule_ID_Count = 2 AND NOT ISNULL(threshold_value)\nAND ISNULL(calculation_operator)\nAND comparative_type = 'Text' AND condition_order_number = 2\nAND comparative_operator = 'IN' \nAND INSTR(threshold_value, CHR(39) || left_source_value || CHR(39)), 'PASS',\n\nv_Rule_ID_Count = 2 AND NOT ISNULL(threshold_value)\nAND ISNULL(calculation_operator)\nAND comparative_type = 'Text' AND condition_order_number = 2\nAND comparative_operator = 'NOT IN' \nAND NOT INSTR(threshold_value, CHR(39) || left_source_value || CHR(39)), 'PASS',\n--Ending of Text Operators  for 2-2 condition, with no calculation operator--\n\n--Beginning of Date Operators  for 2-2 condition, with no calculation operator, with -25 years--\nv_Rule_ID_Count = 2 AND NOT ISNULL(threshold_value)\nAND ISNULL(calculation_operator)\nAND comparative_type = 'Date' AND INSTR(threshold_value,'GETDATE') AND INSTR(threshold_value,'-25') AND condition_order_number = 2\nAND comparative_operator = '<' \nAND TO_INTEGER(left_source_value) < TO_INTEGER(GET_DATE_PART(SESSSTARTTIME, 'YYYY'))-25 , 'PASS',\n\nv_Rule_ID_Count = 2 AND NOT ISNULL(threshold_value)\nAND ISNULL(calculation_operator)\nAND comparative_type = 'Date' AND INSTR(threshold_value,'GETDATE') AND INSTR(threshold_value,'-25') AND condition_order_number = 2\nAND comparative_operator = '>' \nAND TO_INTEGER(left_source_value) > TO_INTEGER(GET_DATE_PART(SESSSTARTTIME, 'YYYY'))-25 , 'PASS',\n\nv_Rule_ID_Count = 2 AND NOT ISNULL(threshold_value)\nAND ISNULL(calculation_operator)\nAND comparative_type = 'Date' AND INSTR(threshold_value,'GETDATE') AND INSTR(threshold_value,'-25') AND condition_order_number = 2\nAND comparative_operator = '=' \nAND TO_INTEGER(left_source_value) = TO_INTEGER(GET_DATE_PART(SESSSTARTTIME, 'YYYY'))-25 , 'PASS',\n\nv_Rule_ID_Count = 2 AND NOT ISNULL(threshold_value)\nAND ISNULL(calculation_operator)\nAND comparative_type = 'Date' AND INSTR(threshold_value,'GETDATE') AND INSTR(threshold_value,'-25') AND condition_order_number = 2\nAND comparative_operator = '<>' \nAND TO_INTEGER(left_source_value) != TO_INTEGER(GET_DATE_PART(SESSSTARTTIME, 'YYYY'))-25 , 'PASS',\n\nv_Rule_ID_Count = 2 AND NOT ISNULL(threshold_value)\nAND ISNULL(calculation_operator)\nAND comparative_type = 'Date' AND INSTR(threshold_value,'GETDATE') AND INSTR(threshold_value,'-25') AND condition_order_number = 2\nAND comparative_operator = '<=' \nAND TO_INTEGER(left_source_value) <= TO_INTEGER(GET_DATE_PART(SESSSTARTTIME, 'YYYY'))-25 , 'PASS',\n\nv_Rule_ID_Count = 2 AND NOT ISNULL(threshold_value)\nAND ISNULL(calculation_operator)\nAND comparative_type = 'Date' AND INSTR(threshold_value,'GETDATE') AND INSTR(threshold_value,'-25') AND condition_order_number = 2\nAND comparative_operator = '>=' \nAND TO_INTEGER(left_source_value) >= TO_INTEGER(GET_DATE_PART(SESSSTARTTIME, 'YYYY'))-25 , 'PASS',\n--Ending of Date Operators  for 2-2 condition, with no calculation operator, with -25 years--\n\n\n--Beginning of Date Operators  for 2-2 condition, with no calculation operator--\nv_Rule_ID_Count = 2 AND NOT ISNULL(threshold_value)\nAND ISNULL(calculation_operator)\nAND comparative_type = 'Date' AND INSTR(threshold_value,'GETDATE') AND condition_order_number = 2\nAND comparative_operator = '<' \nAND TO_INTEGER(left_source_value) < TO_INTEGER(GET_DATE_PART(SESSSTARTTIME, 'YYYY')) , 'PASS',\n\nv_Rule_ID_Count = 2 AND NOT ISNULL(threshold_value)\nAND ISNULL(calculation_operator)\nAND comparative_type = 'Date' AND INSTR(threshold_value,'GETDATE') AND condition_order_number = 2\nAND comparative_operator = '>' \nAND TO_INTEGER(left_source_value) > TO_INTEGER(GET_DATE_PART(SESSSTARTTIME, 'YYYY')) , 'PASS',\n\nv_Rule_ID_Count = 2 AND NOT ISNULL(threshold_value)\nAND ISNULL(calculation_operator)\nAND comparative_type = 'Date' AND INSTR(threshold_value,'GETDATE') AND condition_order_number = 2\nAND comparative_operator = '=' \nAND TO_INTEGER(left_source_value) = TO_INTEGER(GET_DATE_PART(SESSSTARTTIME, 'YYYY')) , 'PASS',\n\nv_Rule_ID_Count = 2 AND NOT ISNULL(threshold_value)\nAND ISNULL(calculation_operator)\nAND comparative_type = 'Date' AND INSTR(threshold_value,'GETDATE') AND condition_order_number = 2\nAND comparative_operator = '<>' \nAND TO_INTEGER(left_source_value) != TO_INTEGER(GET_DATE_PART(SESSSTARTTIME, 'YYYY')) , 'PASS',\n\nv_Rule_ID_Count = 2 AND NOT ISNULL(threshold_value)\nAND ISNULL(calculation_operator)\nAND comparative_type = 'Date' AND INSTR(threshold_value,'GETDATE') AND condition_order_number = 2\nAND comparative_operator = '<=' \nAND TO_INTEGER(left_source_value) <= TO_INTEGER(GET_DATE_PART(SESSSTARTTIME, 'YYYY')) , 'PASS',\n\nv_Rule_ID_Count = 2 AND NOT ISNULL(threshold_value)\nAND ISNULL(calculation_operator)\nAND comparative_type = 'Date' AND INSTR(threshold_value,'GETDATE') AND condition_order_number = 2\nAND comparative_operator = '>=' \nAND TO_INTEGER(left_source_value) >= TO_INTEGER(GET_DATE_PART(SESSSTARTTIME, 'YYYY')) , 'PASS'\n--Ending of Date Operators  for 2-2 condition, with no calculation operator--\n\n\n)"
           },
           {
             "name" : "o_rule_row_pass_fail_indicator_two_Condition_set_2_NC",
@@ -3332,7 +3322,7 @@
             "precision" : 10,
             "scale" : 0,
             "expFieldType" : "VARIABLE",
-            "expression" : "DECODE(TRUE, \n\n--Beginning of Numeric Operators for 2-2 condition, with calculation operator - Division--\nv_Rule_ID_Count = 2 AND condition_order_number = 2 and isnull(threshold_value) \nAND calculation_operator = '/'\nAND comparative_type = 'Numeric' \nAND comparative_operator = '<' \nAND TO_DECIMAL(left_source_value,6) < TO_DECIMAL(v_Rule_Condition_Column_left,6) / TO_DECIMAL(v_Rule_calculation_constant_value,6) , 'PASS',\n\nv_Rule_ID_Count = 2 AND condition_order_number = 2 and isnull(threshold_value) \nAND calculation_operator = '/'\nAND comparative_type = 'Numeric' \nAND comparative_operator = '>' \nAND TO_DECIMAL(left_source_value,6) > TO_DECIMAL(v_Rule_Condition_Column_left,6) / TO_DECIMAL(v_Rule_calculation_constant_value,6), 'PASS',\n\nv_Rule_ID_Count = 2 AND condition_order_number = 2 and isnull(threshold_value) \nAND calculation_operator = '/'\nAND comparative_type = 'Numeric' \nAND comparative_operator = '=' \nAND TO_DECIMAL(left_source_value,6) = TO_DECIMAL(v_Rule_Condition_Column_left,6) / TO_DECIMAL(v_Rule_calculation_constant_value,6), 'PASS',\n\nv_Rule_ID_Count = 2 AND condition_order_number = 2 and isnull(threshold_value) \nAND calculation_operator = '/'\nAND comparative_type = 'Numeric' \nAND comparative_operator = '<>' \nAND TO_DECIMAL(left_source_value,6) != TO_DECIMAL(v_Rule_Condition_Column_left,6) / TO_DECIMAL(v_Rule_calculation_constant_value,6) , 'PASS',\n\nv_Rule_ID_Count = 2 AND condition_order_number = 2 and isnull(threshold_value) \nAND calculation_operator = '/'\nAND comparative_type = 'Numeric' \nAND comparative_operator = '>=' \nAND TO_DECIMAL(left_source_value,6) >= TO_DECIMAL(v_Rule_Condition_Column_left,6) / TO_DECIMAL(v_Rule_calculation_constant_value,6), 'PASS',\n\nv_Rule_ID_Count = 2 AND condition_order_number = 2 and isnull(threshold_value) \nAND calculation_operator = '/'\nAND comparative_type = 'Numeric' \nAND comparative_operator = '<=' \nAND TO_DECIMAL(left_source_value,6) <= TO_DECIMAL(v_Rule_Condition_Column_left,6) / TO_DECIMAL(v_Rule_calculation_constant_value,6), 'PASS',\n--Ending of Numeric Operators for 2-2 condition, with calculation operator - Division--\n\n--Beginning of Numeric Operators for 2-2 condition, with calculation operator - Addition--\nv_Rule_ID_Count = 2 AND condition_order_number = 2 and isnull(threshold_value) \nAND calculation_operator = '+'\nAND comparative_type = 'Numeric' \nAND comparative_operator = '<' \nAND TO_DECIMAL(left_source_value,6) < TO_DECIMAL(v_Rule_Condition_Column_left,6) + TO_DECIMAL(v_Rule_calculation_constant_value,6) , 'PASS',\n\nv_Rule_ID_Count = 2 AND condition_order_number = 2 and isnull(threshold_value) \nAND calculation_operator = '+'\nAND comparative_type = 'Numeric' \nAND comparative_operator = '>' \nAND TO_DECIMAL(left_source_value,6) > TO_DECIMAL(v_Rule_Condition_Column_left,6) + TO_DECIMAL(v_Rule_calculation_constant_value,6), 'PASS',\n\nv_Rule_ID_Count = 2 AND condition_order_number = 2 and isnull(threshold_value) \nAND calculation_operator = '+'\nAND comparative_type = 'Numeric' \nAND comparative_operator = '=' \nAND TO_DECIMAL(left_source_value,6) = TO_DECIMAL(v_Rule_Condition_Column_left,6) + TO_DECIMAL(v_Rule_calculation_constant_value,6), 'PASS',\n\nv_Rule_ID_Count = 2 AND condition_order_number = 2 and isnull(threshold_value) \nAND calculation_operator = '+'\nAND comparative_type = 'Numeric' \nAND comparative_operator = '<>' \nAND TO_DECIMAL(left_source_value,6) != TO_DECIMAL(v_Rule_Condition_Column_left,6) + TO_DECIMAL(v_Rule_calculation_constant_value,6), 'PASS',\n\nv_Rule_ID_Count = 2 AND condition_order_number = 2 and isnull(threshold_value) \nAND calculation_operator = '+'\nAND comparative_type = 'Numeric' \nAND comparative_operator = '>=' \nAND TO_DECIMAL(left_source_value,6) >= TO_DECIMAL(v_Rule_Condition_Column_left,6) + TO_DECIMAL(v_Rule_calculation_constant_value,6), 'PASS',\n\nv_Rule_ID_Count = 2 AND condition_order_number = 2 and isnull(threshold_value) \nAND calculation_operator = '+'\nAND comparative_type = 'Numeric' \nAND comparative_operator = '<=' \nAND TO_DECIMAL(left_source_value,6) <= TO_DECIMAL(v_Rule_Condition_Column_left,6) + TO_DECIMAL(v_Rule_calculation_constant_value,6), 'PASS',\n--Ending of Numeric Operators for 2-2 condition, with calculation operator - Addition--\n\n--Beginning of Numeric Operators for 2-2 condition, with calculation operator - Subtraction--\nv_Rule_ID_Count = 2 AND condition_order_number = 2 and isnull(threshold_value) \nAND calculation_operator = '-'\nAND comparative_type = 'Numeric' \nAND comparative_operator = '<' \nAND TO_DECIMAL(left_source_value,6) < TO_DECIMAL(v_Rule_Condition_Column_left,6) - TO_DECIMAL(v_Rule_calculation_constant_value,6) , 'PASS',\n\nv_Rule_ID_Count = 2 AND condition_order_number = 2 and isnull(threshold_value) \nAND calculation_operator = '-'\nAND comparative_type = 'Numeric' \nAND comparative_operator = '>' \nAND TO_DECIMAL(left_source_value,6) > TO_DECIMAL(v_Rule_Condition_Column_left,6) - TO_DECIMAL(v_Rule_calculation_constant_value,6), 'PASS',\n\nv_Rule_ID_Count = 2 AND condition_order_number = 2 and isnull(threshold_value) \nAND calculation_operator = '-'\nAND comparative_type = 'Numeric' \nAND comparative_operator = '=' \nAND TO_DECIMAL(left_source_value,6) = TO_DECIMAL(v_Rule_Condition_Column_left,6) - TO_DECIMAL(v_Rule_calculation_constant_value,6), 'PASS',\n\nv_Rule_ID_Count = 2 AND condition_order_number = 2 and isnull(threshold_value) \nAND calculation_operator = '-'\nAND comparative_type = 'Numeric' \nAND comparative_operator = '<>' \nAND TO_DECIMAL(left_source_value,6) != TO_DECIMAL(v_Rule_Condition_Column_left,6) - TO_DECIMAL(v_Rule_calculation_constant_value,6), 'PASS',\n\nv_Rule_ID_Count = 2 AND condition_order_number = 2 and isnull(threshold_value) \nAND calculation_operator = '-'\nAND comparative_type = 'Numeric' \nAND comparative_operator = '>=' \nAND TO_DECIMAL(left_source_value,6) >= TO_DECIMAL(v_Rule_Condition_Column_left,6) - TO_DECIMAL(v_Rule_calculation_constant_value,6), 'PASS',\n\nv_Rule_ID_Count = 2 AND condition_order_number = 2 and isnull(threshold_value) \nAND calculation_operator = '-'\nAND comparative_type = 'Numeric' \nAND comparative_operator = '<=' \nAND TO_DECIMAL(left_source_value,6) <= TO_DECIMAL(v_Rule_Condition_Column_left,6) - TO_DECIMAL(v_Rule_calculation_constant_value,6), 'PASS',\n--Ending of Numeric Operators for 2-2 condition, with calculation operator - Subtraction--\n\n--Beginning of Numeric Operators for 2-2 condition, with calculation operator - Multiplication--\nv_Rule_ID_Count = 2 AND condition_order_number = 2 and isnull(threshold_value) \nAND calculation_operator = '*'\nAND comparative_type = 'Numeric' \nAND comparative_operator = '<' \nAND TO_DECIMAL(left_source_value,6) < TO_DECIMAL(v_Rule_Condition_Column_left,6) * TO_DECIMAL(v_Rule_calculation_constant_value,6) , 'PASS',\n\nv_Rule_ID_Count = 2 AND condition_order_number = 2 and isnull(threshold_value) \nAND calculation_operator = '*'\nAND comparative_type = 'Numeric' \nAND comparative_operator = '>' \nAND TO_DECIMAL(left_source_value,6) > TO_DECIMAL(v_Rule_Condition_Column_left,6) * TO_DECIMAL(v_Rule_calculation_constant_value,6), 'PASS',\n\nv_Rule_ID_Count = 2 AND condition_order_number = 2 and isnull(threshold_value) \nAND calculation_operator = '*'\nAND comparative_type = 'Numeric' \nAND comparative_operator = '=' \nAND TO_DECIMAL(left_source_value,6) = TO_DECIMAL(v_Rule_Condition_Column_left,6) * TO_DECIMAL(v_Rule_calculation_constant_value,6), 'PASS',\n\nv_Rule_ID_Count = 2 AND condition_order_number = 2 and isnull(threshold_value) \nAND calculation_operator = '*'\nAND comparative_type = 'Numeric' \nAND comparative_operator = '<>' \nAND TO_DECIMAL(left_source_value,6) != TO_DECIMAL(v_Rule_Condition_Column_left,6) * TO_DECIMAL(v_Rule_calculation_constant_value,6), 'PASS',\n\nv_Rule_ID_Count = 2 AND condition_order_number = 2 and isnull(threshold_value) \nAND calculation_operator = '*'\nAND comparative_type = 'Numeric' \nAND comparative_operator = '>=' \nAND TO_DECIMAL(left_source_value,6) >= TO_DECIMAL(v_Rule_Condition_Column_left,6) * TO_DECIMAL(v_Rule_calculation_constant_value,6), 'PASS',\n\nv_Rule_ID_Count = 2 AND condition_order_number = 2 and isnull(threshold_value) \nAND calculation_operator = '*'\nAND comparative_type = 'Numeric' \nAND comparative_operator = '<=' \nAND TO_DECIMAL(left_source_value,6) <= TO_DECIMAL(v_Rule_Condition_Column_left,6) * TO_DECIMAL(v_Rule_calculation_constant_value,6), 'PASS'\n--Ending of Numeric Operators for 2-2 condition, with calculation operator - Multiplication--\n\n)"
+            "expression" : "DECODE(TRUE, \n\n--Beginning of Numeric Operators for 2 condition set, with no calculation operator \nv_Rule_ID_Count = 2 AND ISNULL(threshold_value) AND condition_order_number = 1 AND comparative_type = 'Numeric' AND ISNULL(:LKP.lkp_straight_through_processing_rules_2_Calculation_operator(rule_id, 2)) AND\nISNULL(:LKP.lkp_straight_through_processing_rules_calculation_constant_value(rule_id, 2)) \nAND comparative_operator = '<' \nAND TO_DECIMAL(left_source_value,6) < TO_DECIMAL(:LKP.lkp_straight_through_processing_data_staging_source_value(left_policy_source_system_id, left_risk_id,:LKP.lkp_straight_through_processing_rules_condition_column_left(rule_id, 2)),6) , 'PASS',\n\nv_Rule_ID_Count = 2 AND ISNULL(threshold_value) AND condition_order_number = 1 AND comparative_type = 'Numeric' AND ISNULL(:LKP.lkp_straight_through_processing_rules_2_Calculation_operator(rule_id, 2)) AND\nISNULL(:LKP.lkp_straight_through_processing_rules_calculation_constant_value(rule_id, 2)) \nAND comparative_operator = '>' \nAND TO_DECIMAL(left_source_value,6) > TO_DECIMAL(:LKP.lkp_straight_through_processing_data_staging_source_value(left_policy_source_system_id, left_risk_id,:LKP.lkp_straight_through_processing_rules_condition_column_left(rule_id, 2)),6) , 'PASS',\n\nv_Rule_ID_Count = 2 AND ISNULL(threshold_value) AND condition_order_number = 1 AND comparative_type = 'Numeric' AND ISNULL(:LKP.lkp_straight_through_processing_rules_2_Calculation_operator(rule_id, 2)) AND\nISNULL(:LKP.lkp_straight_through_processing_rules_calculation_constant_value(rule_id, 2)) \nAND comparative_operator = '=' \nAND TO_DECIMAL(left_source_value,6) = TO_DECIMAL(:LKP.lkp_straight_through_processing_data_staging_source_value(left_policy_source_system_id, left_risk_id,:LKP.lkp_straight_through_processing_rules_condition_column_left(rule_id, 2)),6) , 'PASS',\n\nv_Rule_ID_Count = 2 AND ISNULL(threshold_value) AND condition_order_number = 1 AND comparative_type = 'Numeric' AND ISNULL(:LKP.lkp_straight_through_processing_rules_2_Calculation_operator(rule_id, 2)) AND\nISNULL(:LKP.lkp_straight_through_processing_rules_calculation_constant_value(rule_id, 2)) \nAND comparative_operator = '<>' \nAND TO_DECIMAL(left_source_value,6) != TO_DECIMAL(:LKP.lkp_straight_through_processing_data_staging_source_value(left_policy_source_system_id, left_risk_id,:LKP.lkp_straight_through_processing_rules_condition_column_left(rule_id, 2)),6) , 'PASS',\n\nv_Rule_ID_Count = 2 AND ISNULL(threshold_value) AND condition_order_number = 1 AND comparative_type = 'Numeric' AND ISNULL(:LKP.lkp_straight_through_processing_rules_2_Calculation_operator(rule_id, 2)) AND\nISNULL(:LKP.lkp_straight_through_processing_rules_calculation_constant_value(rule_id, 2)) \nAND comparative_operator = '>=' \nAND TO_DECIMAL(left_source_value,6) >= TO_DECIMAL(:LKP.lkp_straight_through_processing_data_staging_source_value(left_policy_source_system_id, left_risk_id,:LKP.lkp_straight_through_processing_rules_condition_column_left(rule_id, 2)),6) , 'PASS',\n\nv_Rule_ID_Count = 2 AND ISNULL(threshold_value) AND condition_order_number = 1 AND comparative_type = 'Numeric' AND ISNULL(:LKP.lkp_straight_through_processing_rules_2_Calculation_operator(rule_id, 2)) AND\nISNULL(:LKP.lkp_straight_through_processing_rules_calculation_constant_value(rule_id, 2)) \nAND comparative_operator = '<=' \nAND TO_DECIMAL(left_source_value,6) <= TO_DECIMAL(:LKP.lkp_straight_through_processing_data_staging_source_value(left_policy_source_system_id, left_risk_id,:LKP.lkp_straight_through_processing_rules_condition_column_left(rule_id, 2)),6) , 'PASS',\n--Ending of Numeric Operators for 2 condition set, with no calculation operator \n\n--Beginning of Numeric Operators for 2 condition set, with * calculation operator \nv_Rule_ID_Count = 2 AND ISNULL(threshold_value) AND condition_order_number = 1 AND comparative_type = 'Numeric' AND :LKP.lkp_straight_through_processing_rules_2_Calculation_operator(rule_id, 2) = '*' AND\nNOT ISNULL(:LKP.lkp_straight_through_processing_rules_calculation_constant_value(rule_id, 2)) \nAND comparative_operator = '<' \nAND TO_DECIMAL(left_source_value,6) \n<\nTO_DECIMAL(:LKP.lkp_straight_through_processing_data_staging_source_value(left_policy_source_system_id, left_risk_id,:LKP.lkp_straight_through_processing_rules_condition_column_left(rule_id, 2)),6) * TO_DECIMAL(:LKP.lkp_straight_through_processing_rules_calculation_constant_value(rule_id, 2), 6), 'PASS',\n\nv_Rule_ID_Count = 2 AND ISNULL(threshold_value) AND condition_order_number = 1 AND comparative_type = 'Numeric' AND :LKP.lkp_straight_through_processing_rules_2_Calculation_operator(rule_id, 2) = '*' AND\nNOT ISNULL(:LKP.lkp_straight_through_processing_rules_calculation_constant_value(rule_id, 2)) \nAND comparative_operator = '>' \nAND TO_DECIMAL(left_source_value,6) \n>\nTO_DECIMAL(:LKP.lkp_straight_through_processing_data_staging_source_value(left_policy_source_system_id, left_risk_id,:LKP.lkp_straight_through_processing_rules_condition_column_left(rule_id, 2)),6) * TO_DECIMAL(:LKP.lkp_straight_through_processing_rules_calculation_constant_value(rule_id, 2), 6), 'PASS',\n\nv_Rule_ID_Count = 2 AND ISNULL(threshold_value) AND condition_order_number = 1 AND comparative_type = 'Numeric' AND :LKP.lkp_straight_through_processing_rules_2_Calculation_operator(rule_id, 2) = '*' AND\nNOT ISNULL(:LKP.lkp_straight_through_processing_rules_calculation_constant_value(rule_id, 2)) \nAND comparative_operator = '=' \nAND TO_DECIMAL(left_source_value,6) \n=\nTO_DECIMAL(:LKP.lkp_straight_through_processing_data_staging_source_value(left_policy_source_system_id, left_risk_id,:LKP.lkp_straight_through_processing_rules_condition_column_left(rule_id, 2)),6) * TO_DECIMAL(:LKP.lkp_straight_through_processing_rules_calculation_constant_value(rule_id, 2), 6), 'PASS',\n\nv_Rule_ID_Count = 2 AND ISNULL(threshold_value) AND condition_order_number = 1 AND comparative_type = 'Numeric' AND :LKP.lkp_straight_through_processing_rules_2_Calculation_operator(rule_id, 2) = '*' AND\nNOT ISNULL(:LKP.lkp_straight_through_processing_rules_calculation_constant_value(rule_id, 2)) \nAND comparative_operator = '<>' \nAND TO_DECIMAL(left_source_value,6) \n!=\nTO_DECIMAL(:LKP.lkp_straight_through_processing_data_staging_source_value(left_policy_source_system_id, left_risk_id,:LKP.lkp_straight_through_processing_rules_condition_column_left(rule_id, 2)),6) * TO_DECIMAL(:LKP.lkp_straight_through_processing_rules_calculation_constant_value(rule_id, 2), 6), 'PASS',\n\nv_Rule_ID_Count = 2 AND ISNULL(threshold_value) AND condition_order_number = 1 AND comparative_type = 'Numeric' AND :LKP.lkp_straight_through_processing_rules_2_Calculation_operator(rule_id, 2) = '*' AND\nNOT ISNULL(:LKP.lkp_straight_through_processing_rules_calculation_constant_value(rule_id, 2)) \nAND comparative_operator = '>=' \nAND TO_DECIMAL(left_source_value,6) \n>=\nTO_DECIMAL(:LKP.lkp_straight_through_processing_data_staging_source_value(left_policy_source_system_id, left_risk_id,:LKP.lkp_straight_through_processing_rules_condition_column_left(rule_id, 2)),6) * TO_DECIMAL(:LKP.lkp_straight_through_processing_rules_calculation_constant_value(rule_id, 2), 6), 'PASS',\n\nv_Rule_ID_Count = 2 AND ISNULL(threshold_value) AND condition_order_number = 1 AND comparative_type = 'Numeric' AND :LKP.lkp_straight_through_processing_rules_2_Calculation_operator(rule_id, 2) = '*' AND\nNOT ISNULL(:LKP.lkp_straight_through_processing_rules_calculation_constant_value(rule_id, 2)) \nAND comparative_operator = '<=' \nAND TO_DECIMAL(left_source_value,6) \n<=\nTO_DECIMAL(:LKP.lkp_straight_through_processing_data_staging_source_value(left_policy_source_system_id, left_risk_id,:LKP.lkp_straight_through_processing_rules_condition_column_left(rule_id, 2)),6) * TO_DECIMAL(:LKP.lkp_straight_through_processing_rules_calculation_constant_value(rule_id, 2), 6), 'PASS',\n--ending of Numeric Operators for 2 condition set, with * calculation operator \n\n--Beginning of Numeric Operators for 2 condition set, with / calculation operator \nv_Rule_ID_Count = 2 AND ISNULL(threshold_value) AND condition_order_number = 1 AND comparative_type = 'Numeric' AND :LKP.lkp_straight_through_processing_rules_2_Calculation_operator(rule_id, 2) = '/' AND\nNOT ISNULL(:LKP.lkp_straight_through_processing_rules_calculation_constant_value(rule_id, 2)) \nAND comparative_operator = '<' \nAND TO_DECIMAL(left_source_value,6) \n<\nTO_DECIMAL(:LKP.lkp_straight_through_processing_data_staging_source_value(left_policy_source_system_id, left_risk_id,:LKP.lkp_straight_through_processing_rules_condition_column_left(rule_id, 2)),6) / TO_DECIMAL(:LKP.lkp_straight_through_processing_rules_calculation_constant_value(rule_id, 2), 6), 'PASS',\n\nv_Rule_ID_Count = 2 AND ISNULL(threshold_value) AND condition_order_number = 1 AND comparative_type = 'Numeric' AND :LKP.lkp_straight_through_processing_rules_2_Calculation_operator(rule_id, 2) = '/' AND\nNOT ISNULL(:LKP.lkp_straight_through_processing_rules_calculation_constant_value(rule_id, 2)) \nAND comparative_operator = '>' \nAND TO_DECIMAL(left_source_value,6) \n>\nTO_DECIMAL(:LKP.lkp_straight_through_processing_data_staging_source_value(left_policy_source_system_id, left_risk_id,:LKP.lkp_straight_through_processing_rules_condition_column_left(rule_id, 2)),6) / TO_DECIMAL(:LKP.lkp_straight_through_processing_rules_calculation_constant_value(rule_id, 2), 6), 'PASS',\n\nv_Rule_ID_Count = 2 AND ISNULL(threshold_value) AND condition_order_number = 1 AND comparative_type = 'Numeric' AND :LKP.lkp_straight_through_processing_rules_2_Calculation_operator(rule_id, 2) = '/' AND\nNOT ISNULL(:LKP.lkp_straight_through_processing_rules_calculation_constant_value(rule_id, 2)) \nAND comparative_operator = '=' \nAND TO_DECIMAL(left_source_value,6) \n=\nTO_DECIMAL(:LKP.lkp_straight_through_processing_data_staging_source_value(left_policy_source_system_id, left_risk_id,:LKP.lkp_straight_through_processing_rules_condition_column_left(rule_id, 2)),6) / TO_DECIMAL(:LKP.lkp_straight_through_processing_rules_calculation_constant_value(rule_id, 2), 6), 'PASS',\n\nv_Rule_ID_Count = 2 AND ISNULL(threshold_value) AND condition_order_number = 1 AND comparative_type = 'Numeric' AND :LKP.lkp_straight_through_processing_rules_2_Calculation_operator(rule_id, 2) = '/' AND\nNOT ISNULL(:LKP.lkp_straight_through_processing_rules_calculation_constant_value(rule_id, 2)) \nAND comparative_operator = '<>' \nAND TO_DECIMAL(left_source_value,6) \n!=\nTO_DECIMAL(:LKP.lkp_straight_through_processing_data_staging_source_value(left_policy_source_system_id, left_risk_id,:LKP.lkp_straight_through_processing_rules_condition_column_left(rule_id, 2)),6) / TO_DECIMAL(:LKP.lkp_straight_through_processing_rules_calculation_constant_value(rule_id, 2), 6), 'PASS',\n\nv_Rule_ID_Count = 2 AND ISNULL(threshold_value) AND condition_order_number = 1 AND comparative_type = 'Numeric' AND :LKP.lkp_straight_through_processing_rules_2_Calculation_operator(rule_id, 2) = '/' AND\nNOT ISNULL(:LKP.lkp_straight_through_processing_rules_calculation_constant_value(rule_id, 2)) \nAND comparative_operator = '>=' \nAND TO_DECIMAL(left_source_value,6) \n>=\nTO_DECIMAL(:LKP.lkp_straight_through_processing_data_staging_source_value(left_policy_source_system_id, left_risk_id,:LKP.lkp_straight_through_processing_rules_condition_column_left(rule_id, 2)),6) / TO_DECIMAL(:LKP.lkp_straight_through_processing_rules_calculation_constant_value(rule_id, 2), 6), 'PASS',\n\nv_Rule_ID_Count = 2 AND ISNULL(threshold_value) AND condition_order_number = 1 AND comparative_type = 'Numeric' AND :LKP.lkp_straight_through_processing_rules_2_Calculation_operator(rule_id, 2) = '/' AND\nNOT ISNULL(:LKP.lkp_straight_through_processing_rules_calculation_constant_value(rule_id, 2)) \nAND comparative_operator = '<=' \nAND TO_DECIMAL(left_source_value,6) \n<=\nTO_DECIMAL(:LKP.lkp_straight_through_processing_data_staging_source_value(left_policy_source_system_id, left_risk_id,:LKP.lkp_straight_through_processing_rules_condition_column_left(rule_id, 2)),6) / TO_DECIMAL(:LKP.lkp_straight_through_processing_rules_calculation_constant_value(rule_id, 2), 6), 'PASS',\n--ending of Numeric Operators for 2 condition set, with / calculation operator \n\n\n--Beginning of Numeric Operators for 2 condition set, with + calculation operator \nv_Rule_ID_Count = 2 AND ISNULL(threshold_value) AND condition_order_number = 1 AND comparative_type = 'Numeric' AND :LKP.lkp_straight_through_processing_rules_2_Calculation_operator(rule_id, 2) = '+' AND\nNOT ISNULL(:LKP.lkp_straight_through_processing_rules_calculation_constant_value(rule_id, 2)) \nAND comparative_operator = '<' \nAND TO_DECIMAL(left_source_value,6) \n<\nTO_DECIMAL(:LKP.lkp_straight_through_processing_data_staging_source_value(left_policy_source_system_id, left_risk_id,:LKP.lkp_straight_through_processing_rules_condition_column_left(rule_id, 2)),6) + TO_DECIMAL(:LKP.lkp_straight_through_processing_rules_calculation_constant_value(rule_id, 2), 6), 'PASS',\n\nv_Rule_ID_Count = 2 AND ISNULL(threshold_value) AND condition_order_number = 1 AND comparative_type = 'Numeric' AND :LKP.lkp_straight_through_processing_rules_2_Calculation_operator(rule_id, 2) = '+' AND\nNOT ISNULL(:LKP.lkp_straight_through_processing_rules_calculation_constant_value(rule_id, 2)) \nAND comparative_operator = '>' \nAND TO_DECIMAL(left_source_value,6) \n>\nTO_DECIMAL(:LKP.lkp_straight_through_processing_data_staging_source_value(left_policy_source_system_id, left_risk_id,:LKP.lkp_straight_through_processing_rules_condition_column_left(rule_id, 2)),6) + TO_DECIMAL(:LKP.lkp_straight_through_processing_rules_calculation_constant_value(rule_id, 2), 6), 'PASS',\n\nv_Rule_ID_Count = 2 AND ISNULL(threshold_value) AND condition_order_number = 1 AND comparative_type = 'Numeric' AND :LKP.lkp_straight_through_processing_rules_2_Calculation_operator(rule_id, 2) = '+' AND\nNOT ISNULL(:LKP.lkp_straight_through_processing_rules_calculation_constant_value(rule_id, 2)) \nAND comparative_operator = '=' \nAND TO_DECIMAL(left_source_value,6) \n=\nTO_DECIMAL(:LKP.lkp_straight_through_processing_data_staging_source_value(left_policy_source_system_id, left_risk_id,:LKP.lkp_straight_through_processing_rules_condition_column_left(rule_id, 2)),6) + TO_DECIMAL(:LKP.lkp_straight_through_processing_rules_calculation_constant_value(rule_id, 2), 6), 'PASS',\n\nv_Rule_ID_Count = 2 AND ISNULL(threshold_value) AND condition_order_number = 1 AND comparative_type = 'Numeric' AND :LKP.lkp_straight_through_processing_rules_2_Calculation_operator(rule_id, 2) = '+' AND\nNOT ISNULL(:LKP.lkp_straight_through_processing_rules_calculation_constant_value(rule_id, 2)) \nAND comparative_operator = '<>' \nAND TO_DECIMAL(left_source_value,6) \n!=\nTO_DECIMAL(:LKP.lkp_straight_through_processing_data_staging_source_value(left_policy_source_system_id, left_risk_id,:LKP.lkp_straight_through_processing_rules_condition_column_left(rule_id, 2)),6) + TO_DECIMAL(:LKP.lkp_straight_through_processing_rules_calculation_constant_value(rule_id, 2), 6), 'PASS',\n\nv_Rule_ID_Count = 2 AND ISNULL(threshold_value) AND condition_order_number = 1 AND comparative_type = 'Numeric' AND :LKP.lkp_straight_through_processing_rules_2_Calculation_operator(rule_id, 2) = '+' AND\nNOT ISNULL(:LKP.lkp_straight_through_processing_rules_calculation_constant_value(rule_id, 2)) \nAND comparative_operator = '>=' \nAND TO_DECIMAL(left_source_value,6) \n>=\nTO_DECIMAL(:LKP.lkp_straight_through_processing_data_staging_source_value(left_policy_source_system_id, left_risk_id,:LKP.lkp_straight_through_processing_rules_condition_column_left(rule_id, 2)),6) + TO_DECIMAL(:LKP.lkp_straight_through_processing_rules_calculation_constant_value(rule_id, 2), 6), 'PASS',\n\nv_Rule_ID_Count = 2 AND ISNULL(threshold_value) AND condition_order_number = 1 AND comparative_type = 'Numeric' AND :LKP.lkp_straight_through_processing_rules_2_Calculation_operator(rule_id, 2) = '+' AND\nNOT ISNULL(:LKP.lkp_straight_through_processing_rules_calculation_constant_value(rule_id, 2)) \nAND comparative_operator = '<=' \nAND TO_DECIMAL(left_source_value,6) \n<=\nTO_DECIMAL(:LKP.lkp_straight_through_processing_data_staging_source_value(left_policy_source_system_id, left_risk_id,:LKP.lkp_straight_through_processing_rules_condition_column_left(rule_id, 2)),6) + TO_DECIMAL(:LKP.lkp_straight_through_processing_rules_calculation_constant_value(rule_id, 2), 6), 'PASS',\n--ending of Numeric Operators for 2 condition set, with + calculation operator \n\n--Beginning of Numeric Operators for 2 condition set, with - calculation operator \nv_Rule_ID_Count = 2 AND ISNULL(threshold_value) AND condition_order_number = 1 AND comparative_type = 'Numeric' AND :LKP.lkp_straight_through_processing_rules_2_Calculation_operator(rule_id, 2) = '-' AND\nNOT ISNULL(:LKP.lkp_straight_through_processing_rules_calculation_constant_value(rule_id, 2)) \nAND comparative_operator = '<' \nAND TO_DECIMAL(left_source_value,6) \n<\nTO_DECIMAL(:LKP.lkp_straight_through_processing_data_staging_source_value(left_policy_source_system_id, left_risk_id,:LKP.lkp_straight_through_processing_rules_condition_column_left(rule_id, 2)),6) - TO_DECIMAL(:LKP.lkp_straight_through_processing_rules_calculation_constant_value(rule_id, 2), 6), 'PASS',\n\nv_Rule_ID_Count = 2 AND ISNULL(threshold_value) AND condition_order_number = 1 AND comparative_type = 'Numeric' AND :LKP.lkp_straight_through_processing_rules_2_Calculation_operator(rule_id, 2) = '-' AND\nNOT ISNULL(:LKP.lkp_straight_through_processing_rules_calculation_constant_value(rule_id, 2)) \nAND comparative_operator = '>' \nAND TO_DECIMAL(left_source_value,6) \n>\nTO_DECIMAL(:LKP.lkp_straight_through_processing_data_staging_source_value(left_policy_source_system_id, left_risk_id,:LKP.lkp_straight_through_processing_rules_condition_column_left(rule_id, 2)),6) - TO_DECIMAL(:LKP.lkp_straight_through_processing_rules_calculation_constant_value(rule_id, 2), 6), 'PASS',\n\nv_Rule_ID_Count = 2 AND ISNULL(threshold_value) AND condition_order_number = 1 AND comparative_type = 'Numeric' AND :LKP.lkp_straight_through_processing_rules_2_Calculation_operator(rule_id, 2) = '-' AND\nNOT ISNULL(:LKP.lkp_straight_through_processing_rules_calculation_constant_value(rule_id, 2)) \nAND comparative_operator = '=' \nAND TO_DECIMAL(left_source_value,6) \n=\nTO_DECIMAL(:LKP.lkp_straight_through_processing_data_staging_source_value(left_policy_source_system_id, left_risk_id,:LKP.lkp_straight_through_processing_rules_condition_column_left(rule_id, 2)),6) - TO_DECIMAL(:LKP.lkp_straight_through_processing_rules_calculation_constant_value(rule_id, 2), 6), 'PASS',\n\nv_Rule_ID_Count = 2 AND ISNULL(threshold_value) AND condition_order_number = 1 AND comparative_type = 'Numeric' AND :LKP.lkp_straight_through_processing_rules_2_Calculation_operator(rule_id, 2) = '-' AND\nNOT ISNULL(:LKP.lkp_straight_through_processing_rules_calculation_constant_value(rule_id, 2)) \nAND comparative_operator = '<>' \nAND TO_DECIMAL(left_source_value,6) \n!=\nTO_DECIMAL(:LKP.lkp_straight_through_processing_data_staging_source_value(left_policy_source_system_id, left_risk_id,:LKP.lkp_straight_through_processing_rules_condition_column_left(rule_id, 2)),6) - TO_DECIMAL(:LKP.lkp_straight_through_processing_rules_calculation_constant_value(rule_id, 2), 6), 'PASS',\n\nv_Rule_ID_Count = 2 AND ISNULL(threshold_value) AND condition_order_number = 1 AND comparative_type = 'Numeric' AND :LKP.lkp_straight_through_processing_rules_2_Calculation_operator(rule_id, 2) = '-' AND\nNOT ISNULL(:LKP.lkp_straight_through_processing_rules_calculation_constant_value(rule_id, 2)) \nAND comparative_operator = '>=' \nAND TO_DECIMAL(left_source_value,6) \n>=\nTO_DECIMAL(:LKP.lkp_straight_through_processing_data_staging_source_value(left_policy_source_system_id, left_risk_id,:LKP.lkp_straight_through_processing_rules_condition_column_left(rule_id, 2)),6) - TO_DECIMAL(:LKP.lkp_straight_through_processing_rules_calculation_constant_value(rule_id, 2), 6), 'PASS',\n\nv_Rule_ID_Count = 2 AND ISNULL(threshold_value) AND condition_order_number = 1 AND comparative_type = 'Numeric' AND :LKP.lkp_straight_through_processing_rules_2_Calculation_operator(rule_id, 2) = '-' AND\nNOT ISNULL(:LKP.lkp_straight_through_processing_rules_calculation_constant_value(rule_id, 2)) \nAND comparative_operator = '<=' \nAND TO_DECIMAL(left_source_value,6) \n<=\nTO_DECIMAL(:LKP.lkp_straight_through_processing_data_staging_source_value(left_policy_source_system_id, left_risk_id,:LKP.lkp_straight_through_processing_rules_condition_column_left(rule_id, 2)),6) - TO_DECIMAL(:LKP.lkp_straight_through_processing_rules_calculation_constant_value(rule_id, 2), 6), 'PASS',\n--ending of Numeric Operators for 2 condition set, with + calculation operator \n\nv_Rule_ID_Count = 2 AND ISNULL(threshold_value) AND condition_order_number = 2 AND ISNULL(comparative_type), 'NULL'\n\n)"
           },
           {
             "name" : "o_rule_row_pass_fail_indicator_two_Condition_set_1_WC",
@@ -3345,86 +3335,6 @@
             "expression" : "v_rule_row_pass_fail_indicator_two_Condition_set_1_WC"
           },
           {
-            "name" : "v_rule_row_pass_fail_indicator_three_Condition_set_1_NC",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 10,
-            "scale" : 0,
-            "expFieldType" : "VARIABLE",
-            "expression" : "DECODE(TRUE,\n\n--Beginning of Numeric Operators for 3-1 condition, with no calculation operator--\nv_Rule_ID_Count = 3 \nAND ISNULL(v_Rule_3_Calculation_operator) AND condition_order_number = 1\nAND comparative_type = 'Numeric' \nAND comparative_operator = '>=' \nAND TO_DECIMAL(left_source_value,6) >= TO_DECIMAL(threshold_value,6) , 'PASS',\n\nv_Rule_ID_Count = 3 \nAND ISNULL(v_Rule_3_Calculation_operator)\nAND comparative_type = 'Numeric' AND condition_order_number = 1\nAND comparative_operator = '<=' \nAND TO_DECIMAL(left_source_value,6) <= TO_DECIMAL(threshold_value,6), 'PASS',\n\nv_Rule_ID_Count = 3 \nAND ISNULL(v_Rule_3_Calculation_operator)\nAND comparative_type = 'Numeric' AND condition_order_number = 1\nAND comparative_operator = '=' \nAND TO_DECIMAL(left_source_value,6) = TO_DECIMAL(threshold_value,6), 'PASS',\n\nv_Rule_ID_Count = 3 \nAND ISNULL(v_Rule_3_Calculation_operator)\nAND comparative_type = 'Numeric' AND condition_order_number = 1\nAND comparative_operator = '<>' \nAND TO_DECIMAL(left_source_value,6) != TO_DECIMAL(threshold_value,6), 'PASS',\n\nv_Rule_ID_Count = 3 \nAND ISNULL(v_Rule_3_Calculation_operator)\nAND comparative_type = 'Numeric' AND condition_order_number = 1\nAND comparative_operator = '<' \nAND TO_DECIMAL(left_source_value,6) < TO_DECIMAL(threshold_value,6), 'PASS',\n\nv_Rule_ID_Count = 3 \nAND ISNULL(v_Rule_3_Calculation_operator)\nAND comparative_type = 'Numeric' AND condition_order_number = 1\nAND comparative_operator = '>' \nAND TO_DECIMAL(left_source_value,6) > TO_DECIMAL(threshold_value,6), 'PASS',\n--Ending of Numeric Operators for 3-1 condition, with no calculation operator--\n\n\n--Beginning of Text Operators  for 3-1 condition, with no calculation operator--\nv_Rule_ID_Count = 3 \nAND ISNULL(v_Rule_3_Calculation_operator)\nAND comparative_type = 'Text' AND condition_order_number = 1\nAND comparative_operator = '=' \nAND left_source_value = threshold_value , 'PASS',\n\nv_Rule_ID_Count = 3 \nAND ISNULL(v_Rule_3_Calculation_operator)\nAND comparative_type = 'Text' AND condition_order_number = 1\nAND comparative_operator = '<>' \nAND left_source_value != threshold_value , 'PASS',\n\nv_Rule_ID_Count = 3 \nAND ISNULL(v_Rule_3_Calculation_operator)\nAND comparative_type = 'Text' AND condition_order_number = 1\nAND comparative_operator = 'IN' \nAND INSTR(threshold_value, left_source_value), 'PASS',\n\nv_Rule_ID_Count = 3 \nAND ISNULL(v_Rule_3_Calculation_operator)\nAND comparative_type = 'Text' AND condition_order_number = 1\nAND comparative_operator = 'NOT IN' \nAND NOT INSTR(threshold_value, left_source_value), 'PASS',\n--Ending of Text Operators  for 3-1 condition, with no calculation operator--\n\n--Beginning of Date Operators  for 3-1 condition, with no calculation operator, with -25 years--\nv_Rule_ID_Count = 3 \nAND ISNULL(v_Rule_3_Calculation_operator)\nAND comparative_type = 'Date' AND INSTR(threshold_value,'GETDATE') AND INSTR(threshold_value,'-25') AND condition_order_number = 1\nAND comparative_operator = '<' \nAND TO_INTEGER(left_source_value) < TO_INTEGER(GET_DATE_PART(SESSSTARTTIME, 'YYYY'))-25 , 'PASS',\n\nv_Rule_ID_Count = 3 \nAND ISNULL(v_Rule_3_Calculation_operator)\nAND comparative_type = 'Date' AND INSTR(threshold_value,'GETDATE') AND INSTR(threshold_value,'-25') AND condition_order_number = 1\nAND comparative_operator = '>' \nAND TO_INTEGER(left_source_value) > TO_INTEGER(GET_DATE_PART(SESSSTARTTIME, 'YYYY'))-25, 'PASS',\n\nv_Rule_ID_Count = 3 \nAND ISNULL(v_Rule_3_Calculation_operator)\nAND comparative_type = 'Date' AND INSTR(threshold_value,'GETDATE') AND INSTR(threshold_value,'-25') AND condition_order_number = 1\nAND comparative_operator = '=' \nAND TO_INTEGER(left_source_value) = TO_INTEGER(GET_DATE_PART(SESSSTARTTIME, 'YYYY'))-25, 'PASS',\n\nv_Rule_ID_Count = 3 \nAND ISNULL(v_Rule_3_Calculation_operator)\nAND comparative_type = 'Date' AND INSTR(threshold_value,'GETDATE') AND INSTR(threshold_value,'-25') AND condition_order_number = 1\nAND comparative_operator = '<>' \nAND TO_INTEGER(left_source_value) != TO_INTEGER(GET_DATE_PART(SESSSTARTTIME, 'YYYY'))-25, 'PASS',\n\nv_Rule_ID_Count = 3 \nAND ISNULL(v_Rule_3_Calculation_operator)\nAND comparative_type = 'Date' AND INSTR(threshold_value,'GETDATE') AND INSTR(threshold_value,'-25') AND condition_order_number = 1\nAND comparative_operator = '<=' \nAND TO_INTEGER(left_source_value) <= TO_INTEGER(GET_DATE_PART(SESSSTARTTIME, 'YYYY'))-25, 'PASS',\n\nv_Rule_ID_Count = 3 \nAND ISNULL(v_Rule_3_Calculation_operator)\nAND comparative_type = 'Date' AND INSTR(threshold_value,'GETDATE') AND INSTR(threshold_value,'-25') AND condition_order_number = 1\nAND comparative_operator = '>=' \nAND TO_INTEGER(left_source_value) >= TO_INTEGER(GET_DATE_PART(SESSSTARTTIME, 'YYYY'))-25, 'PASS',\n--Ending of Date Operators  for 3-1 condition, with no calculation operator,  with -25 years--\n\n--Beginning of Date Operators  for 3-1 condition, with no calculation operator--\nv_Rule_ID_Count = 3 \nAND ISNULL(v_Rule_3_Calculation_operator)\nAND comparative_type = 'Date' AND INSTR(threshold_value,'GETDATE') AND condition_order_number = 1\nAND comparative_operator = '<' \nAND TO_INTEGER(left_source_value) < TO_INTEGER(GET_DATE_PART(SESSSTARTTIME, 'YYYY')) , 'PASS',\n\nv_Rule_ID_Count = 3 \nAND ISNULL(v_Rule_3_Calculation_operator)\nAND comparative_type = 'Date' AND INSTR(threshold_value,'GETDATE') AND condition_order_number = 1\nAND comparative_operator = '>' \nAND TO_INTEGER(left_source_value) > TO_INTEGER(GET_DATE_PART(SESSSTARTTIME, 'YYYY')) , 'PASS',\n\nv_Rule_ID_Count = 3 \nAND ISNULL(v_Rule_3_Calculation_operator)\nAND comparative_type = 'Date' AND INSTR(threshold_value,'GETDATE') AND condition_order_number = 1\nAND comparative_operator = '=' \nAND TO_INTEGER(left_source_value) = TO_INTEGER(GET_DATE_PART(SESSSTARTTIME, 'YYYY')) , 'PASS',\n\nv_Rule_ID_Count = 3 \nAND ISNULL(v_Rule_3_Calculation_operator)\nAND comparative_type = 'Date' AND INSTR(threshold_value,'GETDATE') AND condition_order_number = 1\nAND comparative_operator = '<>' \nAND TO_INTEGER(left_source_value) != TO_INTEGER(GET_DATE_PART(SESSSTARTTIME, 'YYYY')) , 'PASS',\n\nv_Rule_ID_Count = 3 \nAND ISNULL(v_Rule_3_Calculation_operator)\nAND comparative_type = 'Date' AND INSTR(threshold_value,'GETDATE') AND condition_order_number = 1\nAND comparative_operator = '<=' \nAND TO_INTEGER(left_source_value) <= TO_INTEGER(GET_DATE_PART(SESSSTARTTIME, 'YYYY')) , 'PASS',\n\nv_Rule_ID_Count = 3 \nAND ISNULL(v_Rule_3_Calculation_operator)\nAND comparative_type = 'Date' AND INSTR(threshold_value,'GETDATE') AND condition_order_number = 1\nAND comparative_operator = '>=' \nAND TO_INTEGER(left_source_value) >= TO_INTEGER(GET_DATE_PART(SESSSTARTTIME, 'YYYY')) , 'PASS'\n--Ending of Date Operators  for 3-1 condition, with no calculation operator--\n\n\n)"
-          },
-          {
-            "name" : "o_rule_row_pass_fail_indicator_three_Condition_set_1_NC",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 10,
-            "scale" : 0,
-            "expFieldType" : "OUTPUT",
-            "expression" : "v_rule_row_pass_fail_indicator_three_Condition_set_1_NC"
-          },
-          {
-            "name" : "v_rule_row_pass_fail_indicator_three_Condition_set_2_NC",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 10,
-            "scale" : 0,
-            "expFieldType" : "VARIABLE",
-            "expression" : "DECODE(TRUE,\n\n--Beginning of Numeric Operators for 3-2 condition, with no calculation operator--\nv_Rule_ID_Count = 3 \nAND ISNULL(v_Rule_3_Calculation_operator) AND condition_order_number = 2 and isnull(threshold_value) \nAND comparative_type = 'Numeric' \nAND comparative_operator = '>=' \nAND TO_DECIMAL(left_source_value,6) >= TO_DECIMAL(v_Rule_Condition_Column_left,6) , 'PASS',\n\nv_Rule_ID_Count = 3 \nAND ISNULL(v_Rule_3_Calculation_operator)\nAND comparative_type = 'Numeric' AND condition_order_number = 2 and isnull(threshold_value)\nAND comparative_operator = '<=' \nAND TO_DECIMAL(left_source_value,6) <= TO_DECIMAL(v_Rule_Condition_Column_left,6), 'PASS',\n\nv_Rule_ID_Count = 3 \nAND ISNULL(v_Rule_3_Calculation_operator)\nAND comparative_type = 'Numeric' AND condition_order_number = 2 and isnull(threshold_value)\nAND comparative_operator = '=' \nAND TO_DECIMAL(left_source_value,6) = TO_DECIMAL(v_Rule_Condition_Column_left,6), 'PASS',\n\nv_Rule_ID_Count = 3 \nAND ISNULL(v_Rule_3_Calculation_operator)\nAND comparative_type = 'Numeric' AND condition_order_number = 2 and isnull(threshold_value)\nAND comparative_operator = '<>' \nAND TO_DECIMAL(left_source_value,6) != TO_DECIMAL(v_Rule_Condition_Column_left,6), 'PASS',\n\nv_Rule_ID_Count = 3 \nAND ISNULL(v_Rule_3_Calculation_operator)\nAND comparative_type = 'Numeric' AND condition_order_number = 2 and isnull(threshold_value)\nAND comparative_operator = '<' \nAND TO_DECIMAL(left_source_value,6) < TO_DECIMAL(v_Rule_Condition_Column_left,6), 'PASS',\n\nv_Rule_ID_Count = 3 \nAND ISNULL(v_Rule_3_Calculation_operator)\nAND comparative_type = 'Numeric' AND condition_order_number = 2 and isnull(threshold_value)\nAND comparative_operator = '>' \nAND TO_DECIMAL(left_source_value,6) > TO_DECIMAL(v_Rule_Condition_Column_left,6), 'PASS',\n--Ending of Numeric Operators for 3-2 condition, with no calculation operator--\n\n\n--Beginning of Text Operators  for 3-2 condition, with no calculation operator--\nv_Rule_ID_Count = 3 \nAND ISNULL(v_Rule_3_Calculation_operator)\nAND comparative_type = 'Text' AND condition_order_number = 2 and isnull(threshold_value)\nAND comparative_operator = '=' \nAND left_source_value = v_Rule_Condition_Column_left , 'PASS',\n\nv_Rule_ID_Count = 3 \nAND ISNULL(v_Rule_3_Calculation_operator)\nAND comparative_type = 'Text' AND condition_order_number = 2 and isnull(threshold_value)\nAND comparative_operator = '<>' \nAND left_source_value != v_Rule_Condition_Column_left , 'PASS',\n\nv_Rule_ID_Count = 3 \nAND ISNULL(v_Rule_3_Calculation_operator)\nAND comparative_type = 'Text' AND condition_order_number = 2 and isnull(threshold_value)\nAND comparative_operator = 'IN' \nAND INSTR( v_Rule_Condition_Column_left, left_source_value), 'PASS',\n\nv_Rule_ID_Count = 3 \nAND ISNULL(v_Rule_3_Calculation_operator)\nAND comparative_type = 'Text' AND condition_order_number = 2 and isnull(threshold_value)\nAND comparative_operator = 'NOT IN' \nAND NOT INSTR(v_Rule_Condition_Column_left, left_source_value), 'PASS'\n--Ending of Text Operators  for 3-2 condition, with no calculation operator--\n\n)"
-          },
-          {
-            "name" : "o_rule_row_pass_fail_indicator_three_Condition_set_2_NC",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 10,
-            "scale" : 0,
-            "expFieldType" : "OUTPUT",
-            "expression" : "v_rule_row_pass_fail_indicator_three_Condition_set_2_NC"
-          },
-          {
-            "name" : "v_rule_row_pass_fail_indicator_three_Condition_set_1_WC",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 10,
-            "scale" : 0,
-            "expFieldType" : "VARIABLE",
-            "expression" : "DECODE(TRUE,\n\n--Beginning of Numeric Operators for 3-1 condition, with no calculation operator--\nv_Rule_ID_Count = 3 \nAND NOT ISNULL(v_Rule_3_Calculation_operator) AND condition_order_number = 1\nAND comparative_type = 'Numeric' \nAND comparative_operator = '>=' \nAND TO_DECIMAL(left_source_value,6) >= TO_DECIMAL(threshold_value,6) , 'PASS',\n\nv_Rule_ID_Count = 3 \nAND NOT ISNULL(v_Rule_3_Calculation_operator)\nAND comparative_type = 'Numeric' AND condition_order_number = 1\nAND comparative_operator = '<=' \nAND TO_DECIMAL(left_source_value,6) <= TO_DECIMAL(threshold_value,6), 'PASS',\n\nv_Rule_ID_Count = 3 \nAND NOT ISNULL(v_Rule_3_Calculation_operator)\nAND comparative_type = 'Numeric' AND condition_order_number = 1\nAND comparative_operator = '=' \nAND TO_DECIMAL(left_source_value,6) = TO_DECIMAL(threshold_value,6), 'PASS',\n\nv_Rule_ID_Count = 3 \nAND NOT ISNULL(v_Rule_3_Calculation_operator)\nAND comparative_type = 'Numeric' AND condition_order_number = 1\nAND comparative_operator = '<>' \nAND TO_DECIMAL(left_source_value,6) != TO_DECIMAL(threshold_value,6), 'PASS',\n\nv_Rule_ID_Count = 3 \nAND NOT ISNULL(v_Rule_3_Calculation_operator)\nAND comparative_type = 'Numeric' AND condition_order_number = 1\nAND comparative_operator = '<' \nAND TO_DECIMAL(left_source_value,6) < TO_DECIMAL(threshold_value,6), 'PASS',\n\nv_Rule_ID_Count = 3 \nAND NOT ISNULL(v_Rule_3_Calculation_operator)\nAND comparative_type = 'Numeric' AND condition_order_number = 1\nAND comparative_operator = '>' \nAND TO_DECIMAL(left_source_value,6) > TO_DECIMAL(threshold_value,6), 'PASS',\n--Ending of Numeric Operators for 3-1 condition, with no calculation operator--\n\n\n--Beginning of Text Operators  for 3-1 condition, with no calculation operator--\nv_Rule_ID_Count = 3 \nAND NOT ISNULL(v_Rule_3_Calculation_operator)\nAND comparative_type = 'Text' AND condition_order_number = 1\nAND comparative_operator = '=' \nAND left_source_value = threshold_value , 'PASS',\n\nv_Rule_ID_Count = 3 \nAND NOT ISNULL(v_Rule_3_Calculation_operator)\nAND comparative_type = 'Text' AND condition_order_number = 1\nAND comparative_operator = '<>' \nAND left_source_value != threshold_value , 'PASS',\n\nv_Rule_ID_Count = 3 \nAND NOT ISNULL(v_Rule_3_Calculation_operator)\nAND comparative_type = 'Text' AND condition_order_number = 1\nAND comparative_operator = 'IN' \nAND INSTR(threshold_value, left_source_value), 'PASS',\n\nv_Rule_ID_Count = 3 \nAND NOT ISNULL(v_Rule_3_Calculation_operator)\nAND comparative_type = 'Text' AND condition_order_number = 1\nAND comparative_operator = 'NOT IN' \nAND NOT INSTR(threshold_value, left_source_value), 'PASS',\n--Ending of Text Operators  for 3-1 condition, with no calculation operator--\n\n--Beginning of Date Operators  for 3-1 condition, with no calculation operator, with -25 years--\nv_Rule_ID_Count = 3 \nAND NOT ISNULL(v_Rule_3_Calculation_operator)\nAND comparative_type = 'Date' AND INSTR(threshold_value,'GETDATE') AND INSTR(threshold_value,'-25') AND condition_order_number = 1\nAND comparative_operator = '<' \nAND TO_INTEGER(left_source_value) < TO_INTEGER(GET_DATE_PART(SESSSTARTTIME, 'YYYY'))-25 , 'PASS',\n\nv_Rule_ID_Count = 3 \nAND NOT ISNULL(v_Rule_3_Calculation_operator)\nAND comparative_type = 'Date' AND INSTR(threshold_value,'GETDATE') AND INSTR(threshold_value,'-25') AND condition_order_number = 1\nAND comparative_operator = '>' \nAND TO_INTEGER(left_source_value) > TO_INTEGER(GET_DATE_PART(SESSSTARTTIME, 'YYYY'))-25, 'PASS',\n\nv_Rule_ID_Count = 3 \nAND NOT ISNULL(v_Rule_3_Calculation_operator)\nAND comparative_type = 'Date' AND INSTR(threshold_value,'GETDATE') AND INSTR(threshold_value,'-25') AND condition_order_number = 1\nAND comparative_operator = '=' \nAND TO_INTEGER(left_source_value) = TO_INTEGER(GET_DATE_PART(SESSSTARTTIME, 'YYYY'))-25, 'PASS',\n\nv_Rule_ID_Count = 3 \nAND NOT ISNULL(v_Rule_3_Calculation_operator)\nAND comparative_type = 'Date' AND INSTR(threshold_value,'GETDATE') AND INSTR(threshold_value,'-25') AND condition_order_number = 1\nAND comparative_operator = '<>' \nAND TO_INTEGER(left_source_value) != TO_INTEGER(GET_DATE_PART(SESSSTARTTIME, 'YYYY'))-25, 'PASS',\n\nv_Rule_ID_Count = 3 \nAND NOT ISNULL(v_Rule_3_Calculation_operator)\nAND comparative_type = 'Date' AND INSTR(threshold_value,'GETDATE') AND INSTR(threshold_value,'-25') AND condition_order_number = 1\nAND comparative_operator = '<=' \nAND TO_INTEGER(left_source_value) <= TO_INTEGER(GET_DATE_PART(SESSSTARTTIME, 'YYYY'))-25, 'PASS',\n\nv_Rule_ID_Count = 3 \nAND NOT ISNULL(v_Rule_3_Calculation_operator)\nAND comparative_type = 'Date' AND INSTR(threshold_value,'GETDATE') AND INSTR(threshold_value,'-25') AND condition_order_number = 1\nAND comparative_operator = '>=' \nAND TO_INTEGER(left_source_value) >= TO_INTEGER(GET_DATE_PART(SESSSTARTTIME, 'YYYY'))-25, 'PASS',\n--Ending of Date Operators  for 3-1 condition, with no calculation operator,  with -25 years--\n\n--Beginning of Date Operators  for 3-1 condition, with no calculation operator--\nv_Rule_ID_Count = 3 \nAND NOT ISNULL(v_Rule_3_Calculation_operator)\nAND comparative_type = 'Date' AND INSTR(threshold_value,'GETDATE') AND condition_order_number = 1\nAND comparative_operator = '<' \nAND TO_INTEGER(left_source_value) < TO_INTEGER(GET_DATE_PART(SESSSTARTTIME, 'YYYY')) , 'PASS',\n\nv_Rule_ID_Count = 3 \nAND NOT ISNULL(v_Rule_3_Calculation_operator)\nAND comparative_type = 'Date' AND INSTR(threshold_value,'GETDATE') AND condition_order_number = 1\nAND comparative_operator = '>' \nAND TO_INTEGER(left_source_value) > TO_INTEGER(GET_DATE_PART(SESSSTARTTIME, 'YYYY')) , 'PASS',\n\nv_Rule_ID_Count = 3 \nAND NOT ISNULL(v_Rule_3_Calculation_operator)\nAND comparative_type = 'Date' AND INSTR(threshold_value,'GETDATE') AND condition_order_number = 1\nAND comparative_operator = '=' \nAND TO_INTEGER(left_source_value) = TO_INTEGER(GET_DATE_PART(SESSSTARTTIME, 'YYYY')) , 'PASS',\n\nv_Rule_ID_Count = 3 \nAND NOT ISNULL(v_Rule_3_Calculation_operator)\nAND comparative_type = 'Date' AND INSTR(threshold_value,'GETDATE') AND condition_order_number = 1\nAND comparative_operator = '<>' \nAND TO_INTEGER(left_source_value) != TO_INTEGER(GET_DATE_PART(SESSSTARTTIME, 'YYYY')) , 'PASS',\n\nv_Rule_ID_Count = 3 \nAND NOT ISNULL(v_Rule_3_Calculation_operator)\nAND comparative_type = 'Date' AND INSTR(threshold_value,'GETDATE') AND condition_order_number = 1\nAND comparative_operator = '<=' \nAND TO_INTEGER(left_source_value) <= TO_INTEGER(GET_DATE_PART(SESSSTARTTIME, 'YYYY')) , 'PASS',\n\nv_Rule_ID_Count = 3 \nAND NOT ISNULL(v_Rule_3_Calculation_operator)\nAND comparative_type = 'Date' AND INSTR(threshold_value,'GETDATE') AND condition_order_number = 1\nAND comparative_operator = '>=' \nAND TO_INTEGER(left_source_value) >= TO_INTEGER(GET_DATE_PART(SESSSTARTTIME, 'YYYY')) , 'PASS'\n--Ending of Date Operators  for 3-1 condition, with no calculation operator--\n\n\n)"
-          },
-          {
-            "name" : "o_rule_row_pass_fail_indicator_three_Condition_set_1_WC",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 10,
-            "scale" : 0,
-            "expFieldType" : "OUTPUT",
-            "expression" : "v_rule_row_pass_fail_indicator_three_Condition_set_1_WC"
-          },
-          {
-            "name" : "v_rule_row_pass_fail_indicator_three_Condition_set_2_WC",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 10,
-            "scale" : 0,
-            "expFieldType" : "VARIABLE",
-            "expression" : "DECODE(TRUE, \n\n--Beginning of Numeric Operators for 3-2 condition, with calculation operator - Division--\nv_Rule_ID_Count = 3 AND condition_order_number = 2 and isnull(threshold_value) \nAND calculation_operator = '/'\nAND comparative_type = 'Numeric' \nAND comparative_operator = '<' \nAND TO_DECIMAL(left_source_value,6) < TO_DECIMAL(v_Rule_Condition_Column_left,6) / TO_DECIMAL(v_Rule_calculation_constant_value,6) , 'PASS',\n\nv_Rule_ID_Count = 3 AND condition_order_number = 2 and isnull(threshold_value) \nAND calculation_operator = '/'\nAND comparative_type = 'Numeric' \nAND comparative_operator = '>' \nAND TO_DECIMAL(left_source_value,6) > TO_DECIMAL(v_Rule_Condition_Column_left,6) / TO_DECIMAL(v_Rule_calculation_constant_value,6), 'PASS',\n\nv_Rule_ID_Count = 3 AND condition_order_number = 2 and isnull(threshold_value) \nAND calculation_operator = '/'\nAND comparative_type = 'Numeric' \nAND comparative_operator = '=' \nAND TO_DECIMAL(left_source_value,6) = TO_DECIMAL(v_Rule_Condition_Column_left,6) / TO_DECIMAL(v_Rule_calculation_constant_value,6), 'PASS',\n\nv_Rule_ID_Count = 3 AND condition_order_number = 2 and isnull(threshold_value) \nAND calculation_operator = '/'\nAND comparative_type = 'Numeric' \nAND comparative_operator = '<>' \nAND TO_DECIMAL(left_source_value,6) != TO_DECIMAL(v_Rule_Condition_Column_left,6) / TO_DECIMAL(v_Rule_calculation_constant_value,6), 'PASS',\n\nv_Rule_ID_Count = 3 AND condition_order_number = 2 and isnull(threshold_value) \nAND calculation_operator = '/'\nAND comparative_type = 'Numeric' \nAND comparative_operator = '>=' \nAND TO_DECIMAL(left_source_value,6) >= TO_DECIMAL(v_Rule_Condition_Column_left,6) / TO_DECIMAL(v_Rule_calculation_constant_value,6), 'PASS',\n\nv_Rule_ID_Count = 3 AND condition_order_number = 2 and isnull(threshold_value) \nAND calculation_operator = '/'\nAND comparative_type = 'Numeric' \nAND comparative_operator = '<=' \nAND TO_DECIMAL(left_source_value,6) <= TO_DECIMAL(v_Rule_Condition_Column_left,6) / TO_DECIMAL(v_Rule_calculation_constant_value,6), 'PASS',\n--Ending of Numeric Operators for 3-2 condition, with calculation operator - Division--\n\n--Beginning of Numeric Operators for 3-2 condition, with calculation operator - Addition--\nv_Rule_ID_Count = 3 AND condition_order_number = 2 and isnull(threshold_value) \nAND calculation_operator = '+'\nAND comparative_type = 'Numeric' \nAND comparative_operator = '<' \nAND TO_DECIMAL(left_source_value,6) < TO_DECIMAL(v_Rule_Condition_Column_left,6) + TO_DECIMAL(v_Rule_calculation_constant_value,6) , 'PASS',\n\nv_Rule_ID_Count = 3 AND condition_order_number = 2 and isnull(threshold_value) \nAND calculation_operator = '+'\nAND comparative_type = 'Numeric' \nAND comparative_operator = '>' \nAND TO_DECIMAL(left_source_value,6) > TO_DECIMAL(v_Rule_Condition_Column_left,6) + TO_DECIMAL(v_Rule_calculation_constant_value,6), 'PASS',\n\nv_Rule_ID_Count = 3 AND condition_order_number = 2 and isnull(threshold_value) \nAND calculation_operator = '+'\nAND comparative_type = 'Numeric' \nAND comparative_operator = '=' \nAND TO_DECIMAL(left_source_value,6) = TO_DECIMAL(v_Rule_Condition_Column_left,6) + TO_DECIMAL(v_Rule_calculation_constant_value,6), 'PASS',\n\nv_Rule_ID_Count = 3 AND condition_order_number = 2 and isnull(threshold_value) \nAND calculation_operator = '+'\nAND comparative_type = 'Numeric' \nAND comparative_operator = '<>' \nAND TO_DECIMAL(left_source_value,6) != TO_DECIMAL(v_Rule_Condition_Column_left,6) + TO_DECIMAL(v_Rule_calculation_constant_value,6) , 'PASS',\n\nv_Rule_ID_Count = 3 AND condition_order_number = 2 and isnull(threshold_value) \nAND calculation_operator = '+'\nAND comparative_type = 'Numeric' \nAND comparative_operator = '>=' \nAND TO_DECIMAL(left_source_value,6) >= TO_DECIMAL(v_Rule_Condition_Column_left,6) + TO_DECIMAL(v_Rule_calculation_constant_value,6), 'PASS',\n\nv_Rule_ID_Count = 3 AND condition_order_number = 2 and isnull(threshold_value) \nAND calculation_operator = '+'\nAND comparative_type = 'Numeric' \nAND comparative_operator = '<=' \nAND TO_DECIMAL(left_source_value,6) <= TO_DECIMAL(v_Rule_Condition_Column_left,6) + TO_DECIMAL(v_Rule_calculation_constant_value,6) , 'PASS',\n--Ending of Numeric Operators for 3-2 condition, with calculation operator - Addition--\n\n--Beginning of Numeric Operators for 3-2 condition, with calculation operator - Subtraction--\nv_Rule_ID_Count = 3 AND condition_order_number = 2 and isnull(threshold_value) \nAND calculation_operator = '-'\nAND comparative_type = 'Numeric' \nAND comparative_operator = '<' \nAND TO_DECIMAL(left_source_value,6) < TO_DECIMAL(v_Rule_Condition_Column_left,6) - TO_DECIMAL(v_Rule_calculation_constant_value,6) , 'PASS',\n\nv_Rule_ID_Count = 3 AND condition_order_number = 2 and isnull(threshold_value) \nAND calculation_operator = '-'\nAND comparative_type = 'Numeric' \nAND comparative_operator = '>' \nAND TO_DECIMAL(left_source_value,6) > TO_DECIMAL(v_Rule_Condition_Column_left,6) - TO_DECIMAL(v_Rule_calculation_constant_value,6), 'PASS',\n\nv_Rule_ID_Count = 3 AND condition_order_number = 2 and isnull(threshold_value) \nAND calculation_operator = '-'\nAND comparative_type = 'Numeric' \nAND comparative_operator = '=' \nAND TO_DECIMAL(left_source_value,6) = TO_DECIMAL(v_Rule_Condition_Column_left,6) - TO_DECIMAL(v_Rule_calculation_constant_value,6), 'PASS',\n\nv_Rule_ID_Count = 3 AND condition_order_number = 2 and isnull(threshold_value) \nAND calculation_operator = '-'\nAND comparative_type = 'Numeric' \nAND comparative_operator = '<>' \nAND TO_DECIMAL(left_source_value,6) != TO_DECIMAL(v_Rule_Condition_Column_left,6) - TO_DECIMAL(v_Rule_calculation_constant_value,6) , 'PASS',\n\nv_Rule_ID_Count = 3 AND condition_order_number = 2 and isnull(threshold_value) \nAND calculation_operator = '-'\nAND comparative_type = 'Numeric' \nAND comparative_operator = '>=' \nAND TO_DECIMAL(left_source_value,6) >= TO_DECIMAL(v_Rule_Condition_Column_left,6) - TO_DECIMAL(v_Rule_calculation_constant_value,6), 'PASS',\n\nv_Rule_ID_Count = 3 AND condition_order_number = 2 and isnull(threshold_value) \nAND calculation_operator = '-'\nAND comparative_type = 'Numeric' \nAND comparative_operator = '<=' \nAND TO_DECIMAL(left_source_value,6) <= TO_DECIMAL(v_Rule_Condition_Column_left,6) - TO_DECIMAL(v_Rule_calculation_constant_value,6), 'PASS',\n--Ending of Numeric Operators for 3-2 condition, with calculation operator - Subtraction--\n\n--Beginning of Numeric Operators for 3-2 condition, with calculation operator - Multiplication--\nv_Rule_ID_Count = 3 AND condition_order_number = 2 and isnull(threshold_value) \nAND calculation_operator = '*'\nAND comparative_type = 'Numeric' \nAND comparative_operator = '<' \nAND TO_DECIMAL(left_source_value,6) < TO_DECIMAL(v_Rule_Condition_Column_left,6) * TO_DECIMAL(v_Rule_calculation_constant_value,6) , 'PASS',\n\nv_Rule_ID_Count = 3 AND condition_order_number = 2 and isnull(threshold_value) \nAND calculation_operator = '*'\nAND comparative_type = 'Numeric' \nAND comparative_operator = '>' \nAND TO_DECIMAL(left_source_value,6) > TO_DECIMAL(v_Rule_Condition_Column_left,6) * TO_DECIMAL(v_Rule_calculation_constant_value,6), 'PASS',\n\nv_Rule_ID_Count = 3 AND condition_order_number = 2 and isnull(threshold_value) \nAND calculation_operator = '*'\nAND comparative_type = 'Numeric' \nAND comparative_operator = '=' \nAND TO_DECIMAL(left_source_value,6) = TO_DECIMAL(v_Rule_Condition_Column_left,6) * TO_DECIMAL(v_Rule_calculation_constant_value,6), 'PASS',\n\nv_Rule_ID_Count = 3 AND condition_order_number = 2 and isnull(threshold_value) \nAND calculation_operator = '*'\nAND comparative_type = 'Numeric' \nAND comparative_operator = '<>' \nAND TO_DECIMAL(left_source_value,6) != TO_DECIMAL(v_Rule_Condition_Column_left,6) * TO_DECIMAL(v_Rule_calculation_constant_value,6), 'PASS',\n\nv_Rule_ID_Count = 3 AND condition_order_number = 2 and isnull(threshold_value) \nAND calculation_operator = '*'\nAND comparative_type = 'Numeric' \nAND comparative_operator = '>=' \nAND TO_DECIMAL(left_source_value,6) >= TO_DECIMAL(v_Rule_Condition_Column_left,6) * TO_DECIMAL(v_Rule_calculation_constant_value,6), 'PASS',\n\nv_Rule_ID_Count = 3 AND condition_order_number = 2 and isnull(threshold_value) \nAND calculation_operator = '*'\nAND comparative_type = 'Numeric' \nAND comparative_operator = '<=' \nAND TO_DECIMAL(left_source_value,6) <= TO_DECIMAL(v_Rule_Condition_Column_left,6) * TO_DECIMAL(v_Rule_calculation_constant_value,6), 'PASS'\n--Ending of Numeric Operators for 3-2 condition, with calculation operator - Multiplication--\n\n)"
-          },
-          {
-            "name" : "o_rule_row_pass_fail_indicator_three_Condition_set_2_WC",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 10,
-            "scale" : 0,
-            "expFieldType" : "OUTPUT",
-            "expression" : "v_rule_row_pass_fail_indicator_three_Condition_set_2_WC"
-          },
-          {
             "name" : "rule_row_pass_fail_indicator",
             "platformType" : {
               "name" : "string"
@@ -3432,7 +3342,17 @@
             "precision" : 10,
             "scale" : 0,
             "expFieldType" : "OUTPUT",
-            "expression" : "DECODE(TRUE,\n\nNOT ISNULL(v_rule_row_pass_fail_indicator_One_Condition_Set), v_rule_row_pass_fail_indicator_One_Condition_Set,\n\nNOT ISNULL(v_rule_row_pass_fail_indicator_two_Condition_set_1_NC), v_rule_row_pass_fail_indicator_two_Condition_set_1_NC,\n\nNOT ISNULL(v_rule_row_pass_fail_indicator_two_Condition_set_2_NC), v_rule_row_pass_fail_indicator_two_Condition_set_2_NC,\n\nNOT ISNULL(v_rule_row_pass_fail_indicator_two_Condition_set_1_WC), v_rule_row_pass_fail_indicator_two_Condition_set_1_WC,\n\nNOT ISNULL(v_rule_row_pass_fail_indicator_three_Condition_set_1_NC), v_rule_row_pass_fail_indicator_three_Condition_set_1_NC,\n\nNOT ISNULL(v_rule_row_pass_fail_indicator_three_Condition_set_2_NC), v_rule_row_pass_fail_indicator_three_Condition_set_2_NC,\n\nNOT ISNULL(v_rule_row_pass_fail_indicator_three_Condition_set_1_WC), v_rule_row_pass_fail_indicator_three_Condition_set_1_WC,\n\nNOT ISNULL(v_rule_row_pass_fail_indicator_three_Condition_set_2_WC), v_rule_row_pass_fail_indicator_three_Condition_set_2_WC,\n\nrule_id ='R6' AND condition_order_number = 3, 'NULL',\n\nrule_id ='R5' AND condition_order_number = 2, 'NULL',\n\n'FAIL'\n)"
+            "expression" : "DECODE(TRUE,\n\nNOT ISNULL(v_rule_row_pass_fail_indicator_One_Condition_Set), v_rule_row_pass_fail_indicator_One_Condition_Set,\n\nNOT ISNULL(v_rule_row_pass_fail_indicator_two_Condition_set_1_NC), v_rule_row_pass_fail_indicator_two_Condition_set_1_NC,\n\nNOT ISNULL(v_rule_row_pass_fail_indicator_two_Condition_set_2_NC), v_rule_row_pass_fail_indicator_two_Condition_set_2_NC,\n\nNOT ISNULL(v_rule_row_pass_fail_indicator_two_Condition_set_1_WC), v_rule_row_pass_fail_indicator_two_Condition_set_1_WC,\n\n'FAIL'\n)"
+          },
+          {
+            "name" : "v_final_value",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 1023,
+            "scale" : 0,
+            "expFieldType" : "VARIABLE",
+            "expression" : "DECODE(TRUE,\n\n--Beginning of Final Values with only 1 condition, with no calculation operator--\nv_Rule_ID_Count = 1 AND ISNULL(calculation_operator), left_source_value,\n--Ending of Final Values with only 1 condition, with no calculation operator--\n\n\n--Beginning of Final Values with only 1 condition, with calculation operator --\nv_Rule_ID_Count = 1 \nAND calculation_operator = '/'\nAND comparative_type = 'Numeric', TO_CHAR(TO_DECIMAL(left_source_value,6)/ TO_DECIMAL(right_source_value,6)),\n\nv_Rule_ID_Count = 1 \nAND calculation_operator = '+'\nAND comparative_type = 'Numeric' , TO_CHAR(TO_DECIMAL(left_source_value,6) + TO_DECIMAL(right_source_value,6)),\n\nv_Rule_ID_Count = 1 \nAND calculation_operator = '-'\nAND comparative_type = 'Numeric' , TO_CHAR(TO_DECIMAL(left_source_value,6) - TO_DECIMAL(right_source_value,6)),\n\nv_Rule_ID_Count = 1 \nAND calculation_operator = '*'\nAND comparative_type = 'Numeric', TO_CHAR(TO_DECIMAL(left_source_value,6) * TO_DECIMAL(right_source_value,6)),\n--Ending of Final Values with only 1 condition, with calculation operator --\n\n\n--Beginning of Numeric Operators for 2-1 condition, with no calculation operator--\nv_Rule_ID_Count = 2 AND NOT ISNULL(threshold_value) AND ISNULL(calculation_operator) AND condition_order_number = 1\nAND comparative_type = 'Numeric',  TO_CHAR(TO_DECIMAL(left_source_value,6)) , \n\n--Beginning of Text Operators  for 2-1 condition, with no calculation operator--\nv_Rule_ID_Count = 2 AND NOT ISNULL(threshold_value) AND ISNULL(calculation_operator) AND condition_order_number = 1\nAND comparative_type = 'Text' , TO_CHAR(left_source_value),\n\n--Beginning of Date Operators  for 2-1 condition, with no calculation operator, with -25 years--\nv_Rule_ID_Count = 2 AND NOT ISNULL(threshold_value) AND ISNULL(calculation_operator) AND condition_order_number = 1\nAND comparative_type = 'Date' AND INSTR(threshold_value,'GETDATE') AND INSTR(threshold_value,'-25'), \nTO_CHAR(TO_INTEGER(left_source_value)),\n\n--Beginning of Date Operators  for 2-1 condition, with no calculation operator--\nv_Rule_ID_Count = 2 AND NOT ISNULL(threshold_value) AND ISNULL(calculation_operator) AND condition_order_number = 1\nAND comparative_type = 'Date' AND INSTR(threshold_value,'GETDATE'),\nTO_CHAR(TO_INTEGER(left_source_value)),\n\n--Beginning of Numeric Operators for 2-2 condition, with no calculation operator--\nv_Rule_ID_Count = 2 AND NOT ISNULL(threshold_value) AND ISNULL(calculation_operator) AND condition_order_number = 2\nAND comparative_type = 'Numeric',  TO_CHAR(TO_DECIMAL(left_source_value,6)) , \n\n--Beginning of Text Operators  for 2-2 condition, with no calculation operator--\nv_Rule_ID_Count = 2 AND NOT ISNULL(threshold_value) AND ISNULL(calculation_operator) AND condition_order_number = 2\nAND comparative_type = 'Text' , TO_CHAR(left_source_value),\n\n--Beginning of Date Operators  for 2-2 condition, with no calculation operator, with -25 years--\nv_Rule_ID_Count = 2 AND NOT ISNULL(threshold_value) AND ISNULL(calculation_operator) AND condition_order_number = 2\nAND comparative_type = 'Date' AND INSTR(threshold_value,'GETDATE') AND INSTR(threshold_value,'-25'), \nTO_CHAR(TO_INTEGER(left_source_value)),\n\n--Beginning of Date Operators  for 2-2 condition, with no calculation operator--\nv_Rule_ID_Count = 2 AND NOT ISNULL(threshold_value) AND ISNULL(calculation_operator) AND condition_order_number = 2\nAND comparative_type = 'Date' AND INSTR(threshold_value,'GETDATE'),\nTO_CHAR(TO_INTEGER(left_source_value)),\n\n\n--Beginning of Numeric Operators for 2 condition set, with no calculation operator \nv_Rule_ID_Count = 2 AND ISNULL(threshold_value) AND condition_order_number = 1 AND comparative_type = 'Numeric' \nAND ISNULL(:LKP.lkp_straight_through_processing_rules_2_Calculation_operator(rule_id, 2)) AND\nISNULL(:LKP.lkp_straight_through_processing_rules_calculation_constant_value(rule_id, 2)), \nTO_CHAR(TO_DECIMAL(:LKP.lkp_straight_through_processing_data_staging_source_value(left_policy_source_system_id, left_risk_id,:LKP.lkp_straight_through_processing_rules_condition_column_left(rule_id, 2)),6)) ,\n--Ending of Numeric Operators for 2 condition set, with no calculation operator \n\n--Beginning of Numeric Operators for 2 condition set, with  calculation operator \nv_Rule_ID_Count = 2 AND ISNULL(threshold_value) AND condition_order_number = 1 AND comparative_type = 'Numeric' AND :LKP.lkp_straight_through_processing_rules_2_Calculation_operator(rule_id, 2) = '*' AND NOT ISNULL(:LKP.lkp_straight_through_processing_rules_calculation_constant_value(rule_id, 2)), \nTO_CHAR(TO_DECIMAL(:LKP.lkp_straight_through_processing_data_staging_source_value(left_policy_source_system_id, left_risk_id,:LKP.lkp_straight_through_processing_rules_condition_column_left(rule_id, 2)),6) * TO_DECIMAL(:LKP.lkp_straight_through_processing_rules_calculation_constant_value(rule_id, 2), 6)),\n\nv_Rule_ID_Count = 2 AND ISNULL(threshold_value) AND condition_order_number = 1 AND comparative_type = 'Numeric' AND :LKP.lkp_straight_through_processing_rules_2_Calculation_operator(rule_id, 2) = '/' AND NOT ISNULL(:LKP.lkp_straight_through_processing_rules_calculation_constant_value(rule_id, 2)), \nTO_CHAR(TO_DECIMAL(:LKP.lkp_straight_through_processing_data_staging_source_value(left_policy_source_system_id, left_risk_id,:LKP.lkp_straight_through_processing_rules_condition_column_left(rule_id, 2)),6) / TO_DECIMAL(:LKP.lkp_straight_through_processing_rules_calculation_constant_value(rule_id, 2), 6)),\n\nv_Rule_ID_Count = 2 AND ISNULL(threshold_value) AND condition_order_number = 1 AND comparative_type = 'Numeric' AND :LKP.lkp_straight_through_processing_rules_2_Calculation_operator(rule_id, 2) = '+' AND NOT ISNULL(:LKP.lkp_straight_through_processing_rules_calculation_constant_value(rule_id, 2)), \nTO_CHAR(TO_DECIMAL(:LKP.lkp_straight_through_processing_data_staging_source_value(left_policy_source_system_id, left_risk_id,:LKP.lkp_straight_through_processing_rules_condition_column_left(rule_id, 2)),6) + TO_DECIMAL(:LKP.lkp_straight_through_processing_rules_calculation_constant_value(rule_id, 2), 6)),\n\nv_Rule_ID_Count = 2 AND ISNULL(threshold_value) AND condition_order_number = 1 AND comparative_type = 'Numeric' AND :LKP.lkp_straight_through_processing_rules_2_Calculation_operator(rule_id, 2) = '-' AND NOT ISNULL(:LKP.lkp_straight_through_processing_rules_calculation_constant_value(rule_id, 2)), \nTO_CHAR(TO_DECIMAL(:LKP.lkp_straight_through_processing_data_staging_source_value(left_policy_source_system_id, left_risk_id,:LKP.lkp_straight_through_processing_rules_condition_column_left(rule_id, 2)),6) - TO_DECIMAL(:LKP.lkp_straight_through_processing_rules_calculation_constant_value(rule_id, 2), 6)),\n\nv_Rule_ID_Count = 2 AND ISNULL(threshold_value) AND condition_order_number = 2 AND ISNULL(comparative_type), NULL,\n\nleft_source_value\n)"
           },
           {
             "name" : "o_final_value",
@@ -3442,7 +3362,7 @@
             "precision" : 1023,
             "scale" : 0,
             "expFieldType" : "OUTPUT",
-            "expression" : "DECODE(TRUE,\n\n--Beginning of Final Values with only 1 condition, with no calculation operator--\nv_Rule_ID_Count = 1 AND ISNULL(calculation_operator), left_source_value,\n--Ending of Final Values with only 1 condition, with no calculation operator--\n\n\n--Beginning of Final Values with only 1 condition, with calculation operator --\nv_Rule_ID_Count = 1 \nAND calculation_operator = '/'\nAND comparative_type = 'Numeric', TO_CHAR(TO_DECIMAL(left_source_value,6)/ TO_DECIMAL(right_source_value,6)),\n\nv_Rule_ID_Count = 1 \nAND calculation_operator = '+'\nAND comparative_type = 'Numeric' , TO_CHAR(TO_DECIMAL(left_source_value,6) + TO_DECIMAL(right_source_value,6)),\n\nv_Rule_ID_Count = 1 \nAND calculation_operator = '-'\nAND comparative_type = 'Numeric' , TO_CHAR(TO_DECIMAL(left_source_value,6) - TO_DECIMAL(right_source_value,6)),\n\nv_Rule_ID_Count = 1 \nAND calculation_operator = '*'\nAND comparative_type = 'Numeric', TO_CHAR(TO_DECIMAL(left_source_value,6) * TO_DECIMAL(right_source_value,6)),\n--Ending of Final Values with only 1 condition, with calculation operator --\n\nv_Rule_ID_Count = 2 AND ISNULL(calculation_operator), left_source_value,\n\nv_Rule_ID_Count = 2 AND condition_order_number = 2 AND ISNULL(calculation_operator), left_source_value,\n\nv_Rule_ID_Count = 2 AND condition_order_number = 2 and isnull(threshold_value) \nAND calculation_operator = '/' AND comparative_type = 'Numeric', to_char(TO_DECIMAL(left_source_value,6) / TO_DECIMAL(calculation_constant_value,6)),\n\nv_Rule_ID_Count = 2 AND condition_order_number = 2 and isnull(threshold_value) \nAND calculation_operator = '+' AND comparative_type = 'Numeric', to_char(TO_DECIMAL(left_source_value,6) + TO_DECIMAL(calculation_constant_value,6)),\n\nv_Rule_ID_Count = 2 AND condition_order_number = 2 and isnull(threshold_value) \nAND calculation_operator = '*' AND comparative_type = 'Numeric', to_char(TO_DECIMAL(left_source_value,6) * TO_DECIMAL(calculation_constant_value,6)),\n\nv_Rule_ID_Count = 2 AND condition_order_number = 2 and isnull(threshold_value) \nAND calculation_operator = '-' AND comparative_type = 'Numeric', to_char(TO_DECIMAL(left_source_value,6) - TO_DECIMAL(calculation_constant_value,6)),\n\nv_Rule_ID_Count = 3 AND condition_order_number = 1 AND ISNULL(calculation_operator), left_source_value,\nv_Rule_ID_Count = 3 AND condition_order_number = 2 AND ISNULL(calculation_operator), left_source_value,\n\nv_Rule_ID_Count = 3 AND condition_order_number = 3 and isnull(threshold_value) \nAND calculation_operator = '/' AND comparative_type = 'Numeric', to_char(TO_DECIMAL(left_source_value,6) / TO_DECIMAL(calculation_constant_value,6)),\n\nv_Rule_ID_Count = 3 AND condition_order_number = 3 and isnull(threshold_value) \nAND calculation_operator = '+' AND comparative_type = 'Numeric', to_char(TO_DECIMAL(left_source_value,6) + TO_DECIMAL(calculation_constant_value,6)),\n\nv_Rule_ID_Count = 3 AND condition_order_number = 3 and isnull(threshold_value) \nAND calculation_operator = '*' AND comparative_type = 'Numeric', to_char(TO_DECIMAL(left_source_value,6) * TO_DECIMAL(calculation_constant_value,6)),\n\nv_Rule_ID_Count = 3 AND condition_order_number = 3 and isnull(threshold_value) \nAND calculation_operator = '-' AND comparative_type = 'Numeric', to_char(TO_DECIMAL(left_source_value,6) - TO_DECIMAL(calculation_constant_value,6)),\n\nleft_source_value\n\n)"
+            "expression" : "IIF(\nISNULL(v_final_value), 'NULL',v_final_value\n)"
           }
         ],
         "windowSpec" : {
@@ -3726,212 +3646,6 @@
                 "nativeType" : "int8",
                 "original" : "false",
                 "precision" : 19,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "INFARS_CUSTOM_SCHEMA"
-                  }
-                ]
-              }
-            ]
-          },
-          "readOptions" : {
-            "commandType" : 0,
-            "descending" : "false",
-            "queryAll" : "false",
-            "rowLimit" : 0,
-            "selectDistinct" : "false"
-          },
-          "runtimeAttributes" : {
-            "attributes" : [
-              {
-                "name" : "Read Mode",
-                "value" : "Direct"
-              },
-              {
-                "name" : "Fetch Size",
-                "value" : "10000"
-              },
-              {
-                "name" : "Enable Compression",
-                "value" : "YES"
-              },
-              {
-                "name" : "Temporary Credential Duration",
-                "value" : "900"
-              },
-              {
-                "name" : "Treat NULL Value as NULL",
-                "value" : "NO"
-              },
-              {
-                "name" : "Encryption Type",
-                "value" : "None"
-              },
-              {
-                "name" : "Download S3 Files In Multiple Parts",
-                "value" : "NO"
-              },
-              {
-                "name" : "Multipart Download Threshold Size",
-                "value" : "5242880"
-              },
-              {
-                "name" : "Select Distinct",
-                "value" : "NO"
-              }
-            ]
-          }
-        }
-      },
-      {
-        "createTime" : "2025-10-08T05:44:40.434Z",
-        "name" : "lkp_straight_through_processing_rules_3_Calculation_operator",
-        "advancedProperties" : [
-          {
-            "name" : "Tracing Level",
-            "value" : "Normal"
-          },
-          {
-            "name" : "Lookup caching enabled",
-            "value" : "true"
-          },
-          {
-            "name" : "Lookup cache directory name",
-            "value" : "$PMCacheDir"
-          },
-          {
-            "name" : "Lookup cache persistent",
-            "value" : "false"
-          },
-          {
-            "name" : "Re-cache from lookup source",
-            "value" : "false"
-          },
-          {
-            "name" : "Lookup Data Cache Size",
-            "value" : "AUTO"
-          },
-          {
-            "name" : "Lookup Index Cache Size",
-            "value" : "AUTO"
-          },
-          {
-            "name" : "Dynamic Lookup Cache",
-            "value" : "false"
-          },
-          {
-            "name" : "Update Dynamic Cache Condition",
-            "value" : "TRUE"
-          },
-          {
-            "name" : "Output Old Value On Update",
-            "value" : "false"
-          },
-          {
-            "name" : "Insert Else Update",
-            "value" : "false"
-          },
-          {
-            "name" : "Case Sensitive String Comparison",
-            "value" : "false"
-          },
-          {
-            "name" : "Sorted Input",
-            "value" : "false"
-          },
-          {
-            "name" : "Include Only Required Fields",
-            "value" : "false"
-          },
-          {
-            "name" : "Lookup source is static",
-            "value" : "false"
-          },
-          {
-            "name" : "Pre-build lookup cache",
-            "value" : "AUTO"
-          },
-          {
-            "name" : "Optional",
-            "value" : "true"
-          }
-        ],
-        "multipleMatchPolicy" : "Use Any Value",
-        "returnPortName" : "rule_calculation_operator",
-        "unconnected" : "true",
-        "useLabels" : "false",
-        "fields" : [
-          {
-            "adapterField" : {
-              "name" : "rule_id"
-            },
-            "name" : "rule_id",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 63,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "rule_calculation_operator"
-            },
-            "name" : "rule_calculation_operator",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 3,
-            "scale" : 0
-          }
-        ],
-        "inputPortNames" : [
-          "in_Rule_ID"
-        ],
-        "lookupConditions" : [
-          {
-            "leftOperand" : "rule_id",
-            "operator" : "=",
-            "rightOperand" : "in_Rule_ID"
-          }
-        ],
-        "dataAdapter" : {
-          "connectionId$" : {
-            "name" : "DBConnection_SRC"
-          },
-          "excludeDynamicFileNameField" : "false",
-          "objectType" : "QUERY",
-          "typeSystem" : "TOOLKIT",
-          "useDynamicFileName" : "false",
-          "object" : {
-            "customQuery" : "select Rule_ID, calculation_operator as rule_calculation_operator  from $$reference_schema.straight_through_processing_rules\nwhere straight_through_processing_rule_row_effective_end_datetime = '9999-12-31 00:00:00.000' and condition_order_number =3\norder by cast(substring(rule_id, 2) as int)",
-            "retainMetadata" : "false",
-            "fields" : [
-              {
-                "name" : "rule_id",
-                "fieldType" : "CONNECTOR",
-                "label" : "rule_id",
-                "nativeName" : "rule_id",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 63,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "INFARS_CUSTOM_SCHEMA"
-                  }
-                ]
-              },
-              {
-                "name" : "rule_calculation_operator",
-                "fieldType" : "CONNECTOR",
-                "label" : "rule_calculation_operator",
-                "nativeName" : "rule_calculation_operator",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 3,
                 "scale" : 0,
                 "properties" : [
                   {
@@ -4468,6 +4182,518 @@
             ]
           }
         }
+      },
+      {
+        "description" : ".",
+        "createTime" : "2025-11-11T15:46:37.839Z",
+        "name" : "lkp_straight_through_processing_data_staging_source_value",
+        "advancedProperties" : [
+          {
+            "name" : "Tracing Level",
+            "value" : "Normal"
+          },
+          {
+            "name" : "Lookup caching enabled",
+            "value" : "true"
+          },
+          {
+            "name" : "Lookup cache directory name",
+            "value" : "$PMCacheDir"
+          },
+          {
+            "name" : "Lookup cache persistent",
+            "value" : "false"
+          },
+          {
+            "name" : "Re-cache from lookup source",
+            "value" : "false"
+          },
+          {
+            "name" : "Lookup Data Cache Size",
+            "value" : "AUTO"
+          },
+          {
+            "name" : "Lookup Index Cache Size",
+            "value" : "AUTO"
+          },
+          {
+            "name" : "Dynamic Lookup Cache",
+            "value" : "false"
+          },
+          {
+            "name" : "Update Dynamic Cache Condition",
+            "value" : "TRUE"
+          },
+          {
+            "name" : "Output Old Value On Update",
+            "value" : "false"
+          },
+          {
+            "name" : "Insert Else Update",
+            "value" : "false"
+          },
+          {
+            "name" : "Case Sensitive String Comparison",
+            "value" : "false"
+          },
+          {
+            "name" : "Sorted Input",
+            "value" : "false"
+          },
+          {
+            "name" : "Include Only Required Fields",
+            "value" : "false"
+          },
+          {
+            "name" : "Lookup source is static",
+            "value" : "false"
+          },
+          {
+            "name" : "Pre-build lookup cache",
+            "value" : "AUTO"
+          },
+          {
+            "name" : "Optional",
+            "value" : "true"
+          }
+        ],
+        "multipleMatchPolicy" : "Use Any Value",
+        "returnPortName" : "source_value",
+        "unconnected" : "true",
+        "useLabels" : "false",
+        "fields" : [
+          {
+            "adapterField" : {
+              "name" : "policy_source_system_id"
+            },
+            "name" : "policy_source_system_id",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "risk_id"
+            },
+            "name" : "risk_id",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 511,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "source_field_name"
+            },
+            "name" : "source_field_name",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "source_value"
+            },
+            "name" : "source_value",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 2047,
+            "scale" : 0
+          }
+        ],
+        "inputPortNames" : [
+          "in_policy_source_system_id",
+          "in_risk_id",
+          "in_source_field_name"
+        ],
+        "lookupConditions" : [
+          {
+            "leftOperand" : "policy_source_system_id",
+            "operator" : "=",
+            "rightOperand" : "in_policy_source_system_id"
+          },
+          {
+            "leftOperand" : "risk_id",
+            "operator" : "=",
+            "rightOperand" : "in_risk_id"
+          },
+          {
+            "leftOperand" : "source_field_name",
+            "operator" : "=",
+            "rightOperand" : "in_source_field_name"
+          }
+        ],
+        "dataAdapter" : {
+          "connectionId$" : {
+            "name" : "DBConnection_SRC"
+          },
+          "excludeDynamicFileNameField" : "false",
+          "objectType" : "QUERY",
+          "typeSystem" : "TOOLKIT",
+          "useDynamicFileName" : "false",
+          "object" : {
+            "customQuery" : "select policy_source_system_id, risk_id, source_field_name, source_value  from $$refined_schema.straight_through_processing_data_staging \nwhere risk_state in ($$state_list) and line_of_business in ($$line_of_business)",
+            "retainMetadata" : "false",
+            "fields" : [
+              {
+                "name" : "policy_source_system_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "policy_source_system_id",
+                "nativeName" : "policy_source_system_id",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "risk_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "risk_id",
+                "nativeName" : "risk_id",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 511,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "source_field_name",
+                "fieldType" : "CONNECTOR",
+                "label" : "source_field_name",
+                "nativeName" : "source_field_name",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "source_value",
+                "fieldType" : "CONNECTOR",
+                "label" : "source_value",
+                "nativeName" : "source_value",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 2047,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              }
+            ]
+          },
+          "readOptions" : {
+            "commandType" : 0,
+            "descending" : "false",
+            "queryAll" : "false",
+            "rowLimit" : 0,
+            "selectDistinct" : "false"
+          },
+          "runtimeAttributes" : {
+            "attributes" : [
+              {
+                "name" : "Read Mode",
+                "value" : "Direct"
+              },
+              {
+                "name" : "Fetch Size",
+                "value" : "10000"
+              },
+              {
+                "name" : "Enable Compression",
+                "value" : "YES"
+              },
+              {
+                "name" : "Temporary Credential Duration",
+                "value" : "900"
+              },
+              {
+                "name" : "Treat NULL Value as NULL",
+                "value" : "NO"
+              },
+              {
+                "name" : "Encryption Type",
+                "value" : "None"
+              },
+              {
+                "name" : "Download S3 Files In Multiple Parts",
+                "value" : "NO"
+              },
+              {
+                "name" : "Multipart Download Threshold Size",
+                "value" : "5242880"
+              },
+              {
+                "name" : "Select Distinct",
+                "value" : "NO"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "createTime" : "2025-10-08T05:44:40.434Z",
+        "name" : "lkp_straight_through_processing_rules_2_Calculation_operator",
+        "advancedProperties" : [
+          {
+            "name" : "Tracing Level",
+            "value" : "Normal"
+          },
+          {
+            "name" : "Lookup caching enabled",
+            "value" : "true"
+          },
+          {
+            "name" : "Lookup cache directory name",
+            "value" : "$PMCacheDir"
+          },
+          {
+            "name" : "Lookup cache persistent",
+            "value" : "false"
+          },
+          {
+            "name" : "Re-cache from lookup source",
+            "value" : "false"
+          },
+          {
+            "name" : "Lookup Data Cache Size",
+            "value" : "AUTO"
+          },
+          {
+            "name" : "Lookup Index Cache Size",
+            "value" : "AUTO"
+          },
+          {
+            "name" : "Dynamic Lookup Cache",
+            "value" : "false"
+          },
+          {
+            "name" : "Update Dynamic Cache Condition",
+            "value" : "TRUE"
+          },
+          {
+            "name" : "Output Old Value On Update",
+            "value" : "false"
+          },
+          {
+            "name" : "Insert Else Update",
+            "value" : "false"
+          },
+          {
+            "name" : "Case Sensitive String Comparison",
+            "value" : "false"
+          },
+          {
+            "name" : "Sorted Input",
+            "value" : "false"
+          },
+          {
+            "name" : "Include Only Required Fields",
+            "value" : "false"
+          },
+          {
+            "name" : "Lookup source is static",
+            "value" : "false"
+          },
+          {
+            "name" : "Pre-build lookup cache",
+            "value" : "AUTO"
+          },
+          {
+            "name" : "Optional",
+            "value" : "true"
+          }
+        ],
+        "multipleMatchPolicy" : "Use Any Value",
+        "returnPortName" : "rule_calculation_operator",
+        "unconnected" : "true",
+        "useLabels" : "false",
+        "fields" : [
+          {
+            "adapterField" : {
+              "name" : "rule_id"
+            },
+            "name" : "rule_id",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "rule_calculation_operator"
+            },
+            "name" : "rule_calculation_operator",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 3,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "rule_condition_order_number"
+            },
+            "name" : "rule_condition_order_number",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          }
+        ],
+        "inputPortNames" : [
+          "in_Rule_ID",
+          "in_Condition_Order"
+        ],
+        "lookupConditions" : [
+          {
+            "leftOperand" : "rule_id",
+            "operator" : "=",
+            "rightOperand" : "in_Rule_ID"
+          },
+          {
+            "leftOperand" : "rule_condition_order_number",
+            "operator" : "=",
+            "rightOperand" : "in_Condition_Order"
+          }
+        ],
+        "dataAdapter" : {
+          "connectionId$" : {
+            "name" : "DBConnection_SRC"
+          },
+          "excludeDynamicFileNameField" : "false",
+          "objectType" : "QUERY",
+          "typeSystem" : "TOOLKIT",
+          "useDynamicFileName" : "false",
+          "object" : {
+            "customQuery" : "select Rule_ID, calculation_operator as rule_calculation_operator, condition_order_number as rule_condition_order_number from $$reference_schema.straight_through_processing_rules\nwhere straight_through_processing_rule_row_effective_end_datetime = '9999-12-31 00:00:00.000' \norder by cast(substring(rule_id, 2) as int)",
+            "retainMetadata" : "false",
+            "fields" : [
+              {
+                "name" : "rule_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "rule_id",
+                "nativeName" : "rule_id",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "rule_calculation_operator",
+                "fieldType" : "CONNECTOR",
+                "label" : "rule_calculation_operator",
+                "nativeName" : "rule_calculation_operator",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 3,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "rule_condition_order_number",
+                "fieldType" : "CONNECTOR",
+                "label" : "rule_condition_order_number",
+                "nativeName" : "rule_condition_order_number",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              }
+            ]
+          },
+          "readOptions" : {
+            "commandType" : 0,
+            "descending" : "false",
+            "queryAll" : "false",
+            "rowLimit" : 0,
+            "selectDistinct" : "false"
+          },
+          "runtimeAttributes" : {
+            "attributes" : [
+              {
+                "name" : "Read Mode",
+                "value" : "Direct"
+              },
+              {
+                "name" : "Fetch Size",
+                "value" : "10000"
+              },
+              {
+                "name" : "Enable Compression",
+                "value" : "YES"
+              },
+              {
+                "name" : "Temporary Credential Duration",
+                "value" : "900"
+              },
+              {
+                "name" : "Treat NULL Value as NULL",
+                "value" : "NO"
+              },
+              {
+                "name" : "Encryption Type",
+                "value" : "None"
+              },
+              {
+                "name" : "Download S3 Files In Multiple Parts",
+                "value" : "NO"
+              },
+              {
+                "name" : "Multipart Download Threshold Size",
+                "value" : "5242880"
+              },
+              {
+                "name" : "Select Distinct",
+                "value" : "NO"
+              }
+            ]
+          }
+        }
       }
     ],
     "variables" : [
@@ -4541,7 +4767,7 @@
         "precision" : 50,
         "retentionPolicy" : "NEVER",
         "scale" : 0,
-        "defaultValue" : "Homeowners"
+        "defaultValue" : "'Homeowners'"
       },
       {
         "aggregationType" : "MAX",
@@ -4557,5 +4783,5 @@
       }
     ]
   },
-  "vcsExportTime" : "2025-10-30 18:29:26 PDT"
+  "vcsExportTime" : "2025-11-11 16:11:15 PST"
 }
