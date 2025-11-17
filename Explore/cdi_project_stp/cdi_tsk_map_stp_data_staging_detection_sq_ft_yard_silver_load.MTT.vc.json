@@ -41,6 +41,7 @@
       "objectName" : "DUMMY_src_base_tables",
       "useExactSrcNames" : false,
       "userUpdated" : true,
+      "fetchMode" : "ORIGINAL",
       "runtimeParameterData" : {
         "connectionParameterName" : "DBConnection_SRC",
         "connectionRuntimeParameter" : false,
@@ -81,7 +82,7 @@
       "extendedObject" : {
         "singleMode" : false
       },
-      "customQuery" : "SELECT DISTINCT\n'Betterview' AS straight_through_processing_data_staging_source_system,\n'Straight Through Processing' AS straight_through_processing_data_staging_domain,\nnull AS cmm_container,\n'property_detection' AS originating_source_name,\n'NULL' AS originating_load_type,\n'Loaded' AS straight_through_processing_data_staging_load_state,\ncast(udbd.detection_property_detection_id as varchar) AS straight_through_processing_data_staging_row_source_system_key,\nnull AS system_id,\nnull as parent_id,\nnull as policy_risk_id,\nudbd.property_risk_id as property_risk_id,\n'dbo' AS source_schema_name,\n'uw_dashboard_betterview_details' AS source_table_name,\n'detection_area_in_square_feet__yard_debris' AS source_field_name,\nudbd.detection_area_in_square_feet AS source_value\nFROM dbo.uw_dashboard_betterview_details udbd\nWHERE udbd.detection_name = 'Yard Debris'\nAND udbd.uw_dashboard_betterview_details_row_effective_end_date = '9999-12-31 00:00:00.000000';",
+      "customQuery" : "select\ndistinct\nstraight_through_processing_data_staging_source_system,\nstraight_through_processing_data_staging_domain,\ncmm_container,\noriginating_source_name,\noriginating_load_type,\nstraight_through_processing_data_staging_load_state,\nstraight_through_processing_data_staging_row_source_system_key,\nsystem_id,\nparent_id,\npolicy_risk_id,\nproperty_risk_id,\nsource_schema_name,\nsource_table_name,\nsource_field_name,\nsource_value\nfrom\n(\nSELECT DISTINCT\n 'Betterview' AS straight_through_processing_data_staging_source_system,\n 'Straight Through Processing' AS straight_through_processing_data_staging_domain,\nnull AS cmm_container,\n 'property_detection' AS originating_source_name,\n 'NULL' AS originating_load_type,\n 'Loaded' AS straight_through_processing_data_staging_load_state,\ncast(udbd.detection_property_detection_id as varchar) AS straight_through_processing_data_staging_row_source_system_key,\nnull AS system_id,\nnull as parent_id,\nnull as policy_risk_id,\nudbd.property_risk_id as property_risk_id,\n 'dbo' AS source_schema_name,\n 'uw_dashboard_betterview_details' AS source_table_name,\n 'detection_area_in_square_feet__yard_debris' AS source_field_name,\ncoalesce(cast(udbd.detection_area_in_square_feet as varchar), '0') AS source_value,\nrank () over (partition by property_risk_id\norder by udbd.property_latest_image_capture_date desc nulls last,\nproperty_completion_date_of_ordered_betterview_risk_data_pull desc nulls last,\nproperty_update_date desc nulls last,\nproperty_version_id desc nulls last) as rnk\nFROM dbo.uw_dashboard_betterview_details udbd\nWHERE udbd.detection_name = 'Yard Debris'\nAND udbd.uw_dashboard_betterview_details_row_effective_end_date = '9999-12-31 00:00:00.000000'\n) sub\nwhere rnk = 1",
       "commandType" : 0,
       "handleSpecialChars" : false,
       "handleDecimalRoundOff" : false,
@@ -92,6 +93,7 @@
       "retainFieldMetadata" : false,
       "useExactSrcNames" : false,
       "userUpdated" : true,
+      "fetchMode" : "ORIGINAL",
       "runtimeParameterData" : {
         "connectionParameterName" : "DBConnection_SRC",
         "objectParameterName" : "source_query",
@@ -145,6 +147,7 @@
       "objectLabel" : "silver/straight_through_processing_data_staging",
       "useExactSrcNames" : false,
       "userUpdated" : true,
+      "fetchMode" : "ORIGINAL",
       "runtimeParameterData" : {
         "connectionParameterName" : "DBConnection_TGT",
         "connectionRuntimeParameter" : false,
@@ -183,6 +186,7 @@
       "retainFieldMetadata" : false,
       "useExactSrcNames" : false,
       "userUpdated" : true,
+      "fetchMode" : "ORIGINAL",
       "runtimeParameterData" : {
         "connectionRuntimeParameter" : false,
         "objectRuntimeParameter" : false
@@ -193,7 +197,7 @@
     }
   ],
   "verbose" : false,
-  "lastRunTime" : 1758782590000,
+  "lastRunTime" : 1759975842000,
   "mappingId" : "@iIh3cmfr6ICgsQCW4j5AA5",
   "mappingTemplateName" : "cdi_map_stp_data_staging_silver_load",
   "sessionPropertiesList" : [
@@ -286,5 +290,5 @@
   "allowMaxFieldLength" : false,
   "specialCharacterSupport" : false,
   "midstreamPreview" : false,
-  "vcsExportTime" : "2025-09-25 06:07:05 PDT"
+  "vcsExportTime" : "2025-10-30 14:01:32 PDT"
 }

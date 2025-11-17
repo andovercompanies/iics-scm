@@ -1,5 +1,6 @@
 {
   "name" : "cdi_tsk_map_adm_super_group_bronze_load",
+  "description" : "Load the data from Metal To Bronze Layer",
   "runtimeEnvironmentId" : "@3pADNCV9u0PcgrXjM7rx0t",
   "runtimeEnvironmentName" : "sag_aws_linux",
   "maxLogs" : 10,
@@ -29,7 +30,10 @@
       "truncateTarget" : false,
       "bulkApiDBTarget" : false,
       "customFuncCfg" : { },
-      "customQuery" : "with current_batch as (\nselect\n\tbls.batch_id,\n\tbls.source_start_cutoff_datetime,\n\tbls.source_end_cutoff_datetime\nfrom\n\tmetal.batch_load_summary bls\nwhere\n\tbls.source_system_code = 'ADM'\n\tand bls.batch_status = 'Inprogress'\n\tand bls.batch_id = (\n\tselect\n\t\tMAX(batch_id)\n\tfrom\n\t\tmetal.batch_load_summary\n\twhere\n\t\tsource_system_code = 'ADM'\n\t\tand batch_status = 'Inprogress' ) )\nselect\n\tdistinct metal_asg.source_name,\n\tmetal_asg.load_type,\n\tmetal_asg.id,\n\tmetal_asg.name,\n\tmetal_asg.number,\n\tmetal_asg.created,\n\tmetal_asg.modified,\n\tcurrent_batch.batch_id\nfrom\n\tmetal.adm_super_group metal_asg\ncross join current_batch\norder by\n\tmetal_asg.id,\n\tmetal_asg.created,\n\tmetal_asg.modified;",
+      "oprRuntimeAttrs" : {
+        "S3BucketName" : "$$S3_Staging_Bucket"
+      },
+      "customQuery" : "with current_batch as (\nselect\n\tbls.batch_id,\n\tbls.source_start_cutoff_datetime,\n\tbls.source_end_cutoff_datetime\nfrom\n\t$$operational_schema.batch_load_summary bls\nwhere\n\tbls.source_system_code = '$$sourcesystemcode'\n\tand bls.batch_status = 'Inprogress'\n\tand bls.batch_id = (\n\tselect\n\t\tMAX(batch_id)\n\tfrom\n\t\t$$operational_schema.batch_load_summary\n\twhere\n\t\tsource_system_code = '$$sourcesystemcode'\n\t\tand batch_status = 'Inprogress' ) )\nselect\n\tdistinct metal_asg.source_name,\n\tmetal_asg.load_type,\n\tmetal_asg.id,\n\tmetal_asg.name,\n\tmetal_asg.number,\n\tmetal_asg.created,\n\tmetal_asg.modified,\n\tcurrent_batch.batch_id\nfrom\n\t$$raw_schema.adm_super_group metal_asg\ncross join current_batch\norder by\n\tmetal_asg.id,\n\tmetal_asg.created,\n\tmetal_asg.modified;",
       "commandType" : 0,
       "handleSpecialChars" : false,
       "handleDecimalRoundOff" : false,
@@ -41,15 +45,14 @@
       "objectName" : "DUMMY_src_metal_super_group",
       "useExactSrcNames" : false,
       "userUpdated" : true,
-      "unspecified" : false,
-      "fetchMode" : "ORIGINAL",
       "runtimeParameterData" : {
         "connectionParameterName" : "DBConnection_UDM_SRC",
-        "connectionRuntimeParameter" : false,
+        "connectionRuntimeParameter" : true,
         "objectRuntimeParameter" : false
       },
-      "restmodernSource" : true,
-      "fileList" : false
+      "unspecified" : false,
+      "fileList" : false,
+      "restmodernSource" : true
     },
     {
       "name" : "$src_tgt_query$",
@@ -76,7 +79,10 @@
       "truncateTarget" : false,
       "bulkApiDBTarget" : false,
       "customFuncCfg" : { },
-      "customQuery" : "SELECT \n        super_group_row_id, \n        super_group_row_md5checksum, \n        super_group_id,  \n  super_group_datetime_modified,\n  super_group_row_effective_end_datetime\t\n    FROM bronze.adm_super_group\n    where  super_group_row_effective_end_datetime\t= '9999-12-31 00:00:00.000'",
+      "oprRuntimeAttrs" : {
+        "S3BucketName" : "$$S3_Staging_Bucket"
+      },
+      "customQuery" : "SELECT \n        adm_super_group_row_id, \n        adm_super_group_row_md5checksum,\n        id,\n\t\tmodified,\n\t\tadm_super_group_row_effective_end_datetime\t\n    FROM $$staging_schema.adm_super_group\n    where  adm_super_group_row_effective_end_datetime\t= '9999-12-31 00:00:00.000'",
       "commandType" : 0,
       "handleSpecialChars" : false,
       "handleDecimalRoundOff" : false,
@@ -88,15 +94,14 @@
       "objectName" : "DUMMY_src_tgt_query",
       "useExactSrcNames" : false,
       "userUpdated" : true,
-      "unspecified" : false,
-      "fetchMode" : "ORIGINAL",
       "runtimeParameterData" : {
         "connectionParameterName" : "DBConnection_UDM_SRC",
-        "connectionRuntimeParameter" : false,
+        "connectionRuntimeParameter" : true,
         "objectRuntimeParameter" : false
       },
-      "restmodernSource" : true,
-      "fileList" : false
+      "unspecified" : false,
+      "fileList" : false,
+      "restmodernSource" : true
     },
     {
       "name" : "$tgt_insert_records$",
@@ -141,15 +146,14 @@
       "objectLabel" : "bronze/adm_super_group",
       "useExactSrcNames" : false,
       "userUpdated" : true,
-      "unspecified" : false,
-      "fetchMode" : "ORIGINAL",
       "runtimeParameterData" : {
         "connectionParameterName" : "DBConnection_UDM_TGT",
-        "connectionRuntimeParameter" : false,
+        "connectionRuntimeParameter" : true,
         "objectRuntimeParameter" : false
       },
-      "restmodernSource" : true,
-      "fileList" : false
+      "unspecified" : false,
+      "fileList" : false,
+      "restmodernSource" : true
     },
     {
       "name" : "$tgt_update_closeout$",
@@ -164,7 +168,7 @@
         "default" : "bronze/adm_super_group",
         "objectParameterized" : "false",
         "visible" : "false",
-        "defaultTargetUpdateColumns" : "super_group_row_id",
+        "defaultTargetUpdateColumns" : "adm_super_group_row_id",
         "supportApplyDDLChanges" : "false",
         "originalPath" : "tgt_update_closeout"
       },
@@ -181,7 +185,7 @@
       "operationType" : "Update",
       "customFuncCfg" : { },
       "targetUpdateColumns" : [
-        "super_group_row_id"
+        "adm_super_group_row_id"
       ],
       "extendedObject" : {
         "singleMode" : true
@@ -198,15 +202,14 @@
       "objectLabel" : "bronze/adm_super_group",
       "useExactSrcNames" : false,
       "userUpdated" : true,
-      "unspecified" : false,
-      "fetchMode" : "ORIGINAL",
       "runtimeParameterData" : {
         "connectionParameterName" : "DBConnection_UDM_TGT",
-        "connectionRuntimeParameter" : false,
+        "connectionRuntimeParameter" : true,
         "objectRuntimeParameter" : false
       },
-      "restmodernSource" : true,
-      "fileList" : false
+      "unspecified" : false,
+      "fileList" : false,
+      "restmodernSource" : true
     },
     {
       "name" : "$tgt_update_records$",
@@ -251,19 +254,18 @@
       "objectLabel" : "bronze/adm_super_group",
       "useExactSrcNames" : false,
       "userUpdated" : true,
-      "unspecified" : false,
-      "fetchMode" : "ORIGINAL",
       "runtimeParameterData" : {
         "connectionParameterName" : "DBConnection_UDM_TGT",
-        "connectionRuntimeParameter" : false,
+        "connectionRuntimeParameter" : true,
         "objectRuntimeParameter" : false
       },
-      "restmodernSource" : true,
-      "fileList" : false
+      "unspecified" : false,
+      "fileList" : false,
+      "restmodernSource" : true
     }
   ],
   "verbose" : false,
-  "lastRunTime" : 1750283068000,
+  "lastRunTime" : 1762538562000,
   "mappingId" : "@0EvqeLUvDeleexhNQAXeG9",
   "mappingTemplateName" : "cdi_map_adm_super_group_bronze_load",
   "sessionPropertiesList" : [
@@ -280,6 +282,48 @@
       "value" : "Partial PDO"
     }
   ],
+  "inOutParameters" : [
+    {
+      "name" : "sourcesystemcode",
+      "initialValue" : "ADM",
+      "datatype" : "STRING",
+      "precision" : "10",
+      "scale" : "0",
+      "retentionPolicy" : "ON_SUCCESS_OR_WARNING",
+      "aggregationType" : "MAX",
+      "currentValue" : "ADM"
+    },
+    {
+      "name" : "raw_schema",
+      "initialValue" : "metal",
+      "datatype" : "STRING",
+      "precision" : "10",
+      "scale" : "0",
+      "retentionPolicy" : "ON_SUCCESS_OR_WARNING",
+      "aggregationType" : "MAX",
+      "currentValue" : "metal"
+    },
+    {
+      "name" : "operational_schema",
+      "initialValue" : "operations",
+      "datatype" : "STRING",
+      "precision" : "10",
+      "scale" : "0",
+      "retentionPolicy" : "ON_SUCCESS_OR_WARNING",
+      "aggregationType" : "MAX",
+      "currentValue" : "operations"
+    },
+    {
+      "name" : "staging_schema",
+      "initialValue" : "bronze",
+      "datatype" : "STRING",
+      "precision" : "10",
+      "scale" : "0",
+      "retentionPolicy" : "ON_SUCCESS_OR_WARNING",
+      "aggregationType" : "MAX",
+      "currentValue" : "bronze"
+    }
+  ],
   "hidden" : false,
   "enableCrossSchemaPushdown" : true,
   "enableParallelRun" : false,
@@ -292,6 +336,7 @@
   "valid" : true,
   "optimizationPlan" : "NONE",
   "allowMaxFieldLength" : false,
+  "specialCharacterSupport" : false,
   "midstreamPreview" : false,
-  "vcsExportTime" : "2025-06-20 06:22:21 PDT"
+  "vcsExportTime" : "2025-11-07 10:07:24 PST"
 }
