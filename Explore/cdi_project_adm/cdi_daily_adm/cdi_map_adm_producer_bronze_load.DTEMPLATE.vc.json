@@ -5,6 +5,7 @@
     "bigIntConvertType" : "ONLY_BIGINT",
     "documentType" : "MAPPING",
     "name" : "cdi_map_adm_producer_bronze_load",
+    "specialCharacterSupport" : "false",
     "links" : [
       {
         "link" : "src_metal_producer -> exp_convert_datatype"
@@ -35,15 +36,21 @@
         "link" : "src_tgt_query -> exp_passthrough"
       },
       {
-        "link" : "rtr_insert_update_path -> tgt_update_records",
+        "link" : "rtr_insert_update_path -> exp_update",
         "groupLink" : "update_group -> DefaultGroup"
       },
       {
-        "link" : "rtr_insert_update_path -> tgt_insert_records",
+        "link" : "exp_Insert -> tgt_insert_records"
+      },
+      {
+        "link" : "rtr_insert_update_path -> exp_Insert",
         "groupLink" : "insert_group -> DefaultGroup"
       },
       {
-        "link" : "rtr_insert_update_path -> exp_update",
+        "link" : "exp_Insert_Update -> tgt_update_records"
+      },
+      {
+        "link" : "rtr_insert_update_path -> exp_Insert_Update",
         "groupLink" : "update_group -> DefaultGroup"
       }
     ],
@@ -135,9 +142,64 @@
           },
           {
             "adapterField" : {
-              "name" : "active"
+              "name" : "id"
             },
-            "name" : "active",
+            "name" : "id",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 15,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "last_name"
+            },
+            "name" : "last_name",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "first_name"
+            },
+            "name" : "first_name",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "middle_name"
+            },
+            "name" : "middle_name",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "suffix"
+            },
+            "name" : "suffix",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 15,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "term_flag"
+            },
+            "name" : "term_flag",
             "platformType" : {
               "name" : "string"
             },
@@ -146,9 +208,9 @@
           },
           {
             "adapterField" : {
-              "name" : "created"
+              "name" : "misc_flags"
             },
-            "name" : "created",
+            "name" : "misc_flags",
             "platformType" : {
               "name" : "string"
             },
@@ -179,35 +241,13 @@
           },
           {
             "adapterField" : {
-              "name" : "id"
+              "name" : "active"
             },
-            "name" : "id",
+            "name" : "active",
             "platformType" : {
               "name" : "string"
             },
-            "precision" : 15,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "modified"
-            },
-            "name" : "modified",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 31,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "name"
-            },
-            "name" : "name",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 63,
+            "precision" : 7,
             "scale" : 0
           },
           {
@@ -223,13 +263,35 @@
           },
           {
             "adapterField" : {
-              "name" : "term_flag"
+              "name" : "resident_state"
             },
-            "name" : "term_flag",
+            "name" : "resident_state",
             "platformType" : {
               "name" : "string"
             },
             "precision" : 7,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "created"
+            },
+            "name" : "created",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 31,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "modified"
+            },
+            "name" : "modified",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 31,
             "scale" : 0
           },
           {
@@ -253,8 +315,8 @@
           "typeSystem" : "TOOLKIT",
           "useDynamicFileName" : "false",
           "object" : {
-            "customQuery" : "with current_batch as (\nselect\n\tbls.batch_id,\n\tbls.source_start_cutoff_datetime,\n\tbls.source_end_cutoff_datetime\nfrom\n\tmetal.batch_load_summary bls\nwhere\n\tbls.source_system_code = 'ADM'\n\tand bls.batch_status = 'Inprogress'\n\tand bls.batch_id = (\n\tselect\n\t\tMAX(batch_id)\n\tfrom\n\t\tmetal.batch_load_summary\n\twhere\n\t\tsource_system_code = 'ADM'\n\t\tand batch_status = 'Inprogress' ) )\nselect\n\tdistinct\n\tmetal_ap.source_name,\n\tmetal_ap.load_type,\n\tmetal_ap.active,\n\tmetal_ap.created,\n\tmetal_ap.fid_num,\n\tmetal_ap.fid_type,\n\tmetal_ap.id,\n\tmetal_ap.modified,\n\tmetal_ap.name,\n\tmetal_ap.npn_number,\n\tmetal_ap.term_flag,\n\tcurrent_batch.batch_id\nfrom\n\tmetal.adm_producer metal_ap\ncross join current_batch\norder by\n\tmetal_ap.id,\n\tmetal_ap.created,\n\tmetal_ap.modified;",
-            "retainMetadata" : "false",
+            "customQuery" : "with current_batch as (\nselect\n\tbls.batch_id,\n\tbls.source_start_cutoff_datetime,\n\tbls.source_end_cutoff_datetime\nfrom\n\t$$operational_schema.batch_load_summary bls\nwhere\n\tbls.source_system_code ='$$sourcesystemcode'\n\tand bls.batch_status = 'Inprogress'\n\tand bls.batch_id = (\n\tselect\n\t\tMAX(batch_id)\n\tfrom\n\t\t$$operational_schema.batch_load_summary\n\twhere\n\t\tsource_system_code = '$$sourcesystemcode'\n\t\tand batch_status = 'Inprogress' ) )\nselect\n\tdistinct\n\t source_name, \nmetal_ap.load_type, \nmetal_ap.id, \nmetal_ap.last_name, \nmetal_ap.first_name, \nmetal_ap.middle_name, \nmetal_ap.suffix, \nmetal_ap.term_flag, \nmetal_ap.misc_flags, \nmetal_ap.fid_num, \nmetal_ap.fid_type, \nmetal_ap.active, \nmetal_ap.npn_number, \nmetal_ap.resident_state, \nmetal_ap.created, \nmetal_ap.modified,\ncurrent_batch.batch_id\nfrom\n\t$$raw_schema.adm_producer metal_ap\ncross join current_batch\norder by\n\tmetal_ap.id,\n\tmetal_ap.created,\n\tmetal_ap.modified;",
+            "retainMetadata" : "true",
             "fields" : [
               {
                 "name" : "source_name",
@@ -289,10 +351,90 @@
                 ]
               },
               {
-                "name" : "active",
+                "name" : "id",
                 "fieldType" : "CONNECTOR",
-                "label" : "active",
-                "nativeName" : "active",
+                "label" : "id",
+                "nativeName" : "id",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 15,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "last_name",
+                "fieldType" : "CONNECTOR",
+                "label" : "last_name",
+                "nativeName" : "last_name",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "first_name",
+                "fieldType" : "CONNECTOR",
+                "label" : "first_name",
+                "nativeName" : "first_name",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "middle_name",
+                "fieldType" : "CONNECTOR",
+                "label" : "middle_name",
+                "nativeName" : "middle_name",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "suffix",
+                "fieldType" : "CONNECTOR",
+                "label" : "suffix",
+                "nativeName" : "suffix",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 15,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "term_flag",
+                "fieldType" : "CONNECTOR",
+                "label" : "term_flag",
+                "nativeName" : "term_flag",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 7,
@@ -305,10 +447,10 @@
                 ]
               },
               {
-                "name" : "created",
+                "name" : "misc_flags",
                 "fieldType" : "CONNECTOR",
-                "label" : "created",
-                "nativeName" : "created",
+                "label" : "misc_flags",
+                "nativeName" : "misc_flags",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 31,
@@ -353,45 +495,13 @@
                 ]
               },
               {
-                "name" : "id",
+                "name" : "active",
                 "fieldType" : "CONNECTOR",
-                "label" : "id",
-                "nativeName" : "id",
+                "label" : "active",
+                "nativeName" : "active",
                 "nativeType" : "varchar",
                 "original" : "false",
-                "precision" : 15,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "INFARS_CUSTOM_SCHEMA"
-                  }
-                ]
-              },
-              {
-                "name" : "modified",
-                "fieldType" : "CONNECTOR",
-                "label" : "modified",
-                "nativeName" : "modified",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 31,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "INFARS_CUSTOM_SCHEMA"
-                  }
-                ]
-              },
-              {
-                "name" : "name",
-                "fieldType" : "CONNECTOR",
-                "label" : "name",
-                "nativeName" : "name",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 63,
+                "precision" : 7,
                 "scale" : 0,
                 "properties" : [
                   {
@@ -417,13 +527,45 @@
                 ]
               },
               {
-                "name" : "term_flag",
+                "name" : "resident_state",
                 "fieldType" : "CONNECTOR",
-                "label" : "term_flag",
-                "nativeName" : "term_flag",
+                "label" : "resident_state",
+                "nativeName" : "resident_state",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 7,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "created",
+                "fieldType" : "CONNECTOR",
+                "label" : "created",
+                "nativeName" : "created",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 31,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "modified",
+                "fieldType" : "CONNECTOR",
+                "label" : "modified",
+                "nativeName" : "modified",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 31,
                 "scale" : 0,
                 "properties" : [
                   {
@@ -476,12 +618,8 @@
                 "value" : "10000"
               },
               {
-                "name" : "S3 Bucket Name",
-                "value" : "$$S3_Staging_Bucket"
-              },
-              {
                 "name" : "Enable Compression",
-                "value" : "YES"
+                "value" : "NO"
               },
               {
                 "name" : "Temporary Credential Duration",
@@ -609,7 +747,7 @@
             "precision" : 255,
             "scale" : 0,
             "expFieldType" : "OUTPUT",
-            "expression" : "MD5(\n'source_name'||source_name|| \n'load_type'||load_type||\n'active'||active||\n'o_producer_datetime_created' || to_char(o_producer_datetime_created) ||\n'fid_num'||fid_num|| \n'fid_type'||fid_type||\n'o_producer_id'||to_char(o_producer_id)||\n'o_producer_datetime_modified' || to_char(o_producer_datetime_modified) ||\n'name'||name||\n'npn_number'||npn_number||\n'o_producer_termination_flag' || to_char(o_producer_termination_flag)\n)"
+            "expression" : "MD5(\n'source_name'||source_name|| \n'load_type'||load_type||\n'o_producer_id'||to_char(o_producer_id)||\n'last_name'||last_name||\n'first_name'||first_name|| \n'middle_name'||middle_name|| \n'suffix'||suffix||\n'o_producer_termination_flag' || to_char(o_producer_termination_flag)||\n'misc_flags'||misc_flags||\n'fid_num'||fid_num||\n'fid_type'||fid_type||\n'active'||active||\n'npn_number'||npn_number||\n 'resident_state'||resident_state||\n'o_producer_datetime_created' || to_char(o_producer_datetime_created) ||\n 'o_producer_datetime_modified' || to_char(o_producer_datetime_modified)\n)"
           }
         ],
         "windowSpec" : {
@@ -646,9 +784,9 @@
         "fields" : [
           {
             "adapterField" : {
-              "name" : "producer_row_id"
+              "name" : "adm_producer_row_id"
             },
-            "name" : "producer_row_id",
+            "name" : "adm_producer_row_id",
             "platformType" : {
               "name" : "bigint"
             },
@@ -657,9 +795,9 @@
           },
           {
             "adapterField" : {
-              "name" : "producer_batch_id"
+              "name" : "adm_producer_batch_id"
             },
-            "name" : "producer_batch_id",
+            "name" : "adm_producer_batch_id",
             "platformType" : {
               "name" : "bigint"
             },
@@ -668,9 +806,9 @@
           },
           {
             "adapterField" : {
-              "name" : "producer_row_md5checksum"
+              "name" : "adm_producer_row_md5checksum"
             },
-            "name" : "producer_row_md5checksum",
+            "name" : "adm_producer_row_md5checksum",
             "platformType" : {
               "name" : "string"
             },
@@ -679,9 +817,9 @@
           },
           {
             "adapterField" : {
-              "name" : "producer_id"
+              "name" : "id"
             },
-            "name" : "producer_id",
+            "name" : "id",
             "platformType" : {
               "name" : "integer"
             },
@@ -690,9 +828,9 @@
           },
           {
             "adapterField" : {
-              "name" : "producer_datetime_modified"
+              "name" : "adm_producer_row_effective_start_datetime"
             },
-            "name" : "producer_datetime_modified",
+            "name" : "adm_producer_row_effective_start_datetime",
             "platformType" : {
               "name" : "date/time"
             },
@@ -701,9 +839,9 @@
           },
           {
             "adapterField" : {
-              "name" : "producer_row_effective_end_datetime"
+              "name" : "adm_producer_row_effective_end_datetime"
             },
-            "name" : "producer_row_effective_end_datetime",
+            "name" : "adm_producer_row_effective_end_datetime",
             "platformType" : {
               "name" : "date/time"
             },
@@ -712,22 +850,21 @@
           }
         ],
         "dataAdapter" : {
-          "connectionId$" : {
-            "name" : "DBConnection_UDM_SRC"
-          },
+          "connectionId" : "saas:@aYZ4ekzHgIPeKpiaoqDLKP",
+          "connectionName" : "redshift_nonprod_andover_dw_dev",
           "excludeDynamicFileNameField" : "false",
           "objectType" : "QUERY",
           "typeSystem" : "TOOLKIT",
           "useDynamicFileName" : "false",
           "object" : {
-            "customQuery" : "select\n\tproducer_row_id,\n\tproducer_batch_id,\n\tproducer_row_md5checksum,\n\tproducer_id,\n\tproducer_datetime_modified,\n\tproducer_row_effective_end_datetime\nfrom\n\tbronze.adm_producer\nwhere\n\tproducer_row_effective_end_datetime = '9999-12-31 00:00:00.000'",
+            "customQuery" : "select\n\tadm_producer_row_id ,\n\tadm_producer_batch_id,\n\tadm_producer_row_md5checksum,\n\tid,\n\tadm_producer_row_effective_start_datetime ,\n\tadm_producer_row_effective_end_datetime \nfrom\n\t$$staging_schema.adm_producer where adm_producer_row_effective_end_datetime = '9999-12-31 00:00:00.000';",
             "retainMetadata" : "false",
             "fields" : [
               {
-                "name" : "producer_row_id",
+                "name" : "adm_producer_row_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "producer_row_id",
-                "nativeName" : "producer_row_id",
+                "label" : "adm_producer_row_id",
+                "nativeName" : "adm_producer_row_id",
                 "nativeType" : "int8",
                 "original" : "false",
                 "precision" : 19,
@@ -740,10 +877,10 @@
                 ]
               },
               {
-                "name" : "producer_batch_id",
+                "name" : "adm_producer_batch_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "producer_batch_id",
-                "nativeName" : "producer_batch_id",
+                "label" : "adm_producer_batch_id",
+                "nativeName" : "adm_producer_batch_id",
                 "nativeType" : "int8",
                 "original" : "false",
                 "precision" : 19,
@@ -756,10 +893,10 @@
                 ]
               },
               {
-                "name" : "producer_row_md5checksum",
+                "name" : "adm_producer_row_md5checksum",
                 "fieldType" : "CONNECTOR",
-                "label" : "producer_row_md5checksum",
-                "nativeName" : "producer_row_md5checksum",
+                "label" : "adm_producer_row_md5checksum",
+                "nativeName" : "adm_producer_row_md5checksum",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 255,
@@ -772,10 +909,10 @@
                 ]
               },
               {
-                "name" : "producer_id",
+                "name" : "id",
                 "fieldType" : "CONNECTOR",
-                "label" : "producer_id",
-                "nativeName" : "producer_id",
+                "label" : "id",
+                "nativeName" : "id",
                 "nativeType" : "int4",
                 "original" : "false",
                 "precision" : 10,
@@ -788,10 +925,10 @@
                 ]
               },
               {
-                "name" : "producer_datetime_modified",
+                "name" : "adm_producer_row_effective_start_datetime",
                 "fieldType" : "CONNECTOR",
-                "label" : "producer_datetime_modified",
-                "nativeName" : "producer_datetime_modified",
+                "label" : "adm_producer_row_effective_start_datetime",
+                "nativeName" : "adm_producer_row_effective_start_datetime",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 29,
@@ -804,10 +941,10 @@
                 ]
               },
               {
-                "name" : "producer_row_effective_end_datetime",
+                "name" : "adm_producer_row_effective_end_datetime",
                 "fieldType" : "CONNECTOR",
-                "label" : "producer_row_effective_end_datetime",
-                "nativeName" : "producer_row_effective_end_datetime",
+                "label" : "adm_producer_row_effective_end_datetime",
+                "nativeName" : "adm_producer_row_effective_end_datetime",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 29,
@@ -839,12 +976,8 @@
                 "value" : "10000"
               },
               {
-                "name" : "S3 Bucket Name",
-                "value" : "$$S3_Staging_Bucket"
-              },
-              {
                 "name" : "Enable Compression",
-                "value" : "YES"
+                "value" : "NO"
               },
               {
                 "name" : "Temporary Credential Duration",
@@ -901,7 +1034,7 @@
             "precision" : 10,
             "scale" : 0,
             "expFieldType" : "OUTPUT",
-            "expression" : "IIF(ISNULL(producer_row_id),'I','X')"
+            "expression" : "IIF(ISNULL(tgt_id),'I','X')"
           },
           {
             "defaultValue" : "ERROR('transformation error')",
@@ -934,7 +1067,7 @@
             "precision" : 10,
             "scale" : 0,
             "expFieldType" : "OUTPUT",
-            "expression" : "IIF(NOT ISNULL(producer_row_id) AND producer_row_md5checksum <> o_src_md5_hash_value, 'U','X')"
+            "expression" : "IIF(NOT ISNULL(tgt_id) AND tgt_adm_producer_row_md5checksum <> src_o_src_md5_hash_value, 'U','X')"
           }
         ],
         "windowSpec" : {
@@ -1027,6 +1160,17 @@
             "scale" : 9,
             "expFieldType" : "OUTPUT",
             "expression" : "SYSDATE"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_row_status",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "'Expired'"
           }
         ],
         "windowSpec" : {
@@ -1063,15 +1207,16 @@
         "fieldMappingMode" : "MANUAL",
         "inputSorted" : "false",
         "schemaProviderType" : "SELECTED_OBJECT",
+        "targetFieldsOrdered" : "false",
         "updateColumns" : null,
         "useLabels" : "false",
         "useSequenceFields" : "false",
         "fields" : [
           {
             "adapterField" : {
-              "name" : "producer_row_id"
+              "name" : "adm_producer_row_id"
             },
-            "name" : "producer_row_id",
+            "name" : "adm_producer_row_id",
             "platformType" : {
               "name" : "bigint"
             },
@@ -1080,9 +1225,9 @@
           },
           {
             "adapterField" : {
-              "name" : "producer_batch_id"
+              "name" : "adm_producer_batch_id"
             },
-            "name" : "producer_batch_id",
+            "name" : "adm_producer_batch_id",
             "platformType" : {
               "name" : "bigint"
             },
@@ -1091,9 +1236,9 @@
           },
           {
             "adapterField" : {
-              "name" : "source_name"
+              "name" : "originating_source_name"
             },
-            "name" : "source_name",
+            "name" : "originating_source_name",
             "platformType" : {
               "name" : "string"
             },
@@ -1102,9 +1247,9 @@
           },
           {
             "adapterField" : {
-              "name" : "load_type"
+              "name" : "originating_load_type"
             },
-            "name" : "load_type",
+            "name" : "originating_load_type",
             "platformType" : {
               "name" : "string"
             },
@@ -1113,9 +1258,9 @@
           },
           {
             "adapterField" : {
-              "name" : "producer_row_md5checksum"
+              "name" : "adm_producer_row_md5checksum"
             },
-            "name" : "producer_row_md5checksum",
+            "name" : "adm_producer_row_md5checksum",
             "platformType" : {
               "name" : "string"
             },
@@ -1124,9 +1269,9 @@
           },
           {
             "adapterField" : {
-              "name" : "producer_datetime_created"
+              "name" : "adm_producer_row_effective_start_datetime"
             },
-            "name" : "producer_datetime_created",
+            "name" : "adm_producer_row_effective_start_datetime",
             "platformType" : {
               "name" : "date/time"
             },
@@ -1135,9 +1280,9 @@
           },
           {
             "adapterField" : {
-              "name" : "producer_datetime_modified"
+              "name" : "adm_producer_row_effective_end_datetime"
             },
-            "name" : "producer_datetime_modified",
+            "name" : "adm_producer_row_effective_end_datetime",
             "platformType" : {
               "name" : "date/time"
             },
@@ -1146,75 +1291,9 @@
           },
           {
             "adapterField" : {
-              "name" : "producer_row_effective_start_datetime"
+              "name" : "adm_producer_row_status"
             },
-            "name" : "producer_row_effective_start_datetime",
-            "platformType" : {
-              "name" : "date/time"
-            },
-            "precision" : 29,
-            "scale" : 9
-          },
-          {
-            "adapterField" : {
-              "name" : "producer_row_effective_end_datetime"
-            },
-            "name" : "producer_row_effective_end_datetime",
-            "platformType" : {
-              "name" : "date/time"
-            },
-            "precision" : 29,
-            "scale" : 9
-          },
-          {
-            "adapterField" : {
-              "name" : "is_producer_active"
-            },
-            "name" : "is_producer_active",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 7,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "federal_id_number"
-            },
-            "name" : "federal_id_number",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 2047,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "federal_id_type"
-            },
-            "name" : "federal_id_type",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 7,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "producer_id"
-            },
-            "name" : "producer_id",
-            "platformType" : {
-              "name" : "integer"
-            },
-            "precision" : 10,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "producer_name"
-            },
-            "name" : "producer_name",
+            "name" : "adm_producer_row_status",
             "platformType" : {
               "name" : "string"
             },
@@ -1223,9 +1302,75 @@
           },
           {
             "adapterField" : {
-              "name" : "national_producer_number"
+              "name" : "id"
             },
-            "name" : "national_producer_number",
+            "name" : "id",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "last_name"
+            },
+            "name" : "last_name",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "first_name"
+            },
+            "name" : "first_name",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "middle_name"
+            },
+            "name" : "middle_name",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "suffix"
+            },
+            "name" : "suffix",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 15,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "term_flag"
+            },
+            "name" : "term_flag",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "misc_flags"
+            },
+            "name" : "misc_flags",
             "platformType" : {
               "name" : "string"
             },
@@ -1234,14 +1379,80 @@
           },
           {
             "adapterField" : {
-              "name" : "producer_termination_flag"
+              "name" : "fid_num"
             },
-            "name" : "producer_termination_flag",
+            "name" : "fid_num",
             "platformType" : {
-              "name" : "integer"
+              "name" : "string"
             },
-            "precision" : 10,
+            "precision" : 2047,
             "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "fid_type"
+            },
+            "name" : "fid_type",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 7,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "active"
+            },
+            "name" : "active",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 7,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "npn_number"
+            },
+            "name" : "npn_number",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 31,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "resident_state"
+            },
+            "name" : "resident_state",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 7,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "created"
+            },
+            "name" : "created",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "modified"
+            },
+            "name" : "modified",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
           }
         ],
         "dataAdapter" : {
@@ -1261,10 +1472,10 @@
             "retainMetadata" : "false",
             "fields" : [
               {
-                "name" : "producer_row_id",
+                "name" : "adm_producer_row_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "producer_row_id",
-                "nativeName" : "producer_row_id",
+                "label" : "adm_producer_row_id",
+                "nativeName" : "adm_producer_row_id",
                 "nativeType" : "int8",
                 "original" : "false",
                 "precision" : 19,
@@ -1277,10 +1488,10 @@
                 ]
               },
               {
-                "name" : "producer_batch_id",
+                "name" : "adm_producer_batch_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "producer_batch_id",
-                "nativeName" : "producer_batch_id",
+                "label" : "adm_producer_batch_id",
+                "nativeName" : "adm_producer_batch_id",
                 "nativeType" : "int8",
                 "original" : "false",
                 "precision" : 19,
@@ -1293,10 +1504,10 @@
                 ]
               },
               {
-                "name" : "source_name",
+                "name" : "originating_source_name",
                 "fieldType" : "CONNECTOR",
-                "label" : "source_name",
-                "nativeName" : "source_name",
+                "label" : "originating_source_name",
+                "nativeName" : "originating_source_name",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 127,
@@ -1309,10 +1520,10 @@
                 ]
               },
               {
-                "name" : "load_type",
+                "name" : "originating_load_type",
                 "fieldType" : "CONNECTOR",
-                "label" : "load_type",
-                "nativeName" : "load_type",
+                "label" : "originating_load_type",
+                "nativeName" : "originating_load_type",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 63,
@@ -1325,10 +1536,10 @@
                 ]
               },
               {
-                "name" : "producer_row_md5checksum",
+                "name" : "adm_producer_row_md5checksum",
                 "fieldType" : "CONNECTOR",
-                "label" : "producer_row_md5checksum",
-                "nativeName" : "producer_row_md5checksum",
+                "label" : "adm_producer_row_md5checksum",
+                "nativeName" : "adm_producer_row_md5checksum",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 255,
@@ -1341,10 +1552,10 @@
                 ]
               },
               {
-                "name" : "producer_datetime_created",
+                "name" : "adm_producer_row_effective_start_datetime",
                 "fieldType" : "CONNECTOR",
-                "label" : "producer_datetime_created",
-                "nativeName" : "producer_datetime_created",
+                "label" : "adm_producer_row_effective_start_datetime",
+                "nativeName" : "adm_producer_row_effective_start_datetime",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 29,
@@ -1357,10 +1568,10 @@
                 ]
               },
               {
-                "name" : "producer_datetime_modified",
+                "name" : "adm_producer_row_effective_end_datetime",
                 "fieldType" : "CONNECTOR",
-                "label" : "producer_datetime_modified",
-                "nativeName" : "producer_datetime_modified",
+                "label" : "adm_producer_row_effective_end_datetime",
+                "nativeName" : "adm_producer_row_effective_end_datetime",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 29,
@@ -1373,106 +1584,10 @@
                 ]
               },
               {
-                "name" : "producer_row_effective_start_datetime",
+                "name" : "adm_producer_row_status",
                 "fieldType" : "CONNECTOR",
-                "label" : "producer_row_effective_start_datetime",
-                "nativeName" : "producer_row_effective_start_datetime",
-                "nativeType" : "timestamp",
-                "original" : "false",
-                "precision" : 29,
-                "scale" : 6,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_producer"
-                  }
-                ]
-              },
-              {
-                "name" : "producer_row_effective_end_datetime",
-                "fieldType" : "CONNECTOR",
-                "label" : "producer_row_effective_end_datetime",
-                "nativeName" : "producer_row_effective_end_datetime",
-                "nativeType" : "timestamp",
-                "original" : "false",
-                "precision" : 29,
-                "scale" : 6,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_producer"
-                  }
-                ]
-              },
-              {
-                "name" : "is_producer_active",
-                "fieldType" : "CONNECTOR",
-                "label" : "is_producer_active",
-                "nativeName" : "is_producer_active",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 7,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_producer"
-                  }
-                ]
-              },
-              {
-                "name" : "federal_id_number",
-                "fieldType" : "CONNECTOR",
-                "label" : "federal_id_number",
-                "nativeName" : "federal_id_number",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 2047,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_producer"
-                  }
-                ]
-              },
-              {
-                "name" : "federal_id_type",
-                "fieldType" : "CONNECTOR",
-                "label" : "federal_id_type",
-                "nativeName" : "federal_id_type",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 7,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_producer"
-                  }
-                ]
-              },
-              {
-                "name" : "producer_id",
-                "fieldType" : "CONNECTOR",
-                "label" : "producer_id",
-                "nativeName" : "producer_id",
-                "nativeType" : "int4",
-                "original" : "false",
-                "precision" : 10,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_producer"
-                  }
-                ]
-              },
-              {
-                "name" : "producer_name",
-                "fieldType" : "CONNECTOR",
-                "label" : "producer_name",
-                "nativeName" : "producer_name",
+                "label" : "adm_producer_row_status",
+                "nativeName" : "adm_producer_row_status",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 63,
@@ -1485,10 +1600,106 @@
                 ]
               },
               {
-                "name" : "national_producer_number",
+                "name" : "id",
                 "fieldType" : "CONNECTOR",
-                "label" : "national_producer_number",
-                "nativeName" : "national_producer_number",
+                "label" : "id",
+                "nativeName" : "id",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_producer"
+                  }
+                ]
+              },
+              {
+                "name" : "last_name",
+                "fieldType" : "CONNECTOR",
+                "label" : "last_name",
+                "nativeName" : "last_name",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_producer"
+                  }
+                ]
+              },
+              {
+                "name" : "first_name",
+                "fieldType" : "CONNECTOR",
+                "label" : "first_name",
+                "nativeName" : "first_name",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_producer"
+                  }
+                ]
+              },
+              {
+                "name" : "middle_name",
+                "fieldType" : "CONNECTOR",
+                "label" : "middle_name",
+                "nativeName" : "middle_name",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_producer"
+                  }
+                ]
+              },
+              {
+                "name" : "suffix",
+                "fieldType" : "CONNECTOR",
+                "label" : "suffix",
+                "nativeName" : "suffix",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 15,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_producer"
+                  }
+                ]
+              },
+              {
+                "name" : "term_flag",
+                "fieldType" : "CONNECTOR",
+                "label" : "term_flag",
+                "nativeName" : "term_flag",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_producer"
+                  }
+                ]
+              },
+              {
+                "name" : "misc_flags",
+                "fieldType" : "CONNECTOR",
+                "label" : "misc_flags",
+                "nativeName" : "misc_flags",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 31,
@@ -1501,14 +1712,110 @@
                 ]
               },
               {
-                "name" : "producer_termination_flag",
+                "name" : "fid_num",
                 "fieldType" : "CONNECTOR",
-                "label" : "producer_termination_flag",
-                "nativeName" : "producer_termination_flag",
-                "nativeType" : "int4",
+                "label" : "fid_num",
+                "nativeName" : "fid_num",
+                "nativeType" : "varchar",
                 "original" : "false",
-                "precision" : 10,
+                "precision" : 2047,
                 "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_producer"
+                  }
+                ]
+              },
+              {
+                "name" : "fid_type",
+                "fieldType" : "CONNECTOR",
+                "label" : "fid_type",
+                "nativeName" : "fid_type",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 7,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_producer"
+                  }
+                ]
+              },
+              {
+                "name" : "active",
+                "fieldType" : "CONNECTOR",
+                "label" : "active",
+                "nativeName" : "active",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 7,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_producer"
+                  }
+                ]
+              },
+              {
+                "name" : "npn_number",
+                "fieldType" : "CONNECTOR",
+                "label" : "npn_number",
+                "nativeName" : "npn_number",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 31,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_producer"
+                  }
+                ]
+              },
+              {
+                "name" : "resident_state",
+                "fieldType" : "CONNECTOR",
+                "label" : "resident_state",
+                "nativeName" : "resident_state",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 7,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_producer"
+                  }
+                ]
+              },
+              {
+                "name" : "created",
+                "fieldType" : "CONNECTOR",
+                "label" : "created",
+                "nativeName" : "created",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_producer"
+                  }
+                ]
+              },
+              {
+                "name" : "modified",
+                "fieldType" : "CONNECTOR",
+                "label" : "modified",
+                "nativeName" : "modified",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
                 "properties" : [
                   {
                     "name" : "parentObject",
@@ -1610,107 +1917,149 @@
         "manualMappings" : {
           "mappingList" : [
             {
-              "fromFieldName" : "batch_id",
+              "fromFieldName" : "tgt_adm_producer_batch_id",
               "toField" : {
-                "name" : "producer_batch_id"
+                "name" : "adm_producer_batch_id"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "source_name",
+              "fromFieldName" : "tgt_adm_producer_row_md5checksum",
               "toField" : {
-                "name" : "source_name"
+                "name" : "adm_producer_row_md5checksum"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "load_type",
+              "fromFieldName" : "o_row_status",
               "toField" : {
-                "name" : "load_type"
+                "name" : "adm_producer_row_status"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "o_src_md5_hash_value",
+              "fromFieldName" : "tgt_id",
               "toField" : {
-                "name" : "producer_row_md5checksum"
+                "name" : "id"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "o_producer_datetime_created",
+              "fromFieldName" : "src_last_name",
               "toField" : {
-                "name" : "producer_datetime_created"
+                "name" : "last_name"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "o_producer_datetime_modified",
+              "fromFieldName" : "src_first_name",
               "toField" : {
-                "name" : "producer_datetime_modified"
+                "name" : "first_name"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "src_middle_name",
+              "toField" : {
+                "name" : "middle_name"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "src_suffix",
+              "toField" : {
+                "name" : "suffix"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "src_term_flag",
+              "toField" : {
+                "name" : "term_flag"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "src_misc_flags",
+              "toField" : {
+                "name" : "misc_flags"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "src_fid_num",
+              "toField" : {
+                "name" : "fid_num"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "src_fid_type",
+              "toField" : {
+                "name" : "fid_type"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "src_active",
+              "toField" : {
+                "name" : "active"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "src_npn_number",
+              "toField" : {
+                "name" : "npn_number"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "src_resident_state",
+              "toField" : {
+                "name" : "resident_state"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "src_created",
+              "toField" : {
+                "name" : "created"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "src_modified",
+              "toField" : {
+                "name" : "modified"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "src_source_name",
+              "toField" : {
+                "name" : "originating_source_name"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "src_load_type",
+              "toField" : {
+                "name" : "originating_load_type"
               },
               "fromFieldNames" : null
             },
             {
               "fromFieldName" : "o_producer_row_effective_start_datetime",
               "toField" : {
-                "name" : "producer_row_effective_start_datetime"
+                "name" : "adm_producer_row_effective_start_datetime"
               },
               "fromFieldNames" : null
             },
             {
               "fromFieldName" : "o_producer_row_effective_end_datetime",
               "toField" : {
-                "name" : "producer_row_effective_end_datetime"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "active",
-              "toField" : {
-                "name" : "is_producer_active"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "o_producer_termination_flag",
-              "toField" : {
-                "name" : "producer_termination_flag"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "o_producer_id",
-              "toField" : {
-                "name" : "producer_id"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "fid_type",
-              "toField" : {
-                "name" : "federal_id_type"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "fid_num",
-              "toField" : {
-                "name" : "federal_id_number"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "name",
-              "toField" : {
-                "name" : "producer_name"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "npn_number",
-              "toField" : {
-                "name" : "national_producer_number"
+                "name" : "adm_producer_row_effective_end_datetime"
               },
               "fromFieldNames" : null
             }
@@ -1744,6 +2093,7 @@
         "fieldMappingMode" : "MANUAL",
         "inputSorted" : "false",
         "schemaProviderType" : "SELECTED_OBJECT",
+        "targetFieldsOrdered" : "false",
         "updateColumns" : [
           "producer_row_id"
         ],
@@ -1752,9 +2102,9 @@
         "fields" : [
           {
             "adapterField" : {
-              "name" : "producer_row_id"
+              "name" : "adm_producer_row_id"
             },
-            "name" : "producer_row_id",
+            "name" : "adm_producer_row_id",
             "platformType" : {
               "name" : "bigint"
             },
@@ -1763,9 +2113,9 @@
           },
           {
             "adapterField" : {
-              "name" : "producer_batch_id"
+              "name" : "adm_producer_batch_id"
             },
-            "name" : "producer_batch_id",
+            "name" : "adm_producer_batch_id",
             "platformType" : {
               "name" : "bigint"
             },
@@ -1774,9 +2124,9 @@
           },
           {
             "adapterField" : {
-              "name" : "source_name"
+              "name" : "originating_source_name"
             },
-            "name" : "source_name",
+            "name" : "originating_source_name",
             "platformType" : {
               "name" : "string"
             },
@@ -1785,9 +2135,9 @@
           },
           {
             "adapterField" : {
-              "name" : "load_type"
+              "name" : "originating_load_type"
             },
-            "name" : "load_type",
+            "name" : "originating_load_type",
             "platformType" : {
               "name" : "string"
             },
@@ -1796,9 +2146,9 @@
           },
           {
             "adapterField" : {
-              "name" : "producer_row_md5checksum"
+              "name" : "adm_producer_row_md5checksum"
             },
-            "name" : "producer_row_md5checksum",
+            "name" : "adm_producer_row_md5checksum",
             "platformType" : {
               "name" : "string"
             },
@@ -1807,9 +2157,9 @@
           },
           {
             "adapterField" : {
-              "name" : "producer_datetime_created"
+              "name" : "adm_producer_row_effective_start_datetime"
             },
-            "name" : "producer_datetime_created",
+            "name" : "adm_producer_row_effective_start_datetime",
             "platformType" : {
               "name" : "date/time"
             },
@@ -1818,9 +2168,9 @@
           },
           {
             "adapterField" : {
-              "name" : "producer_datetime_modified"
+              "name" : "adm_producer_row_effective_end_datetime"
             },
-            "name" : "producer_datetime_modified",
+            "name" : "adm_producer_row_effective_end_datetime",
             "platformType" : {
               "name" : "date/time"
             },
@@ -1829,75 +2179,9 @@
           },
           {
             "adapterField" : {
-              "name" : "producer_row_effective_start_datetime"
+              "name" : "adm_producer_row_status"
             },
-            "name" : "producer_row_effective_start_datetime",
-            "platformType" : {
-              "name" : "date/time"
-            },
-            "precision" : 29,
-            "scale" : 9
-          },
-          {
-            "adapterField" : {
-              "name" : "producer_row_effective_end_datetime"
-            },
-            "name" : "producer_row_effective_end_datetime",
-            "platformType" : {
-              "name" : "date/time"
-            },
-            "precision" : 29,
-            "scale" : 9
-          },
-          {
-            "adapterField" : {
-              "name" : "is_producer_active"
-            },
-            "name" : "is_producer_active",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 7,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "federal_id_number"
-            },
-            "name" : "federal_id_number",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 2047,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "federal_id_type"
-            },
-            "name" : "federal_id_type",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 7,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "producer_id"
-            },
-            "name" : "producer_id",
-            "platformType" : {
-              "name" : "integer"
-            },
-            "precision" : 10,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "producer_name"
-            },
-            "name" : "producer_name",
+            "name" : "adm_producer_row_status",
             "platformType" : {
               "name" : "string"
             },
@@ -1906,9 +2190,75 @@
           },
           {
             "adapterField" : {
-              "name" : "national_producer_number"
+              "name" : "id"
             },
-            "name" : "national_producer_number",
+            "name" : "id",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "last_name"
+            },
+            "name" : "last_name",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "first_name"
+            },
+            "name" : "first_name",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "middle_name"
+            },
+            "name" : "middle_name",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "suffix"
+            },
+            "name" : "suffix",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 15,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "term_flag"
+            },
+            "name" : "term_flag",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "misc_flags"
+            },
+            "name" : "misc_flags",
             "platformType" : {
               "name" : "string"
             },
@@ -1917,20 +2267,85 @@
           },
           {
             "adapterField" : {
-              "name" : "producer_termination_flag"
+              "name" : "fid_num"
             },
-            "name" : "producer_termination_flag",
+            "name" : "fid_num",
             "platformType" : {
-              "name" : "integer"
+              "name" : "string"
             },
-            "precision" : 10,
+            "precision" : 2047,
             "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "fid_type"
+            },
+            "name" : "fid_type",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 7,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "active"
+            },
+            "name" : "active",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 7,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "npn_number"
+            },
+            "name" : "npn_number",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 31,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "resident_state"
+            },
+            "name" : "resident_state",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 7,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "created"
+            },
+            "name" : "created",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "modified"
+            },
+            "name" : "modified",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
           }
         ],
         "dataAdapter" : {
-          "connectionId$" : {
-            "name" : "DBConnection_UDM_TGT"
-          },
+          "connectionId" : "saas:@aYZ4ekzHgIPeKpiaoqDLKP",
+          "connectionName" : "redshift_nonprod_andover_dw_dev",
           "excludeDynamicFileNameField" : "false",
           "objectType" : "SINGLE",
           "typeSystem" : "TOOLKIT",
@@ -1955,10 +2370,10 @@
             "retainMetadata" : "false",
             "fields" : [
               {
-                "name" : "producer_row_id",
+                "name" : "adm_producer_row_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "producer_row_id",
-                "nativeName" : "producer_row_id",
+                "label" : "adm_producer_row_id",
+                "nativeName" : "adm_producer_row_id",
                 "nativeType" : "int8",
                 "original" : "false",
                 "precision" : 19,
@@ -1971,10 +2386,10 @@
                 ]
               },
               {
-                "name" : "producer_batch_id",
+                "name" : "adm_producer_batch_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "producer_batch_id",
-                "nativeName" : "producer_batch_id",
+                "label" : "adm_producer_batch_id",
+                "nativeName" : "adm_producer_batch_id",
                 "nativeType" : "int8",
                 "original" : "false",
                 "precision" : 19,
@@ -1987,10 +2402,10 @@
                 ]
               },
               {
-                "name" : "source_name",
+                "name" : "originating_source_name",
                 "fieldType" : "CONNECTOR",
-                "label" : "source_name",
-                "nativeName" : "source_name",
+                "label" : "originating_source_name",
+                "nativeName" : "originating_source_name",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 127,
@@ -2003,10 +2418,10 @@
                 ]
               },
               {
-                "name" : "load_type",
+                "name" : "originating_load_type",
                 "fieldType" : "CONNECTOR",
-                "label" : "load_type",
-                "nativeName" : "load_type",
+                "label" : "originating_load_type",
+                "nativeName" : "originating_load_type",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 63,
@@ -2019,10 +2434,10 @@
                 ]
               },
               {
-                "name" : "producer_row_md5checksum",
+                "name" : "adm_producer_row_md5checksum",
                 "fieldType" : "CONNECTOR",
-                "label" : "producer_row_md5checksum",
-                "nativeName" : "producer_row_md5checksum",
+                "label" : "adm_producer_row_md5checksum",
+                "nativeName" : "adm_producer_row_md5checksum",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 255,
@@ -2035,10 +2450,10 @@
                 ]
               },
               {
-                "name" : "producer_datetime_created",
+                "name" : "adm_producer_row_effective_start_datetime",
                 "fieldType" : "CONNECTOR",
-                "label" : "producer_datetime_created",
-                "nativeName" : "producer_datetime_created",
+                "label" : "adm_producer_row_effective_start_datetime",
+                "nativeName" : "adm_producer_row_effective_start_datetime",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 29,
@@ -2051,10 +2466,10 @@
                 ]
               },
               {
-                "name" : "producer_datetime_modified",
+                "name" : "adm_producer_row_effective_end_datetime",
                 "fieldType" : "CONNECTOR",
-                "label" : "producer_datetime_modified",
-                "nativeName" : "producer_datetime_modified",
+                "label" : "adm_producer_row_effective_end_datetime",
+                "nativeName" : "adm_producer_row_effective_end_datetime",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 29,
@@ -2067,106 +2482,10 @@
                 ]
               },
               {
-                "name" : "producer_row_effective_start_datetime",
+                "name" : "adm_producer_row_status",
                 "fieldType" : "CONNECTOR",
-                "label" : "producer_row_effective_start_datetime",
-                "nativeName" : "producer_row_effective_start_datetime",
-                "nativeType" : "timestamp",
-                "original" : "false",
-                "precision" : 29,
-                "scale" : 6,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_producer"
-                  }
-                ]
-              },
-              {
-                "name" : "producer_row_effective_end_datetime",
-                "fieldType" : "CONNECTOR",
-                "label" : "producer_row_effective_end_datetime",
-                "nativeName" : "producer_row_effective_end_datetime",
-                "nativeType" : "timestamp",
-                "original" : "false",
-                "precision" : 29,
-                "scale" : 6,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_producer"
-                  }
-                ]
-              },
-              {
-                "name" : "is_producer_active",
-                "fieldType" : "CONNECTOR",
-                "label" : "is_producer_active",
-                "nativeName" : "is_producer_active",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 7,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_producer"
-                  }
-                ]
-              },
-              {
-                "name" : "federal_id_number",
-                "fieldType" : "CONNECTOR",
-                "label" : "federal_id_number",
-                "nativeName" : "federal_id_number",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 2047,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_producer"
-                  }
-                ]
-              },
-              {
-                "name" : "federal_id_type",
-                "fieldType" : "CONNECTOR",
-                "label" : "federal_id_type",
-                "nativeName" : "federal_id_type",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 7,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_producer"
-                  }
-                ]
-              },
-              {
-                "name" : "producer_id",
-                "fieldType" : "CONNECTOR",
-                "label" : "producer_id",
-                "nativeName" : "producer_id",
-                "nativeType" : "int4",
-                "original" : "false",
-                "precision" : 10,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_producer"
-                  }
-                ]
-              },
-              {
-                "name" : "producer_name",
-                "fieldType" : "CONNECTOR",
-                "label" : "producer_name",
-                "nativeName" : "producer_name",
+                "label" : "adm_producer_row_status",
+                "nativeName" : "adm_producer_row_status",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 63,
@@ -2179,10 +2498,106 @@
                 ]
               },
               {
-                "name" : "national_producer_number",
+                "name" : "id",
                 "fieldType" : "CONNECTOR",
-                "label" : "national_producer_number",
-                "nativeName" : "national_producer_number",
+                "label" : "id",
+                "nativeName" : "id",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_producer"
+                  }
+                ]
+              },
+              {
+                "name" : "last_name",
+                "fieldType" : "CONNECTOR",
+                "label" : "last_name",
+                "nativeName" : "last_name",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_producer"
+                  }
+                ]
+              },
+              {
+                "name" : "first_name",
+                "fieldType" : "CONNECTOR",
+                "label" : "first_name",
+                "nativeName" : "first_name",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_producer"
+                  }
+                ]
+              },
+              {
+                "name" : "middle_name",
+                "fieldType" : "CONNECTOR",
+                "label" : "middle_name",
+                "nativeName" : "middle_name",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_producer"
+                  }
+                ]
+              },
+              {
+                "name" : "suffix",
+                "fieldType" : "CONNECTOR",
+                "label" : "suffix",
+                "nativeName" : "suffix",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 15,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_producer"
+                  }
+                ]
+              },
+              {
+                "name" : "term_flag",
+                "fieldType" : "CONNECTOR",
+                "label" : "term_flag",
+                "nativeName" : "term_flag",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_producer"
+                  }
+                ]
+              },
+              {
+                "name" : "misc_flags",
+                "fieldType" : "CONNECTOR",
+                "label" : "misc_flags",
+                "nativeName" : "misc_flags",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 31,
@@ -2195,14 +2610,110 @@
                 ]
               },
               {
-                "name" : "producer_termination_flag",
+                "name" : "fid_num",
                 "fieldType" : "CONNECTOR",
-                "label" : "producer_termination_flag",
-                "nativeName" : "producer_termination_flag",
-                "nativeType" : "int4",
+                "label" : "fid_num",
+                "nativeName" : "fid_num",
+                "nativeType" : "varchar",
                 "original" : "false",
-                "precision" : 10,
+                "precision" : 2047,
                 "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_producer"
+                  }
+                ]
+              },
+              {
+                "name" : "fid_type",
+                "fieldType" : "CONNECTOR",
+                "label" : "fid_type",
+                "nativeName" : "fid_type",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 7,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_producer"
+                  }
+                ]
+              },
+              {
+                "name" : "active",
+                "fieldType" : "CONNECTOR",
+                "label" : "active",
+                "nativeName" : "active",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 7,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_producer"
+                  }
+                ]
+              },
+              {
+                "name" : "npn_number",
+                "fieldType" : "CONNECTOR",
+                "label" : "npn_number",
+                "nativeName" : "npn_number",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 31,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_producer"
+                  }
+                ]
+              },
+              {
+                "name" : "resident_state",
+                "fieldType" : "CONNECTOR",
+                "label" : "resident_state",
+                "nativeName" : "resident_state",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 7,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_producer"
+                  }
+                ]
+              },
+              {
+                "name" : "created",
+                "fieldType" : "CONNECTOR",
+                "label" : "created",
+                "nativeName" : "created",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_producer"
+                  }
+                ]
+              },
+              {
+                "name" : "modified",
+                "fieldType" : "CONNECTOR",
+                "label" : "modified",
+                "nativeName" : "modified",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
                 "properties" : [
                   {
                     "name" : "parentObject",
@@ -2304,16 +2815,23 @@
         "manualMappings" : {
           "mappingList" : [
             {
-              "fromFieldName" : "o_retire_old_record",
+              "fromFieldName" : "tgt_adm_producer_row_id",
               "toField" : {
-                "name" : "producer_row_effective_end_datetime"
+                "name" : "adm_producer_row_id"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "producer_row_id",
+              "fromFieldName" : "o_producer_row_effective_start_datetime",
               "toField" : {
-                "name" : "producer_row_id"
+                "name" : "adm_producer_row_effective_end_datetime"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_row_status",
+              "toField" : {
+                "name" : "adm_producer_row_status"
               },
               "fromFieldNames" : null
             }
@@ -2328,6 +2846,20 @@
             "input" : "true",
             "name" : "Master",
             "output" : "false",
+            "conflictResolutions" : [
+              {
+                "precedingGroupName" : "DefaultGroup",
+                "precedingTxName" : "exp_MD5",
+                "rule" : {
+                  "bulkRename" : "true",
+                  "include" : "true",
+                  "bulkRenameOption" : {
+                    "literal" : "src_",
+                    "suffix" : "false"
+                  }
+                }
+              }
+            ],
             "rules" : [
               {
                 "bulkRename" : "false",
@@ -2339,6 +2871,20 @@
             "input" : "true",
             "name" : "Detail",
             "output" : "false",
+            "conflictResolutions" : [
+              {
+                "precedingGroupName" : "DefaultGroup",
+                "precedingTxName" : "exp_passthrough",
+                "rule" : {
+                  "bulkRename" : "true",
+                  "include" : "true",
+                  "bulkRenameOption" : {
+                    "literal" : "tgt_",
+                    "suffix" : "false"
+                  }
+                }
+              }
+            ],
             "rules" : [
               {
                 "bulkRename" : "false",
@@ -2359,9 +2905,9 @@
         "joinType" : "Detail Outer Join",
         "joinConditions" : [
           {
-            "leftOperand" : "o_producer_id",
+            "leftOperand" : "src_o_producer_id",
             "operator" : "=",
-            "rightOperand" : "producer_id"
+            "rightOperand" : "tgt_id"
           }
         ]
       },
@@ -2416,15 +2962,16 @@
         "fieldMappingMode" : "MANUAL",
         "inputSorted" : "false",
         "schemaProviderType" : "SELECTED_OBJECT",
+        "targetFieldsOrdered" : "false",
         "updateColumns" : null,
         "useLabels" : "false",
         "useSequenceFields" : "false",
         "fields" : [
           {
             "adapterField" : {
-              "name" : "producer_row_id"
+              "name" : "adm_producer_row_id"
             },
-            "name" : "producer_row_id",
+            "name" : "adm_producer_row_id",
             "platformType" : {
               "name" : "bigint"
             },
@@ -2433,9 +2980,9 @@
           },
           {
             "adapterField" : {
-              "name" : "producer_batch_id"
+              "name" : "adm_producer_batch_id"
             },
-            "name" : "producer_batch_id",
+            "name" : "adm_producer_batch_id",
             "platformType" : {
               "name" : "bigint"
             },
@@ -2444,9 +2991,9 @@
           },
           {
             "adapterField" : {
-              "name" : "source_name"
+              "name" : "originating_source_name"
             },
-            "name" : "source_name",
+            "name" : "originating_source_name",
             "platformType" : {
               "name" : "string"
             },
@@ -2455,9 +3002,9 @@
           },
           {
             "adapterField" : {
-              "name" : "load_type"
+              "name" : "originating_load_type"
             },
-            "name" : "load_type",
+            "name" : "originating_load_type",
             "platformType" : {
               "name" : "string"
             },
@@ -2466,9 +3013,9 @@
           },
           {
             "adapterField" : {
-              "name" : "producer_row_md5checksum"
+              "name" : "adm_producer_row_md5checksum"
             },
-            "name" : "producer_row_md5checksum",
+            "name" : "adm_producer_row_md5checksum",
             "platformType" : {
               "name" : "string"
             },
@@ -2477,9 +3024,9 @@
           },
           {
             "adapterField" : {
-              "name" : "producer_datetime_created"
+              "name" : "adm_producer_row_effective_start_datetime"
             },
-            "name" : "producer_datetime_created",
+            "name" : "adm_producer_row_effective_start_datetime",
             "platformType" : {
               "name" : "date/time"
             },
@@ -2488,9 +3035,9 @@
           },
           {
             "adapterField" : {
-              "name" : "producer_datetime_modified"
+              "name" : "adm_producer_row_effective_end_datetime"
             },
-            "name" : "producer_datetime_modified",
+            "name" : "adm_producer_row_effective_end_datetime",
             "platformType" : {
               "name" : "date/time"
             },
@@ -2499,75 +3046,9 @@
           },
           {
             "adapterField" : {
-              "name" : "producer_row_effective_start_datetime"
+              "name" : "adm_producer_row_status"
             },
-            "name" : "producer_row_effective_start_datetime",
-            "platformType" : {
-              "name" : "date/time"
-            },
-            "precision" : 29,
-            "scale" : 9
-          },
-          {
-            "adapterField" : {
-              "name" : "producer_row_effective_end_datetime"
-            },
-            "name" : "producer_row_effective_end_datetime",
-            "platformType" : {
-              "name" : "date/time"
-            },
-            "precision" : 29,
-            "scale" : 9
-          },
-          {
-            "adapterField" : {
-              "name" : "is_producer_active"
-            },
-            "name" : "is_producer_active",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 7,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "federal_id_number"
-            },
-            "name" : "federal_id_number",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 2047,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "federal_id_type"
-            },
-            "name" : "federal_id_type",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 7,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "producer_id"
-            },
-            "name" : "producer_id",
-            "platformType" : {
-              "name" : "integer"
-            },
-            "precision" : 10,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "producer_name"
-            },
-            "name" : "producer_name",
+            "name" : "adm_producer_row_status",
             "platformType" : {
               "name" : "string"
             },
@@ -2576,9 +3057,75 @@
           },
           {
             "adapterField" : {
-              "name" : "national_producer_number"
+              "name" : "id"
             },
-            "name" : "national_producer_number",
+            "name" : "id",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "last_name"
+            },
+            "name" : "last_name",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "first_name"
+            },
+            "name" : "first_name",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "middle_name"
+            },
+            "name" : "middle_name",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "suffix"
+            },
+            "name" : "suffix",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 15,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "term_flag"
+            },
+            "name" : "term_flag",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "misc_flags"
+            },
+            "name" : "misc_flags",
             "platformType" : {
               "name" : "string"
             },
@@ -2587,14 +3134,80 @@
           },
           {
             "adapterField" : {
-              "name" : "producer_termination_flag"
+              "name" : "fid_num"
             },
-            "name" : "producer_termination_flag",
+            "name" : "fid_num",
             "platformType" : {
-              "name" : "integer"
+              "name" : "string"
             },
-            "precision" : 10,
+            "precision" : 2047,
             "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "fid_type"
+            },
+            "name" : "fid_type",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 7,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "active"
+            },
+            "name" : "active",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 7,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "npn_number"
+            },
+            "name" : "npn_number",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 31,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "resident_state"
+            },
+            "name" : "resident_state",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 7,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "created"
+            },
+            "name" : "created",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "modified"
+            },
+            "name" : "modified",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
           }
         ],
         "dataAdapter" : {
@@ -2614,10 +3227,10 @@
             "retainMetadata" : "false",
             "fields" : [
               {
-                "name" : "producer_row_id",
+                "name" : "adm_producer_row_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "producer_row_id",
-                "nativeName" : "producer_row_id",
+                "label" : "adm_producer_row_id",
+                "nativeName" : "adm_producer_row_id",
                 "nativeType" : "int8",
                 "original" : "false",
                 "precision" : 19,
@@ -2630,10 +3243,10 @@
                 ]
               },
               {
-                "name" : "producer_batch_id",
+                "name" : "adm_producer_batch_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "producer_batch_id",
-                "nativeName" : "producer_batch_id",
+                "label" : "adm_producer_batch_id",
+                "nativeName" : "adm_producer_batch_id",
                 "nativeType" : "int8",
                 "original" : "false",
                 "precision" : 19,
@@ -2646,10 +3259,10 @@
                 ]
               },
               {
-                "name" : "source_name",
+                "name" : "originating_source_name",
                 "fieldType" : "CONNECTOR",
-                "label" : "source_name",
-                "nativeName" : "source_name",
+                "label" : "originating_source_name",
+                "nativeName" : "originating_source_name",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 127,
@@ -2662,10 +3275,10 @@
                 ]
               },
               {
-                "name" : "load_type",
+                "name" : "originating_load_type",
                 "fieldType" : "CONNECTOR",
-                "label" : "load_type",
-                "nativeName" : "load_type",
+                "label" : "originating_load_type",
+                "nativeName" : "originating_load_type",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 63,
@@ -2678,10 +3291,10 @@
                 ]
               },
               {
-                "name" : "producer_row_md5checksum",
+                "name" : "adm_producer_row_md5checksum",
                 "fieldType" : "CONNECTOR",
-                "label" : "producer_row_md5checksum",
-                "nativeName" : "producer_row_md5checksum",
+                "label" : "adm_producer_row_md5checksum",
+                "nativeName" : "adm_producer_row_md5checksum",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 255,
@@ -2694,10 +3307,10 @@
                 ]
               },
               {
-                "name" : "producer_datetime_created",
+                "name" : "adm_producer_row_effective_start_datetime",
                 "fieldType" : "CONNECTOR",
-                "label" : "producer_datetime_created",
-                "nativeName" : "producer_datetime_created",
+                "label" : "adm_producer_row_effective_start_datetime",
+                "nativeName" : "adm_producer_row_effective_start_datetime",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 29,
@@ -2710,10 +3323,10 @@
                 ]
               },
               {
-                "name" : "producer_datetime_modified",
+                "name" : "adm_producer_row_effective_end_datetime",
                 "fieldType" : "CONNECTOR",
-                "label" : "producer_datetime_modified",
-                "nativeName" : "producer_datetime_modified",
+                "label" : "adm_producer_row_effective_end_datetime",
+                "nativeName" : "adm_producer_row_effective_end_datetime",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 29,
@@ -2726,106 +3339,10 @@
                 ]
               },
               {
-                "name" : "producer_row_effective_start_datetime",
+                "name" : "adm_producer_row_status",
                 "fieldType" : "CONNECTOR",
-                "label" : "producer_row_effective_start_datetime",
-                "nativeName" : "producer_row_effective_start_datetime",
-                "nativeType" : "timestamp",
-                "original" : "false",
-                "precision" : 29,
-                "scale" : 6,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_producer"
-                  }
-                ]
-              },
-              {
-                "name" : "producer_row_effective_end_datetime",
-                "fieldType" : "CONNECTOR",
-                "label" : "producer_row_effective_end_datetime",
-                "nativeName" : "producer_row_effective_end_datetime",
-                "nativeType" : "timestamp",
-                "original" : "false",
-                "precision" : 29,
-                "scale" : 6,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_producer"
-                  }
-                ]
-              },
-              {
-                "name" : "is_producer_active",
-                "fieldType" : "CONNECTOR",
-                "label" : "is_producer_active",
-                "nativeName" : "is_producer_active",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 7,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_producer"
-                  }
-                ]
-              },
-              {
-                "name" : "federal_id_number",
-                "fieldType" : "CONNECTOR",
-                "label" : "federal_id_number",
-                "nativeName" : "federal_id_number",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 2047,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_producer"
-                  }
-                ]
-              },
-              {
-                "name" : "federal_id_type",
-                "fieldType" : "CONNECTOR",
-                "label" : "federal_id_type",
-                "nativeName" : "federal_id_type",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 7,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_producer"
-                  }
-                ]
-              },
-              {
-                "name" : "producer_id",
-                "fieldType" : "CONNECTOR",
-                "label" : "producer_id",
-                "nativeName" : "producer_id",
-                "nativeType" : "int4",
-                "original" : "false",
-                "precision" : 10,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_producer"
-                  }
-                ]
-              },
-              {
-                "name" : "producer_name",
-                "fieldType" : "CONNECTOR",
-                "label" : "producer_name",
-                "nativeName" : "producer_name",
+                "label" : "adm_producer_row_status",
+                "nativeName" : "adm_producer_row_status",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 63,
@@ -2838,10 +3355,106 @@
                 ]
               },
               {
-                "name" : "national_producer_number",
+                "name" : "id",
                 "fieldType" : "CONNECTOR",
-                "label" : "national_producer_number",
-                "nativeName" : "national_producer_number",
+                "label" : "id",
+                "nativeName" : "id",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_producer"
+                  }
+                ]
+              },
+              {
+                "name" : "last_name",
+                "fieldType" : "CONNECTOR",
+                "label" : "last_name",
+                "nativeName" : "last_name",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_producer"
+                  }
+                ]
+              },
+              {
+                "name" : "first_name",
+                "fieldType" : "CONNECTOR",
+                "label" : "first_name",
+                "nativeName" : "first_name",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_producer"
+                  }
+                ]
+              },
+              {
+                "name" : "middle_name",
+                "fieldType" : "CONNECTOR",
+                "label" : "middle_name",
+                "nativeName" : "middle_name",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_producer"
+                  }
+                ]
+              },
+              {
+                "name" : "suffix",
+                "fieldType" : "CONNECTOR",
+                "label" : "suffix",
+                "nativeName" : "suffix",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 15,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_producer"
+                  }
+                ]
+              },
+              {
+                "name" : "term_flag",
+                "fieldType" : "CONNECTOR",
+                "label" : "term_flag",
+                "nativeName" : "term_flag",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_producer"
+                  }
+                ]
+              },
+              {
+                "name" : "misc_flags",
+                "fieldType" : "CONNECTOR",
+                "label" : "misc_flags",
+                "nativeName" : "misc_flags",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 31,
@@ -2854,14 +3467,110 @@
                 ]
               },
               {
-                "name" : "producer_termination_flag",
+                "name" : "fid_num",
                 "fieldType" : "CONNECTOR",
-                "label" : "producer_termination_flag",
-                "nativeName" : "producer_termination_flag",
-                "nativeType" : "int4",
+                "label" : "fid_num",
+                "nativeName" : "fid_num",
+                "nativeType" : "varchar",
                 "original" : "false",
-                "precision" : 10,
+                "precision" : 2047,
                 "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_producer"
+                  }
+                ]
+              },
+              {
+                "name" : "fid_type",
+                "fieldType" : "CONNECTOR",
+                "label" : "fid_type",
+                "nativeName" : "fid_type",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 7,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_producer"
+                  }
+                ]
+              },
+              {
+                "name" : "active",
+                "fieldType" : "CONNECTOR",
+                "label" : "active",
+                "nativeName" : "active",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 7,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_producer"
+                  }
+                ]
+              },
+              {
+                "name" : "npn_number",
+                "fieldType" : "CONNECTOR",
+                "label" : "npn_number",
+                "nativeName" : "npn_number",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 31,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_producer"
+                  }
+                ]
+              },
+              {
+                "name" : "resident_state",
+                "fieldType" : "CONNECTOR",
+                "label" : "resident_state",
+                "nativeName" : "resident_state",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 7,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_producer"
+                  }
+                ]
+              },
+              {
+                "name" : "created",
+                "fieldType" : "CONNECTOR",
+                "label" : "created",
+                "nativeName" : "created",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_producer"
+                  }
+                ]
+              },
+              {
+                "name" : "modified",
+                "fieldType" : "CONNECTOR",
+                "label" : "modified",
+                "nativeName" : "modified",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
                 "properties" : [
                   {
                     "name" : "parentObject",
@@ -2963,114 +3672,282 @@
         "manualMappings" : {
           "mappingList" : [
             {
-              "fromFieldName" : "fid_num",
+              "fromFieldName" : "tgt_adm_producer_batch_id",
               "toField" : {
-                "name" : "federal_id_number"
+                "name" : "adm_producer_batch_id"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "fid_type",
+              "fromFieldName" : "tgt_adm_producer_row_md5checksum",
               "toField" : {
-                "name" : "federal_id_type"
+                "name" : "adm_producer_row_md5checksum"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "batch_id",
+              "fromFieldName" : "tgt_adm_producer_row_effective_start_datetime",
               "toField" : {
-                "name" : "producer_batch_id"
+                "name" : "adm_producer_row_effective_start_datetime"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "source_name",
+              "fromFieldName" : "tgt_adm_producer_row_effective_end_datetime",
               "toField" : {
-                "name" : "source_name"
+                "name" : "adm_producer_row_effective_end_datetime"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "load_type",
+              "fromFieldName" : "o_row_status",
               "toField" : {
-                "name" : "load_type"
+                "name" : "adm_producer_row_status"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "o_src_md5_hash_value",
+              "fromFieldName" : "tgt_id",
               "toField" : {
-                "name" : "producer_row_md5checksum"
+                "name" : "id"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "o_producer_datetime_created",
+              "fromFieldName" : "src_last_name",
               "toField" : {
-                "name" : "producer_datetime_created"
+                "name" : "last_name"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "o_producer_datetime_modified",
+              "fromFieldName" : "src_first_name",
               "toField" : {
-                "name" : "producer_datetime_modified"
+                "name" : "first_name"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "o_producer_row_effective_start_datetime",
+              "fromFieldName" : "src_middle_name",
               "toField" : {
-                "name" : "producer_row_effective_start_datetime"
+                "name" : "middle_name"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "o_producer_row_effective_end_datetime",
+              "fromFieldName" : "src_suffix",
               "toField" : {
-                "name" : "producer_row_effective_end_datetime"
+                "name" : "suffix"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "active",
+              "fromFieldName" : "src_term_flag",
               "toField" : {
-                "name" : "is_producer_active"
+                "name" : "term_flag"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "o_producer_id",
+              "fromFieldName" : "src_misc_flags",
               "toField" : {
-                "name" : "producer_id"
+                "name" : "misc_flags"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "o_producer_termination_flag",
+              "fromFieldName" : "src_fid_num",
               "toField" : {
-                "name" : "producer_termination_flag"
+                "name" : "fid_num"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "name",
+              "fromFieldName" : "src_fid_type",
               "toField" : {
-                "name" : "producer_name"
+                "name" : "fid_type"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "npn_number",
+              "fromFieldName" : "src_active",
               "toField" : {
-                "name" : "national_producer_number"
+                "name" : "active"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "src_npn_number",
+              "toField" : {
+                "name" : "npn_number"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "src_resident_state",
+              "toField" : {
+                "name" : "resident_state"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "src_created",
+              "toField" : {
+                "name" : "created"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "src_modified",
+              "toField" : {
+                "name" : "modified"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "src_source_name",
+              "toField" : {
+                "name" : "originating_source_name"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "src_load_type",
+              "toField" : {
+                "name" : "originating_load_type"
               },
               "fromFieldNames" : null
             }
           ]
         }
+      },
+      {
+        "createTime" : "2025-11-21T20:55:04.283Z",
+        "name" : "exp_Insert",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "windowConfigurationEnabled" : "false",
+        "fields" : [
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_row_status",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "'Active'"
+          }
+        ],
+        "windowSpec" : {
+          "allRowsFollowing" : "false",
+          "allRowsPreceding" : "false",
+          "endOffset" : 0,
+          "startOffset" : 0,
+          "partitionKeys" : null
+        }
+      },
+      {
+        "createTime" : "2025-11-21T20:55:23.926Z",
+        "name" : "exp_Insert_Update",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "windowConfigurationEnabled" : "false",
+        "fields" : [
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_row_status",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "'Active'"
+          }
+        ],
+        "windowSpec" : {
+          "allRowsFollowing" : "false",
+          "allRowsPreceding" : "false",
+          "endOffset" : 0,
+          "startOffset" : 0,
+          "partitionKeys" : null
+        }
+      }
+    ],
+    "variables" : [
+      {
+        "aggregationType" : "MAX",
+        "expressionVariable" : "false",
+        "name" : "raw_schema",
+        "platformType" : {
+          "name" : "string"
+        },
+        "precision" : 100,
+        "retentionPolicy" : "NEVER",
+        "scale" : 0,
+        "defaultValue" : "metal"
+      },
+      {
+        "aggregationType" : "MAX",
+        "expressionVariable" : "false",
+        "name" : "staging_schema",
+        "platformType" : {
+          "name" : "string"
+        },
+        "precision" : 100,
+        "retentionPolicy" : "NEVER",
+        "scale" : 0,
+        "defaultValue" : "bronze"
+      },
+      {
+        "aggregationType" : "MAX",
+        "expressionVariable" : "false",
+        "name" : "operational_schema",
+        "platformType" : {
+          "name" : "string"
+        },
+        "precision" : 100,
+        "retentionPolicy" : "NEVER",
+        "scale" : 0,
+        "defaultValue" : "operations"
+      },
+      {
+        "aggregationType" : "MAX",
+        "expressionVariable" : "false",
+        "name" : "sourcesystemcode",
+        "platformType" : {
+          "name" : "string"
+        },
+        "precision" : 100,
+        "retentionPolicy" : "NEVER",
+        "scale" : 0,
+        "defaultValue" : "ADM"
       }
     ]
   },
-  "vcsExportTime" : "2025-07-08 12:08:50 EDT"
+  "vcsExportTime" : "2025-11-21 15:26:17 PST"
 }
