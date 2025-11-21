@@ -10,11 +10,7 @@
       "type" : "SOURCE",
       "label" : "DBConnection_UDM_SRC",
       "uiProperties" : {
-        "cnxtype" : "Amazon Redshift v2",
-        "connectionParameterized" : "true",
-        "paramName" : "DBConnection_UDM_SRC",
-        "paramType-mapping" : "Connection",
-        "logcnx" : "DBConnection_UDM_SRC",
+        "connectionParameterized" : "false",
         "isSelectDistinct" : "false",
         "objectParameterized" : "false",
         "visible" : "false",
@@ -25,12 +21,15 @@
       "sourceObject" : "DUMMY_src_metal_producer",
       "newFlatFile" : false,
       "newObject" : false,
-      "showBusinessNames" : true,
+      "showBusinessNames" : false,
       "naturalOrder" : true,
       "truncateTarget" : false,
       "bulkApiDBTarget" : false,
       "customFuncCfg" : { },
-      "customQuery" : "with current_batch as (\nselect\n\tbls.batch_id,\n\tbls.source_start_cutoff_datetime,\n\tbls.source_end_cutoff_datetime\nfrom\n\tmetal.batch_load_summary bls\nwhere\n\tbls.source_system_code = 'ADM'\n\tand bls.batch_status = 'Inprogress'\n\tand bls.batch_id = (\n\tselect\n\t\tMAX(batch_id)\n\tfrom\n\t\tmetal.batch_load_summary\n\twhere\n\t\tsource_system_code = 'ADM'\n\t\tand batch_status = 'Inprogress' ) )\nselect\n\tdistinct\n\tmetal_ap.source_name,\n\tmetal_ap.load_type,\n\tmetal_ap.active,\n\tmetal_ap.created,\n\tmetal_ap.fid_num,\n\tmetal_ap.fid_type,\n\tmetal_ap.id,\n\tmetal_ap.modified,\n\tmetal_ap.name,\n\tmetal_ap.npn_number,\n\tmetal_ap.term_flag,\n\tcurrent_batch.batch_id\nfrom\n\tmetal.adm_producer metal_ap\ncross join current_batch\norder by\n\tmetal_ap.id,\n\tmetal_ap.created,\n\tmetal_ap.modified;",
+      "oprRuntimeAttrs" : {
+        "EnableCompression" : "NO"
+      },
+      "customQuery" : "with current_batch as (\nselect\n\tbls.batch_id,\n\tbls.source_start_cutoff_datetime,\n\tbls.source_end_cutoff_datetime\nfrom\n\tmetal.batch_load_summary bls\nwhere\n\tbls.source_system_code ='$$sourcesystemcode'\n\tand bls.batch_status = 'Inprogress'\n\tand bls.batch_id = (\n\tselect\n\t\tMAX(batch_id)\n\tfrom\n\t\tmetal.batch_load_summary\n\twhere\n\t\tsource_system_code = 'ADM'\n\t\tand batch_status = 'Inprogress' ) )\nselect\n\tdistinct\n\t source_name, \nmetal_ap.load_type, \nmetal_ap.id, \nmetal_ap.last_name, \nmetal_ap.first_name, \nmetal_ap.middle_name, \nmetal_ap.suffix, \nmetal_ap.term_flag, \nmetal_ap.misc_flags, \nmetal_ap.fid_num, \nmetal_ap.fid_type, \nmetal_ap.active, \nmetal_ap.npn_number, \nmetal_ap.resident_state, \nmetal_ap.created, \nmetal_ap.modified,\ncurrent_batch.batch_id\nfrom\n\tmetal.adm_producer metal_ap\ncross join current_batch\norder by\n\tmetal_ap.id,\n\tmetal_ap.created,\n\tmetal_ap.modified;",
       "commandType" : 0,
       "handleSpecialChars" : false,
       "handleDecimalRoundOff" : false,
@@ -42,19 +41,20 @@
       "objectName" : "DUMMY_src_metal_producer",
       "useExactSrcNames" : false,
       "userUpdated" : true,
-      "unspecified" : false,
+      "fetchMode" : "ORIGINAL",
       "runtimeParameterData" : {
         "connectionParameterName" : "DBConnection_UDM_SRC",
         "connectionRuntimeParameter" : false,
         "objectRuntimeParameter" : false
       },
       "restmodernSource" : true,
+      "unspecified" : false,
       "fileList" : false
     },
     {
       "name" : "$src_tgt_query$",
       "type" : "SOURCE",
-      "label" : "DBConnection_UDM_SRC",
+      "label" : "src_tgt_query",
       "uiProperties" : {
         "cnxtype" : "Amazon Redshift v2",
         "connectionParameterized" : "true",
@@ -76,6 +76,9 @@
       "truncateTarget" : false,
       "bulkApiDBTarget" : false,
       "customFuncCfg" : { },
+      "oprRuntimeAttrs" : {
+        "EnableCompression" : "NO"
+      },
       "customQuery" : "select\n\tproducer_row_id,\n\tproducer_batch_id,\n\tproducer_row_md5checksum,\n\tproducer_id,\n\tproducer_datetime_modified,\n\tproducer_row_effective_end_datetime\nfrom\n\tbronze.adm_producer\nwhere\n\tproducer_row_effective_end_datetime = '9999-12-31 00:00:00.000'",
       "commandType" : 0,
       "handleSpecialChars" : false,
@@ -88,13 +91,13 @@
       "objectName" : "DUMMY_src_tgt_query",
       "useExactSrcNames" : false,
       "userUpdated" : true,
-      "unspecified" : false,
+      "fetchMode" : "ORIGINAL",
       "runtimeParameterData" : {
-        "connectionParameterName" : "DBConnection_UDM_SRC",
         "connectionRuntimeParameter" : false,
         "objectRuntimeParameter" : false
       },
       "restmodernSource" : true,
+      "unspecified" : false,
       "fileList" : false
     },
     {
@@ -102,12 +105,7 @@
       "type" : "TARGET",
       "label" : "DBConnection_UDM_TGT",
       "uiProperties" : {
-        "cnxtype" : "Amazon Redshift v2",
-        "connectionParameterized" : "true",
-        "paramName" : "DBConnection_UDM_TGT",
-        "paramType-mapping" : "Connection",
-        "logcnx" : "DBConnection_UDM_TGT",
-        "default" : "bronze/adm_producer",
+        "connectionParameterized" : "false",
         "objectParameterized" : "false",
         "visible" : "false",
         "supportApplyDDLChanges" : "false",
@@ -119,7 +117,7 @@
       "targetObjectLabel" : "bronze/adm_producer",
       "newFlatFile" : false,
       "newObject" : false,
-      "showBusinessNames" : true,
+      "showBusinessNames" : false,
       "naturalOrder" : true,
       "truncateTarget" : false,
       "bulkApiDBTarget" : false,
@@ -140,26 +138,23 @@
       "objectLabel" : "bronze/adm_producer",
       "useExactSrcNames" : false,
       "userUpdated" : true,
-      "unspecified" : false,
+      "fetchMode" : "ORIGINAL",
       "runtimeParameterData" : {
         "connectionParameterName" : "DBConnection_UDM_TGT",
         "connectionRuntimeParameter" : false,
         "objectRuntimeParameter" : false
       },
+      "targetSchemaProviderType" : "SELECTED_OBJECT",
       "restmodernSource" : true,
+      "unspecified" : false,
       "fileList" : false
     },
     {
       "name" : "$tgt_update_closeout$",
       "type" : "TARGET",
-      "label" : "DBConnection_UDM_TGT",
+      "label" : "tgt_update_closeout",
       "uiProperties" : {
-        "cnxtype" : "Amazon Redshift v2",
-        "connectionParameterized" : "true",
-        "paramName" : "DBConnection_UDM_TGT",
-        "paramType-mapping" : "Connection",
-        "logcnx" : "DBConnection_UDM_TGT",
-        "default" : "bronze/adm_producer",
+        "connectionParameterized" : "false",
         "objectParameterized" : "false",
         "visible" : "false",
         "defaultTargetUpdateColumns" : "producer_row_id",
@@ -172,7 +167,7 @@
       "targetObjectLabel" : "bronze/adm_producer",
       "newFlatFile" : false,
       "newObject" : false,
-      "showBusinessNames" : true,
+      "showBusinessNames" : false,
       "naturalOrder" : true,
       "truncateTarget" : false,
       "bulkApiDBTarget" : false,
@@ -196,13 +191,14 @@
       "objectLabel" : "bronze/adm_producer",
       "useExactSrcNames" : false,
       "userUpdated" : true,
-      "unspecified" : false,
+      "fetchMode" : "ORIGINAL",
       "runtimeParameterData" : {
-        "connectionParameterName" : "DBConnection_UDM_TGT",
         "connectionRuntimeParameter" : false,
         "objectRuntimeParameter" : false
       },
+      "targetSchemaProviderType" : "SELECTED_OBJECT",
       "restmodernSource" : true,
+      "unspecified" : false,
       "fileList" : false
     },
     {
@@ -210,12 +206,7 @@
       "type" : "TARGET",
       "label" : "DBConnection_UDM_TGT",
       "uiProperties" : {
-        "cnxtype" : "Amazon Redshift v2",
-        "connectionParameterized" : "true",
-        "paramName" : "DBConnection_UDM_TGT",
-        "paramType-mapping" : "Connection",
-        "logcnx" : "DBConnection_UDM_TGT",
-        "default" : "bronze/adm_producer",
+        "connectionParameterized" : "false",
         "objectParameterized" : "false",
         "visible" : "false",
         "supportApplyDDLChanges" : "false",
@@ -227,7 +218,7 @@
       "targetObjectLabel" : "bronze/adm_producer",
       "newFlatFile" : false,
       "newObject" : false,
-      "showBusinessNames" : true,
+      "showBusinessNames" : false,
       "naturalOrder" : true,
       "truncateTarget" : false,
       "bulkApiDBTarget" : false,
@@ -248,13 +239,15 @@
       "objectLabel" : "bronze/adm_producer",
       "useExactSrcNames" : false,
       "userUpdated" : true,
-      "unspecified" : false,
+      "fetchMode" : "ORIGINAL",
       "runtimeParameterData" : {
         "connectionParameterName" : "DBConnection_UDM_TGT",
         "connectionRuntimeParameter" : false,
         "objectRuntimeParameter" : false
       },
+      "targetSchemaProviderType" : "SELECTED_OBJECT",
       "restmodernSource" : true,
+      "unspecified" : false,
       "fileList" : false
     }
   ],
@@ -276,6 +269,48 @@
       "value" : "Partial PDO"
     }
   ],
+  "inOutParameters" : [
+    {
+      "name" : "raw_schema",
+      "initialValue" : "metal",
+      "datatype" : "STRING",
+      "precision" : "100",
+      "scale" : "0",
+      "retentionPolicy" : "NEVER",
+      "aggregationType" : "MAX",
+      "currentValue" : "metal"
+    },
+    {
+      "name" : "staging_schema",
+      "initialValue" : "bronze",
+      "datatype" : "STRING",
+      "precision" : "100",
+      "scale" : "0",
+      "retentionPolicy" : "NEVER",
+      "aggregationType" : "MAX",
+      "currentValue" : "bronze"
+    },
+    {
+      "name" : "operational_schema",
+      "initialValue" : "operations",
+      "datatype" : "STRING",
+      "precision" : "100",
+      "scale" : "0",
+      "retentionPolicy" : "NEVER",
+      "aggregationType" : "MAX",
+      "currentValue" : "operations"
+    },
+    {
+      "name" : "sourcesystemcode",
+      "initialValue" : "ADM",
+      "datatype" : "STRING",
+      "precision" : "100",
+      "scale" : "0",
+      "retentionPolicy" : "NEVER",
+      "aggregationType" : "MAX",
+      "currentValue" : "ADM"
+    }
+  ],
   "hidden" : false,
   "enableCrossSchemaPushdown" : true,
   "enableParallelRun" : false,
@@ -288,6 +323,7 @@
   "valid" : true,
   "optimizationPlan" : "NONE",
   "allowMaxFieldLength" : false,
+  "specialCharacterSupport" : false,
   "midstreamPreview" : false,
-  "vcsExportTime" : "2025-07-08 12:08:50 EDT"
+  "vcsExportTime" : "2025-11-21 15:28:28 PST"
 }
