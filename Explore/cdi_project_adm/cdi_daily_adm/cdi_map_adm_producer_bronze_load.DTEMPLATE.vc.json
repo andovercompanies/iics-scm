@@ -316,7 +316,7 @@
           "useDynamicFileName" : "false",
           "object" : {
             "customQuery" : "with current_batch as (\nselect\n\tbls.batch_id,\n\tbls.source_start_cutoff_datetime,\n\tbls.source_end_cutoff_datetime\nfrom\n\t$$operational_schema.batch_load_summary bls\nwhere\n\tbls.source_system_code ='$$sourcesystemcode'\n\tand bls.batch_status = 'Inprogress'\n\tand bls.batch_id = (\n\tselect\n\t\tMAX(batch_id)\n\tfrom\n\t\t$$operational_schema.batch_load_summary\n\twhere\n\t\tsource_system_code = '$$sourcesystemcode'\n\t\tand batch_status = 'Inprogress' ) )\nselect\n\tdistinct\n\t source_name, \nmetal_ap.load_type, \nmetal_ap.id, \nmetal_ap.last_name, \nmetal_ap.first_name, \nmetal_ap.middle_name, \nmetal_ap.suffix, \nmetal_ap.term_flag, \nmetal_ap.misc_flags, \nmetal_ap.fid_num, \nmetal_ap.fid_type, \nmetal_ap.active, \nmetal_ap.npn_number, \nmetal_ap.resident_state, \nmetal_ap.created, \nmetal_ap.modified,\ncurrent_batch.batch_id\nfrom\n\t$$raw_schema.adm_producer metal_ap\ncross join current_batch\norder by\n\tmetal_ap.id,\n\tmetal_ap.created,\n\tmetal_ap.modified;",
-            "retainMetadata" : "true",
+            "retainMetadata" : "false",
             "fields" : [
               {
                 "name" : "source_name",
@@ -669,6 +669,28 @@
         "fields" : [
           {
             "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_producer_id",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "IIF(ISNULL(id),null,to_integer(ltrim(rtrim(id))))"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_producer_termination_flg",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "IIF(ISNULL(term_flag),null,to_integer(ltrim(rtrim(term_flag))))"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
             "name" : "o_producer_datetime_created",
             "platformType" : {
               "name" : "date/time"
@@ -676,7 +698,7 @@
             "precision" : 29,
             "scale" : 9,
             "expFieldType" : "OUTPUT",
-            "expression" : "TO_DATE(to_char(created), 'YYYY-MM-DD HH24:MI:SS')"
+            "expression" : "created"
           },
           {
             "defaultValue" : "ERROR('transformation error')",
@@ -687,29 +709,7 @@
             "precision" : 29,
             "scale" : 9,
             "expFieldType" : "OUTPUT",
-            "expression" : "TO_DATE(to_char(modified), 'YYYY-MM-DD HH24:MI:SS')"
-          },
-          {
-            "defaultValue" : "ERROR('transformation error')",
-            "name" : "o_producer_id",
-            "platformType" : {
-              "name" : "integer"
-            },
-            "precision" : 10,
-            "scale" : 0,
-            "expFieldType" : "OUTPUT",
-            "expression" : "IIF(ISNULL(id), NULL, to_integer(ltrim(rtrim(id))))"
-          },
-          {
-            "defaultValue" : "ERROR('transformation error')",
-            "name" : "o_producer_termination_flag",
-            "platformType" : {
-              "name" : "integer"
-            },
-            "precision" : 10,
-            "scale" : 0,
-            "expFieldType" : "OUTPUT",
-            "expression" : "IIF(ISNULL(term_flag), NULL, to_integer(ltrim(rtrim(term_flag))))"
+            "expression" : "modified"
           }
         ],
         "windowSpec" : {
@@ -747,7 +747,7 @@
             "precision" : 255,
             "scale" : 0,
             "expFieldType" : "OUTPUT",
-            "expression" : "MD5(\n'source_name'||source_name|| \n'load_type'||load_type||\n'o_producer_id'||to_char(o_producer_id)||\n'last_name'||last_name||\n'first_name'||first_name|| \n'middle_name'||middle_name|| \n'suffix'||suffix||\n'o_producer_termination_flag' || to_char(o_producer_termination_flag)||\n'misc_flags'||misc_flags||\n'fid_num'||fid_num||\n'fid_type'||fid_type||\n'active'||active||\n'npn_number'||npn_number||\n 'resident_state'||resident_state||\n'o_producer_datetime_created' || to_char(o_producer_datetime_created) ||\n 'o_producer_datetime_modified' || to_char(o_producer_datetime_modified)\n)"
+            "expression" : "MD5(\n'source_name'||source_name|| \n'load_type'||load_type||\n'o_producer_id'||to_char(o_producer_id)||\n'last_name'||last_name||\n'first_name'||first_name|| \n'middle_name'||middle_name|| \n'suffix'||suffix||\n'o_producer_termination_flag' || to_char(o_producer_termination_flg)||\n'misc_flags'||misc_flags||\n'fid_num'||fid_num||\n'fid_type'||fid_type||\n'active'||active||\n'npn_number'||npn_number||\n 'resident_state'||resident_state||\n'o_producer_datetime_created' || to_char(o_producer_datetime_created) ||\n'o_producer_datetime_modified' || to_char(o_producer_datetime_modified)\n)"
           }
         ],
         "windowSpec" : {
@@ -2680,6 +2680,19 @@
           }
         ],
         "windowConfigurationEnabled" : "false",
+        "fields" : [
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_test",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 100,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "adm_producer_row_md5checksum"
+          }
+        ],
         "windowSpec" : {
           "allRowsFollowing" : "false",
           "allRowsPreceding" : "false",
@@ -3911,5 +3924,5 @@
       }
     ]
   },
-  "vcsExportTime" : "2025-11-21 15:39:26 PST"
+  "vcsExportTime" : "2025-11-22 12:29:50 PST"
 }
