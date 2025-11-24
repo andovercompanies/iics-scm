@@ -60,7 +60,7 @@
         "output" : "false",
         "precision" : 0,
         "scale" : 0,
-        "allowRuntimeOverride" : "false",
+        "allowRuntimeOverride" : "true",
         "expressionVariable" : "false",
         "name" : "DBConnection_UDM_SRC",
         "anonymousType" : {
@@ -74,7 +74,7 @@
         "output" : "false",
         "precision" : 0,
         "scale" : 0,
-        "allowRuntimeOverride" : "false",
+        "allowRuntimeOverride" : "true",
         "expressionVariable" : "false",
         "name" : "DBConnection_UDM_TGT",
         "anonymousType" : {
@@ -698,7 +698,7 @@
             "precision" : 29,
             "scale" : 9,
             "expFieldType" : "OUTPUT",
-            "expression" : "created"
+            "expression" : "-- 1. Check if the \"created\" field is null.\n-- 2. If not null, convert \"created\" to date and timestamp with microseconds.\n-- 3. Use TO_DATE with 'MM/DD/YY HH24:MI:SS.US' format for conversion.\n\nIIF(\n    NOT ISNULL(created), \n    TO_DATE(created, 'MM/DD/YYYY HH24:MI:SS.US'), \n    NULL\n)"
           },
           {
             "defaultValue" : "ERROR('transformation error')",
@@ -709,7 +709,7 @@
             "precision" : 29,
             "scale" : 9,
             "expFieldType" : "OUTPUT",
-            "expression" : "modified"
+            "expression" : "-- 1. Check if the \"created\" field is null.\n-- 2. If not null, convert \"created\" to date and timestamp with microseconds.\n-- 3. Use TO_DATE with 'MM/DD/YY HH24:MI:SS.US' format for conversion.\n\nIIF(\n    NOT ISNULL(modified), \n    TO_DATE(modified,'MM/DD/YYYY HH24:MI:SS.US'),\n    NULL\n)"
           }
         ],
         "windowSpec" : {
@@ -1641,6 +1641,10 @@
                 "value" : "5242880"
               },
               {
+                "name" : "Schema Name",
+                "value" : "$$staging_schema"
+              },
+              {
                 "name" : "Preserve record order on write",
                 "value" : "NO"
               },
@@ -1668,30 +1672,9 @@
         "manualMappings" : {
           "mappingList" : [
             {
-              "fromFieldName" : "tgt_adm_producer_batch_id",
-              "toField" : {
-                "name" : "adm_producer_batch_id"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "tgt_adm_producer_row_md5checksum",
-              "toField" : {
-                "name" : "adm_producer_row_md5checksum"
-              },
-              "fromFieldNames" : null
-            },
-            {
               "fromFieldName" : "o_row_status",
               "toField" : {
                 "name" : "adm_producer_row_status"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "tgt_id",
-              "toField" : {
-                "name" : "id"
               },
               "fromFieldNames" : null
             },
@@ -1813,6 +1796,27 @@
                 "name" : "adm_producer_row_effective_end_datetime"
               },
               "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "src_batch_id",
+              "toField" : {
+                "name" : "adm_producer_batch_id"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "src_o_src_md5_hash_value",
+              "toField" : {
+                "name" : "adm_producer_row_md5checksum"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "src_id",
+              "toField" : {
+                "name" : "id"
+              },
+              "fromFieldNames" : null
             }
           ]
         }
@@ -1846,7 +1850,7 @@
         "schemaProviderType" : "SELECTED_OBJECT",
         "targetFieldsOrdered" : "false",
         "updateColumns" : [
-          "producer_row_id"
+          "adm_producer_row_id"
         ],
         "useLabels" : "false",
         "useSequenceFields" : "false",
@@ -2538,6 +2542,10 @@
               {
                 "name" : "Minimum Upload Part Size",
                 "value" : "5242880"
+              },
+              {
+                "name" : "Schema Name",
+                "value" : "$$staging_schema"
               },
               {
                 "name" : "Preserve record order on write",
@@ -3410,6 +3418,10 @@
                 "value" : "5242880"
               },
               {
+                "name" : "Schema Name",
+                "value" : "$$staging_schema"
+              },
+              {
                 "name" : "Preserve record order on write",
                 "value" : "NO"
               },
@@ -3437,44 +3449,9 @@
         "manualMappings" : {
           "mappingList" : [
             {
-              "fromFieldName" : "tgt_adm_producer_batch_id",
-              "toField" : {
-                "name" : "adm_producer_batch_id"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "tgt_adm_producer_row_md5checksum",
-              "toField" : {
-                "name" : "adm_producer_row_md5checksum"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "tgt_adm_producer_row_effective_start_datetime",
-              "toField" : {
-                "name" : "adm_producer_row_effective_start_datetime"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "tgt_adm_producer_row_effective_end_datetime",
-              "toField" : {
-                "name" : "adm_producer_row_effective_end_datetime"
-              },
-              "fromFieldNames" : null
-            },
-            {
               "fromFieldName" : "o_row_status",
               "toField" : {
                 "name" : "adm_producer_row_status"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "tgt_id",
-              "toField" : {
-                "name" : "id"
               },
               "fromFieldNames" : null
             },
@@ -3580,6 +3557,41 @@
               "fromFieldName" : "src_load_type",
               "toField" : {
                 "name" : "originating_load_type"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "src_o_src_md5_hash_value",
+              "toField" : {
+                "name" : "adm_producer_row_md5checksum"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "src_batch_id",
+              "toField" : {
+                "name" : "adm_producer_batch_id"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_producer_row_effective_start_datetime",
+              "toField" : {
+                "name" : "adm_producer_row_effective_start_datetime"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_producer_row_effective_end_datetime",
+              "toField" : {
+                "name" : "adm_producer_row_effective_end_datetime"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "src_id",
+              "toField" : {
+                "name" : "id"
               },
               "fromFieldNames" : null
             }
@@ -3964,5 +3976,5 @@
       }
     ]
   },
-  "vcsExportTime" : "2025-11-22 12:39:06 PST"
+  "vcsExportTime" : "2025-11-23 18:04:35 PST"
 }
