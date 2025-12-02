@@ -4,6 +4,7 @@
     "bigIntConvertType" : "ONLY_BIGINT",
     "documentType" : "MAPPING",
     "name" : "cdi_map_adm_termination_guidewire_bronze_load",
+    "specialCharacterSupport" : "false",
     "links" : [
       {
         "link" : "src_metal_termination_guidewire -> exp_convert_datatype"
@@ -52,7 +53,7 @@
         "output" : "false",
         "precision" : 0,
         "scale" : 0,
-        "allowRuntimeOverride" : "false",
+        "allowRuntimeOverride" : "true",
         "expressionVariable" : "false",
         "name" : "DBConnection_UDM_SRC",
         "anonymousType" : {
@@ -66,7 +67,7 @@
         "output" : "false",
         "precision" : 0,
         "scale" : 0,
-        "allowRuntimeOverride" : "false",
+        "allowRuntimeOverride" : "true",
         "expressionVariable" : "false",
         "name" : "DBConnection_UDM_TGT",
         "anonymousType" : {
@@ -200,6 +201,28 @@
           },
           {
             "adapterField" : {
+              "name" : "term_type"
+            },
+            "name" : "term_type",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 7,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "term_reason_code"
+            },
+            "name" : "term_reason_code",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 15,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
               "name" : "modified"
             },
             "name" : "modified",
@@ -307,7 +330,7 @@
           "typeSystem" : "TOOLKIT",
           "useDynamicFileName" : "false",
           "object" : {
-            "customQuery" : "WITH current_batch AS (\n    SELECT \n        bls.batch_id,\n        bls.source_start_cutoff_datetime,\n        bls.source_end_cutoff_datetime\n    FROM metal.batch_load_summary bls\n    WHERE bls.source_system_code = 'ADM'\n      AND bls.batch_status = 'Inprogress'\n      AND bls.batch_id = (\n          SELECT MAX(batch_id)\n          FROM metal.batch_load_summary\n          WHERE source_system_code = 'ADM'\n            AND batch_status = 'Inprogress'\n      )\n)\nSELECT DISTINCT  \n\t\tmetal_atg.source_name, \n\t\tmetal_atg.load_type, \n\t\tmetal_atg.agency_nup, \n\t\tmetal_atg.created, \n\t\tmetal_atg.effective_date, \n\t\tmetal_atg.gw_producer_id, \n\t\tmetal_atg.id, \n\t\tmetal_atg.lob, \n\t\tmetal_atg.modified,\n\t\tmetal_atg.new_date,\n\t\tmetal_atg.noticeto_agent,\n\t\tmetal_atg.renewal_date,\n\t\tmetal_atg.replaced_by,\n\t\tmetal_atg.state,\n\t\tmetal_atg.sub_code,\n\t\tmetal_atg.type,\n\t\tcurrent_batch.batch_id\nFROM metal.adm_termination_guidewire metal_atg\nCROSS JOIN current_batch\nORDER BY \n    metal_atg.id,\n    metal_atg.created,\n    metal_atg.modified;",
+            "customQuery" : "WITH current_batch AS (\t\t\n    SELECT \t\t\n        bls.batch_id,\t\t\n        bls.source_start_cutoff_datetime,\t\t\n        bls.source_end_cutoff_datetime\t\t\n    FROM $$operational_schema.batch_load_summary bls\t\t\n    WHERE bls.source_system_code = '$$sourcesystemcode'\t\t\n      AND bls.batch_status = 'Inprogress'\t\t\n      AND bls.batch_id = (\t\t\n          SELECT MAX(batch_id)\t\t\n          FROM $$operational_schema.batch_load_summary\t\t\n          WHERE source_system_code = '$$sourcesystemcode'\t\t\n            AND batch_status = 'Inprogress'\t\t\n            \n      )\t\t\n)\t\t\nSELECT DISTINCT  \t\t\n\t\tmetal_atg.source_name, \n\t\tmetal_atg.load_type, \n\t\tmetal_atg.agency_nup, \n\t\tmetal_atg.created, \n\t\tmetal_atg.effective_date, \n\t\tmetal_atg.gw_producer_id, \n\t\tmetal_atg.id, \n\t\tmetal_atg.lob, \n\t\tmetal_atg.term_type, \n\t\tmetal_atg.term_reason_code, \n\t\tmetal_atg.modified,\n\t\tmetal_atg.new_date,\n\t\tmetal_atg.noticeto_agent,\n\t\tmetal_atg.renewal_date,\n\t\tmetal_atg.replaced_by,\n\t\tmetal_atg.state,\n\t\tmetal_atg.sub_code,\n\t\tmetal_atg.type,\n\t\tcurrent_batch.batch_id\nFROM $$raw_schema.adm_termination_guidewire metal_atg\t\t\nCROSS JOIN current_batch\t\t\nORDER BY \t\t\n    metal_atg.id,\t\t\n    metal_atg.created,\t\t\n    metal_atg.modified;",
             "retainMetadata" : "false",
             "fields" : [
               {
@@ -430,6 +453,38 @@
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "term_type",
+                "fieldType" : "CONNECTOR",
+                "label" : "term_type",
+                "nativeName" : "term_type",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 7,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "term_reason_code",
+                "fieldType" : "CONNECTOR",
+                "label" : "term_reason_code",
+                "nativeName" : "term_reason_code",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 15,
                 "scale" : 0,
                 "properties" : [
                   {
@@ -610,10 +665,6 @@
                 "value" : "10000"
               },
               {
-                "name" : "S3 Bucket Name",
-                "value" : "$$S3_Staging_Bucket"
-              },
-              {
                 "name" : "Enable Compression",
                 "value" : "YES"
               },
@@ -776,7 +827,7 @@
             "precision" : 255,
             "scale" : 0,
             "expFieldType" : "OUTPUT",
-            "expression" : "MD5(\n\t'source_name' || source_name || \n\t'load_type' || load_type || \n\t'o_termination_guidewire_datetime_created' || to_char(o_termination_guidewire_datetime_created) || \n\t'o_termination_guidewire_datetime_modified' || to_char(o_termination_guidewire_datetime_modified) || \n\t'o_agency_id' || to_char(o_agency_id) ||\n    'o_termination_guidewire_effective_date'|| to_char(o_termination_guidewire_effective_date)||\n    'gw_producer_id' || gw_producer_id || \n\t'o_termination_guidewire_id' || to_char(o_termination_guidewire_id) \n\t|| 'lob' || lob ||\n    'o_new_business_termination_date' || to_char(o_new_business_termination_date)\n\t|| 'noticeto_agent' || noticeto_agent || \n\t'o_renewal_termination_date' || to_char(o_renewal_termination_date)\n\t|| 'replaced_by' || replaced_by \n\t|| 'state' || state || \n\t'sub_code' || sub_code || \n\t'type' || type \n\t)"
+            "expression" : "MD5(\n\t'source_name' || source_name || \n\t'load_type' || load_type || \n\t'o_agency_id' || to_char(o_agency_id) ||\n\t'type' || type ||\n\t'noticeto_agent' || noticeto_agent || \n\t'o_new_business_termination_date' || to_char(o_new_business_termination_date)|| \n\t'o_renewal_termination_date' || to_char(o_renewal_termination_date) ||\n\t'lob' || lob ||\n\t'term_type' || term_type ||\n\t'term_reason_code' || term_reason_code ||\n\t'replaced_by' || replaced_by ||\n    'o_termination_guidewire_effective_date'|| to_char(o_termination_guidewire_effective_date)||\n    'sub_code' || sub_code || \n    'gw_producer_id' || gw_producer_id || \n\t'state' || state || \n\t'o_termination_guidewire_datetime_created' || to_char(o_termination_guidewire_datetime_created) || \n\t'o_termination_guidewire_datetime_modified' || to_char(o_termination_guidewire_datetime_modified)\t\n\t)"
           }
         ],
         "windowSpec" : {
@@ -835,6 +886,28 @@
           },
           {
             "adapterField" : {
+              "name" : "termination_guidewire_batch_id"
+            },
+            "name" : "termination_guidewire_batch_id",
+            "platformType" : {
+              "name" : "bigint"
+            },
+            "precision" : 19,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "agency_id"
+            },
+            "name" : "agency_id",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
               "name" : "termination_guidewire_id"
             },
             "name" : "termination_guidewire_id",
@@ -846,9 +919,9 @@
           },
           {
             "adapterField" : {
-              "name" : "termination_guidewire_datetime_created"
+              "name" : "termination_guidewire_datetime_modified"
             },
-            "name" : "termination_guidewire_datetime_created",
+            "name" : "termination_guidewire_datetime_modified",
             "platformType" : {
               "name" : "date/time"
             },
@@ -857,9 +930,9 @@
           },
           {
             "adapterField" : {
-              "name" : "termination_guidewire_datetime_modified"
+              "name" : "termination_guidewire_row_effective_end_datetime"
             },
-            "name" : "termination_guidewire_datetime_modified",
+            "name" : "termination_guidewire_row_effective_end_datetime",
             "platformType" : {
               "name" : "date/time"
             },
@@ -876,7 +949,7 @@
           "typeSystem" : "TOOLKIT",
           "useDynamicFileName" : "false",
           "object" : {
-            "customQuery" : "SELECT \n        termination_guidewire_row_id, \n        termination_guidewire_row_md5checksum, \n        termination_guidewire_id,  \n  termination_guidewire_datetime_created,\n  termination_guidewire_datetime_modified\t\n    FROM bronze.adm_termination_guidewire\n    where  termination_guidewire_row_effective_end_datetime = '9999-12-31 00:00:00.000'",
+            "customQuery" : "SELECT \n      adm_termination_guidewire_row_id as termination_guidewire_row_id, \n      adm_termination_guidewire_row_md5checksum as termination_guidewire_row_md5checksum, \n      adm_termination_guidewire_batch_id as termination_guidewire_batch_id,  \n\t  agency_nup as agency_id,\n      id as termination_guidewire_id,\n      modified as termination_guidewire_datetime_modified,\n      adm_termination_guidewire_row_effective_end_datetime as termination_guidewire_row_effective_end_datetime\t\n    FROM \n$$staging_schema.adm_termination_guidewire\n    where  \nadm_termination_guidewire_row_effective_end_datetime = '9999-12-31 00:00:00.000'",
             "retainMetadata" : "false",
             "fields" : [
               {
@@ -912,6 +985,38 @@
                 ]
               },
               {
+                "name" : "termination_guidewire_batch_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "termination_guidewire_batch_id",
+                "nativeName" : "termination_guidewire_batch_id",
+                "nativeType" : "int8",
+                "original" : "false",
+                "precision" : 19,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "agency_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "agency_id",
+                "nativeName" : "agency_id",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
                 "name" : "termination_guidewire_id",
                 "fieldType" : "CONNECTOR",
                 "label" : "termination_guidewire_id",
@@ -928,10 +1033,10 @@
                 ]
               },
               {
-                "name" : "termination_guidewire_datetime_created",
+                "name" : "termination_guidewire_datetime_modified",
                 "fieldType" : "CONNECTOR",
-                "label" : "termination_guidewire_datetime_created",
-                "nativeName" : "termination_guidewire_datetime_created",
+                "label" : "termination_guidewire_datetime_modified",
+                "nativeName" : "termination_guidewire_datetime_modified",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 29,
@@ -944,10 +1049,10 @@
                 ]
               },
               {
-                "name" : "termination_guidewire_datetime_modified",
+                "name" : "termination_guidewire_row_effective_end_datetime",
                 "fieldType" : "CONNECTOR",
-                "label" : "termination_guidewire_datetime_modified",
-                "nativeName" : "termination_guidewire_datetime_modified",
+                "label" : "termination_guidewire_row_effective_end_datetime",
+                "nativeName" : "termination_guidewire_row_effective_end_datetime",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 29,
@@ -977,10 +1082,6 @@
               {
                 "name" : "Fetch Size",
                 "value" : "10000"
-              },
-              {
-                "name" : "S3 Bucket Name",
-                "value" : "$$S3_Staging_Bucket"
               },
               {
                 "name" : "Enable Compression",
@@ -1074,7 +1175,29 @@
             "precision" : 10,
             "scale" : 0,
             "expFieldType" : "OUTPUT",
-            "expression" : "IIF(NOT ISNULL(termination_guidewire_row_id) AND termination_guidewire_row_md5checksum <> o_src_md5_hash_value, 'U','X')"
+            "expression" : "IIF(NOT ISNULL(termination_guidewire_row_id) AND  o_src_md5_hash_value <> termination_guidewire_row_md5checksum , 'U','X')"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_row_status_active",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 100,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "'Active'"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_row_status_expired",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 100,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "'Expired'"
           }
         ],
         "windowSpec" : {
@@ -1203,15 +1326,16 @@
         "fieldMappingMode" : "MANUAL",
         "inputSorted" : "false",
         "schemaProviderType" : "SELECTED_OBJECT",
+        "targetFieldsOrdered" : "false",
         "updateColumns" : null,
         "useLabels" : "false",
         "useSequenceFields" : "false",
         "fields" : [
           {
             "adapterField" : {
-              "name" : "termination_guidewire_row_id"
+              "name" : "adm_termination_guidewire_row_id"
             },
-            "name" : "termination_guidewire_row_id",
+            "name" : "adm_termination_guidewire_row_id",
             "platformType" : {
               "name" : "bigint"
             },
@@ -1220,9 +1344,9 @@
           },
           {
             "adapterField" : {
-              "name" : "termination_guidewire_batch_id"
+              "name" : "adm_termination_guidewire_batch_id"
             },
-            "name" : "termination_guidewire_batch_id",
+            "name" : "adm_termination_guidewire_batch_id",
             "platformType" : {
               "name" : "bigint"
             },
@@ -1231,9 +1355,9 @@
           },
           {
             "adapterField" : {
-              "name" : "source_name"
+              "name" : "originating_source_name"
             },
-            "name" : "source_name",
+            "name" : "originating_source_name",
             "platformType" : {
               "name" : "string"
             },
@@ -1242,9 +1366,9 @@
           },
           {
             "adapterField" : {
-              "name" : "load_type"
+              "name" : "originating_load_type"
             },
-            "name" : "load_type",
+            "name" : "originating_load_type",
             "platformType" : {
               "name" : "string"
             },
@@ -1253,9 +1377,9 @@
           },
           {
             "adapterField" : {
-              "name" : "termination_guidewire_row_md5checksum"
+              "name" : "adm_termination_guidewire_row_md5checksum"
             },
-            "name" : "termination_guidewire_row_md5checksum",
+            "name" : "adm_termination_guidewire_row_md5checksum",
             "platformType" : {
               "name" : "string"
             },
@@ -1264,9 +1388,9 @@
           },
           {
             "adapterField" : {
-              "name" : "termination_guidewire_datetime_created"
+              "name" : "adm_termination_guidewire_row_effective_start_datetime"
             },
-            "name" : "termination_guidewire_datetime_created",
+            "name" : "adm_termination_guidewire_row_effective_start_datetime",
             "platformType" : {
               "name" : "date/time"
             },
@@ -1275,9 +1399,9 @@
           },
           {
             "adapterField" : {
-              "name" : "termination_guidewire_datetime_modified"
+              "name" : "adm_termination_guidewire_row_effective_end_datetime"
             },
-            "name" : "termination_guidewire_datetime_modified",
+            "name" : "adm_termination_guidewire_row_effective_end_datetime",
             "platformType" : {
               "name" : "date/time"
             },
@@ -1286,75 +1410,9 @@
           },
           {
             "adapterField" : {
-              "name" : "termination_guidewire_row_effective_start_datetime"
+              "name" : "adm_termination_guidewire_row_status"
             },
-            "name" : "termination_guidewire_row_effective_start_datetime",
-            "platformType" : {
-              "name" : "date/time"
-            },
-            "precision" : 29,
-            "scale" : 9
-          },
-          {
-            "adapterField" : {
-              "name" : "termination_guidewire_row_effective_end_datetime"
-            },
-            "name" : "termination_guidewire_row_effective_end_datetime",
-            "platformType" : {
-              "name" : "date/time"
-            },
-            "precision" : 29,
-            "scale" : 9
-          },
-          {
-            "adapterField" : {
-              "name" : "agency_id"
-            },
-            "name" : "agency_id",
-            "platformType" : {
-              "name" : "integer"
-            },
-            "precision" : 10,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "termination_guidewire_effective_date"
-            },
-            "name" : "termination_guidewire_effective_date",
-            "platformType" : {
-              "name" : "date/time"
-            },
-            "precision" : 29,
-            "scale" : 9
-          },
-          {
-            "adapterField" : {
-              "name" : "guidewire_producer_id"
-            },
-            "name" : "guidewire_producer_id",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 15,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "termination_guidewire_id"
-            },
-            "name" : "termination_guidewire_id",
-            "platformType" : {
-              "name" : "integer"
-            },
-            "precision" : 10,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "line_of_business"
-            },
-            "name" : "line_of_business",
+            "name" : "adm_termination_guidewire_row_status",
             "platformType" : {
               "name" : "string"
             },
@@ -1363,20 +1421,31 @@
           },
           {
             "adapterField" : {
-              "name" : "new_business_termination_date"
+              "name" : "id"
             },
-            "name" : "new_business_termination_date",
+            "name" : "id",
             "platformType" : {
-              "name" : "date/time"
+              "name" : "integer"
             },
-            "precision" : 29,
-            "scale" : 9
+            "precision" : 10,
+            "scale" : 0
           },
           {
             "adapterField" : {
-              "name" : "has_termination_notice_been_sent"
+              "name" : "agency_nup"
             },
-            "name" : "has_termination_notice_been_sent",
+            "name" : "agency_nup",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "type"
+            },
+            "name" : "type",
             "platformType" : {
               "name" : "string"
             },
@@ -1385,9 +1454,20 @@
           },
           {
             "adapterField" : {
-              "name" : "renewal_termination_date"
+              "name" : "noticeto_agent"
             },
-            "name" : "renewal_termination_date",
+            "name" : "noticeto_agent",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 7,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "new_date"
+            },
+            "name" : "new_date",
             "platformType" : {
               "name" : "date/time"
             },
@@ -1396,9 +1476,31 @@
           },
           {
             "adapterField" : {
-              "name" : "terminated_agency_replaced_by"
+              "name" : "renewal_date"
             },
-            "name" : "terminated_agency_replaced_by",
+            "name" : "renewal_date",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "lob"
+            },
+            "name" : "lob",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "replaced_by"
+            },
+            "name" : "replaced_by",
             "platformType" : {
               "name" : "string"
             },
@@ -1407,9 +1509,9 @@
           },
           {
             "adapterField" : {
-              "name" : "license_issued_state_abbreviation"
+              "name" : "term_type"
             },
-            "name" : "license_issued_state_abbreviation",
+            "name" : "term_type",
             "platformType" : {
               "name" : "string"
             },
@@ -1418,9 +1520,31 @@
           },
           {
             "adapterField" : {
-              "name" : "subproducer_code"
+              "name" : "term_reason_code"
             },
-            "name" : "subproducer_code",
+            "name" : "term_reason_code",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 15,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "effective_date"
+            },
+            "name" : "effective_date",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "sub_code"
+            },
+            "name" : "sub_code",
             "platformType" : {
               "name" : "string"
             },
@@ -1429,14 +1553,47 @@
           },
           {
             "adapterField" : {
-              "name" : "terminated_entity_type"
+              "name" : "gw_producer_id"
             },
-            "name" : "terminated_entity_type",
+            "name" : "gw_producer_id",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 15,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "state"
+            },
+            "name" : "state",
             "platformType" : {
               "name" : "string"
             },
             "precision" : 7,
             "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "created"
+            },
+            "name" : "created",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "modified"
+            },
+            "name" : "modified",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
           }
         ],
         "dataAdapter" : {
@@ -1456,10 +1613,10 @@
             "retainMetadata" : "false",
             "fields" : [
               {
-                "name" : "termination_guidewire_row_id",
+                "name" : "adm_termination_guidewire_row_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "termination_guidewire_row_id",
-                "nativeName" : "termination_guidewire_row_id",
+                "label" : "adm_termination_guidewire_row_id",
+                "nativeName" : "adm_termination_guidewire_row_id",
                 "nativeType" : "int8",
                 "original" : "false",
                 "precision" : 19,
@@ -1472,10 +1629,10 @@
                 ]
               },
               {
-                "name" : "termination_guidewire_batch_id",
+                "name" : "adm_termination_guidewire_batch_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "termination_guidewire_batch_id",
-                "nativeName" : "termination_guidewire_batch_id",
+                "label" : "adm_termination_guidewire_batch_id",
+                "nativeName" : "adm_termination_guidewire_batch_id",
                 "nativeType" : "int8",
                 "original" : "false",
                 "precision" : 19,
@@ -1488,10 +1645,10 @@
                 ]
               },
               {
-                "name" : "source_name",
+                "name" : "originating_source_name",
                 "fieldType" : "CONNECTOR",
-                "label" : "source_name",
-                "nativeName" : "source_name",
+                "label" : "originating_source_name",
+                "nativeName" : "originating_source_name",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 127,
@@ -1504,10 +1661,10 @@
                 ]
               },
               {
-                "name" : "load_type",
+                "name" : "originating_load_type",
                 "fieldType" : "CONNECTOR",
-                "label" : "load_type",
-                "nativeName" : "load_type",
+                "label" : "originating_load_type",
+                "nativeName" : "originating_load_type",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 63,
@@ -1520,10 +1677,10 @@
                 ]
               },
               {
-                "name" : "termination_guidewire_row_md5checksum",
+                "name" : "adm_termination_guidewire_row_md5checksum",
                 "fieldType" : "CONNECTOR",
-                "label" : "termination_guidewire_row_md5checksum",
-                "nativeName" : "termination_guidewire_row_md5checksum",
+                "label" : "adm_termination_guidewire_row_md5checksum",
+                "nativeName" : "adm_termination_guidewire_row_md5checksum",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 255,
@@ -1536,10 +1693,10 @@
                 ]
               },
               {
-                "name" : "termination_guidewire_datetime_created",
+                "name" : "adm_termination_guidewire_row_effective_start_datetime",
                 "fieldType" : "CONNECTOR",
-                "label" : "termination_guidewire_datetime_created",
-                "nativeName" : "termination_guidewire_datetime_created",
+                "label" : "adm_termination_guidewire_row_effective_start_datetime",
+                "nativeName" : "adm_termination_guidewire_row_effective_start_datetime",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 29,
@@ -1552,10 +1709,10 @@
                 ]
               },
               {
-                "name" : "termination_guidewire_datetime_modified",
+                "name" : "adm_termination_guidewire_row_effective_end_datetime",
                 "fieldType" : "CONNECTOR",
-                "label" : "termination_guidewire_datetime_modified",
-                "nativeName" : "termination_guidewire_datetime_modified",
+                "label" : "adm_termination_guidewire_row_effective_end_datetime",
+                "nativeName" : "adm_termination_guidewire_row_effective_end_datetime",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 29,
@@ -1568,106 +1725,10 @@
                 ]
               },
               {
-                "name" : "termination_guidewire_row_effective_start_datetime",
+                "name" : "adm_termination_guidewire_row_status",
                 "fieldType" : "CONNECTOR",
-                "label" : "termination_guidewire_row_effective_start_datetime",
-                "nativeName" : "termination_guidewire_row_effective_start_datetime",
-                "nativeType" : "timestamp",
-                "original" : "false",
-                "precision" : 29,
-                "scale" : 6,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_termination_guidewire"
-                  }
-                ]
-              },
-              {
-                "name" : "termination_guidewire_row_effective_end_datetime",
-                "fieldType" : "CONNECTOR",
-                "label" : "termination_guidewire_row_effective_end_datetime",
-                "nativeName" : "termination_guidewire_row_effective_end_datetime",
-                "nativeType" : "timestamp",
-                "original" : "false",
-                "precision" : 29,
-                "scale" : 6,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_termination_guidewire"
-                  }
-                ]
-              },
-              {
-                "name" : "agency_id",
-                "fieldType" : "CONNECTOR",
-                "label" : "agency_id",
-                "nativeName" : "agency_id",
-                "nativeType" : "int4",
-                "original" : "false",
-                "precision" : 10,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_termination_guidewire"
-                  }
-                ]
-              },
-              {
-                "name" : "termination_guidewire_effective_date",
-                "fieldType" : "CONNECTOR",
-                "label" : "termination_guidewire_effective_date",
-                "nativeName" : "termination_guidewire_effective_date",
-                "nativeType" : "date",
-                "original" : "false",
-                "precision" : 13,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_termination_guidewire"
-                  }
-                ]
-              },
-              {
-                "name" : "guidewire_producer_id",
-                "fieldType" : "CONNECTOR",
-                "label" : "guidewire_producer_id",
-                "nativeName" : "guidewire_producer_id",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 15,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_termination_guidewire"
-                  }
-                ]
-              },
-              {
-                "name" : "termination_guidewire_id",
-                "fieldType" : "CONNECTOR",
-                "label" : "termination_guidewire_id",
-                "nativeName" : "termination_guidewire_id",
-                "nativeType" : "int4",
-                "original" : "false",
-                "precision" : 10,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_termination_guidewire"
-                  }
-                ]
-              },
-              {
-                "name" : "line_of_business",
-                "fieldType" : "CONNECTOR",
-                "label" : "line_of_business",
-                "nativeName" : "line_of_business",
+                "label" : "adm_termination_guidewire_row_status",
+                "nativeName" : "adm_termination_guidewire_row_status",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 63,
@@ -1680,13 +1741,13 @@
                 ]
               },
               {
-                "name" : "new_business_termination_date",
+                "name" : "id",
                 "fieldType" : "CONNECTOR",
-                "label" : "new_business_termination_date",
-                "nativeName" : "new_business_termination_date",
-                "nativeType" : "date",
+                "label" : "id",
+                "nativeName" : "id",
+                "nativeType" : "int4",
                 "original" : "false",
-                "precision" : 13,
+                "precision" : 10,
                 "scale" : 0,
                 "properties" : [
                   {
@@ -1696,10 +1757,26 @@
                 ]
               },
               {
-                "name" : "has_termination_notice_been_sent",
+                "name" : "agency_nup",
                 "fieldType" : "CONNECTOR",
-                "label" : "has_termination_notice_been_sent",
-                "nativeName" : "has_termination_notice_been_sent",
+                "label" : "agency_nup",
+                "nativeName" : "agency_nup",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_termination_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "type",
+                "fieldType" : "CONNECTOR",
+                "label" : "type",
+                "nativeName" : "type",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 7,
@@ -1712,10 +1789,26 @@
                 ]
               },
               {
-                "name" : "renewal_termination_date",
+                "name" : "noticeto_agent",
                 "fieldType" : "CONNECTOR",
-                "label" : "renewal_termination_date",
-                "nativeName" : "renewal_termination_date",
+                "label" : "noticeto_agent",
+                "nativeName" : "noticeto_agent",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 7,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_termination_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "new_date",
+                "fieldType" : "CONNECTOR",
+                "label" : "new_date",
+                "nativeName" : "new_date",
                 "nativeType" : "date",
                 "original" : "false",
                 "precision" : 13,
@@ -1728,10 +1821,42 @@
                 ]
               },
               {
-                "name" : "terminated_agency_replaced_by",
+                "name" : "renewal_date",
                 "fieldType" : "CONNECTOR",
-                "label" : "terminated_agency_replaced_by",
-                "nativeName" : "terminated_agency_replaced_by",
+                "label" : "renewal_date",
+                "nativeName" : "renewal_date",
+                "nativeType" : "date",
+                "original" : "false",
+                "precision" : 13,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_termination_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "lob",
+                "fieldType" : "CONNECTOR",
+                "label" : "lob",
+                "nativeName" : "lob",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_termination_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "replaced_by",
+                "fieldType" : "CONNECTOR",
+                "label" : "replaced_by",
+                "nativeName" : "replaced_by",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 15,
@@ -1744,10 +1869,10 @@
                 ]
               },
               {
-                "name" : "license_issued_state_abbreviation",
+                "name" : "term_type",
                 "fieldType" : "CONNECTOR",
-                "label" : "license_issued_state_abbreviation",
-                "nativeName" : "license_issued_state_abbreviation",
+                "label" : "term_type",
+                "nativeName" : "term_type",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 7,
@@ -1760,10 +1885,42 @@
                 ]
               },
               {
-                "name" : "subproducer_code",
+                "name" : "term_reason_code",
                 "fieldType" : "CONNECTOR",
-                "label" : "subproducer_code",
-                "nativeName" : "subproducer_code",
+                "label" : "term_reason_code",
+                "nativeName" : "term_reason_code",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 15,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_termination_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "effective_date",
+                "fieldType" : "CONNECTOR",
+                "label" : "effective_date",
+                "nativeName" : "effective_date",
+                "nativeType" : "date",
+                "original" : "false",
+                "precision" : 13,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_termination_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "sub_code",
+                "fieldType" : "CONNECTOR",
+                "label" : "sub_code",
+                "nativeName" : "sub_code",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 7,
@@ -1776,14 +1933,62 @@
                 ]
               },
               {
-                "name" : "terminated_entity_type",
+                "name" : "gw_producer_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "terminated_entity_type",
-                "nativeName" : "terminated_entity_type",
+                "label" : "gw_producer_id",
+                "nativeName" : "gw_producer_id",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 15,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_termination_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "state",
+                "fieldType" : "CONNECTOR",
+                "label" : "state",
+                "nativeName" : "state",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 7,
                 "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_termination_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "created",
+                "fieldType" : "CONNECTOR",
+                "label" : "created",
+                "nativeName" : "created",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_termination_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "modified",
+                "fieldType" : "CONNECTOR",
+                "label" : "modified",
+                "nativeName" : "modified",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
                 "properties" : [
                   {
                     "name" : "parentObject",
@@ -1858,6 +2063,10 @@
                 "value" : "5242880"
               },
               {
+                "name" : "Schema Name",
+                "value" : "$$staging_schema"
+              },
+              {
                 "name" : "Preserve record order on write",
                 "value" : "NO"
               },
@@ -1885,142 +2094,163 @@
         "manualMappings" : {
           "mappingList" : [
             {
-              "fromFieldName" : "batch_id",
-              "toField" : {
-                "name" : "termination_guidewire_batch_id"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "source_name",
-              "toField" : {
-                "name" : "source_name"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "load_type",
-              "toField" : {
-                "name" : "load_type"
-              },
-              "fromFieldNames" : null
-            },
-            {
               "fromFieldName" : "o_src_md5_hash_value",
               "toField" : {
-                "name" : "termination_guidewire_row_md5checksum"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "o_termination_guidewire_datetime_created",
-              "toField" : {
-                "name" : "termination_guidewire_datetime_created"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "o_termination_guidewire_datetime_modified",
-              "toField" : {
-                "name" : "termination_guidewire_datetime_modified"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "o_termination_guidewire_row_effective_start_datetime",
-              "toField" : {
-                "name" : "termination_guidewire_row_effective_start_datetime"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "o_termination_guidewire_row_effective_end_datetime",
-              "toField" : {
-                "name" : "termination_guidewire_row_effective_end_datetime"
+                "name" : "adm_termination_guidewire_row_md5checksum"
               },
               "fromFieldNames" : null
             },
             {
               "fromFieldName" : "o_agency_id",
               "toField" : {
-                "name" : "agency_id"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "o_termination_guidewire_effective_date",
-              "toField" : {
-                "name" : "termination_guidewire_effective_date"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "gw_producer_id",
-              "toField" : {
-                "name" : "guidewire_producer_id"
+                "name" : "agency_nup"
               },
               "fromFieldNames" : null
             },
             {
               "fromFieldName" : "o_termination_guidewire_id",
               "toField" : {
-                "name" : "termination_guidewire_id"
+                "name" : "id"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "lob",
+              "fromFieldName" : "batch_id",
               "toField" : {
-                "name" : "line_of_business"
+                "name" : "adm_termination_guidewire_batch_id"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "noticeto_agent",
+              "fromFieldName" : "source_name",
               "toField" : {
-                "name" : "has_termination_notice_been_sent"
+                "name" : "originating_source_name"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "o_new_business_termination_date",
+              "fromFieldName" : "load_type",
               "toField" : {
-                "name" : "new_business_termination_date"
+                "name" : "originating_load_type"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "o_renewal_termination_date",
+              "fromFieldName" : "o_termination_guidewire_row_effective_start_datetime",
               "toField" : {
-                "name" : "renewal_termination_date"
+                "name" : "adm_termination_guidewire_row_effective_start_datetime"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "replaced_by",
+              "fromFieldName" : "o_termination_guidewire_row_effective_end_datetime",
               "toField" : {
-                "name" : "terminated_agency_replaced_by"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "state",
-              "toField" : {
-                "name" : "license_issued_state_abbreviation"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "sub_code",
-              "toField" : {
-                "name" : "subproducer_code"
+                "name" : "adm_termination_guidewire_row_effective_end_datetime"
               },
               "fromFieldNames" : null
             },
             {
               "fromFieldName" : "type",
               "toField" : {
-                "name" : "terminated_entity_type"
+                "name" : "type"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "noticeto_agent",
+              "toField" : {
+                "name" : "noticeto_agent"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_renewal_termination_date",
+              "toField" : {
+                "name" : "renewal_date"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "lob",
+              "toField" : {
+                "name" : "lob"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "replaced_by",
+              "toField" : {
+                "name" : "replaced_by"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "term_type",
+              "toField" : {
+                "name" : "term_type"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "term_reason_code",
+              "toField" : {
+                "name" : "term_reason_code"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_termination_guidewire_effective_date",
+              "toField" : {
+                "name" : "effective_date"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "sub_code",
+              "toField" : {
+                "name" : "sub_code"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "gw_producer_id",
+              "toField" : {
+                "name" : "gw_producer_id"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_termination_guidewire_datetime_modified",
+              "toField" : {
+                "name" : "modified"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_termination_guidewire_datetime_created",
+              "toField" : {
+                "name" : "created"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "state",
+              "toField" : {
+                "name" : "state"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_new_business_termination_date",
+              "toField" : {
+                "name" : "new_date"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_row_status_active",
+              "toField" : {
+                "name" : "adm_termination_guidewire_row_status"
               },
               "fromFieldNames" : null
             }
@@ -2053,17 +2283,18 @@
         "fieldMappingMode" : "MANUAL",
         "inputSorted" : "false",
         "schemaProviderType" : "SELECTED_OBJECT",
+        "targetFieldsOrdered" : "false",
         "updateColumns" : [
-          "termination_guidewire_row_id"
+          "adm_termination_guidewire_row_id"
         ],
         "useLabels" : "false",
         "useSequenceFields" : "false",
         "fields" : [
           {
             "adapterField" : {
-              "name" : "termination_guidewire_row_id"
+              "name" : "adm_termination_guidewire_row_id"
             },
-            "name" : "termination_guidewire_row_id",
+            "name" : "adm_termination_guidewire_row_id",
             "platformType" : {
               "name" : "bigint"
             },
@@ -2072,9 +2303,9 @@
           },
           {
             "adapterField" : {
-              "name" : "termination_guidewire_batch_id"
+              "name" : "adm_termination_guidewire_batch_id"
             },
-            "name" : "termination_guidewire_batch_id",
+            "name" : "adm_termination_guidewire_batch_id",
             "platformType" : {
               "name" : "bigint"
             },
@@ -2083,9 +2314,9 @@
           },
           {
             "adapterField" : {
-              "name" : "source_name"
+              "name" : "originating_source_name"
             },
-            "name" : "source_name",
+            "name" : "originating_source_name",
             "platformType" : {
               "name" : "string"
             },
@@ -2094,9 +2325,9 @@
           },
           {
             "adapterField" : {
-              "name" : "load_type"
+              "name" : "originating_load_type"
             },
-            "name" : "load_type",
+            "name" : "originating_load_type",
             "platformType" : {
               "name" : "string"
             },
@@ -2105,9 +2336,9 @@
           },
           {
             "adapterField" : {
-              "name" : "termination_guidewire_row_md5checksum"
+              "name" : "adm_termination_guidewire_row_md5checksum"
             },
-            "name" : "termination_guidewire_row_md5checksum",
+            "name" : "adm_termination_guidewire_row_md5checksum",
             "platformType" : {
               "name" : "string"
             },
@@ -2116,9 +2347,9 @@
           },
           {
             "adapterField" : {
-              "name" : "termination_guidewire_datetime_created"
+              "name" : "adm_termination_guidewire_row_effective_start_datetime"
             },
-            "name" : "termination_guidewire_datetime_created",
+            "name" : "adm_termination_guidewire_row_effective_start_datetime",
             "platformType" : {
               "name" : "date/time"
             },
@@ -2127,9 +2358,9 @@
           },
           {
             "adapterField" : {
-              "name" : "termination_guidewire_datetime_modified"
+              "name" : "adm_termination_guidewire_row_effective_end_datetime"
             },
-            "name" : "termination_guidewire_datetime_modified",
+            "name" : "adm_termination_guidewire_row_effective_end_datetime",
             "platformType" : {
               "name" : "date/time"
             },
@@ -2138,75 +2369,9 @@
           },
           {
             "adapterField" : {
-              "name" : "termination_guidewire_row_effective_start_datetime"
+              "name" : "adm_termination_guidewire_row_status"
             },
-            "name" : "termination_guidewire_row_effective_start_datetime",
-            "platformType" : {
-              "name" : "date/time"
-            },
-            "precision" : 29,
-            "scale" : 9
-          },
-          {
-            "adapterField" : {
-              "name" : "termination_guidewire_row_effective_end_datetime"
-            },
-            "name" : "termination_guidewire_row_effective_end_datetime",
-            "platformType" : {
-              "name" : "date/time"
-            },
-            "precision" : 29,
-            "scale" : 9
-          },
-          {
-            "adapterField" : {
-              "name" : "agency_id"
-            },
-            "name" : "agency_id",
-            "platformType" : {
-              "name" : "integer"
-            },
-            "precision" : 10,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "termination_guidewire_effective_date"
-            },
-            "name" : "termination_guidewire_effective_date",
-            "platformType" : {
-              "name" : "date/time"
-            },
-            "precision" : 29,
-            "scale" : 9
-          },
-          {
-            "adapterField" : {
-              "name" : "guidewire_producer_id"
-            },
-            "name" : "guidewire_producer_id",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 15,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "termination_guidewire_id"
-            },
-            "name" : "termination_guidewire_id",
-            "platformType" : {
-              "name" : "integer"
-            },
-            "precision" : 10,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "line_of_business"
-            },
-            "name" : "line_of_business",
+            "name" : "adm_termination_guidewire_row_status",
             "platformType" : {
               "name" : "string"
             },
@@ -2215,20 +2380,31 @@
           },
           {
             "adapterField" : {
-              "name" : "new_business_termination_date"
+              "name" : "id"
             },
-            "name" : "new_business_termination_date",
+            "name" : "id",
             "platformType" : {
-              "name" : "date/time"
+              "name" : "integer"
             },
-            "precision" : 29,
-            "scale" : 9
+            "precision" : 10,
+            "scale" : 0
           },
           {
             "adapterField" : {
-              "name" : "has_termination_notice_been_sent"
+              "name" : "agency_nup"
             },
-            "name" : "has_termination_notice_been_sent",
+            "name" : "agency_nup",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "type"
+            },
+            "name" : "type",
             "platformType" : {
               "name" : "string"
             },
@@ -2237,9 +2413,20 @@
           },
           {
             "adapterField" : {
-              "name" : "renewal_termination_date"
+              "name" : "noticeto_agent"
             },
-            "name" : "renewal_termination_date",
+            "name" : "noticeto_agent",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 7,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "new_date"
+            },
+            "name" : "new_date",
             "platformType" : {
               "name" : "date/time"
             },
@@ -2248,9 +2435,31 @@
           },
           {
             "adapterField" : {
-              "name" : "terminated_agency_replaced_by"
+              "name" : "renewal_date"
             },
-            "name" : "terminated_agency_replaced_by",
+            "name" : "renewal_date",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "lob"
+            },
+            "name" : "lob",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "replaced_by"
+            },
+            "name" : "replaced_by",
             "platformType" : {
               "name" : "string"
             },
@@ -2259,9 +2468,9 @@
           },
           {
             "adapterField" : {
-              "name" : "license_issued_state_abbreviation"
+              "name" : "term_type"
             },
-            "name" : "license_issued_state_abbreviation",
+            "name" : "term_type",
             "platformType" : {
               "name" : "string"
             },
@@ -2270,9 +2479,31 @@
           },
           {
             "adapterField" : {
-              "name" : "subproducer_code"
+              "name" : "term_reason_code"
             },
-            "name" : "subproducer_code",
+            "name" : "term_reason_code",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 15,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "effective_date"
+            },
+            "name" : "effective_date",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "sub_code"
+            },
+            "name" : "sub_code",
             "platformType" : {
               "name" : "string"
             },
@@ -2281,14 +2512,47 @@
           },
           {
             "adapterField" : {
-              "name" : "terminated_entity_type"
+              "name" : "gw_producer_id"
             },
-            "name" : "terminated_entity_type",
+            "name" : "gw_producer_id",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 15,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "state"
+            },
+            "name" : "state",
             "platformType" : {
               "name" : "string"
             },
             "precision" : 7,
             "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "created"
+            },
+            "name" : "created",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "modified"
+            },
+            "name" : "modified",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
           }
         ],
         "dataAdapter" : {
@@ -2319,10 +2583,10 @@
             "retainMetadata" : "false",
             "fields" : [
               {
-                "name" : "termination_guidewire_row_id",
+                "name" : "adm_termination_guidewire_row_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "termination_guidewire_row_id",
-                "nativeName" : "termination_guidewire_row_id",
+                "label" : "adm_termination_guidewire_row_id",
+                "nativeName" : "adm_termination_guidewire_row_id",
                 "nativeType" : "int8",
                 "original" : "false",
                 "precision" : 19,
@@ -2335,10 +2599,10 @@
                 ]
               },
               {
-                "name" : "termination_guidewire_batch_id",
+                "name" : "adm_termination_guidewire_batch_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "termination_guidewire_batch_id",
-                "nativeName" : "termination_guidewire_batch_id",
+                "label" : "adm_termination_guidewire_batch_id",
+                "nativeName" : "adm_termination_guidewire_batch_id",
                 "nativeType" : "int8",
                 "original" : "false",
                 "precision" : 19,
@@ -2351,10 +2615,10 @@
                 ]
               },
               {
-                "name" : "source_name",
+                "name" : "originating_source_name",
                 "fieldType" : "CONNECTOR",
-                "label" : "source_name",
-                "nativeName" : "source_name",
+                "label" : "originating_source_name",
+                "nativeName" : "originating_source_name",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 127,
@@ -2367,10 +2631,10 @@
                 ]
               },
               {
-                "name" : "load_type",
+                "name" : "originating_load_type",
                 "fieldType" : "CONNECTOR",
-                "label" : "load_type",
-                "nativeName" : "load_type",
+                "label" : "originating_load_type",
+                "nativeName" : "originating_load_type",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 63,
@@ -2383,10 +2647,10 @@
                 ]
               },
               {
-                "name" : "termination_guidewire_row_md5checksum",
+                "name" : "adm_termination_guidewire_row_md5checksum",
                 "fieldType" : "CONNECTOR",
-                "label" : "termination_guidewire_row_md5checksum",
-                "nativeName" : "termination_guidewire_row_md5checksum",
+                "label" : "adm_termination_guidewire_row_md5checksum",
+                "nativeName" : "adm_termination_guidewire_row_md5checksum",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 255,
@@ -2399,10 +2663,10 @@
                 ]
               },
               {
-                "name" : "termination_guidewire_datetime_created",
+                "name" : "adm_termination_guidewire_row_effective_start_datetime",
                 "fieldType" : "CONNECTOR",
-                "label" : "termination_guidewire_datetime_created",
-                "nativeName" : "termination_guidewire_datetime_created",
+                "label" : "adm_termination_guidewire_row_effective_start_datetime",
+                "nativeName" : "adm_termination_guidewire_row_effective_start_datetime",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 29,
@@ -2415,10 +2679,10 @@
                 ]
               },
               {
-                "name" : "termination_guidewire_datetime_modified",
+                "name" : "adm_termination_guidewire_row_effective_end_datetime",
                 "fieldType" : "CONNECTOR",
-                "label" : "termination_guidewire_datetime_modified",
-                "nativeName" : "termination_guidewire_datetime_modified",
+                "label" : "adm_termination_guidewire_row_effective_end_datetime",
+                "nativeName" : "adm_termination_guidewire_row_effective_end_datetime",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 29,
@@ -2431,106 +2695,10 @@
                 ]
               },
               {
-                "name" : "termination_guidewire_row_effective_start_datetime",
+                "name" : "adm_termination_guidewire_row_status",
                 "fieldType" : "CONNECTOR",
-                "label" : "termination_guidewire_row_effective_start_datetime",
-                "nativeName" : "termination_guidewire_row_effective_start_datetime",
-                "nativeType" : "timestamp",
-                "original" : "false",
-                "precision" : 29,
-                "scale" : 6,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_termination_guidewire"
-                  }
-                ]
-              },
-              {
-                "name" : "termination_guidewire_row_effective_end_datetime",
-                "fieldType" : "CONNECTOR",
-                "label" : "termination_guidewire_row_effective_end_datetime",
-                "nativeName" : "termination_guidewire_row_effective_end_datetime",
-                "nativeType" : "timestamp",
-                "original" : "false",
-                "precision" : 29,
-                "scale" : 6,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_termination_guidewire"
-                  }
-                ]
-              },
-              {
-                "name" : "agency_id",
-                "fieldType" : "CONNECTOR",
-                "label" : "agency_id",
-                "nativeName" : "agency_id",
-                "nativeType" : "int4",
-                "original" : "false",
-                "precision" : 10,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_termination_guidewire"
-                  }
-                ]
-              },
-              {
-                "name" : "termination_guidewire_effective_date",
-                "fieldType" : "CONNECTOR",
-                "label" : "termination_guidewire_effective_date",
-                "nativeName" : "termination_guidewire_effective_date",
-                "nativeType" : "date",
-                "original" : "false",
-                "precision" : 13,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_termination_guidewire"
-                  }
-                ]
-              },
-              {
-                "name" : "guidewire_producer_id",
-                "fieldType" : "CONNECTOR",
-                "label" : "guidewire_producer_id",
-                "nativeName" : "guidewire_producer_id",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 15,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_termination_guidewire"
-                  }
-                ]
-              },
-              {
-                "name" : "termination_guidewire_id",
-                "fieldType" : "CONNECTOR",
-                "label" : "termination_guidewire_id",
-                "nativeName" : "termination_guidewire_id",
-                "nativeType" : "int4",
-                "original" : "false",
-                "precision" : 10,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_termination_guidewire"
-                  }
-                ]
-              },
-              {
-                "name" : "line_of_business",
-                "fieldType" : "CONNECTOR",
-                "label" : "line_of_business",
-                "nativeName" : "line_of_business",
+                "label" : "adm_termination_guidewire_row_status",
+                "nativeName" : "adm_termination_guidewire_row_status",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 63,
@@ -2543,13 +2711,13 @@
                 ]
               },
               {
-                "name" : "new_business_termination_date",
+                "name" : "id",
                 "fieldType" : "CONNECTOR",
-                "label" : "new_business_termination_date",
-                "nativeName" : "new_business_termination_date",
-                "nativeType" : "date",
+                "label" : "id",
+                "nativeName" : "id",
+                "nativeType" : "int4",
                 "original" : "false",
-                "precision" : 13,
+                "precision" : 10,
                 "scale" : 0,
                 "properties" : [
                   {
@@ -2559,10 +2727,26 @@
                 ]
               },
               {
-                "name" : "has_termination_notice_been_sent",
+                "name" : "agency_nup",
                 "fieldType" : "CONNECTOR",
-                "label" : "has_termination_notice_been_sent",
-                "nativeName" : "has_termination_notice_been_sent",
+                "label" : "agency_nup",
+                "nativeName" : "agency_nup",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_termination_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "type",
+                "fieldType" : "CONNECTOR",
+                "label" : "type",
+                "nativeName" : "type",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 7,
@@ -2575,10 +2759,26 @@
                 ]
               },
               {
-                "name" : "renewal_termination_date",
+                "name" : "noticeto_agent",
                 "fieldType" : "CONNECTOR",
-                "label" : "renewal_termination_date",
-                "nativeName" : "renewal_termination_date",
+                "label" : "noticeto_agent",
+                "nativeName" : "noticeto_agent",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 7,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_termination_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "new_date",
+                "fieldType" : "CONNECTOR",
+                "label" : "new_date",
+                "nativeName" : "new_date",
                 "nativeType" : "date",
                 "original" : "false",
                 "precision" : 13,
@@ -2591,10 +2791,42 @@
                 ]
               },
               {
-                "name" : "terminated_agency_replaced_by",
+                "name" : "renewal_date",
                 "fieldType" : "CONNECTOR",
-                "label" : "terminated_agency_replaced_by",
-                "nativeName" : "terminated_agency_replaced_by",
+                "label" : "renewal_date",
+                "nativeName" : "renewal_date",
+                "nativeType" : "date",
+                "original" : "false",
+                "precision" : 13,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_termination_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "lob",
+                "fieldType" : "CONNECTOR",
+                "label" : "lob",
+                "nativeName" : "lob",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_termination_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "replaced_by",
+                "fieldType" : "CONNECTOR",
+                "label" : "replaced_by",
+                "nativeName" : "replaced_by",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 15,
@@ -2607,10 +2839,10 @@
                 ]
               },
               {
-                "name" : "license_issued_state_abbreviation",
+                "name" : "term_type",
                 "fieldType" : "CONNECTOR",
-                "label" : "license_issued_state_abbreviation",
-                "nativeName" : "license_issued_state_abbreviation",
+                "label" : "term_type",
+                "nativeName" : "term_type",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 7,
@@ -2623,10 +2855,42 @@
                 ]
               },
               {
-                "name" : "subproducer_code",
+                "name" : "term_reason_code",
                 "fieldType" : "CONNECTOR",
-                "label" : "subproducer_code",
-                "nativeName" : "subproducer_code",
+                "label" : "term_reason_code",
+                "nativeName" : "term_reason_code",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 15,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_termination_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "effective_date",
+                "fieldType" : "CONNECTOR",
+                "label" : "effective_date",
+                "nativeName" : "effective_date",
+                "nativeType" : "date",
+                "original" : "false",
+                "precision" : 13,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_termination_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "sub_code",
+                "fieldType" : "CONNECTOR",
+                "label" : "sub_code",
+                "nativeName" : "sub_code",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 7,
@@ -2639,14 +2903,62 @@
                 ]
               },
               {
-                "name" : "terminated_entity_type",
+                "name" : "gw_producer_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "terminated_entity_type",
-                "nativeName" : "terminated_entity_type",
+                "label" : "gw_producer_id",
+                "nativeName" : "gw_producer_id",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 15,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_termination_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "state",
+                "fieldType" : "CONNECTOR",
+                "label" : "state",
+                "nativeName" : "state",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 7,
                 "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_termination_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "created",
+                "fieldType" : "CONNECTOR",
+                "label" : "created",
+                "nativeName" : "created",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_termination_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "modified",
+                "fieldType" : "CONNECTOR",
+                "label" : "modified",
+                "nativeName" : "modified",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
                 "properties" : [
                   {
                     "name" : "parentObject",
@@ -2721,6 +3033,10 @@
                 "value" : "5242880"
               },
               {
+                "name" : "Schema Name",
+                "value" : "$$staging_schema"
+              },
+              {
                 "name" : "Preserve record order on write",
                 "value" : "NO"
               },
@@ -2748,16 +3064,23 @@
         "manualMappings" : {
           "mappingList" : [
             {
-              "fromFieldName" : "termination_guidewire_row_id",
+              "fromFieldName" : "o_retire_old_record",
               "toField" : {
-                "name" : "termination_guidewire_row_id"
+                "name" : "adm_termination_guidewire_row_effective_end_datetime"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "o_retire_old_record",
+              "fromFieldName" : "o_row_status_expired",
               "toField" : {
-                "name" : "termination_guidewire_row_effective_end_datetime"
+                "name" : "adm_termination_guidewire_row_status"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "termination_guidewire_row_id",
+              "toField" : {
+                "name" : "adm_termination_guidewire_row_id"
               },
               "fromFieldNames" : null
             }
@@ -2860,15 +3183,16 @@
         "fieldMappingMode" : "MANUAL",
         "inputSorted" : "false",
         "schemaProviderType" : "SELECTED_OBJECT",
+        "targetFieldsOrdered" : "false",
         "updateColumns" : null,
         "useLabels" : "false",
         "useSequenceFields" : "false",
         "fields" : [
           {
             "adapterField" : {
-              "name" : "termination_guidewire_row_id"
+              "name" : "adm_termination_guidewire_row_id"
             },
-            "name" : "termination_guidewire_row_id",
+            "name" : "adm_termination_guidewire_row_id",
             "platformType" : {
               "name" : "bigint"
             },
@@ -2877,9 +3201,9 @@
           },
           {
             "adapterField" : {
-              "name" : "termination_guidewire_batch_id"
+              "name" : "adm_termination_guidewire_batch_id"
             },
-            "name" : "termination_guidewire_batch_id",
+            "name" : "adm_termination_guidewire_batch_id",
             "platformType" : {
               "name" : "bigint"
             },
@@ -2888,9 +3212,9 @@
           },
           {
             "adapterField" : {
-              "name" : "source_name"
+              "name" : "originating_source_name"
             },
-            "name" : "source_name",
+            "name" : "originating_source_name",
             "platformType" : {
               "name" : "string"
             },
@@ -2899,9 +3223,9 @@
           },
           {
             "adapterField" : {
-              "name" : "load_type"
+              "name" : "originating_load_type"
             },
-            "name" : "load_type",
+            "name" : "originating_load_type",
             "platformType" : {
               "name" : "string"
             },
@@ -2910,9 +3234,9 @@
           },
           {
             "adapterField" : {
-              "name" : "termination_guidewire_row_md5checksum"
+              "name" : "adm_termination_guidewire_row_md5checksum"
             },
-            "name" : "termination_guidewire_row_md5checksum",
+            "name" : "adm_termination_guidewire_row_md5checksum",
             "platformType" : {
               "name" : "string"
             },
@@ -2921,9 +3245,9 @@
           },
           {
             "adapterField" : {
-              "name" : "termination_guidewire_datetime_created"
+              "name" : "adm_termination_guidewire_row_effective_start_datetime"
             },
-            "name" : "termination_guidewire_datetime_created",
+            "name" : "adm_termination_guidewire_row_effective_start_datetime",
             "platformType" : {
               "name" : "date/time"
             },
@@ -2932,9 +3256,9 @@
           },
           {
             "adapterField" : {
-              "name" : "termination_guidewire_datetime_modified"
+              "name" : "adm_termination_guidewire_row_effective_end_datetime"
             },
-            "name" : "termination_guidewire_datetime_modified",
+            "name" : "adm_termination_guidewire_row_effective_end_datetime",
             "platformType" : {
               "name" : "date/time"
             },
@@ -2943,75 +3267,9 @@
           },
           {
             "adapterField" : {
-              "name" : "termination_guidewire_row_effective_start_datetime"
+              "name" : "adm_termination_guidewire_row_status"
             },
-            "name" : "termination_guidewire_row_effective_start_datetime",
-            "platformType" : {
-              "name" : "date/time"
-            },
-            "precision" : 29,
-            "scale" : 9
-          },
-          {
-            "adapterField" : {
-              "name" : "termination_guidewire_row_effective_end_datetime"
-            },
-            "name" : "termination_guidewire_row_effective_end_datetime",
-            "platformType" : {
-              "name" : "date/time"
-            },
-            "precision" : 29,
-            "scale" : 9
-          },
-          {
-            "adapterField" : {
-              "name" : "agency_id"
-            },
-            "name" : "agency_id",
-            "platformType" : {
-              "name" : "integer"
-            },
-            "precision" : 10,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "termination_guidewire_effective_date"
-            },
-            "name" : "termination_guidewire_effective_date",
-            "platformType" : {
-              "name" : "date/time"
-            },
-            "precision" : 29,
-            "scale" : 9
-          },
-          {
-            "adapterField" : {
-              "name" : "guidewire_producer_id"
-            },
-            "name" : "guidewire_producer_id",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 15,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "termination_guidewire_id"
-            },
-            "name" : "termination_guidewire_id",
-            "platformType" : {
-              "name" : "integer"
-            },
-            "precision" : 10,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "line_of_business"
-            },
-            "name" : "line_of_business",
+            "name" : "adm_termination_guidewire_row_status",
             "platformType" : {
               "name" : "string"
             },
@@ -3020,20 +3278,31 @@
           },
           {
             "adapterField" : {
-              "name" : "new_business_termination_date"
+              "name" : "id"
             },
-            "name" : "new_business_termination_date",
+            "name" : "id",
             "platformType" : {
-              "name" : "date/time"
+              "name" : "integer"
             },
-            "precision" : 29,
-            "scale" : 9
+            "precision" : 10,
+            "scale" : 0
           },
           {
             "adapterField" : {
-              "name" : "has_termination_notice_been_sent"
+              "name" : "agency_nup"
             },
-            "name" : "has_termination_notice_been_sent",
+            "name" : "agency_nup",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "type"
+            },
+            "name" : "type",
             "platformType" : {
               "name" : "string"
             },
@@ -3042,9 +3311,20 @@
           },
           {
             "adapterField" : {
-              "name" : "renewal_termination_date"
+              "name" : "noticeto_agent"
             },
-            "name" : "renewal_termination_date",
+            "name" : "noticeto_agent",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 7,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "new_date"
+            },
+            "name" : "new_date",
             "platformType" : {
               "name" : "date/time"
             },
@@ -3053,9 +3333,31 @@
           },
           {
             "adapterField" : {
-              "name" : "terminated_agency_replaced_by"
+              "name" : "renewal_date"
             },
-            "name" : "terminated_agency_replaced_by",
+            "name" : "renewal_date",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "lob"
+            },
+            "name" : "lob",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "replaced_by"
+            },
+            "name" : "replaced_by",
             "platformType" : {
               "name" : "string"
             },
@@ -3064,9 +3366,9 @@
           },
           {
             "adapterField" : {
-              "name" : "license_issued_state_abbreviation"
+              "name" : "term_type"
             },
-            "name" : "license_issued_state_abbreviation",
+            "name" : "term_type",
             "platformType" : {
               "name" : "string"
             },
@@ -3075,9 +3377,31 @@
           },
           {
             "adapterField" : {
-              "name" : "subproducer_code"
+              "name" : "term_reason_code"
             },
-            "name" : "subproducer_code",
+            "name" : "term_reason_code",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 15,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "effective_date"
+            },
+            "name" : "effective_date",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "sub_code"
+            },
+            "name" : "sub_code",
             "platformType" : {
               "name" : "string"
             },
@@ -3086,14 +3410,47 @@
           },
           {
             "adapterField" : {
-              "name" : "terminated_entity_type"
+              "name" : "gw_producer_id"
             },
-            "name" : "terminated_entity_type",
+            "name" : "gw_producer_id",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 15,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "state"
+            },
+            "name" : "state",
             "platformType" : {
               "name" : "string"
             },
             "precision" : 7,
             "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "created"
+            },
+            "name" : "created",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "modified"
+            },
+            "name" : "modified",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
           }
         ],
         "dataAdapter" : {
@@ -3113,10 +3470,10 @@
             "retainMetadata" : "false",
             "fields" : [
               {
-                "name" : "termination_guidewire_row_id",
+                "name" : "adm_termination_guidewire_row_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "termination_guidewire_row_id",
-                "nativeName" : "termination_guidewire_row_id",
+                "label" : "adm_termination_guidewire_row_id",
+                "nativeName" : "adm_termination_guidewire_row_id",
                 "nativeType" : "int8",
                 "original" : "false",
                 "precision" : 19,
@@ -3129,10 +3486,10 @@
                 ]
               },
               {
-                "name" : "termination_guidewire_batch_id",
+                "name" : "adm_termination_guidewire_batch_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "termination_guidewire_batch_id",
-                "nativeName" : "termination_guidewire_batch_id",
+                "label" : "adm_termination_guidewire_batch_id",
+                "nativeName" : "adm_termination_guidewire_batch_id",
                 "nativeType" : "int8",
                 "original" : "false",
                 "precision" : 19,
@@ -3145,10 +3502,10 @@
                 ]
               },
               {
-                "name" : "source_name",
+                "name" : "originating_source_name",
                 "fieldType" : "CONNECTOR",
-                "label" : "source_name",
-                "nativeName" : "source_name",
+                "label" : "originating_source_name",
+                "nativeName" : "originating_source_name",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 127,
@@ -3161,10 +3518,10 @@
                 ]
               },
               {
-                "name" : "load_type",
+                "name" : "originating_load_type",
                 "fieldType" : "CONNECTOR",
-                "label" : "load_type",
-                "nativeName" : "load_type",
+                "label" : "originating_load_type",
+                "nativeName" : "originating_load_type",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 63,
@@ -3177,10 +3534,10 @@
                 ]
               },
               {
-                "name" : "termination_guidewire_row_md5checksum",
+                "name" : "adm_termination_guidewire_row_md5checksum",
                 "fieldType" : "CONNECTOR",
-                "label" : "termination_guidewire_row_md5checksum",
-                "nativeName" : "termination_guidewire_row_md5checksum",
+                "label" : "adm_termination_guidewire_row_md5checksum",
+                "nativeName" : "adm_termination_guidewire_row_md5checksum",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 255,
@@ -3193,10 +3550,10 @@
                 ]
               },
               {
-                "name" : "termination_guidewire_datetime_created",
+                "name" : "adm_termination_guidewire_row_effective_start_datetime",
                 "fieldType" : "CONNECTOR",
-                "label" : "termination_guidewire_datetime_created",
-                "nativeName" : "termination_guidewire_datetime_created",
+                "label" : "adm_termination_guidewire_row_effective_start_datetime",
+                "nativeName" : "adm_termination_guidewire_row_effective_start_datetime",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 29,
@@ -3209,10 +3566,10 @@
                 ]
               },
               {
-                "name" : "termination_guidewire_datetime_modified",
+                "name" : "adm_termination_guidewire_row_effective_end_datetime",
                 "fieldType" : "CONNECTOR",
-                "label" : "termination_guidewire_datetime_modified",
-                "nativeName" : "termination_guidewire_datetime_modified",
+                "label" : "adm_termination_guidewire_row_effective_end_datetime",
+                "nativeName" : "adm_termination_guidewire_row_effective_end_datetime",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 29,
@@ -3225,106 +3582,10 @@
                 ]
               },
               {
-                "name" : "termination_guidewire_row_effective_start_datetime",
+                "name" : "adm_termination_guidewire_row_status",
                 "fieldType" : "CONNECTOR",
-                "label" : "termination_guidewire_row_effective_start_datetime",
-                "nativeName" : "termination_guidewire_row_effective_start_datetime",
-                "nativeType" : "timestamp",
-                "original" : "false",
-                "precision" : 29,
-                "scale" : 6,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_termination_guidewire"
-                  }
-                ]
-              },
-              {
-                "name" : "termination_guidewire_row_effective_end_datetime",
-                "fieldType" : "CONNECTOR",
-                "label" : "termination_guidewire_row_effective_end_datetime",
-                "nativeName" : "termination_guidewire_row_effective_end_datetime",
-                "nativeType" : "timestamp",
-                "original" : "false",
-                "precision" : 29,
-                "scale" : 6,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_termination_guidewire"
-                  }
-                ]
-              },
-              {
-                "name" : "agency_id",
-                "fieldType" : "CONNECTOR",
-                "label" : "agency_id",
-                "nativeName" : "agency_id",
-                "nativeType" : "int4",
-                "original" : "false",
-                "precision" : 10,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_termination_guidewire"
-                  }
-                ]
-              },
-              {
-                "name" : "termination_guidewire_effective_date",
-                "fieldType" : "CONNECTOR",
-                "label" : "termination_guidewire_effective_date",
-                "nativeName" : "termination_guidewire_effective_date",
-                "nativeType" : "date",
-                "original" : "false",
-                "precision" : 13,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_termination_guidewire"
-                  }
-                ]
-              },
-              {
-                "name" : "guidewire_producer_id",
-                "fieldType" : "CONNECTOR",
-                "label" : "guidewire_producer_id",
-                "nativeName" : "guidewire_producer_id",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 15,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_termination_guidewire"
-                  }
-                ]
-              },
-              {
-                "name" : "termination_guidewire_id",
-                "fieldType" : "CONNECTOR",
-                "label" : "termination_guidewire_id",
-                "nativeName" : "termination_guidewire_id",
-                "nativeType" : "int4",
-                "original" : "false",
-                "precision" : 10,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_termination_guidewire"
-                  }
-                ]
-              },
-              {
-                "name" : "line_of_business",
-                "fieldType" : "CONNECTOR",
-                "label" : "line_of_business",
-                "nativeName" : "line_of_business",
+                "label" : "adm_termination_guidewire_row_status",
+                "nativeName" : "adm_termination_guidewire_row_status",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 63,
@@ -3337,13 +3598,13 @@
                 ]
               },
               {
-                "name" : "new_business_termination_date",
+                "name" : "id",
                 "fieldType" : "CONNECTOR",
-                "label" : "new_business_termination_date",
-                "nativeName" : "new_business_termination_date",
-                "nativeType" : "date",
+                "label" : "id",
+                "nativeName" : "id",
+                "nativeType" : "int4",
                 "original" : "false",
-                "precision" : 13,
+                "precision" : 10,
                 "scale" : 0,
                 "properties" : [
                   {
@@ -3353,10 +3614,26 @@
                 ]
               },
               {
-                "name" : "has_termination_notice_been_sent",
+                "name" : "agency_nup",
                 "fieldType" : "CONNECTOR",
-                "label" : "has_termination_notice_been_sent",
-                "nativeName" : "has_termination_notice_been_sent",
+                "label" : "agency_nup",
+                "nativeName" : "agency_nup",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_termination_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "type",
+                "fieldType" : "CONNECTOR",
+                "label" : "type",
+                "nativeName" : "type",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 7,
@@ -3369,10 +3646,26 @@
                 ]
               },
               {
-                "name" : "renewal_termination_date",
+                "name" : "noticeto_agent",
                 "fieldType" : "CONNECTOR",
-                "label" : "renewal_termination_date",
-                "nativeName" : "renewal_termination_date",
+                "label" : "noticeto_agent",
+                "nativeName" : "noticeto_agent",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 7,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_termination_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "new_date",
+                "fieldType" : "CONNECTOR",
+                "label" : "new_date",
+                "nativeName" : "new_date",
                 "nativeType" : "date",
                 "original" : "false",
                 "precision" : 13,
@@ -3385,10 +3678,42 @@
                 ]
               },
               {
-                "name" : "terminated_agency_replaced_by",
+                "name" : "renewal_date",
                 "fieldType" : "CONNECTOR",
-                "label" : "terminated_agency_replaced_by",
-                "nativeName" : "terminated_agency_replaced_by",
+                "label" : "renewal_date",
+                "nativeName" : "renewal_date",
+                "nativeType" : "date",
+                "original" : "false",
+                "precision" : 13,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_termination_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "lob",
+                "fieldType" : "CONNECTOR",
+                "label" : "lob",
+                "nativeName" : "lob",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_termination_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "replaced_by",
+                "fieldType" : "CONNECTOR",
+                "label" : "replaced_by",
+                "nativeName" : "replaced_by",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 15,
@@ -3401,10 +3726,10 @@
                 ]
               },
               {
-                "name" : "license_issued_state_abbreviation",
+                "name" : "term_type",
                 "fieldType" : "CONNECTOR",
-                "label" : "license_issued_state_abbreviation",
-                "nativeName" : "license_issued_state_abbreviation",
+                "label" : "term_type",
+                "nativeName" : "term_type",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 7,
@@ -3417,10 +3742,42 @@
                 ]
               },
               {
-                "name" : "subproducer_code",
+                "name" : "term_reason_code",
                 "fieldType" : "CONNECTOR",
-                "label" : "subproducer_code",
-                "nativeName" : "subproducer_code",
+                "label" : "term_reason_code",
+                "nativeName" : "term_reason_code",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 15,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_termination_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "effective_date",
+                "fieldType" : "CONNECTOR",
+                "label" : "effective_date",
+                "nativeName" : "effective_date",
+                "nativeType" : "date",
+                "original" : "false",
+                "precision" : 13,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_termination_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "sub_code",
+                "fieldType" : "CONNECTOR",
+                "label" : "sub_code",
+                "nativeName" : "sub_code",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 7,
@@ -3433,14 +3790,62 @@
                 ]
               },
               {
-                "name" : "terminated_entity_type",
+                "name" : "gw_producer_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "terminated_entity_type",
-                "nativeName" : "terminated_entity_type",
+                "label" : "gw_producer_id",
+                "nativeName" : "gw_producer_id",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 15,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_termination_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "state",
+                "fieldType" : "CONNECTOR",
+                "label" : "state",
+                "nativeName" : "state",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 7,
                 "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_termination_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "created",
+                "fieldType" : "CONNECTOR",
+                "label" : "created",
+                "nativeName" : "created",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_termination_guidewire"
+                  }
+                ]
+              },
+              {
+                "name" : "modified",
+                "fieldType" : "CONNECTOR",
+                "label" : "modified",
+                "nativeName" : "modified",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
                 "properties" : [
                   {
                     "name" : "parentObject",
@@ -3515,6 +3920,10 @@
                 "value" : "5242880"
               },
               {
+                "name" : "Schema Name",
+                "value" : "$$staging_schema"
+              },
+              {
                 "name" : "Preserve record order on write",
                 "value" : "NO"
               },
@@ -3544,147 +3953,218 @@
             {
               "fromFieldName" : "batch_id",
               "toField" : {
-                "name" : "termination_guidewire_batch_id"
+                "name" : "adm_termination_guidewire_batch_id"
               },
               "fromFieldNames" : null
             },
             {
               "fromFieldName" : "source_name",
               "toField" : {
-                "name" : "source_name"
+                "name" : "originating_source_name"
               },
               "fromFieldNames" : null
             },
             {
               "fromFieldName" : "load_type",
               "toField" : {
-                "name" : "load_type"
+                "name" : "originating_load_type"
               },
               "fromFieldNames" : null
             },
             {
               "fromFieldName" : "o_src_md5_hash_value",
               "toField" : {
-                "name" : "termination_guidewire_row_md5checksum"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "o_termination_guidewire_datetime_created",
-              "toField" : {
-                "name" : "termination_guidewire_datetime_created"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "o_termination_guidewire_datetime_modified",
-              "toField" : {
-                "name" : "termination_guidewire_datetime_modified"
+                "name" : "adm_termination_guidewire_row_md5checksum"
               },
               "fromFieldNames" : null
             },
             {
               "fromFieldName" : "o_termination_guidewire_row_effective_start_datetime",
               "toField" : {
-                "name" : "termination_guidewire_row_effective_start_datetime"
+                "name" : "adm_termination_guidewire_row_effective_start_datetime"
               },
               "fromFieldNames" : null
             },
             {
               "fromFieldName" : "o_termination_guidewire_row_effective_end_datetime",
               "toField" : {
-                "name" : "termination_guidewire_row_effective_end_datetime"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "o_agency_id",
-              "toField" : {
-                "name" : "agency_id"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "o_termination_guidewire_effective_date",
-              "toField" : {
-                "name" : "termination_guidewire_effective_date"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "gw_producer_id",
-              "toField" : {
-                "name" : "guidewire_producer_id"
+                "name" : "adm_termination_guidewire_row_effective_end_datetime"
               },
               "fromFieldNames" : null
             },
             {
               "fromFieldName" : "o_termination_guidewire_id",
               "toField" : {
-                "name" : "termination_guidewire_id"
+                "name" : "id"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "lob",
+              "fromFieldName" : "o_agency_id",
               "toField" : {
-                "name" : "line_of_business"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "o_new_business_termination_date",
-              "toField" : {
-                "name" : "new_business_termination_date"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "noticeto_agent",
-              "toField" : {
-                "name" : "has_termination_notice_been_sent"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "o_renewal_termination_date",
-              "toField" : {
-                "name" : "renewal_termination_date"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "replaced_by",
-              "toField" : {
-                "name" : "terminated_agency_replaced_by"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "state",
-              "toField" : {
-                "name" : "license_issued_state_abbreviation"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "sub_code",
-              "toField" : {
-                "name" : "subproducer_code"
+                "name" : "agency_nup"
               },
               "fromFieldNames" : null
             },
             {
               "fromFieldName" : "type",
               "toField" : {
-                "name" : "terminated_entity_type"
+                "name" : "type"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "noticeto_agent",
+              "toField" : {
+                "name" : "noticeto_agent"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_renewal_termination_date",
+              "toField" : {
+                "name" : "renewal_date"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_new_business_termination_date",
+              "toField" : {
+                "name" : "new_date"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "lob",
+              "toField" : {
+                "name" : "lob"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "replaced_by",
+              "toField" : {
+                "name" : "replaced_by"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "term_type",
+              "toField" : {
+                "name" : "term_type"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "term_reason_code",
+              "toField" : {
+                "name" : "term_reason_code"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "sub_code",
+              "toField" : {
+                "name" : "sub_code"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_termination_guidewire_effective_date",
+              "toField" : {
+                "name" : "effective_date"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "gw_producer_id",
+              "toField" : {
+                "name" : "gw_producer_id"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "state",
+              "toField" : {
+                "name" : "state"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_termination_guidewire_datetime_modified",
+              "toField" : {
+                "name" : "modified"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_termination_guidewire_datetime_created",
+              "toField" : {
+                "name" : "created"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_row_status_active",
+              "toField" : {
+                "name" : "adm_termination_guidewire_row_status"
               },
               "fromFieldNames" : null
             }
           ]
         }
       }
+    ],
+    "variables" : [
+      {
+        "aggregationType" : "MAX",
+        "expressionVariable" : "false",
+        "name" : "raw_schema",
+        "platformType" : {
+          "name" : "string"
+        },
+        "precision" : 100,
+        "retentionPolicy" : "ON_SUCCESS_OR_WARNING",
+        "scale" : 0,
+        "defaultValue" : "metal"
+      },
+      {
+        "aggregationType" : "MAX",
+        "expressionVariable" : "false",
+        "name" : "staging_schema",
+        "platformType" : {
+          "name" : "string"
+        },
+        "precision" : 100,
+        "retentionPolicy" : "ON_SUCCESS_OR_WARNING",
+        "scale" : 0,
+        "defaultValue" : "bronze"
+      },
+      {
+        "aggregationType" : "MAX",
+        "expressionVariable" : "false",
+        "name" : "operational_schema",
+        "platformType" : {
+          "name" : "string"
+        },
+        "precision" : 100,
+        "retentionPolicy" : "ON_SUCCESS_OR_WARNING",
+        "scale" : 0,
+        "defaultValue" : "operations"
+      },
+      {
+        "aggregationType" : "MAX",
+        "expressionVariable" : "false",
+        "name" : "sourcesystemcode",
+        "platformType" : {
+          "name" : "string"
+        },
+        "precision" : 10,
+        "retentionPolicy" : "ON_SUCCESS_OR_WARNING",
+        "scale" : 0,
+        "defaultValue" : "ADM"
+      }
     ]
   },
-  "vcsExportTime" : "2025-06-30 09:54:41 PDT"
+  "vcsExportTime" : "2025-11-27 22:50:46 PST"
 }
