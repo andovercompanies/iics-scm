@@ -1,0 +1,349 @@
+{
+  "name" : "s_m_Load_Master_AgencyGroup_From_Import",
+  "description" : "Fetch data from Groups_stg,GroupGuidewire_stg,Dom_domain_stg,Agencyemail_stg data and populate the Master_AgencyGroup_detail based on Agency_Group_Nbr for scd type 2 implementation",
+  "runtimeEnvironmentId" : "@3pADNCV9u0PcgrXjM7rx0t",
+  "runtimeEnvironmentName" : "sag_aws_linux",
+  "maxLogs" : 10,
+  "parameters" : [
+    {
+      "name" : "$Src_Groups_GW_Domain_AgencyEmail$",
+      "type" : "SOURCE",
+      "label" : "DBConnection_SRC",
+      "uiProperties" : {
+        "cnxtype" : "Amazon Redshift v2",
+        "connectionParameterized" : "true",
+        "paramName" : "DBConnection_SRC",
+        "paramType-mapping" : "Connection",
+        "logcnx" : "DBConnection_SRC",
+        "isSelectDistinct" : "false",
+        "objectParameterized" : "false",
+        "visible" : "false",
+        "originalPath" : "Src_Groups_GW_Domain_AgencyEmail"
+      },
+      "sourceConnectionId" : "@aYZ4ekzHgIPeKpiaoqDLKP",
+      "connectionName" : "redshift_nonprod_andover_dw_dev",
+      "sourceObject" : "DUMMY_Src_Groups_GW_Domain_AgencyEmail",
+      "newFlatFile" : false,
+      "newObject" : false,
+      "showBusinessNames" : true,
+      "naturalOrder" : true,
+      "truncateTarget" : false,
+      "bulkApiDBTarget" : false,
+      "customFuncCfg" : { },
+      "customQuery" : "select distinct\ngw.groups_number as Agency_Group_Nbr,\nCASE\nWHEN\nLENGTH(TRIM(\nCOALESCE(gw.contingent_group_name1, '') || ' ' || COALESCE(gw.contingent_group_name2, '')\n)) = 0\nTHEN NULL\nELSE\nTRIM(\nCOALESCE(gw.contingent_group_name1, '') || ' ' || COALESCE(gw.contingent_group_name2, '')\n)\nEND AS Agency_Group_Name,\ncase when ltrim(rtrim(gw.contingent_group_name1)) is null or len(ltrim(rtrim(gw.contingent_group_name1)))=0 then null else ltrim(rtrim(gw.contingent_group_name1)) end as Agency_Group_Name1\n,case when ltrim(rtrim(gw.contingent_group_name2)) is null or len(ltrim(rtrim(gw.contingent_group_name2)))=0 then null else ltrim(rtrim(gw.contingent_group_name2)) end as Agency_Group_Name2\n,gw.qualifyingamount as Qualifying_Amount\n,ltrim(rtrim(dd.name)) as FieldRepresentative_Name\n,ltrim(rtrim(gw.fieldrep))::text as SalesTerritoryDesc\n,rtrim(trim(gw.fieldrep_state),6) as FieldRepresentativeState\n,CASE WHEN LTRIM(RTRIM(ae.email_addr1)) IS NULL OR LEN(LTRIM(RTRIM(ae.email_addr1)))=0 THEN NULL ELSE LTRIM(RTRIM(ae.email_addr1)) END  as Agency_Email1\n,CASE WHEN LTRIM(RTRIM(ae.email_addr2)) IS NULL OR LEN(LTRIM(RTRIM(ae.email_addr2)))=0 THEN NULL ELSE LTRIM(RTRIM(ae.email_addr2)) END  as Agency_Email2\n,CASE WHEN LTRIM(RTRIM(ae.email_addr3)) IS NULL OR LEN(LTRIM(RTRIM(ae.email_addr3)))=0 THEN NULL ELSE LTRIM(RTRIM(ae.email_addr3)) END  as Agency_Email3\n,CASE WHEN LTRIM(RTRIM(ae.email_addr4)) IS NULL OR LEN(LTRIM(RTRIM(ae.email_addr4)))=0 THEN NULL ELSE LTRIM(RTRIM(ae.email_addr4)) END  as Agency_Email4\n,CASE WHEN LTRIM(RTRIM(ae.email_addr5)) IS NULL OR LEN(LTRIM(RTRIM(ae.email_addr5)))=0 THEN NULL ELSE LTRIM(RTRIM(ae.email_addr5)) END  as Agency_Email5\n,CASE WHEN LTRIM(RTRIM(ae.email_addr6)) IS NULL OR LEN(LTRIM(RTRIM(ae.email_addr6)))=0 THEN NULL ELSE LTRIM(RTRIM(ae.email_addr6)) END  as Agency_Email6\n,CASE WHEN LTRIM(RTRIM(ae.email_addr7)) IS NULL OR LEN(LTRIM(RTRIM(ae.email_addr7)))=0 THEN NULL ELSE LTRIM(RTRIM(ae.email_addr7)) END  as Agency_Email7\n,CASE WHEN LTRIM(RTRIM(ae.email_addr8)) IS NULL OR LEN(LTRIM(RTRIM(ae.email_addr8)))=0 THEN NULL ELSE LTRIM(RTRIM(ae.email_addr8)) END  as Agency_Email8\n,CASE WHEN LTRIM(RTRIM(ae.email_addr9)) IS NULL OR LEN(LTRIM(RTRIM(ae.email_addr9)))=0 THEN NULL ELSE LTRIM(RTRIM(ae.email_addr9)) END  as Agency_Email9\n,CASE WHEN LTRIM(RTRIM(ae.email_addr10)) IS NULL OR LEN(LTRIM(RTRIM(ae.email_addr10)))=0 THEN NULL ELSE LTRIM(RTRIM(ae.email_addr10)) END  as Agency_Email10\nfrom  bronze.adm_group_guidewire gw\nleft join bronze.adm_field_reps dd  on gw.fieldrep = dd.id\nand dd.adm_field_reps_row_effective_end_datetime = '9999-12-31'\nleft join (\nselect group_nup,\nmax(case when email_rnk = 1 then email_address else null end) as email_addr1,\nmax(case when email_rnk = 2 then email_address else null end) as email_addr2,\nmax(case when email_rnk = 3 then email_address else null end) as email_addr3,\nmax(case when email_rnk = 4 then email_address else null end) as email_addr4,\nmax(case when email_rnk = 5 then email_address else null end) as email_addr5,\nmax(case when email_rnk = 6 then email_address else null end) as email_addr6,\nmax(case when email_rnk = 7 then email_address else null end) as email_addr7,\nmax(case when email_rnk = 8 then email_address else null end) as email_addr8,\nmax(case when email_rnk = 9 then email_address else null end) as email_addr9,\nmax(case when email_rnk = 10 then email_address else null end) as email_addr10\nfrom(\nselect group_nup,\nemail_address,\nrank() over (partition by group_nup order by id) as email_rnk\nfrom bronze.adm_agency_email\nwhere adm_agency_email_row_effective_end_datetime = '9999-12-31')\ngroup by group_nup\n) ae  on gw.groups_nup = ae.group_nup\nwhere gw.adm_group_guidewire_row_effective_end_datetime = '9999-12-31'\nORDER BY gw.groups_number",
+      "commandType" : 0,
+      "handleSpecialChars" : false,
+      "handleDecimalRoundOff" : false,
+      "frsAsset" : false,
+      "dynamicFileName" : false,
+      "excludeDynamicFileNameField" : false,
+      "currentlyProcessedFileName" : false,
+      "retainFieldMetadata" : false,
+      "objectName" : "DUMMY_Src_Groups_GW_Domain_AgencyEmail",
+      "useExactSrcNames" : false,
+      "userUpdated" : true,
+      "runtimeParameterData" : {
+        "connectionParameterName" : "DBConnection_SRC",
+        "connectionRuntimeParameter" : true,
+        "objectRuntimeParameter" : false
+      },
+      "restmodernSource" : true,
+      "unspecified" : false,
+      "fileList" : false
+    },
+    {
+      "name" : "$Tgt_Master_AgencyGroup_Detail_Insert$",
+      "type" : "TARGET",
+      "label" : "DBConnection_TGT",
+      "uiProperties" : {
+        "cnxtype" : "Amazon Redshift v2",
+        "connectionParameterized" : "true",
+        "paramName" : "DBConnection_TGT",
+        "paramType-mapping" : "Connection",
+        "logcnx" : "DBConnection_TGT",
+        "default" : "dbo/master_agencygroup_detail",
+        "objectParameterized" : "false",
+        "visible" : "false",
+        "supportApplyDDLChanges" : "false",
+        "originalPath" : "Tgt_Master_AgencyGroup_Detail_Insert"
+      },
+      "targetConnectionId" : "@aYZ4ekzHgIPeKpiaoqDLKP",
+      "connectionName" : "redshift_nonprod_andover_dw_dev",
+      "targetObject" : "dbo/master_agencygroup_detail",
+      "targetObjectLabel" : "master_agencygroup_detail",
+      "newFlatFile" : false,
+      "newObject" : false,
+      "showBusinessNames" : true,
+      "naturalOrder" : true,
+      "truncateTarget" : false,
+      "bulkApiDBTarget" : false,
+      "operationType" : "Rowbased",
+      "customFuncCfg" : { },
+      "extendedObject" : {
+        "singleMode" : true
+      },
+      "commandType" : 0,
+      "handleSpecialChars" : false,
+      "handleDecimalRoundOff" : false,
+      "frsAsset" : false,
+      "dynamicFileName" : false,
+      "excludeDynamicFileNameField" : false,
+      "currentlyProcessedFileName" : false,
+      "retainFieldMetadata" : false,
+      "objectName" : "dbo/master_agencygroup_detail",
+      "objectLabel" : "master_agencygroup_detail",
+      "useExactSrcNames" : false,
+      "userUpdated" : true,
+      "runtimeParameterData" : {
+        "connectionParameterName" : "DBConnection_TGT",
+        "connectionRuntimeParameter" : true,
+        "objectRuntimeParameter" : false
+      },
+      "restmodernSource" : true,
+      "unspecified" : false,
+      "fileList" : false
+    },
+    {
+      "name" : "$Tgt_Master_AgencyGroup_Detail_Insert_Update$",
+      "type" : "TARGET",
+      "label" : "DBConnection_TGT",
+      "uiProperties" : {
+        "cnxtype" : "Amazon Redshift v2",
+        "connectionParameterized" : "true",
+        "paramName" : "DBConnection_TGT",
+        "paramType-mapping" : "Connection",
+        "logcnx" : "DBConnection_TGT",
+        "default" : "dbo/master_agencygroup_detail",
+        "objectParameterized" : "false",
+        "visible" : "false",
+        "supportApplyDDLChanges" : "false",
+        "originalPath" : "Tgt_Master_AgencyGroup_Detail_Insert_Update"
+      },
+      "targetConnectionId" : "@aYZ4ekzHgIPeKpiaoqDLKP",
+      "connectionName" : "redshift_nonprod_andover_dw_dev",
+      "targetObject" : "dbo/master_agencygroup_detail",
+      "targetObjectLabel" : "master_agencygroup_detail",
+      "newFlatFile" : false,
+      "newObject" : false,
+      "showBusinessNames" : true,
+      "naturalOrder" : true,
+      "truncateTarget" : false,
+      "bulkApiDBTarget" : false,
+      "operationType" : "Rowbased",
+      "customFuncCfg" : { },
+      "extendedObject" : {
+        "singleMode" : true
+      },
+      "commandType" : 0,
+      "handleSpecialChars" : false,
+      "handleDecimalRoundOff" : false,
+      "frsAsset" : false,
+      "dynamicFileName" : false,
+      "excludeDynamicFileNameField" : false,
+      "currentlyProcessedFileName" : false,
+      "retainFieldMetadata" : false,
+      "objectName" : "dbo/master_agencygroup_detail",
+      "objectLabel" : "master_agencygroup_detail",
+      "useExactSrcNames" : false,
+      "userUpdated" : true,
+      "runtimeParameterData" : {
+        "connectionParameterName" : "DBConnection_TGT",
+        "connectionRuntimeParameter" : true,
+        "objectRuntimeParameter" : false
+      },
+      "restmodernSource" : true,
+      "unspecified" : false,
+      "fileList" : false
+    },
+    {
+      "name" : "$Tgt_Master_AgencyGroup_Detail_Update$",
+      "type" : "TARGET",
+      "label" : "DBConnection_TGT",
+      "uiProperties" : {
+        "cnxtype" : "Amazon Redshift v2",
+        "connectionParameterized" : "true",
+        "paramName" : "DBConnection_TGT",
+        "paramType-mapping" : "Connection",
+        "logcnx" : "DBConnection_TGT",
+        "default" : "dbo/master_agencygroup_detail",
+        "objectParameterized" : "false",
+        "visible" : "false",
+        "defaultTargetUpdateColumns" : "Agency_Group_Id",
+        "supportApplyDDLChanges" : "false",
+        "originalPath" : "Tgt_Master_AgencyGroup_Detail_Update"
+      },
+      "targetConnectionId" : "@aYZ4ekzHgIPeKpiaoqDLKP",
+      "connectionName" : "redshift_nonprod_andover_dw_dev",
+      "targetObject" : "dbo/master_agencygroup_detail",
+      "targetObjectLabel" : "master_agencygroup_detail",
+      "newFlatFile" : false,
+      "newObject" : false,
+      "showBusinessNames" : true,
+      "naturalOrder" : true,
+      "truncateTarget" : false,
+      "bulkApiDBTarget" : false,
+      "operationType" : "Rowbased",
+      "customFuncCfg" : { },
+      "targetUpdateColumns" : [
+        "Agency_Group_Id"
+      ],
+      "extendedObject" : {
+        "singleMode" : true
+      },
+      "commandType" : 0,
+      "handleSpecialChars" : false,
+      "handleDecimalRoundOff" : false,
+      "frsAsset" : false,
+      "dynamicFileName" : false,
+      "excludeDynamicFileNameField" : false,
+      "currentlyProcessedFileName" : false,
+      "retainFieldMetadata" : false,
+      "objectName" : "dbo/master_agencygroup_detail",
+      "objectLabel" : "master_agencygroup_detail",
+      "useExactSrcNames" : false,
+      "userUpdated" : true,
+      "runtimeParameterData" : {
+        "connectionParameterName" : "DBConnection_TGT",
+        "connectionRuntimeParameter" : true,
+        "objectRuntimeParameter" : false
+      },
+      "restmodernSource" : true,
+      "unspecified" : false,
+      "fileList" : false
+    },
+    {
+      "name" : "$Lkp_Master_Agency_Group_Detail$",
+      "type" : "LOOKUP",
+      "label" : "DBConnection_TGT",
+      "uiProperties" : {
+        "cnxtype" : "Amazon Redshift v2",
+        "connectionParameterized" : "true",
+        "paramName" : "DBConnection_TGT",
+        "paramType-mapping" : "Connection",
+        "logcnx" : "DBConnection_TGT",
+        "isCachedLookup" : "true",
+        "multipleMatchPolicy" : "Use Any Value",
+        "objectParameterized" : "false",
+        "visible" : "false",
+        "originalPath" : "Lkp_Master_Agency_Group_Detail"
+      },
+      "lookupConnectionId" : "@aYZ4ekzHgIPeKpiaoqDLKP",
+      "connectionName" : "redshift_nonprod_andover_dw_dev",
+      "lookupObject" : "DUMMY_Lkp_Master_Agency_Group_Detail",
+      "newFlatFile" : false,
+      "newObject" : false,
+      "showBusinessNames" : true,
+      "naturalOrder" : true,
+      "truncateTarget" : false,
+      "bulkApiDBTarget" : false,
+      "customFuncCfg" : { },
+      "runtimeAttrs" : {
+        "Thousand Separator" : "None",
+        "Lookup Index Cache Size" : "AUTO",
+        "Optional" : "true",
+        "Lookup cache persistent" : "false",
+        "Lookup source is static" : "false",
+        "Case Sensitive String Comparison" : "false",
+        "Decimal Separator" : ".",
+        "Re-cache from lookup source" : "false",
+        "Insert Else Update" : "false",
+        "Lookup caching enabled" : "true",
+        "Lookup Data Cache Size" : "AUTO",
+        "Tracing Level" : "Normal",
+        "Subsecond Precision" : "6",
+        "Sorted Input" : "false",
+        "Lookup cache directory name" : "$PMCacheDir",
+        "Output Old Value On Update" : "false",
+        "Dynamic Lookup Cache" : "false",
+        "Pre-build lookup cache" : "AUTO",
+        "Synchronize dynamic cache" : "false",
+        "Null ordering" : "Null Is Highest Value"
+      },
+      "customQuery" : "SELECT Agency_Group_Id as Agency_Group_Id, Agency_Group_Nbr as Agency_Group_Nbr, Agency_GroupHashKey as Agency_GroupHashKey FROM dbo.Master_AgencyGroup_Detail   WHERE\n Row_End_Dt='9999-12-31 00:00:00.000' ---",
+      "commandType" : 0,
+      "handleSpecialChars" : false,
+      "handleDecimalRoundOff" : false,
+      "frsAsset" : false,
+      "dynamicFileName" : false,
+      "excludeDynamicFileNameField" : false,
+      "currentlyProcessedFileName" : false,
+      "retainFieldMetadata" : false,
+      "objectName" : "DUMMY_Lkp_Master_Agency_Group_Detail",
+      "useExactSrcNames" : false,
+      "userUpdated" : true,
+      "runtimeParameterData" : {
+        "connectionParameterName" : "DBConnection_TGT",
+        "connectionRuntimeParameter" : true,
+        "objectRuntimeParameter" : false
+      },
+      "restmodernSource" : true,
+      "unspecified" : false,
+      "fileList" : false
+    }
+  ],
+  "verbose" : false,
+  "lastRunTime" : 1764703309000,
+  "mappingId" : "@9oSXc9FQuu6ijYwd1DODCZ",
+  "mappingTemplateName" : "m_Load_Master_AgencyGroup_From_Import",
+  "sessionPropertiesList" : [
+    {
+      "name" : "Allow Temporary Sequence for Pushdown",
+      "value" : "NO"
+    },
+    {
+      "name" : "Allow Temporary View for Pushdown",
+      "value" : "NO"
+    },
+    {
+      "name" : "Cache LOOKUP() function",
+      "value" : "YES"
+    },
+    {
+      "name" : "Commit On End Of File",
+      "value" : "YES"
+    },
+    {
+      "name" : "Data Column Delimiter",
+      "value" : "|"
+    },
+    {
+      "name" : "Error Log File Name",
+      "value" : "PMError.log"
+    },
+    {
+      "name" : "Log Row Data",
+      "value" : "YES"
+    },
+    {
+      "name" : "Pushdown Optimization",
+      "value" : "None"
+    },
+    {
+      "name" : "Pushdown Optimization Context",
+      "value" : "None"
+    },
+    {
+      "name" : "Pushdown Optimization Fallback Option",
+      "value" : "Partial PDO"
+    },
+    {
+      "name" : "Stop on errors",
+      "value" : "1"
+    }
+  ],
+  "hidden" : false,
+  "enableCrossSchemaPushdown" : false,
+  "enableParallelRun" : false,
+  "autoTunedApplied" : false,
+  "autoTunedAppliedType" : "NONE",
+  "parameterFileName" : "Andover_Param_GW.param",
+  "parameterFileDir" : "$PMRootDir/andover/parameters",
+  "paramFileType" : "PARAM_FILE_LOCAL",
+  "schemaMode" : "async",
+  "valid" : true,
+  "optimizationPlan" : "NONE",
+  "allowMaxFieldLength" : false,
+  "specialCharacterSupport" : false,
+  "midstreamPreview" : false,
+  "vcsExportTime" : "2025-12-03 15:12:43 EST"
+}

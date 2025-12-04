@@ -6,6 +6,52 @@
   "maxLogs" : 10,
   "parameters" : [
     {
+      "name" : "$Source$",
+      "type" : "SOURCE",
+      "label" : "DBConnection_UDM_TGT",
+      "uiProperties" : {
+        "cnxtype" : "Amazon Redshift v2",
+        "connectionParameterized" : "true",
+        "paramName" : "DBConnection_UDM_TGT",
+        "paramType-mapping" : "Connection",
+        "logcnx" : "DBConnection_UDM_TGT",
+        "isSelectDistinct" : "false",
+        "objectParameterized" : "false",
+        "visible" : "false",
+        "originalPath" : "Source"
+      },
+      "sourceConnectionId" : "@aYZ4ekzHgIPeKpiaoqDLKP",
+      "connectionName" : "redshift_nonprod_andover_dw_dev",
+      "sourceObject" : "DUMMY_Source",
+      "newFlatFile" : false,
+      "newObject" : false,
+      "showBusinessNames" : true,
+      "naturalOrder" : true,
+      "truncateTarget" : false,
+      "bulkApiDBTarget" : false,
+      "customFuncCfg" : { },
+      "customQuery" : "select\n\tadm_producer_row_id ,\n\tadm_producer_batch_id,\n\tadm_producer_row_md5checksum,\n\tid,\n\tadm_producer_row_effective_start_datetime ,\n\tadm_producer_row_effective_end_datetime \nfrom\n\t$$staging_schema.adm_producer where adm_producer_row_effective_end_datetime = '9999-12-31 00:00:00.000';",
+      "commandType" : 0,
+      "handleSpecialChars" : false,
+      "handleDecimalRoundOff" : false,
+      "frsAsset" : false,
+      "dynamicFileName" : false,
+      "excludeDynamicFileNameField" : false,
+      "currentlyProcessedFileName" : false,
+      "retainFieldMetadata" : false,
+      "objectName" : "DUMMY_Source",
+      "useExactSrcNames" : false,
+      "userUpdated" : true,
+      "runtimeParameterData" : {
+        "connectionParameterName" : "DBConnection_UDM_TGT",
+        "connectionRuntimeParameter" : true,
+        "objectRuntimeParameter" : false
+      },
+      "restmodernSource" : true,
+      "unspecified" : false,
+      "fileList" : false
+    },
+    {
       "name" : "$src_metal_producer$",
       "type" : "SOURCE",
       "label" : "DBConnection_UDM_SRC",
@@ -30,7 +76,7 @@
       "truncateTarget" : false,
       "bulkApiDBTarget" : false,
       "customFuncCfg" : { },
-      "customQuery" : "with current_batch as (\nselect\n\tbls.batch_id,\n\tbls.source_start_cutoff_datetime,\n\tbls.source_end_cutoff_datetime\nfrom\n\tmetal.batch_load_summary bls\nwhere\n\tbls.source_system_code = 'ADM'\n\tand bls.batch_status = 'Inprogress'\n\tand bls.batch_id = (\n\tselect\n\t\tMAX(batch_id)\n\tfrom\n\t\tmetal.batch_load_summary\n\twhere\n\t\tsource_system_code = 'ADM'\n\t\tand batch_status = 'Inprogress' ) )\nselect\n\tdistinct\n\tmetal_ap.source_name,\n\tmetal_ap.load_type,\n\tmetal_ap.active,\n\tmetal_ap.created,\n\tmetal_ap.fid_num,\n\tmetal_ap.fid_type,\n\tmetal_ap.id,\n\tmetal_ap.modified,\n\tmetal_ap.name,\n\tmetal_ap.npn_number,\n\tmetal_ap.term_flag,\n\tcurrent_batch.batch_id\nfrom\n\tmetal.adm_producer metal_ap\ncross join current_batch\norder by\n\tmetal_ap.id,\n\tmetal_ap.created,\n\tmetal_ap.modified;",
+      "customQuery" : "with current_batch as (\nselect\n\tbls.batch_id,\n\tbls.source_start_cutoff_datetime,\n\tbls.source_end_cutoff_datetime\nfrom\n\t$$operational_schema.batch_load_summary bls\nwhere\n\tbls.source_system_code ='$$sourcesystemcode'\n\tand bls.batch_status = 'Inprogress'\n\tand bls.batch_id = (\n\tselect\n\t\tMAX(batch_id)\n\tfrom\n\t\t$$operational_schema.batch_load_summary\n\twhere\n\t\tsource_system_code = '$$sourcesystemcode'\n\t\tand batch_status = 'Inprogress' ) )\nselect\n\tdistinct\n\t source_name, \nmetal_ap.load_type, \nmetal_ap.id, \nmetal_ap.last_name, \nmetal_ap.first_name, \nmetal_ap.middle_name, \nmetal_ap.suffix, \nmetal_ap.term_flag, \nmetal_ap.misc_flags, \nmetal_ap.fid_num, \nmetal_ap.fid_type, \nmetal_ap.active, \nmetal_ap.npn_number, \nmetal_ap.resident_state, \nmetal_ap.created, \nmetal_ap.modified,\ncurrent_batch.batch_id\nfrom\n\t$$raw_schema.adm_producer metal_ap\ncross join current_batch\norder by\n\tmetal_ap.id,\n\tmetal_ap.created,\n\tmetal_ap.modified;",
       "commandType" : 0,
       "handleSpecialChars" : false,
       "handleDecimalRoundOff" : false,
@@ -42,59 +88,13 @@
       "objectName" : "DUMMY_src_metal_producer",
       "useExactSrcNames" : false,
       "userUpdated" : true,
-      "unspecified" : false,
       "runtimeParameterData" : {
         "connectionParameterName" : "DBConnection_UDM_SRC",
-        "connectionRuntimeParameter" : false,
+        "connectionRuntimeParameter" : true,
         "objectRuntimeParameter" : false
       },
       "restmodernSource" : true,
-      "fileList" : false
-    },
-    {
-      "name" : "$src_tgt_query$",
-      "type" : "SOURCE",
-      "label" : "DBConnection_UDM_SRC",
-      "uiProperties" : {
-        "cnxtype" : "Amazon Redshift v2",
-        "connectionParameterized" : "true",
-        "paramName" : "DBConnection_UDM_SRC",
-        "paramType-mapping" : "Connection",
-        "logcnx" : "DBConnection_UDM_SRC",
-        "isSelectDistinct" : "false",
-        "objectParameterized" : "false",
-        "visible" : "false",
-        "originalPath" : "src_tgt_query"
-      },
-      "sourceConnectionId" : "@aYZ4ekzHgIPeKpiaoqDLKP",
-      "connectionName" : "redshift_nonprod_andover_dw_dev",
-      "sourceObject" : "DUMMY_src_tgt_query",
-      "newFlatFile" : false,
-      "newObject" : false,
-      "showBusinessNames" : true,
-      "naturalOrder" : true,
-      "truncateTarget" : false,
-      "bulkApiDBTarget" : false,
-      "customFuncCfg" : { },
-      "customQuery" : "select\n\tproducer_row_id,\n\tproducer_batch_id,\n\tproducer_row_md5checksum,\n\tproducer_id,\n\tproducer_datetime_modified,\n\tproducer_row_effective_end_datetime\nfrom\n\tbronze.adm_producer\nwhere\n\tproducer_row_effective_end_datetime = '9999-12-31 00:00:00.000'",
-      "commandType" : 0,
-      "handleSpecialChars" : false,
-      "handleDecimalRoundOff" : false,
-      "frsAsset" : false,
-      "dynamicFileName" : false,
-      "excludeDynamicFileNameField" : false,
-      "currentlyProcessedFileName" : false,
-      "retainFieldMetadata" : false,
-      "objectName" : "DUMMY_src_tgt_query",
-      "useExactSrcNames" : false,
-      "userUpdated" : true,
       "unspecified" : false,
-      "runtimeParameterData" : {
-        "connectionParameterName" : "DBConnection_UDM_SRC",
-        "connectionRuntimeParameter" : false,
-        "objectRuntimeParameter" : false
-      },
-      "restmodernSource" : true,
       "fileList" : false
     },
     {
@@ -140,13 +140,13 @@
       "objectLabel" : "bronze/adm_producer",
       "useExactSrcNames" : false,
       "userUpdated" : true,
-      "unspecified" : false,
       "runtimeParameterData" : {
         "connectionParameterName" : "DBConnection_UDM_TGT",
-        "connectionRuntimeParameter" : false,
+        "connectionRuntimeParameter" : true,
         "objectRuntimeParameter" : false
       },
       "restmodernSource" : true,
+      "unspecified" : false,
       "fileList" : false
     },
     {
@@ -162,7 +162,7 @@
         "default" : "bronze/adm_producer",
         "objectParameterized" : "false",
         "visible" : "false",
-        "defaultTargetUpdateColumns" : "producer_row_id",
+        "defaultTargetUpdateColumns" : "adm_producer_row_id",
         "supportApplyDDLChanges" : "false",
         "originalPath" : "tgt_update_closeout"
       },
@@ -179,7 +179,7 @@
       "operationType" : "Update",
       "customFuncCfg" : { },
       "targetUpdateColumns" : [
-        "producer_row_id"
+        "adm_producer_row_id"
       ],
       "extendedObject" : {
         "singleMode" : true
@@ -196,13 +196,13 @@
       "objectLabel" : "bronze/adm_producer",
       "useExactSrcNames" : false,
       "userUpdated" : true,
-      "unspecified" : false,
       "runtimeParameterData" : {
         "connectionParameterName" : "DBConnection_UDM_TGT",
-        "connectionRuntimeParameter" : false,
+        "connectionRuntimeParameter" : true,
         "objectRuntimeParameter" : false
       },
       "restmodernSource" : true,
+      "unspecified" : false,
       "fileList" : false
     },
     {
@@ -248,18 +248,18 @@
       "objectLabel" : "bronze/adm_producer",
       "useExactSrcNames" : false,
       "userUpdated" : true,
-      "unspecified" : false,
       "runtimeParameterData" : {
         "connectionParameterName" : "DBConnection_UDM_TGT",
-        "connectionRuntimeParameter" : false,
+        "connectionRuntimeParameter" : true,
         "objectRuntimeParameter" : false
       },
       "restmodernSource" : true,
+      "unspecified" : false,
       "fileList" : false
     }
   ],
   "verbose" : false,
-  "lastRunTime" : 1751890392000,
+  "lastRunTime" : 1763949245000,
   "mappingId" : "@3wQm8XXKbC1e3ufArbEImF",
   "mappingTemplateName" : "cdi_map_adm_producer_bronze_load",
   "sessionPropertiesList" : [
@@ -276,6 +276,48 @@
       "value" : "Partial PDO"
     }
   ],
+  "inOutParameters" : [
+    {
+      "name" : "raw_schema",
+      "initialValue" : "metal",
+      "datatype" : "STRING",
+      "precision" : "100",
+      "scale" : "0",
+      "retentionPolicy" : "NEVER",
+      "aggregationType" : "MAX",
+      "currentValue" : "metal"
+    },
+    {
+      "name" : "staging_schema",
+      "initialValue" : "bronze",
+      "datatype" : "STRING",
+      "precision" : "100",
+      "scale" : "0",
+      "retentionPolicy" : "NEVER",
+      "aggregationType" : "MAX",
+      "currentValue" : "bronze"
+    },
+    {
+      "name" : "operational_schema",
+      "initialValue" : "operations",
+      "datatype" : "STRING",
+      "precision" : "100",
+      "scale" : "0",
+      "retentionPolicy" : "NEVER",
+      "aggregationType" : "MAX",
+      "currentValue" : "operations"
+    },
+    {
+      "name" : "sourcesystemcode",
+      "initialValue" : "ADM",
+      "datatype" : "STRING",
+      "precision" : "100",
+      "scale" : "0",
+      "retentionPolicy" : "NEVER",
+      "aggregationType" : "MAX",
+      "currentValue" : "ADM"
+    }
+  ],
   "hidden" : false,
   "enableCrossSchemaPushdown" : true,
   "enableParallelRun" : false,
@@ -288,6 +330,7 @@
   "valid" : true,
   "optimizationPlan" : "NONE",
   "allowMaxFieldLength" : false,
+  "specialCharacterSupport" : false,
   "midstreamPreview" : false,
-  "vcsExportTime" : "2025-07-08 12:08:50 EDT"
+  "vcsExportTime" : "2025-11-23 18:04:35 PST"
 }

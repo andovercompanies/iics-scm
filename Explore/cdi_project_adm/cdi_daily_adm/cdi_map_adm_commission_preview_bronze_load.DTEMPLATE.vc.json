@@ -5,6 +5,7 @@
     "bigIntConvertType" : "ONLY_BIGINT",
     "documentType" : "MAPPING",
     "name" : "cdi_map_adm_commission_preview_bronze_load",
+    "specialCharacterSupport" : "false",
     "links" : [
       {
         "link" : "src_delta_changes_agency -> exp_convert_datatype"
@@ -46,11 +47,11 @@
         "link" : "exp_convert_datatype -> exp_MD5_calculation"
       },
       {
-        "link" : "rtr_route_inserts_updates -> exp_update_records1",
+        "link" : "rtr_route_inserts_updates -> exp_update_close_records",
         "groupLink" : "Update -> DefaultGroup"
       },
       {
-        "link" : "exp_update_records1 -> tgt_bronze_adm_acommission_preview_updates"
+        "link" : "exp_update_close_records -> tgt_bronze_adm_acommission_preview_updates"
       }
     ],
     "parameters" : [
@@ -68,7 +69,7 @@
         "output" : "false",
         "precision" : 0,
         "scale" : 0,
-        "allowRuntimeOverride" : "false",
+        "allowRuntimeOverride" : "true",
         "expressionVariable" : "false",
         "name" : "DBConnection_UDM_SRC",
         "anonymousType" : {
@@ -82,7 +83,7 @@
         "output" : "false",
         "precision" : 0,
         "scale" : 0,
-        "allowRuntimeOverride" : "false",
+        "allowRuntimeOverride" : "true",
         "expressionVariable" : "false",
         "name" : "DBConnection_UDM_TGT",
         "anonymousType" : {
@@ -208,9 +209,9 @@
           },
           {
             "adapterField" : {
-              "name" : "transferstatus"
+              "name" : "transfer_status"
             },
-            "name" : "transferstatus",
+            "name" : "transfer_status",
             "platformType" : {
               "name" : "string"
             },
@@ -238,8 +239,8 @@
           "typeSystem" : "TOOLKIT",
           "useDynamicFileName" : "false",
           "object" : {
-            "customQuery" : "WITH current_batch\n     AS (SELECT bls.batch_id,\n                bls.source_start_cutoff_datetime,\n                bls.source_end_cutoff_datetime\n         FROM   metal.batch_load_summary bls\n         WHERE  bls.source_system_code = 'ADM'\n                AND bls.batch_status = 'Inprogress'\n                AND bls.batch_id = (SELECT Max(batch_id)\n                                    FROM   metal.batch_load_summary\n                                    WHERE  source_system_code = 'ADM'\n                                           AND batch_status = 'Inprogress'))\nSELECT DISTINCT metal_comm_preview.source_name,\n                metal_comm_preview.load_type,\n                metal_comm_preview.agency_nup,\n                metal_comm_preview.created,\n                metal_comm_preview.id,\n                metal_comm_preview.modified,\n                metal_comm_preview.state_company,\n                metal_comm_preview.state_company_eff_date,\n                metal_comm_preview.transferstatus,\n                current_batch.batch_id\nFROM   metal.adm_commission_preview metal_comm_preview\n       CROSS JOIN current_batch\nORDER  BY metal_comm_preview.agency_nup,\n          metal_comm_preview.id,\n          metal_comm_preview.created,\n          metal_comm_preview.modified",
-            "retainMetadata" : "false",
+            "customQuery" : "WITH current_batch\n     AS (SELECT bls.batch_id,\n                bls.source_start_cutoff_datetime,\n                bls.source_end_cutoff_datetime\n         FROM   $$operational_schema.batch_load_summary bls\n         WHERE  bls.source_system_code = '$$sourcesystemcode'\n                AND bls.batch_status = 'Inprogress'\n                AND bls.batch_id = (SELECT Max(batch_id)\n                                    FROM   $$operational_schema.batch_load_summary\n                                    WHERE  source_system_code = '$$sourcesystemcode'\n                                           AND batch_status = 'Inprogress'))\nSELECT DISTINCT metal_comm_preview.source_name,\n                metal_comm_preview.load_type,\n                metal_comm_preview.agency_nup,\n                metal_comm_preview.created,\n                metal_comm_preview.id,\n                metal_comm_preview.modified,\n                metal_comm_preview.state_company,\n                metal_comm_preview.state_company_eff_date,\n                metal_comm_preview.transfer_status,\n                current_batch.batch_id\nFROM   $$raw_schema.adm_commission_preview metal_comm_preview\n       CROSS JOIN current_batch\nORDER  BY metal_comm_preview.agency_nup,\n          metal_comm_preview.id,\n          metal_comm_preview.created,\n          metal_comm_preview.modified",
+            "retainMetadata" : "true",
             "fields" : [
               {
                 "name" : "source_name",
@@ -370,10 +371,10 @@
                 ]
               },
               {
-                "name" : "transferstatus",
+                "name" : "transfer_status",
                 "fieldType" : "CONNECTOR",
-                "label" : "transferstatus",
-                "nativeName" : "transferstatus",
+                "label" : "transfer_status",
+                "nativeName" : "transfer_status",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 7,
@@ -421,12 +422,8 @@
                 "value" : "10000"
               },
               {
-                "name" : "S3 Bucket Name",
-                "value" : "$$S3_Staging_Bucket"
-              },
-              {
                 "name" : "Enable Compression",
-                "value" : "YES"
+                "value" : "NO"
               },
               {
                 "name" : "Temporary Credential Duration",
@@ -498,7 +495,7 @@
             "precision" : 10,
             "scale" : 0,
             "expFieldType" : "OUTPUT",
-            "expression" : "IIF(isnull(commission_preview_row_id),'I','X')"
+            "expression" : "IIF(isnull(tgt_adm_commission_preview_row_id),'I','X')"
           },
           {
             "defaultValue" : "ERROR('transformation error')",
@@ -531,7 +528,7 @@
             "precision" : 10,
             "scale" : 0,
             "expFieldType" : "OUTPUT",
-            "expression" : "iif(NOT ISNULL(commission_preview_row_id) AND o_src_MD5_hash_value <> commission_preview_row_md5checksum,'U','X')"
+            "expression" : "iif(NOT ISNULL(tgt_adm_commission_preview_row_id) AND src_o_src_MD5_hash_value <> tgt_adm_commission_preview_row_md5checksum,'U','X')"
           }
         ],
         "windowSpec" : {
@@ -582,7 +579,7 @@
             "expression" : "TO_DATE(to_char(modified), 'YYYY-MM-DD HH24:MI:SS')"
           },
           {
-            "name" : "o_agency_id",
+            "name" : "o_agency_nup",
             "platformType" : {
               "name" : "integer"
             },
@@ -693,6 +690,19 @@
           }
         ],
         "windowConfigurationEnabled" : "false",
+        "fields" : [
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_status",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "'Active'"
+          }
+        ],
         "windowSpec" : {
           "allRowsFollowing" : "false",
           "allRowsPreceding" : "false",
@@ -730,6 +740,17 @@
             "scale" : 9,
             "expFieldType" : "OUTPUT",
             "expression" : "SYSDATE"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_status",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "'Active'"
           }
         ],
         "windowSpec" : {
@@ -766,15 +787,16 @@
         "fieldMappingMode" : "MANUAL",
         "inputSorted" : "false",
         "schemaProviderType" : "SELECTED_OBJECT",
+        "targetFieldsOrdered" : "false",
         "updateColumns" : null,
         "useLabels" : "false",
         "useSequenceFields" : "false",
         "fields" : [
           {
             "adapterField" : {
-              "name" : "commission_preview_row_id"
+              "name" : "adm_commission_preview_row_id"
             },
-            "name" : "commission_preview_row_id",
+            "name" : "adm_commission_preview_row_id",
             "platformType" : {
               "name" : "bigint"
             },
@@ -783,9 +805,9 @@
           },
           {
             "adapterField" : {
-              "name" : "commission_preview_batch_id"
+              "name" : "adm_commission_preview_batch_id"
             },
-            "name" : "commission_preview_batch_id",
+            "name" : "adm_commission_preview_batch_id",
             "platformType" : {
               "name" : "bigint"
             },
@@ -794,9 +816,9 @@
           },
           {
             "adapterField" : {
-              "name" : "source_name"
+              "name" : "originating_source_name"
             },
-            "name" : "source_name",
+            "name" : "originating_source_name",
             "platformType" : {
               "name" : "string"
             },
@@ -805,9 +827,9 @@
           },
           {
             "adapterField" : {
-              "name" : "load_type"
+              "name" : "originating_load_type"
             },
-            "name" : "load_type",
+            "name" : "originating_load_type",
             "platformType" : {
               "name" : "string"
             },
@@ -816,9 +838,9 @@
           },
           {
             "adapterField" : {
-              "name" : "commission_preview_row_md5checksum"
+              "name" : "adm_commission_preview_row_md5checksum"
             },
-            "name" : "commission_preview_row_md5checksum",
+            "name" : "adm_commission_preview_row_md5checksum",
             "platformType" : {
               "name" : "string"
             },
@@ -827,9 +849,9 @@
           },
           {
             "adapterField" : {
-              "name" : "commission_preview_datetime_created"
+              "name" : "adm_commission_preview_row_effective_start_datetime"
             },
-            "name" : "commission_preview_datetime_created",
+            "name" : "adm_commission_preview_row_effective_start_datetime",
             "platformType" : {
               "name" : "date/time"
             },
@@ -838,9 +860,9 @@
           },
           {
             "adapterField" : {
-              "name" : "commission_preview_datetime_modified"
+              "name" : "adm_commission_preview_row_effective_end_datetime"
             },
-            "name" : "commission_preview_datetime_modified",
+            "name" : "adm_commission_preview_row_effective_end_datetime",
             "platformType" : {
               "name" : "date/time"
             },
@@ -849,31 +871,20 @@
           },
           {
             "adapterField" : {
-              "name" : "commission_preview_row_effective_start_datetime"
+              "name" : "adm_commission_preview_row_status"
             },
-            "name" : "commission_preview_row_effective_start_datetime",
+            "name" : "adm_commission_preview_row_status",
             "platformType" : {
-              "name" : "date/time"
+              "name" : "string"
             },
-            "precision" : 29,
-            "scale" : 9
+            "precision" : 63,
+            "scale" : 0
           },
           {
             "adapterField" : {
-              "name" : "commission_preview_row_effective_end_datetime"
+              "name" : "id"
             },
-            "name" : "commission_preview_row_effective_end_datetime",
-            "platformType" : {
-              "name" : "date/time"
-            },
-            "precision" : 29,
-            "scale" : 9
-          },
-          {
-            "adapterField" : {
-              "name" : "agency_id"
-            },
-            "name" : "agency_id",
+            "name" : "id",
             "platformType" : {
               "name" : "integer"
             },
@@ -882,9 +893,9 @@
           },
           {
             "adapterField" : {
-              "name" : "commission_preview_id"
+              "name" : "agency_nup"
             },
-            "name" : "commission_preview_id",
+            "name" : "agency_nup",
             "platformType" : {
               "name" : "integer"
             },
@@ -904,9 +915,9 @@
           },
           {
             "adapterField" : {
-              "name" : "state_company_effective_date"
+              "name" : "state_company_eff_date"
             },
-            "name" : "state_company_effective_date",
+            "name" : "state_company_eff_date",
             "platformType" : {
               "name" : "date/time"
             },
@@ -923,6 +934,28 @@
             },
             "precision" : 7,
             "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "created"
+            },
+            "name" : "created",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "modified"
+            },
+            "name" : "modified",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
           }
         ],
         "dataAdapter" : {
@@ -942,10 +975,10 @@
             "retainMetadata" : "false",
             "fields" : [
               {
-                "name" : "commission_preview_row_id",
+                "name" : "adm_commission_preview_row_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "commission_preview_row_id",
-                "nativeName" : "commission_preview_row_id",
+                "label" : "adm_commission_preview_row_id",
+                "nativeName" : "adm_commission_preview_row_id",
                 "nativeType" : "int8",
                 "original" : "false",
                 "precision" : 19,
@@ -958,10 +991,10 @@
                 ]
               },
               {
-                "name" : "commission_preview_batch_id",
+                "name" : "adm_commission_preview_batch_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "commission_preview_batch_id",
-                "nativeName" : "commission_preview_batch_id",
+                "label" : "adm_commission_preview_batch_id",
+                "nativeName" : "adm_commission_preview_batch_id",
                 "nativeType" : "int8",
                 "original" : "false",
                 "precision" : 19,
@@ -974,10 +1007,10 @@
                 ]
               },
               {
-                "name" : "source_name",
+                "name" : "originating_source_name",
                 "fieldType" : "CONNECTOR",
-                "label" : "source_name",
-                "nativeName" : "source_name",
+                "label" : "originating_source_name",
+                "nativeName" : "originating_source_name",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 127,
@@ -990,10 +1023,10 @@
                 ]
               },
               {
-                "name" : "load_type",
+                "name" : "originating_load_type",
                 "fieldType" : "CONNECTOR",
-                "label" : "load_type",
-                "nativeName" : "load_type",
+                "label" : "originating_load_type",
+                "nativeName" : "originating_load_type",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 63,
@@ -1006,10 +1039,10 @@
                 ]
               },
               {
-                "name" : "commission_preview_row_md5checksum",
+                "name" : "adm_commission_preview_row_md5checksum",
                 "fieldType" : "CONNECTOR",
-                "label" : "commission_preview_row_md5checksum",
-                "nativeName" : "commission_preview_row_md5checksum",
+                "label" : "adm_commission_preview_row_md5checksum",
+                "nativeName" : "adm_commission_preview_row_md5checksum",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 255,
@@ -1022,10 +1055,10 @@
                 ]
               },
               {
-                "name" : "commission_preview_datetime_created",
+                "name" : "adm_commission_preview_row_effective_start_datetime",
                 "fieldType" : "CONNECTOR",
-                "label" : "commission_preview_datetime_created",
-                "nativeName" : "commission_preview_datetime_created",
+                "label" : "adm_commission_preview_row_effective_start_datetime",
+                "nativeName" : "adm_commission_preview_row_effective_start_datetime",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 29,
@@ -1038,10 +1071,10 @@
                 ]
               },
               {
-                "name" : "commission_preview_datetime_modified",
+                "name" : "adm_commission_preview_row_effective_end_datetime",
                 "fieldType" : "CONNECTOR",
-                "label" : "commission_preview_datetime_modified",
-                "nativeName" : "commission_preview_datetime_modified",
+                "label" : "adm_commission_preview_row_effective_end_datetime",
+                "nativeName" : "adm_commission_preview_row_effective_end_datetime",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 29,
@@ -1054,14 +1087,14 @@
                 ]
               },
               {
-                "name" : "commission_preview_row_effective_start_datetime",
+                "name" : "adm_commission_preview_row_status",
                 "fieldType" : "CONNECTOR",
-                "label" : "commission_preview_row_effective_start_datetime",
-                "nativeName" : "commission_preview_row_effective_start_datetime",
-                "nativeType" : "timestamp",
+                "label" : "adm_commission_preview_row_status",
+                "nativeName" : "adm_commission_preview_row_status",
+                "nativeType" : "varchar",
                 "original" : "false",
-                "precision" : 29,
-                "scale" : 6,
+                "precision" : 63,
+                "scale" : 0,
                 "properties" : [
                   {
                     "name" : "parentObject",
@@ -1070,26 +1103,10 @@
                 ]
               },
               {
-                "name" : "commission_preview_row_effective_end_datetime",
+                "name" : "id",
                 "fieldType" : "CONNECTOR",
-                "label" : "commission_preview_row_effective_end_datetime",
-                "nativeName" : "commission_preview_row_effective_end_datetime",
-                "nativeType" : "timestamp",
-                "original" : "false",
-                "precision" : 29,
-                "scale" : 6,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_commission_preview"
-                  }
-                ]
-              },
-              {
-                "name" : "agency_id",
-                "fieldType" : "CONNECTOR",
-                "label" : "agency_id",
-                "nativeName" : "agency_id",
+                "label" : "id",
+                "nativeName" : "id",
                 "nativeType" : "int4",
                 "original" : "false",
                 "precision" : 10,
@@ -1102,10 +1119,10 @@
                 ]
               },
               {
-                "name" : "commission_preview_id",
+                "name" : "agency_nup",
                 "fieldType" : "CONNECTOR",
-                "label" : "commission_preview_id",
-                "nativeName" : "commission_preview_id",
+                "label" : "agency_nup",
+                "nativeName" : "agency_nup",
                 "nativeType" : "int4",
                 "original" : "false",
                 "precision" : 10,
@@ -1134,10 +1151,10 @@
                 ]
               },
               {
-                "name" : "state_company_effective_date",
+                "name" : "state_company_eff_date",
                 "fieldType" : "CONNECTOR",
-                "label" : "state_company_effective_date",
-                "nativeName" : "state_company_effective_date",
+                "label" : "state_company_eff_date",
+                "nativeName" : "state_company_eff_date",
                 "nativeType" : "date",
                 "original" : "false",
                 "precision" : 13,
@@ -1158,6 +1175,38 @@
                 "original" : "false",
                 "precision" : 7,
                 "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_commission_preview"
+                  }
+                ]
+              },
+              {
+                "name" : "created",
+                "fieldType" : "CONNECTOR",
+                "label" : "created",
+                "nativeName" : "created",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_commission_preview"
+                  }
+                ]
+              },
+              {
+                "name" : "modified",
+                "fieldType" : "CONNECTOR",
+                "label" : "modified",
+                "nativeName" : "modified",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
                 "properties" : [
                   {
                     "name" : "parentObject",
@@ -1232,6 +1281,10 @@
                 "value" : "5242880"
               },
               {
+                "name" : "Schema Name",
+                "value" : "$$staging_schema"
+              },
+              {
                 "name" : "Preserve record order on write",
                 "value" : "NO"
               },
@@ -1259,93 +1312,100 @@
         "manualMappings" : {
           "mappingList" : [
             {
-              "fromFieldName" : "o_t_agency_row_effective_end_datetime",
-              "toField" : {
-                "name" : "commission_preview_row_effective_end_datetime"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "o_t_agency_row_effective_start_datetime",
-              "toField" : {
-                "name" : "commission_preview_row_effective_start_datetime"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "o_commisson_date_created",
-              "toField" : {
-                "name" : "commission_preview_datetime_created"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "o_commisson_date_modified",
-              "toField" : {
-                "name" : "commission_preview_datetime_modified"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "source_name",
-              "toField" : {
-                "name" : "source_name"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "load_type",
-              "toField" : {
-                "name" : "load_type"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "state_company",
+              "fromFieldName" : "src_state_company",
               "toField" : {
                 "name" : "state_company"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "transferstatus",
+              "fromFieldName" : "src_transfer_status",
               "toField" : {
                 "name" : "transfer_status"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "o_commisson_preview_id",
+              "fromFieldName" : "src_batch_id",
               "toField" : {
-                "name" : "commission_preview_id"
+                "name" : "adm_commission_preview_batch_id"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "o_state_company_eff_date",
+              "fromFieldName" : "src_source_name",
               "toField" : {
-                "name" : "state_company_effective_date"
+                "name" : "originating_source_name"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "o_agency_id",
+              "fromFieldName" : "src_load_type",
               "toField" : {
-                "name" : "agency_id"
+                "name" : "originating_load_type"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "o_src_MD5_hash_value",
+              "fromFieldName" : "src_o_src_MD5_hash_value",
               "toField" : {
-                "name" : "commission_preview_row_md5checksum"
+                "name" : "adm_commission_preview_row_md5checksum"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "batch_id",
+              "fromFieldName" : "o_t_agency_row_effective_end_datetime",
               "toField" : {
-                "name" : "commission_preview_batch_id"
+                "name" : "adm_commission_preview_row_effective_end_datetime"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_t_agency_row_effective_start_datetime",
+              "toField" : {
+                "name" : "adm_commission_preview_row_effective_start_datetime"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "src_id",
+              "toField" : {
+                "name" : "id"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_status",
+              "toField" : {
+                "name" : "adm_commission_preview_row_status"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "src_o_state_company_eff_date",
+              "toField" : {
+                "name" : "state_company_eff_date"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "src_o_commisson_date_created",
+              "toField" : {
+                "name" : "created"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "src_o_commisson_date_modified",
+              "toField" : {
+                "name" : "modified"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "src_o_agency_nup",
+              "toField" : {
+                "name" : "agency_nup"
               },
               "fromFieldNames" : null
             }
@@ -1378,15 +1438,16 @@
         "fieldMappingMode" : "MANUAL",
         "inputSorted" : "false",
         "schemaProviderType" : "SELECTED_OBJECT",
+        "targetFieldsOrdered" : "false",
         "updateColumns" : null,
         "useLabels" : "false",
         "useSequenceFields" : "false",
         "fields" : [
           {
             "adapterField" : {
-              "name" : "commission_preview_row_id"
+              "name" : "adm_commission_preview_row_id"
             },
-            "name" : "commission_preview_row_id",
+            "name" : "adm_commission_preview_row_id",
             "platformType" : {
               "name" : "bigint"
             },
@@ -1395,9 +1456,9 @@
           },
           {
             "adapterField" : {
-              "name" : "commission_preview_batch_id"
+              "name" : "adm_commission_preview_batch_id"
             },
-            "name" : "commission_preview_batch_id",
+            "name" : "adm_commission_preview_batch_id",
             "platformType" : {
               "name" : "bigint"
             },
@@ -1406,9 +1467,9 @@
           },
           {
             "adapterField" : {
-              "name" : "source_name"
+              "name" : "originating_source_name"
             },
-            "name" : "source_name",
+            "name" : "originating_source_name",
             "platformType" : {
               "name" : "string"
             },
@@ -1417,9 +1478,9 @@
           },
           {
             "adapterField" : {
-              "name" : "load_type"
+              "name" : "originating_load_type"
             },
-            "name" : "load_type",
+            "name" : "originating_load_type",
             "platformType" : {
               "name" : "string"
             },
@@ -1428,9 +1489,9 @@
           },
           {
             "adapterField" : {
-              "name" : "commission_preview_row_md5checksum"
+              "name" : "adm_commission_preview_row_md5checksum"
             },
-            "name" : "commission_preview_row_md5checksum",
+            "name" : "adm_commission_preview_row_md5checksum",
             "platformType" : {
               "name" : "string"
             },
@@ -1439,9 +1500,9 @@
           },
           {
             "adapterField" : {
-              "name" : "commission_preview_datetime_created"
+              "name" : "adm_commission_preview_row_effective_start_datetime"
             },
-            "name" : "commission_preview_datetime_created",
+            "name" : "adm_commission_preview_row_effective_start_datetime",
             "platformType" : {
               "name" : "date/time"
             },
@@ -1450,9 +1511,9 @@
           },
           {
             "adapterField" : {
-              "name" : "commission_preview_datetime_modified"
+              "name" : "adm_commission_preview_row_effective_end_datetime"
             },
-            "name" : "commission_preview_datetime_modified",
+            "name" : "adm_commission_preview_row_effective_end_datetime",
             "platformType" : {
               "name" : "date/time"
             },
@@ -1461,31 +1522,20 @@
           },
           {
             "adapterField" : {
-              "name" : "commission_preview_row_effective_start_datetime"
+              "name" : "adm_commission_preview_row_status"
             },
-            "name" : "commission_preview_row_effective_start_datetime",
+            "name" : "adm_commission_preview_row_status",
             "platformType" : {
-              "name" : "date/time"
+              "name" : "string"
             },
-            "precision" : 29,
-            "scale" : 9
+            "precision" : 63,
+            "scale" : 0
           },
           {
             "adapterField" : {
-              "name" : "commission_preview_row_effective_end_datetime"
+              "name" : "id"
             },
-            "name" : "commission_preview_row_effective_end_datetime",
-            "platformType" : {
-              "name" : "date/time"
-            },
-            "precision" : 29,
-            "scale" : 9
-          },
-          {
-            "adapterField" : {
-              "name" : "agency_id"
-            },
-            "name" : "agency_id",
+            "name" : "id",
             "platformType" : {
               "name" : "integer"
             },
@@ -1494,9 +1544,9 @@
           },
           {
             "adapterField" : {
-              "name" : "commission_preview_id"
+              "name" : "agency_nup"
             },
-            "name" : "commission_preview_id",
+            "name" : "agency_nup",
             "platformType" : {
               "name" : "integer"
             },
@@ -1516,9 +1566,9 @@
           },
           {
             "adapterField" : {
-              "name" : "state_company_effective_date"
+              "name" : "state_company_eff_date"
             },
-            "name" : "state_company_effective_date",
+            "name" : "state_company_eff_date",
             "platformType" : {
               "name" : "date/time"
             },
@@ -1535,6 +1585,28 @@
             },
             "precision" : 7,
             "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "created"
+            },
+            "name" : "created",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "modified"
+            },
+            "name" : "modified",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
           }
         ],
         "dataAdapter" : {
@@ -1565,10 +1637,10 @@
             "retainMetadata" : "false",
             "fields" : [
               {
-                "name" : "commission_preview_row_id",
+                "name" : "adm_commission_preview_row_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "commission_preview_row_id",
-                "nativeName" : "commission_preview_row_id",
+                "label" : "adm_commission_preview_row_id",
+                "nativeName" : "adm_commission_preview_row_id",
                 "nativeType" : "int8",
                 "original" : "false",
                 "precision" : 19,
@@ -1581,10 +1653,10 @@
                 ]
               },
               {
-                "name" : "commission_preview_batch_id",
+                "name" : "adm_commission_preview_batch_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "commission_preview_batch_id",
-                "nativeName" : "commission_preview_batch_id",
+                "label" : "adm_commission_preview_batch_id",
+                "nativeName" : "adm_commission_preview_batch_id",
                 "nativeType" : "int8",
                 "original" : "false",
                 "precision" : 19,
@@ -1597,10 +1669,10 @@
                 ]
               },
               {
-                "name" : "source_name",
+                "name" : "originating_source_name",
                 "fieldType" : "CONNECTOR",
-                "label" : "source_name",
-                "nativeName" : "source_name",
+                "label" : "originating_source_name",
+                "nativeName" : "originating_source_name",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 127,
@@ -1613,10 +1685,10 @@
                 ]
               },
               {
-                "name" : "load_type",
+                "name" : "originating_load_type",
                 "fieldType" : "CONNECTOR",
-                "label" : "load_type",
-                "nativeName" : "load_type",
+                "label" : "originating_load_type",
+                "nativeName" : "originating_load_type",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 63,
@@ -1629,10 +1701,10 @@
                 ]
               },
               {
-                "name" : "commission_preview_row_md5checksum",
+                "name" : "adm_commission_preview_row_md5checksum",
                 "fieldType" : "CONNECTOR",
-                "label" : "commission_preview_row_md5checksum",
-                "nativeName" : "commission_preview_row_md5checksum",
+                "label" : "adm_commission_preview_row_md5checksum",
+                "nativeName" : "adm_commission_preview_row_md5checksum",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 255,
@@ -1645,10 +1717,10 @@
                 ]
               },
               {
-                "name" : "commission_preview_datetime_created",
+                "name" : "adm_commission_preview_row_effective_start_datetime",
                 "fieldType" : "CONNECTOR",
-                "label" : "commission_preview_datetime_created",
-                "nativeName" : "commission_preview_datetime_created",
+                "label" : "adm_commission_preview_row_effective_start_datetime",
+                "nativeName" : "adm_commission_preview_row_effective_start_datetime",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 29,
@@ -1661,10 +1733,10 @@
                 ]
               },
               {
-                "name" : "commission_preview_datetime_modified",
+                "name" : "adm_commission_preview_row_effective_end_datetime",
                 "fieldType" : "CONNECTOR",
-                "label" : "commission_preview_datetime_modified",
-                "nativeName" : "commission_preview_datetime_modified",
+                "label" : "adm_commission_preview_row_effective_end_datetime",
+                "nativeName" : "adm_commission_preview_row_effective_end_datetime",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 29,
@@ -1677,14 +1749,14 @@
                 ]
               },
               {
-                "name" : "commission_preview_row_effective_start_datetime",
+                "name" : "adm_commission_preview_row_status",
                 "fieldType" : "CONNECTOR",
-                "label" : "commission_preview_row_effective_start_datetime",
-                "nativeName" : "commission_preview_row_effective_start_datetime",
-                "nativeType" : "timestamp",
+                "label" : "adm_commission_preview_row_status",
+                "nativeName" : "adm_commission_preview_row_status",
+                "nativeType" : "varchar",
                 "original" : "false",
-                "precision" : 29,
-                "scale" : 6,
+                "precision" : 63,
+                "scale" : 0,
                 "properties" : [
                   {
                     "name" : "parentObject",
@@ -1693,26 +1765,10 @@
                 ]
               },
               {
-                "name" : "commission_preview_row_effective_end_datetime",
+                "name" : "id",
                 "fieldType" : "CONNECTOR",
-                "label" : "commission_preview_row_effective_end_datetime",
-                "nativeName" : "commission_preview_row_effective_end_datetime",
-                "nativeType" : "timestamp",
-                "original" : "false",
-                "precision" : 29,
-                "scale" : 6,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_commission_preview"
-                  }
-                ]
-              },
-              {
-                "name" : "agency_id",
-                "fieldType" : "CONNECTOR",
-                "label" : "agency_id",
-                "nativeName" : "agency_id",
+                "label" : "id",
+                "nativeName" : "id",
                 "nativeType" : "int4",
                 "original" : "false",
                 "precision" : 10,
@@ -1725,10 +1781,10 @@
                 ]
               },
               {
-                "name" : "commission_preview_id",
+                "name" : "agency_nup",
                 "fieldType" : "CONNECTOR",
-                "label" : "commission_preview_id",
-                "nativeName" : "commission_preview_id",
+                "label" : "agency_nup",
+                "nativeName" : "agency_nup",
                 "nativeType" : "int4",
                 "original" : "false",
                 "precision" : 10,
@@ -1757,10 +1813,10 @@
                 ]
               },
               {
-                "name" : "state_company_effective_date",
+                "name" : "state_company_eff_date",
                 "fieldType" : "CONNECTOR",
-                "label" : "state_company_effective_date",
-                "nativeName" : "state_company_effective_date",
+                "label" : "state_company_eff_date",
+                "nativeName" : "state_company_eff_date",
                 "nativeType" : "date",
                 "original" : "false",
                 "precision" : 13,
@@ -1781,6 +1837,38 @@
                 "original" : "false",
                 "precision" : 7,
                 "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_commission_preview"
+                  }
+                ]
+              },
+              {
+                "name" : "created",
+                "fieldType" : "CONNECTOR",
+                "label" : "created",
+                "nativeName" : "created",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_commission_preview"
+                  }
+                ]
+              },
+              {
+                "name" : "modified",
+                "fieldType" : "CONNECTOR",
+                "label" : "modified",
+                "nativeName" : "modified",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
                 "properties" : [
                   {
                     "name" : "parentObject",
@@ -1855,6 +1943,10 @@
                 "value" : "5242880"
               },
               {
+                "name" : "Schema Name",
+                "value" : "$$staging_schema"
+              },
+              {
                 "name" : "Preserve record order on write",
                 "value" : "NO"
               },
@@ -1882,93 +1974,100 @@
         "manualMappings" : {
           "mappingList" : [
             {
-              "fromFieldName" : "o_t_agency_row_effective_end_datetime",
-              "toField" : {
-                "name" : "commission_preview_row_effective_end_datetime"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "o_t_agency_row_effective_start_datetime",
-              "toField" : {
-                "name" : "commission_preview_row_effective_start_datetime"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "o_src_MD5_hash_value",
-              "toField" : {
-                "name" : "commission_preview_row_md5checksum"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "o_commisson_date_created",
-              "toField" : {
-                "name" : "commission_preview_datetime_created"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "o_commisson_date_modified",
-              "toField" : {
-                "name" : "commission_preview_datetime_modified"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "o_agency_id",
-              "toField" : {
-                "name" : "agency_id"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "o_commisson_preview_id",
-              "toField" : {
-                "name" : "commission_preview_id"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "o_state_company_eff_date",
-              "toField" : {
-                "name" : "state_company_effective_date"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "source_name",
-              "toField" : {
-                "name" : "source_name"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "load_type",
-              "toField" : {
-                "name" : "load_type"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "state_company",
+              "fromFieldName" : "src_state_company",
               "toField" : {
                 "name" : "state_company"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "transferstatus",
+              "fromFieldName" : "src_transfer_status",
               "toField" : {
                 "name" : "transfer_status"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "batch_id",
+              "fromFieldName" : "src_source_name",
               "toField" : {
-                "name" : "commission_preview_batch_id"
+                "name" : "originating_source_name"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "src_load_type",
+              "toField" : {
+                "name" : "originating_load_type"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "src_o_src_MD5_hash_value",
+              "toField" : {
+                "name" : "adm_commission_preview_row_md5checksum"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_t_agency_row_effective_start_datetime",
+              "toField" : {
+                "name" : "adm_commission_preview_row_effective_start_datetime"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_t_agency_row_effective_end_datetime",
+              "toField" : {
+                "name" : "adm_commission_preview_row_effective_end_datetime"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_status",
+              "toField" : {
+                "name" : "adm_commission_preview_row_status"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "src_id",
+              "toField" : {
+                "name" : "id"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "src_o_state_company_eff_date",
+              "toField" : {
+                "name" : "state_company_eff_date"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "src_o_commisson_date_created",
+              "toField" : {
+                "name" : "created"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "src_o_commisson_date_modified",
+              "toField" : {
+                "name" : "modified"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "src_batch_id",
+              "toField" : {
+                "name" : "adm_commission_preview_batch_id"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "src_o_agency_nup",
+              "toField" : {
+                "name" : "agency_nup"
               },
               "fromFieldNames" : null
             }
@@ -2002,9 +2101,9 @@
         "fields" : [
           {
             "adapterField" : {
-              "name" : "commission_preview_row_id"
+              "name" : "adm_commission_preview_row_id"
             },
-            "name" : "commission_preview_row_id",
+            "name" : "adm_commission_preview_row_id",
             "platformType" : {
               "name" : "bigint"
             },
@@ -2013,9 +2112,9 @@
           },
           {
             "adapterField" : {
-              "name" : "commission_preview_batch_id"
+              "name" : "adm_commission_preview_batch_id"
             },
-            "name" : "commission_preview_batch_id",
+            "name" : "adm_commission_preview_batch_id",
             "platformType" : {
               "name" : "bigint"
             },
@@ -2024,9 +2123,9 @@
           },
           {
             "adapterField" : {
-              "name" : "commission_preview_row_md5checksum"
+              "name" : "adm_commission_preview_row_md5checksum"
             },
-            "name" : "commission_preview_row_md5checksum",
+            "name" : "adm_commission_preview_row_md5checksum",
             "platformType" : {
               "name" : "string"
             },
@@ -2035,9 +2134,9 @@
           },
           {
             "adapterField" : {
-              "name" : "commission_preview_row_effective_end_datetime"
+              "name" : "adm_commission_preview_row_effective_end_datetime"
             },
-            "name" : "commission_preview_row_effective_end_datetime",
+            "name" : "adm_commission_preview_row_effective_end_datetime",
             "platformType" : {
               "name" : "date/time"
             },
@@ -2046,9 +2145,9 @@
           },
           {
             "adapterField" : {
-              "name" : "agency_id"
+              "name" : "agency_nup"
             },
-            "name" : "agency_id",
+            "name" : "agency_nup",
             "platformType" : {
               "name" : "integer"
             },
@@ -2057,9 +2156,9 @@
           },
           {
             "adapterField" : {
-              "name" : "commission_preview_id"
+              "name" : "id"
             },
-            "name" : "commission_preview_id",
+            "name" : "id",
             "platformType" : {
               "name" : "integer"
             },
@@ -2069,21 +2168,21 @@
         ],
         "dataAdapter" : {
           "connectionId$" : {
-            "name" : "DBConnection_UDM_SRC"
+            "name" : "DBConnection_UDM_TGT"
           },
           "excludeDynamicFileNameField" : "false",
           "objectType" : "QUERY",
           "typeSystem" : "TOOLKIT",
           "useDynamicFileName" : "false",
           "object" : {
-            "customQuery" : "SELECT commission_preview_row_id,\n       commission_preview_batch_id,\n       commission_preview_row_md5checksum,\n       commission_preview_row_effective_end_datetime,\n       agency_id,\n       commission_preview_id\nFROM   bronze.adm_commission_preview\nWHERE  commission_preview_row_effective_end_datetime = '9999-12-31 00:00:00.000'",
+            "customQuery" : "SELECT adm_commission_preview_row_id,\n       adm_commission_preview_batch_id,\n       adm_commission_preview_row_md5checksum,\n       adm_commission_preview_row_effective_end_datetime,\nagency_nup,\n       id\nFROM   $$staging_schema.adm_commission_preview\nWHERE  adm_commission_preview_row_effective_end_datetime = '9999-12-31 00:00:00.000';",
             "retainMetadata" : "false",
             "fields" : [
               {
-                "name" : "commission_preview_row_id",
+                "name" : "adm_commission_preview_row_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "commission_preview_row_id",
-                "nativeName" : "commission_preview_row_id",
+                "label" : "adm_commission_preview_row_id",
+                "nativeName" : "adm_commission_preview_row_id",
                 "nativeType" : "int8",
                 "original" : "false",
                 "precision" : 19,
@@ -2096,10 +2195,10 @@
                 ]
               },
               {
-                "name" : "commission_preview_batch_id",
+                "name" : "adm_commission_preview_batch_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "commission_preview_batch_id",
-                "nativeName" : "commission_preview_batch_id",
+                "label" : "adm_commission_preview_batch_id",
+                "nativeName" : "adm_commission_preview_batch_id",
                 "nativeType" : "int8",
                 "original" : "false",
                 "precision" : 19,
@@ -2112,10 +2211,10 @@
                 ]
               },
               {
-                "name" : "commission_preview_row_md5checksum",
+                "name" : "adm_commission_preview_row_md5checksum",
                 "fieldType" : "CONNECTOR",
-                "label" : "commission_preview_row_md5checksum",
-                "nativeName" : "commission_preview_row_md5checksum",
+                "label" : "adm_commission_preview_row_md5checksum",
+                "nativeName" : "adm_commission_preview_row_md5checksum",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 255,
@@ -2128,10 +2227,10 @@
                 ]
               },
               {
-                "name" : "commission_preview_row_effective_end_datetime",
+                "name" : "adm_commission_preview_row_effective_end_datetime",
                 "fieldType" : "CONNECTOR",
-                "label" : "commission_preview_row_effective_end_datetime",
-                "nativeName" : "commission_preview_row_effective_end_datetime",
+                "label" : "adm_commission_preview_row_effective_end_datetime",
+                "nativeName" : "adm_commission_preview_row_effective_end_datetime",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 29,
@@ -2144,10 +2243,10 @@
                 ]
               },
               {
-                "name" : "agency_id",
+                "name" : "agency_nup",
                 "fieldType" : "CONNECTOR",
-                "label" : "agency_id",
-                "nativeName" : "agency_id",
+                "label" : "agency_nup",
+                "nativeName" : "agency_nup",
                 "nativeType" : "int4",
                 "original" : "false",
                 "precision" : 10,
@@ -2160,10 +2259,10 @@
                 ]
               },
               {
-                "name" : "commission_preview_id",
+                "name" : "id",
                 "fieldType" : "CONNECTOR",
-                "label" : "commission_preview_id",
-                "nativeName" : "commission_preview_id",
+                "label" : "id",
+                "nativeName" : "id",
                 "nativeType" : "int4",
                 "original" : "false",
                 "precision" : 10,
@@ -2188,19 +2287,15 @@
             "attributes" : [
               {
                 "name" : "Read Mode",
-                "value" : "Staging"
+                "value" : "Direct"
               },
               {
                 "name" : "Fetch Size",
                 "value" : "10000"
               },
               {
-                "name" : "S3 Bucket Name",
-                "value" : "$$S3_Staging_Bucket"
-              },
-              {
                 "name" : "Enable Compression",
-                "value" : "YES"
+                "value" : "NO"
               },
               {
                 "name" : "Temporary Credential Duration",
@@ -2265,6 +2360,20 @@
             "input" : "true",
             "name" : "Master",
             "output" : "false",
+            "conflictResolutions" : [
+              {
+                "precedingGroupName" : "DefaultGroup",
+                "precedingTxName" : "exp_MD5_calculation",
+                "rule" : {
+                  "bulkRename" : "true",
+                  "include" : "true",
+                  "bulkRenameOption" : {
+                    "literal" : "src_",
+                    "suffix" : "false"
+                  }
+                }
+              }
+            ],
             "rules" : [
               {
                 "bulkRename" : "false",
@@ -2276,6 +2385,20 @@
             "input" : "true",
             "name" : "Detail",
             "output" : "false",
+            "conflictResolutions" : [
+              {
+                "precedingGroupName" : "DefaultGroup",
+                "precedingTxName" : "exp_pass_through",
+                "rule" : {
+                  "bulkRename" : "true",
+                  "include" : "true",
+                  "bulkRenameOption" : {
+                    "literal" : "tgt_",
+                    "suffix" : "false"
+                  }
+                }
+              }
+            ],
             "rules" : [
               {
                 "bulkRename" : "false",
@@ -2292,14 +2415,14 @@
         "joinType" : "Detail Outer Join",
         "joinConditions" : [
           {
-            "leftOperand" : "o_agency_id",
+            "leftOperand" : "src_o_commisson_preview_id",
             "operator" : "=",
-            "rightOperand" : "agency_id"
+            "rightOperand" : "tgt_id"
           },
           {
-            "leftOperand" : "o_commisson_preview_id",
+            "leftOperand" : "src_o_agency_nup",
             "operator" : "=",
-            "rightOperand" : "commission_preview_id"
+            "rightOperand" : "tgt_agency_nup"
           }
         ]
       },
@@ -2330,7 +2453,7 @@
             "precision" : 1000,
             "scale" : 0,
             "expFieldType" : "OUTPUT",
-            "expression" : "MD5(\n    'source_name' || source_name ||\n    'load_type' || load_type ||\n    'agency_nup' || to_char(o_agency_id) ||\n    'created' || to_char(o_commisson_date_created) ||\n    'id' || to_char(o_commisson_preview_id) ||\n    'modified' || to_char(o_commisson_date_modified) ||\n    'state_company' || state_company ||'state_company_eff_date'||to_char(o_state_company_eff_date) ||\n    'transferstatus' || transferstatus )"
+            "expression" : "MD5(\n    'source_name' || source_name ||\n    'load_type' || load_type ||\n    'agency_nup' || to_char(o_agency_nup) ||\n    'created' || to_char(o_commisson_date_created) ||\n    'id' || to_char(o_commisson_preview_id) ||\n    'modified' || to_char(o_commisson_date_modified) ||\n    'state_company' || state_company ||'state_company_eff_date'||to_char(o_state_company_eff_date) ||\n    'transfer_status' || transfer_status )"
           }
         ],
         "windowSpec" : {
@@ -2367,17 +2490,18 @@
         "fieldMappingMode" : "MANUAL",
         "inputSorted" : "false",
         "schemaProviderType" : "SELECTED_OBJECT",
+        "targetFieldsOrdered" : "false",
         "updateColumns" : [
-          "commission_preview_row_id"
+          "adm_commission_preview_row_id"
         ],
         "useLabels" : "false",
         "useSequenceFields" : "false",
         "fields" : [
           {
             "adapterField" : {
-              "name" : "commission_preview_row_id"
+              "name" : "adm_commission_preview_row_id"
             },
-            "name" : "commission_preview_row_id",
+            "name" : "adm_commission_preview_row_id",
             "platformType" : {
               "name" : "bigint"
             },
@@ -2386,9 +2510,9 @@
           },
           {
             "adapterField" : {
-              "name" : "commission_preview_batch_id"
+              "name" : "adm_commission_preview_batch_id"
             },
-            "name" : "commission_preview_batch_id",
+            "name" : "adm_commission_preview_batch_id",
             "platformType" : {
               "name" : "bigint"
             },
@@ -2397,9 +2521,9 @@
           },
           {
             "adapterField" : {
-              "name" : "source_name"
+              "name" : "originating_source_name"
             },
-            "name" : "source_name",
+            "name" : "originating_source_name",
             "platformType" : {
               "name" : "string"
             },
@@ -2408,9 +2532,9 @@
           },
           {
             "adapterField" : {
-              "name" : "load_type"
+              "name" : "originating_load_type"
             },
-            "name" : "load_type",
+            "name" : "originating_load_type",
             "platformType" : {
               "name" : "string"
             },
@@ -2419,9 +2543,9 @@
           },
           {
             "adapterField" : {
-              "name" : "commission_preview_row_md5checksum"
+              "name" : "adm_commission_preview_row_md5checksum"
             },
-            "name" : "commission_preview_row_md5checksum",
+            "name" : "adm_commission_preview_row_md5checksum",
             "platformType" : {
               "name" : "string"
             },
@@ -2430,9 +2554,9 @@
           },
           {
             "adapterField" : {
-              "name" : "commission_preview_datetime_created"
+              "name" : "adm_commission_preview_row_effective_start_datetime"
             },
-            "name" : "commission_preview_datetime_created",
+            "name" : "adm_commission_preview_row_effective_start_datetime",
             "platformType" : {
               "name" : "date/time"
             },
@@ -2441,9 +2565,9 @@
           },
           {
             "adapterField" : {
-              "name" : "commission_preview_datetime_modified"
+              "name" : "adm_commission_preview_row_effective_end_datetime"
             },
-            "name" : "commission_preview_datetime_modified",
+            "name" : "adm_commission_preview_row_effective_end_datetime",
             "platformType" : {
               "name" : "date/time"
             },
@@ -2452,31 +2576,20 @@
           },
           {
             "adapterField" : {
-              "name" : "commission_preview_row_effective_start_datetime"
+              "name" : "adm_commission_preview_row_status"
             },
-            "name" : "commission_preview_row_effective_start_datetime",
+            "name" : "adm_commission_preview_row_status",
             "platformType" : {
-              "name" : "date/time"
+              "name" : "string"
             },
-            "precision" : 29,
-            "scale" : 9
+            "precision" : 63,
+            "scale" : 0
           },
           {
             "adapterField" : {
-              "name" : "commission_preview_row_effective_end_datetime"
+              "name" : "id"
             },
-            "name" : "commission_preview_row_effective_end_datetime",
-            "platformType" : {
-              "name" : "date/time"
-            },
-            "precision" : 29,
-            "scale" : 9
-          },
-          {
-            "adapterField" : {
-              "name" : "agency_id"
-            },
-            "name" : "agency_id",
+            "name" : "id",
             "platformType" : {
               "name" : "integer"
             },
@@ -2485,9 +2598,9 @@
           },
           {
             "adapterField" : {
-              "name" : "commission_preview_id"
+              "name" : "agency_nup"
             },
-            "name" : "commission_preview_id",
+            "name" : "agency_nup",
             "platformType" : {
               "name" : "integer"
             },
@@ -2507,9 +2620,9 @@
           },
           {
             "adapterField" : {
-              "name" : "state_company_effective_date"
+              "name" : "state_company_eff_date"
             },
-            "name" : "state_company_effective_date",
+            "name" : "state_company_eff_date",
             "platformType" : {
               "name" : "date/time"
             },
@@ -2526,6 +2639,28 @@
             },
             "precision" : 7,
             "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "created"
+            },
+            "name" : "created",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "modified"
+            },
+            "name" : "modified",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
           }
         ],
         "dataAdapter" : {
@@ -2556,10 +2691,10 @@
             "retainMetadata" : "false",
             "fields" : [
               {
-                "name" : "commission_preview_row_id",
+                "name" : "adm_commission_preview_row_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "commission_preview_row_id",
-                "nativeName" : "commission_preview_row_id",
+                "label" : "adm_commission_preview_row_id",
+                "nativeName" : "adm_commission_preview_row_id",
                 "nativeType" : "int8",
                 "original" : "false",
                 "precision" : 19,
@@ -2572,10 +2707,10 @@
                 ]
               },
               {
-                "name" : "commission_preview_batch_id",
+                "name" : "adm_commission_preview_batch_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "commission_preview_batch_id",
-                "nativeName" : "commission_preview_batch_id",
+                "label" : "adm_commission_preview_batch_id",
+                "nativeName" : "adm_commission_preview_batch_id",
                 "nativeType" : "int8",
                 "original" : "false",
                 "precision" : 19,
@@ -2588,10 +2723,10 @@
                 ]
               },
               {
-                "name" : "source_name",
+                "name" : "originating_source_name",
                 "fieldType" : "CONNECTOR",
-                "label" : "source_name",
-                "nativeName" : "source_name",
+                "label" : "originating_source_name",
+                "nativeName" : "originating_source_name",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 127,
@@ -2604,10 +2739,10 @@
                 ]
               },
               {
-                "name" : "load_type",
+                "name" : "originating_load_type",
                 "fieldType" : "CONNECTOR",
-                "label" : "load_type",
-                "nativeName" : "load_type",
+                "label" : "originating_load_type",
+                "nativeName" : "originating_load_type",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 63,
@@ -2620,10 +2755,10 @@
                 ]
               },
               {
-                "name" : "commission_preview_row_md5checksum",
+                "name" : "adm_commission_preview_row_md5checksum",
                 "fieldType" : "CONNECTOR",
-                "label" : "commission_preview_row_md5checksum",
-                "nativeName" : "commission_preview_row_md5checksum",
+                "label" : "adm_commission_preview_row_md5checksum",
+                "nativeName" : "adm_commission_preview_row_md5checksum",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 255,
@@ -2636,10 +2771,10 @@
                 ]
               },
               {
-                "name" : "commission_preview_datetime_created",
+                "name" : "adm_commission_preview_row_effective_start_datetime",
                 "fieldType" : "CONNECTOR",
-                "label" : "commission_preview_datetime_created",
-                "nativeName" : "commission_preview_datetime_created",
+                "label" : "adm_commission_preview_row_effective_start_datetime",
+                "nativeName" : "adm_commission_preview_row_effective_start_datetime",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 29,
@@ -2652,10 +2787,10 @@
                 ]
               },
               {
-                "name" : "commission_preview_datetime_modified",
+                "name" : "adm_commission_preview_row_effective_end_datetime",
                 "fieldType" : "CONNECTOR",
-                "label" : "commission_preview_datetime_modified",
-                "nativeName" : "commission_preview_datetime_modified",
+                "label" : "adm_commission_preview_row_effective_end_datetime",
+                "nativeName" : "adm_commission_preview_row_effective_end_datetime",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 29,
@@ -2668,14 +2803,14 @@
                 ]
               },
               {
-                "name" : "commission_preview_row_effective_start_datetime",
+                "name" : "adm_commission_preview_row_status",
                 "fieldType" : "CONNECTOR",
-                "label" : "commission_preview_row_effective_start_datetime",
-                "nativeName" : "commission_preview_row_effective_start_datetime",
-                "nativeType" : "timestamp",
+                "label" : "adm_commission_preview_row_status",
+                "nativeName" : "adm_commission_preview_row_status",
+                "nativeType" : "varchar",
                 "original" : "false",
-                "precision" : 29,
-                "scale" : 6,
+                "precision" : 63,
+                "scale" : 0,
                 "properties" : [
                   {
                     "name" : "parentObject",
@@ -2684,26 +2819,10 @@
                 ]
               },
               {
-                "name" : "commission_preview_row_effective_end_datetime",
+                "name" : "id",
                 "fieldType" : "CONNECTOR",
-                "label" : "commission_preview_row_effective_end_datetime",
-                "nativeName" : "commission_preview_row_effective_end_datetime",
-                "nativeType" : "timestamp",
-                "original" : "false",
-                "precision" : 29,
-                "scale" : 6,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_commission_preview"
-                  }
-                ]
-              },
-              {
-                "name" : "agency_id",
-                "fieldType" : "CONNECTOR",
-                "label" : "agency_id",
-                "nativeName" : "agency_id",
+                "label" : "id",
+                "nativeName" : "id",
                 "nativeType" : "int4",
                 "original" : "false",
                 "precision" : 10,
@@ -2716,10 +2835,10 @@
                 ]
               },
               {
-                "name" : "commission_preview_id",
+                "name" : "agency_nup",
                 "fieldType" : "CONNECTOR",
-                "label" : "commission_preview_id",
-                "nativeName" : "commission_preview_id",
+                "label" : "agency_nup",
+                "nativeName" : "agency_nup",
                 "nativeType" : "int4",
                 "original" : "false",
                 "precision" : 10,
@@ -2748,10 +2867,10 @@
                 ]
               },
               {
-                "name" : "state_company_effective_date",
+                "name" : "state_company_eff_date",
                 "fieldType" : "CONNECTOR",
-                "label" : "state_company_effective_date",
-                "nativeName" : "state_company_effective_date",
+                "label" : "state_company_eff_date",
+                "nativeName" : "state_company_eff_date",
                 "nativeType" : "date",
                 "original" : "false",
                 "precision" : 13,
@@ -2772,6 +2891,38 @@
                 "original" : "false",
                 "precision" : 7,
                 "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_commission_preview"
+                  }
+                ]
+              },
+              {
+                "name" : "created",
+                "fieldType" : "CONNECTOR",
+                "label" : "created",
+                "nativeName" : "created",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_commission_preview"
+                  }
+                ]
+              },
+              {
+                "name" : "modified",
+                "fieldType" : "CONNECTOR",
+                "label" : "modified",
+                "nativeName" : "modified",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
                 "properties" : [
                   {
                     "name" : "parentObject",
@@ -2846,6 +2997,10 @@
                 "value" : "5242880"
               },
               {
+                "name" : "Schema Name",
+                "value" : "$$staging_schema"
+              },
+              {
                 "name" : "Preserve record order on write",
                 "value" : "NO"
               },
@@ -2873,16 +3028,23 @@
         "manualMappings" : {
           "mappingList" : [
             {
-              "fromFieldName" : "o_endate_sysdate",
+              "fromFieldName" : "o_t_agency_row_effective_start_datetime",
               "toField" : {
-                "name" : "commission_preview_row_effective_end_datetime"
+                "name" : "adm_commission_preview_row_effective_end_datetime"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "commission_preview_row_id",
+              "fromFieldName" : "tgt_adm_commission_preview_row_id",
               "toField" : {
-                "name" : "commission_preview_row_id"
+                "name" : "adm_commission_preview_row_id"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_status",
+              "toField" : {
+                "name" : "adm_commission_preview_row_status"
               },
               "fromFieldNames" : null
             }
@@ -2892,7 +3054,7 @@
       {
         "description" : "This Expression transformation is to update the target records",
         "createTime" : "2025-05-07T18:01:14.671Z",
-        "name" : "exp_update_records1",
+        "name" : "exp_update_close_records",
         "groups" : [
           {
             "input" : "true",
@@ -2918,6 +3080,17 @@
             "scale" : 9,
             "expFieldType" : "OUTPUT",
             "expression" : "SYSDATE"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_status",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "'Expired'"
           }
         ],
         "windowSpec" : {
@@ -2928,7 +3101,57 @@
           "partitionKeys" : null
         }
       }
+    ],
+    "variables" : [
+      {
+        "aggregationType" : "MAX",
+        "expressionVariable" : "false",
+        "name" : "raw_schema",
+        "platformType" : {
+          "name" : "string"
+        },
+        "precision" : 100,
+        "retentionPolicy" : "NEVER",
+        "scale" : 0,
+        "defaultValue" : "metal"
+      },
+      {
+        "aggregationType" : "MAX",
+        "expressionVariable" : "false",
+        "name" : "staging_schema",
+        "platformType" : {
+          "name" : "string"
+        },
+        "precision" : 100,
+        "retentionPolicy" : "NEVER",
+        "scale" : 0,
+        "defaultValue" : "bronze"
+      },
+      {
+        "aggregationType" : "MAX",
+        "expressionVariable" : "false",
+        "name" : "operational_schema",
+        "platformType" : {
+          "name" : "string"
+        },
+        "precision" : 100,
+        "retentionPolicy" : "NEVER",
+        "scale" : 0,
+        "defaultValue" : "operations"
+      },
+      {
+        "aggregationType" : "MAX",
+        "expressionVariable" : "false",
+        "name" : "sourcesystemcode",
+        "platformType" : {
+          "name" : "string"
+        },
+        "precision" : 100,
+        "retentionPolicy" : "NEVER",
+        "scale" : 0,
+        "defaultValue" : "ADM"
+      }
     ]
   },
-  "vcsExportTime" : "2025-07-08 11:25:47 PDT"
+  "vcsExportTime" : "2025-12-02 11:55:19 PST"
 }
