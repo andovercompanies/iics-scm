@@ -7,9 +7,6 @@
     "specialCharacterSupport" : "false",
     "links" : [
       {
-        "link" : "Source -> exp_PassThru_MD5"
-      },
-      {
         "link" : "tgt_as_source -> exp_passthrough"
       },
       {
@@ -48,6 +45,12 @@
       },
       {
         "link" : "exp_Update_Close -> close_upd_adm_api_users"
+      },
+      {
+        "link" : "exp_Literals_Conversions -> exp_PassThru_MD5"
+      },
+      {
+        "link" : "Source -> exp_Literals_Conversions"
       }
     ],
     "parameters" : [
@@ -954,23 +957,23 @@
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "modified",
+              "fromFieldName" : "o_enabled",
+              "toField" : {
+                "name" : "enabled"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_modified",
               "toField" : {
                 "name" : "modified"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "created",
+              "fromFieldName" : "o_created",
               "toField" : {
                 "name" : "created"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "o_enabled",
-              "toField" : {
-                "name" : "enabled"
               },
               "fromFieldNames" : null
             }
@@ -1247,39 +1250,6 @@
         "fields" : [
           {
             "defaultValue" : "ERROR('transformation error')",
-            "name" : "o_created",
-            "platformType" : {
-              "name" : "date/time"
-            },
-            "precision" : 29,
-            "scale" : 9,
-            "expFieldType" : "OUTPUT",
-            "expression" : "created"
-          },
-          {
-            "defaultValue" : "ERROR('transformation error')",
-            "name" : "o_modified",
-            "platformType" : {
-              "name" : "date/time"
-            },
-            "precision" : 29,
-            "scale" : 9,
-            "expFieldType" : "OUTPUT",
-            "expression" : "modified"
-          },
-          {
-            "defaultValue" : "ERROR('transformation error')",
-            "name" : "o_enabled",
-            "platformType" : {
-              "name" : "integer"
-            },
-            "precision" : 10,
-            "scale" : 0,
-            "expFieldType" : "OUTPUT",
-            "expression" : "-- 1. Convert 'enabled' field from STRING to INTEGER.\nTO_INTEGER(enabled)"
-          },
-          {
-            "defaultValue" : "ERROR('transformation error')",
             "name" : "o_Src_MD5",
             "platformType" : {
               "name" : "string"
@@ -1287,7 +1257,7 @@
             "precision" : 1023,
             "scale" : 0,
             "expFieldType" : "OUTPUT",
-            "expression" : "MD5(\n    'source_name' || source_name ||\n    'load_type' || load_type ||\n    'username' ||username ||\n    'password' || password||\n    'enabled' || enabled ||\n    'modified' || modified ||\n    'created' || created)"
+            "expression" : "MD5(\n    'source_name' || source_name ||\n    'load_type' || load_type ||\n    'username' ||username ||\n    'password' || password||\n    'enabled' || enabled ||\n    'modified' || to_char(o_modified) ||\n    'created' || to_char(o_created)\n    )"
           }
         ],
         "windowSpec" : {
@@ -2148,20 +2118,6 @@
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "modified",
-              "toField" : {
-                "name" : "modified"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "created",
-              "toField" : {
-                "name" : "created"
-              },
-              "fromFieldNames" : null
-            },
-            {
               "fromFieldName" : "o_Src_MD5",
               "toField" : {
                 "name" : "adm_api_users_md5checksum"
@@ -2172,6 +2128,20 @@
               "fromFieldName" : "o_enabled",
               "toField" : {
                 "name" : "enabled"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_modified",
+              "toField" : {
+                "name" : "modified"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_created",
+              "toField" : {
+                "name" : "created"
               },
               "fromFieldNames" : null
             }
@@ -2710,6 +2680,66 @@
             }
           ]
         }
+      },
+      {
+        "createTime" : "2025-12-16T23:02:37.947Z",
+        "name" : "exp_Literals_Conversions",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "windowConfigurationEnabled" : "false",
+        "fields" : [
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_created",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9,
+            "expFieldType" : "OUTPUT",
+            "expression" : "IIF(NOT ISNULL(created) AND created != '',TO_DATE(to_char(created), 'YYYY-MM-DD HH24:MI:SS')\n)"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_modified",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9,
+            "expFieldType" : "OUTPUT",
+            "expression" : "IIF(NOT ISNULL(modified) AND modified != '',TO_DATE(to_char(modified), 'YYYY-MM-DD HH24:MI:SS')\n)"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_enabled",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "-- 1. Convert 'enabled' field from STRING to INTEGER.\nTO_INTEGER(enabled)"
+          }
+        ],
+        "windowSpec" : {
+          "allRowsFollowing" : "false",
+          "allRowsPreceding" : "false",
+          "endOffset" : 0,
+          "startOffset" : 0,
+          "partitionKeys" : null
+        }
       }
     ],
     "variables" : [
@@ -2763,5 +2793,5 @@
       }
     ]
   },
-  "vcsExportTime" : "2025-12-16 13:38:01 PST"
+  "vcsExportTime" : "2025-12-16 15:39:43 PST"
 }
