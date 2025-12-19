@@ -7,9 +7,13 @@
     {
       "name" : "$src_adm_agency_change_log$",
       "type" : "SOURCE",
-      "label" : "src_adm_agency_change_log",
+      "label" : "DBConnection_UDM_SRC",
       "uiProperties" : {
-        "connectionParameterized" : "false",
+        "cnxtype" : "Amazon Redshift v2",
+        "connectionParameterized" : "true",
+        "paramName" : "DBConnection_UDM_SRC",
+        "paramType-mapping" : "Connection",
+        "logcnx" : "DBConnection_UDM_SRC",
         "isSelectDistinct" : "false",
         "objectParameterized" : "false",
         "visible" : "false",
@@ -20,24 +24,12 @@
       "sourceObject" : "DUMMY_src_adm_agency_change_log",
       "newFlatFile" : false,
       "newObject" : false,
-      "showBusinessNames" : false,
+      "showBusinessNames" : true,
       "naturalOrder" : true,
       "truncateTarget" : false,
       "bulkApiDBTarget" : false,
       "customFuncCfg" : { },
-      "oprRuntimeAttrs" : {
-        "selectDistinct" : "NO",
-        "EncryptionType" : "None",
-        "EnableCompression" : "YES",
-        "fetchSize" : "10000",
-        "multipartDownloadThreshold" : "5242880",
-        "temporaryCredentialDuration" : "900",
-        "TreatNullValueAsNull" : "NO",
-        "DownloadS3FilesInMultipleParts" : "NO",
-        "S3BucketName" : "$$S3_Staging_Bucket",
-        "readMode" : "Direct"
-      },
-      "customQuery" : "WITH current_batch AS (\n    SELECT \n        bls.batch_id,\n        bls.source_start_cutoff_datetime,\n        bls.source_end_cutoff_datetime\n    FROM $$operational_schema.batch_load_summary bls\n    WHERE bls.source_system_code = '$$sourcesystemcode'\n      AND bls.batch_status = 'Inprogress'\n      AND bls.batch_id = (\n          SELECT MAX(batch_id)\n          FROM $$operational_schema.batch_load_summary\n          WHERE source_system_code = '$$sourcesystemcode'\n            AND batch_status = 'Inprogress'\n      )\n)\nSELECT DISTINCT \nmetal_acl.source_name,\nmetal_acl.load_type,\nmetal_acl.id,\nmetal_acl.agency_nup,\nmetal_acl.field_name,\nmetal_acl.before_value,\nmetal_acl.after_value,\nmetal_acl.unique_id,\nmetal_acl.\"type\",\nmetal_acl.guidewire_id,\nmetal_acl.page,\nmetal_acl.created,\nmetal_acl.modified,\ncurrent_batch.batch_id\nFROM $$raw_schema.adm_agency_change_log metal_acl\nLEFT JOIN current_batch\nON TRUE;",
+      "customQuery" : "WITH current_batch AS (\n    SELECT \n        bls.batch_id,\n        bls.source_start_cutoff_datetime,\n        bls.source_end_cutoff_datetime\n    FROM $$operational_schema.batch_load_summary bls\n    WHERE bls.source_system_code = '$$sourcesystemcode'\n      AND bls.batch_status = 'Inprogress'\n      AND bls.batch_id = (\n          SELECT MAX(batch_id)\n          FROM $$operational_schema.batch_load_summary\n          WHERE source_system_code = '$$sourcesystemcode'\n            AND batch_status = 'Inprogress'\n      )\n)\nSELECT DISTINCT \nmetal_acl.source_name,\nmetal_acl.load_type,\nmetal_acl.id,\nmetal_acl.agency_nup,\nmetal_acl.field_name,\nmetal_acl.before_value,\nmetal_acl.after_value,\nmetal_acl.unique_id,\nmetal_acl.\"type\",\nmetal_acl.guidewire_id,\nmetal_acl.page,\nmetal_acl.created,\nmetal_acl.modified,\ntgt.adm_agency_change_log_row_id,\ntgt.adm_agency_change_log_batch_id,\ntgt.adm_agency_change_log_md5checksum,\ntgt.adm_agency_change_log_row_effective_end_datetime,\ntgt.id as tgt_id,\ntgt.agency_nup as tgt_agency_nup,\ntgt.field_name as tgt_field_name,\ntgt.page as tgt_page,\ntgt.created as tgt_created,\ncurrent_batch.batch_id\nFROM $$raw_schema.adm_agency_change_log metal_acl\nLEFT JOIN $$staging_schema.adm_agency_change_log tgt\nON metal_acl.id = tgt.id \nAND tgt.adm_agency_change_log_row_effective_end_datetime = '9999-12-31 00:00:00.000'\nLEFT JOIN current_batch\nON TRUE",
       "commandType" : 0,
       "handleSpecialChars" : false,
       "handleDecimalRoundOff" : false,
@@ -50,59 +42,8 @@
       "useExactSrcNames" : false,
       "userUpdated" : true,
       "runtimeParameterData" : {
-        "connectionRuntimeParameter" : false,
-        "objectRuntimeParameter" : false
-      },
-      "restmodernSource" : true,
-      "unspecified" : false,
-      "fileList" : false
-    },
-    {
-      "name" : "$tgt_adm_agency_change_log$",
-      "type" : "SOURCE",
-      "label" : "tgt_adm_agency_change_log",
-      "uiProperties" : {
-        "connectionParameterized" : "false",
-        "isSelectDistinct" : "false",
-        "objectParameterized" : "false",
-        "visible" : "false",
-        "originalPath" : "tgt_adm_agency_change_log"
-      },
-      "sourceConnectionId" : "@aYZ4ekzHgIPeKpiaoqDLKP",
-      "connectionName" : "redshift_nonprod_andover_dw_dev",
-      "sourceObject" : "DUMMY_tgt_adm_agency_change_log",
-      "newFlatFile" : false,
-      "newObject" : false,
-      "showBusinessNames" : false,
-      "naturalOrder" : true,
-      "truncateTarget" : false,
-      "bulkApiDBTarget" : false,
-      "customFuncCfg" : { },
-      "oprRuntimeAttrs" : {
-        "selectDistinct" : "NO",
-        "EncryptionType" : "None",
-        "EnableCompression" : "YES",
-        "fetchSize" : "10000",
-        "multipartDownloadThreshold" : "5242880",
-        "temporaryCredentialDuration" : "900",
-        "TreatNullValueAsNull" : "NO",
-        "DownloadS3FilesInMultipleParts" : "NO",
-        "readMode" : "Direct"
-      },
-      "customQuery" : "SELECT \nadm_agency_change_log_row_id,\nadm_agency_change_log_batch_id,\nadm_agency_change_log_md5checksum,\nadm_agency_change_log_row_effective_end_datetime,\nid,\nagency_nup,\nfield_name,\npage,\ncreated\nFROM $$staging_schema.adm_agency_change_log \nwhere  adm_agency_change_log_row_effective_end_datetime = '9999-12-31 00:00:00.000'",
-      "commandType" : 0,
-      "handleSpecialChars" : false,
-      "handleDecimalRoundOff" : false,
-      "frsAsset" : false,
-      "dynamicFileName" : false,
-      "excludeDynamicFileNameField" : false,
-      "currentlyProcessedFileName" : false,
-      "retainFieldMetadata" : false,
-      "objectName" : "DUMMY_tgt_adm_agency_change_log",
-      "useExactSrcNames" : false,
-      "userUpdated" : true,
-      "runtimeParameterData" : {
-        "connectionRuntimeParameter" : false,
+        "connectionParameterName" : "DBConnection_UDM_SRC",
+        "connectionRuntimeParameter" : true,
         "objectRuntimeParameter" : false
       },
       "restmodernSource" : true,
@@ -112,9 +53,14 @@
     {
       "name" : "$tgt_adm_agency_change_log_Insert$",
       "type" : "TARGET",
-      "label" : "tgt_adm_agency_change_log_Insert",
+      "label" : "DBConnection_UDM_TGT",
       "uiProperties" : {
-        "connectionParameterized" : "false",
+        "cnxtype" : "Amazon Redshift v2",
+        "connectionParameterized" : "true",
+        "paramName" : "DBConnection_UDM_TGT",
+        "paramType-mapping" : "Connection",
+        "logcnx" : "DBConnection_UDM_TGT",
+        "default" : "bronze/adm_agency_change_log",
         "objectParameterized" : "false",
         "visible" : "false",
         "supportApplyDDLChanges" : "false",
@@ -126,7 +72,7 @@
       "targetObjectLabel" : "bronze/adm_agency_change_log",
       "newFlatFile" : false,
       "newObject" : false,
-      "showBusinessNames" : false,
+      "showBusinessNames" : true,
       "naturalOrder" : true,
       "truncateTarget" : false,
       "bulkApiDBTarget" : false,
@@ -148,7 +94,8 @@
       "useExactSrcNames" : false,
       "userUpdated" : true,
       "runtimeParameterData" : {
-        "connectionRuntimeParameter" : false,
+        "connectionParameterName" : "DBConnection_UDM_TGT",
+        "connectionRuntimeParameter" : true,
         "objectRuntimeParameter" : false
       },
       "restmodernSource" : true,
@@ -158,9 +105,14 @@
     {
       "name" : "$tgt_adm_agency_change_log_update$",
       "type" : "TARGET",
-      "label" : "tgt_adm_agency_change_log_update",
+      "label" : "DBConnection_UDM_TGT",
       "uiProperties" : {
-        "connectionParameterized" : "false",
+        "cnxtype" : "Amazon Redshift v2",
+        "connectionParameterized" : "true",
+        "paramName" : "DBConnection_UDM_TGT",
+        "paramType-mapping" : "Connection",
+        "logcnx" : "DBConnection_UDM_TGT",
+        "default" : "bronze/adm_agency_change_log",
         "objectParameterized" : "false",
         "visible" : "false",
         "defaultTargetUpdateColumns" : "adm_agency_change_log_row_id",
@@ -173,7 +125,7 @@
       "targetObjectLabel" : "bronze/adm_agency_change_log",
       "newFlatFile" : false,
       "newObject" : false,
-      "showBusinessNames" : false,
+      "showBusinessNames" : true,
       "naturalOrder" : true,
       "truncateTarget" : false,
       "bulkApiDBTarget" : false,
@@ -198,7 +150,8 @@
       "useExactSrcNames" : false,
       "userUpdated" : true,
       "runtimeParameterData" : {
-        "connectionRuntimeParameter" : false,
+        "connectionParameterName" : "DBConnection_UDM_TGT",
+        "connectionRuntimeParameter" : true,
         "objectRuntimeParameter" : false
       },
       "restmodernSource" : true,
@@ -207,10 +160,14 @@
     }
   ],
   "verbose" : false,
-  "lastRunTime" : 1765808140000,
+  "lastRunTime" : 1766163167000,
   "mappingId" : "@3gD4hDaG6KOc90xZLOo44x",
   "mappingTemplateName" : "cdi_map_adm_agency_change_log_bronze_stg_load",
   "sessionPropertiesList" : [
+    {
+      "name" : "Allow Temporary Sequence for Pushdown",
+      "value" : "NO"
+    },
     {
       "name" : "Allow Temporary View for Pushdown",
       "value" : "YES"
@@ -284,5 +241,5 @@
   "allowMaxFieldLength" : false,
   "specialCharacterSupport" : false,
   "midstreamPreview" : false,
-  "vcsExportTime" : "2025-12-15 07:57:18 PST"
+  "vcsExportTime" : "2025-12-19 09:39:40 PST"
 }
