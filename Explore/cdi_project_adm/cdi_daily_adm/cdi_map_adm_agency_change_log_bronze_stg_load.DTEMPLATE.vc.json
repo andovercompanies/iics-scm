@@ -10,21 +10,6 @@
         "link" : "src_adm_agency_change_log -> exp_datatype_conversion"
       },
       {
-        "link" : "exp_datatype_conversion -> exp_MD5_calc"
-      },
-      {
-        "link" : "tgt_adm_agency_change_log -> Joiner",
-        "groupLink" : "DefaultGroup -> Master"
-      },
-      {
-        "link" : "exp_MD5_calc -> Joiner",
-        "groupLink" : "DefaultGroup -> Detail"
-      },
-      {
-        "link" : "Joiner -> exp_ins_upd_flag",
-        "groupLink" : "OutputGroup -> DefaultGroup"
-      },
-      {
         "link" : "exp_ins_upd_flag -> Router",
         "groupLink" : "DefaultGroup -> INPUT"
       },
@@ -35,6 +20,9 @@
       {
         "link" : "Router -> tgt_adm_agency_change_log_update",
         "groupLink" : "Update -> DefaultGroup"
+      },
+      {
+        "link" : "exp_datatype_conversion -> exp_ins_upd_flag"
       }
     ],
     "parameters" : [
@@ -56,6 +44,8 @@
         "expressionVariable" : "false",
         "name" : "DBConnection_UDM_SRC",
         "anonymousType" : {
+          "subType" : "TOOLKIT_CCI",
+          "typeSystem" : "TOOLKIT",
           "connectionType" : "Amazon Redshift v2"
         }
       },
@@ -68,6 +58,8 @@
         "expressionVariable" : "false",
         "name" : "DBConnection_UDM_TGT",
         "anonymousType" : {
+          "subType" : "TOOLKIT_CCI",
+          "typeSystem" : "TOOLKIT",
           "connectionType" : "Amazon Redshift v2"
         }
       }
@@ -242,6 +234,105 @@
           },
           {
             "adapterField" : {
+              "name" : "adm_agency_change_log_row_id"
+            },
+            "name" : "adm_agency_change_log_row_id",
+            "platformType" : {
+              "name" : "bigint"
+            },
+            "precision" : 19,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "adm_agency_change_log_batch_id"
+            },
+            "name" : "adm_agency_change_log_batch_id",
+            "platformType" : {
+              "name" : "bigint"
+            },
+            "precision" : 19,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "adm_agency_change_log_md5checksum"
+            },
+            "name" : "adm_agency_change_log_md5checksum",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 1023,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "adm_agency_change_log_row_effective_end_datetime"
+            },
+            "name" : "adm_agency_change_log_row_effective_end_datetime",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "tgt_id"
+            },
+            "name" : "tgt_id",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "tgt_agency_nup"
+            },
+            "name" : "tgt_agency_nup",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "tgt_field_name"
+            },
+            "name" : "tgt_field_name",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "tgt_page"
+            },
+            "name" : "tgt_page",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 31,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "tgt_created"
+            },
+            "name" : "tgt_created",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
               "name" : "batch_id"
             },
             "name" : "batch_id",
@@ -253,14 +344,15 @@
           }
         ],
         "dataAdapter" : {
-          "connectionId" : "saas:@aYZ4ekzHgIPeKpiaoqDLKP",
-          "connectionName" : "redshift_nonprod_andover_dw_dev",
+          "connectionId$" : {
+            "name" : "DBConnection_UDM_SRC"
+          },
           "excludeDynamicFileNameField" : "false",
           "objectType" : "QUERY",
           "typeSystem" : "TOOLKIT",
           "useDynamicFileName" : "false",
           "object" : {
-            "customQuery" : "WITH current_batch AS (\n    SELECT \n        bls.batch_id,\n        bls.source_start_cutoff_datetime,\n        bls.source_end_cutoff_datetime\n    FROM $$operational_schema.batch_load_summary bls\n    WHERE bls.source_system_code = '$$sourcesystemcode'\n      AND bls.batch_status = 'Inprogress'\n      AND bls.batch_id = (\n          SELECT MAX(batch_id)\n          FROM $$operational_schema.batch_load_summary\n          WHERE source_system_code = '$$sourcesystemcode'\n            AND batch_status = 'Inprogress'\n      )\n)\nSELECT DISTINCT \nmetal_acl.source_name,\nmetal_acl.load_type,\nmetal_acl.id,\nmetal_acl.agency_nup,\nmetal_acl.field_name,\nmetal_acl.before_value,\nmetal_acl.after_value,\nmetal_acl.unique_id,\nmetal_acl.\"type\",\nmetal_acl.guidewire_id,\nmetal_acl.page,\nmetal_acl.created,\nmetal_acl.modified,\ncurrent_batch.batch_id\nFROM $$raw_schema.adm_agency_change_log metal_acl\nLEFT JOIN current_batch\nON TRUE;",
+            "customQuery" : "WITH current_batch AS (\n    SELECT \n        bls.batch_id,\n        bls.source_start_cutoff_datetime,\n        bls.source_end_cutoff_datetime\n    FROM $$operational_schema.batch_load_summary bls\n    WHERE bls.source_system_code = '$$sourcesystemcode'\n      AND bls.batch_status = 'Inprogress'\n      AND bls.batch_id = (\n          SELECT MAX(batch_id)\n          FROM $$operational_schema.batch_load_summary\n          WHERE source_system_code = '$$sourcesystemcode'\n            AND batch_status = 'Inprogress'\n      )\n)\nSELECT DISTINCT \nmetal_acl.source_name,\nmetal_acl.load_type,\nmetal_acl.id,\nmetal_acl.agency_nup,\nmetal_acl.field_name,\nmetal_acl.before_value,\nmetal_acl.after_value,\nmetal_acl.unique_id,\nmetal_acl.\"type\",\nmetal_acl.guidewire_id,\nmetal_acl.page,\nmetal_acl.created,\nmetal_acl.modified,\ntgt.adm_agency_change_log_row_id,\ntgt.adm_agency_change_log_batch_id,\ntgt.adm_agency_change_log_md5checksum,\ntgt.adm_agency_change_log_row_effective_end_datetime,\ntgt.id as tgt_id,\ntgt.agency_nup as tgt_agency_nup,\ntgt.field_name as tgt_field_name,\ntgt.page as tgt_page,\ntgt.created as tgt_created,\ncurrent_batch.batch_id\nFROM $$raw_schema.adm_agency_change_log metal_acl\nLEFT JOIN $$staging_schema.adm_agency_change_log tgt\nON metal_acl.id = tgt.id \nAND tgt.adm_agency_change_log_row_effective_end_datetime = '9999-12-31 00:00:00.000'\nLEFT JOIN current_batch\nON TRUE",
             "retainMetadata" : "false",
             "fields" : [
               {
@@ -464,6 +556,150 @@
                 "original" : "false",
                 "precision" : 31,
                 "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "adm_agency_change_log_row_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "adm_agency_change_log_row_id",
+                "nativeName" : "adm_agency_change_log_row_id",
+                "nativeType" : "int8",
+                "original" : "false",
+                "precision" : 19,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "adm_agency_change_log_batch_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "adm_agency_change_log_batch_id",
+                "nativeName" : "adm_agency_change_log_batch_id",
+                "nativeType" : "int8",
+                "original" : "false",
+                "precision" : 19,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "adm_agency_change_log_md5checksum",
+                "fieldType" : "CONNECTOR",
+                "label" : "adm_agency_change_log_md5checksum",
+                "nativeName" : "adm_agency_change_log_md5checksum",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 1023,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "adm_agency_change_log_row_effective_end_datetime",
+                "fieldType" : "CONNECTOR",
+                "label" : "adm_agency_change_log_row_effective_end_datetime",
+                "nativeName" : "adm_agency_change_log_row_effective_end_datetime",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "tgt_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "tgt_id",
+                "nativeName" : "tgt_id",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "tgt_agency_nup",
+                "fieldType" : "CONNECTOR",
+                "label" : "tgt_agency_nup",
+                "nativeName" : "tgt_agency_nup",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "tgt_field_name",
+                "fieldType" : "CONNECTOR",
+                "label" : "tgt_field_name",
+                "nativeName" : "tgt_field_name",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "tgt_page",
+                "fieldType" : "CONNECTOR",
+                "label" : "tgt_page",
+                "nativeName" : "tgt_page",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 31,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "tgt_created",
+                "fieldType" : "CONNECTOR",
+                "label" : "tgt_created",
+                "nativeName" : "tgt_created",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
                 "properties" : [
                   {
                     "name" : "parentObject",
@@ -784,8 +1020,9 @@
           }
         ],
         "dataAdapter" : {
-          "connectionId" : "saas:@aYZ4ekzHgIPeKpiaoqDLKP",
-          "connectionName" : "redshift_nonprod_andover_dw_dev",
+          "connectionId$" : {
+            "name" : "DBConnection_UDM_TGT"
+          },
           "excludeDynamicFileNameField" : "false",
           "objectType" : "SINGLE",
           "typeSystem" : "TOOLKIT",
@@ -1180,6 +1417,10 @@
                 "value" : "5242880"
               },
               {
+                "name" : "Schema Name",
+                "value" : "$$staging_schema"
+              },
+              {
                 "name" : "Preserve record order on write",
                 "value" : "NO"
               },
@@ -1415,34 +1656,7 @@
             "scale" : 0,
             "expFieldType" : "OUTPUT",
             "expression" : "ltrim(rtrim(page))"
-          }
-        ],
-        "windowSpec" : {
-          "allRowsFollowing" : "false",
-          "allRowsPreceding" : "false",
-          "endOffset" : 0,
-          "startOffset" : 0,
-          "partitionKeys" : null
-        }
-      },
-      {
-        "createTime" : "2025-12-08T19:33:06.115Z",
-        "name" : "exp_MD5_calc",
-        "groups" : [
-          {
-            "input" : "true",
-            "name" : "DefaultGroup",
-            "output" : "true",
-            "rules" : [
-              {
-                "bulkRename" : "false",
-                "include" : "true"
-              }
-            ]
-          }
-        ],
-        "windowConfigurationEnabled" : "false",
-        "fields" : [
+          },
           {
             "defaultValue" : "ERROR('transformation error')",
             "name" : "MD5_hash_value",
@@ -1462,381 +1676,6 @@
           "startOffset" : 0,
           "partitionKeys" : null
         }
-      },
-      {
-        "createTime" : "2025-12-08T19:49:41.609Z",
-        "name" : "tgt_adm_agency_change_log",
-        "advancedProperties" : [
-          {
-            "name" : "Tracing Level",
-            "value" : "Normal"
-          },
-          {
-            "name" : "Output is deterministic",
-            "value" : "false"
-          }
-        ],
-        "groups" : [
-          {
-            "input" : "false",
-            "name" : "DefaultGroup",
-            "output" : "true"
-          }
-        ],
-        "generateFilenamePort" : "false",
-        "useLabels" : "false",
-        "useSequenceFields" : "false",
-        "fields" : [
-          {
-            "adapterField" : {
-              "name" : "adm_agency_change_log_row_id"
-            },
-            "name" : "adm_agency_change_log_row_id",
-            "platformType" : {
-              "name" : "bigint"
-            },
-            "precision" : 19,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "adm_agency_change_log_batch_id"
-            },
-            "name" : "adm_agency_change_log_batch_id",
-            "platformType" : {
-              "name" : "bigint"
-            },
-            "precision" : 19,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "adm_agency_change_log_md5checksum"
-            },
-            "name" : "adm_agency_change_log_md5checksum",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 1023,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "adm_agency_change_log_row_effective_end_datetime"
-            },
-            "name" : "adm_agency_change_log_row_effective_end_datetime",
-            "platformType" : {
-              "name" : "date/time"
-            },
-            "precision" : 29,
-            "scale" : 9
-          },
-          {
-            "adapterField" : {
-              "name" : "id"
-            },
-            "name" : "id",
-            "platformType" : {
-              "name" : "integer"
-            },
-            "precision" : 10,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "agency_nup"
-            },
-            "name" : "agency_nup",
-            "platformType" : {
-              "name" : "integer"
-            },
-            "precision" : 10,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "field_name"
-            },
-            "name" : "field_name",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 63,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "page"
-            },
-            "name" : "page",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 31,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "created"
-            },
-            "name" : "created",
-            "platformType" : {
-              "name" : "date/time"
-            },
-            "precision" : 29,
-            "scale" : 9
-          }
-        ],
-        "dataAdapter" : {
-          "connectionId" : "saas:@aYZ4ekzHgIPeKpiaoqDLKP",
-          "connectionName" : "redshift_nonprod_andover_dw_dev",
-          "excludeDynamicFileNameField" : "false",
-          "objectType" : "QUERY",
-          "typeSystem" : "TOOLKIT",
-          "useDynamicFileName" : "false",
-          "object" : {
-            "customQuery" : "SELECT \nadm_agency_change_log_row_id,\nadm_agency_change_log_batch_id,\nadm_agency_change_log_md5checksum,\nadm_agency_change_log_row_effective_end_datetime,\nid,\nagency_nup,\nfield_name,\npage,\ncreated\nFROM $$staging_schema.adm_agency_change_log \nwhere  adm_agency_change_log_row_effective_end_datetime = '9999-12-31 00:00:00.000'",
-            "retainMetadata" : "false",
-            "fields" : [
-              {
-                "name" : "adm_agency_change_log_row_id",
-                "fieldType" : "CONNECTOR",
-                "label" : "adm_agency_change_log_row_id",
-                "nativeName" : "adm_agency_change_log_row_id",
-                "nativeType" : "int8",
-                "original" : "false",
-                "precision" : 19,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "INFARS_CUSTOM_SCHEMA"
-                  }
-                ]
-              },
-              {
-                "name" : "adm_agency_change_log_batch_id",
-                "fieldType" : "CONNECTOR",
-                "label" : "adm_agency_change_log_batch_id",
-                "nativeName" : "adm_agency_change_log_batch_id",
-                "nativeType" : "int8",
-                "original" : "false",
-                "precision" : 19,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "INFARS_CUSTOM_SCHEMA"
-                  }
-                ]
-              },
-              {
-                "name" : "adm_agency_change_log_md5checksum",
-                "fieldType" : "CONNECTOR",
-                "label" : "adm_agency_change_log_md5checksum",
-                "nativeName" : "adm_agency_change_log_md5checksum",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 1023,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "INFARS_CUSTOM_SCHEMA"
-                  }
-                ]
-              },
-              {
-                "name" : "adm_agency_change_log_row_effective_end_datetime",
-                "fieldType" : "CONNECTOR",
-                "label" : "adm_agency_change_log_row_effective_end_datetime",
-                "nativeName" : "adm_agency_change_log_row_effective_end_datetime",
-                "nativeType" : "timestamp",
-                "original" : "false",
-                "precision" : 29,
-                "scale" : 6,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "INFARS_CUSTOM_SCHEMA"
-                  }
-                ]
-              },
-              {
-                "name" : "id",
-                "fieldType" : "CONNECTOR",
-                "label" : "id",
-                "nativeName" : "id",
-                "nativeType" : "int4",
-                "original" : "false",
-                "precision" : 10,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "INFARS_CUSTOM_SCHEMA"
-                  }
-                ]
-              },
-              {
-                "name" : "agency_nup",
-                "fieldType" : "CONNECTOR",
-                "label" : "agency_nup",
-                "nativeName" : "agency_nup",
-                "nativeType" : "int4",
-                "original" : "false",
-                "precision" : 10,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "INFARS_CUSTOM_SCHEMA"
-                  }
-                ]
-              },
-              {
-                "name" : "field_name",
-                "fieldType" : "CONNECTOR",
-                "label" : "field_name",
-                "nativeName" : "field_name",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 63,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "INFARS_CUSTOM_SCHEMA"
-                  }
-                ]
-              },
-              {
-                "name" : "page",
-                "fieldType" : "CONNECTOR",
-                "label" : "page",
-                "nativeName" : "page",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 31,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "INFARS_CUSTOM_SCHEMA"
-                  }
-                ]
-              },
-              {
-                "name" : "created",
-                "fieldType" : "CONNECTOR",
-                "label" : "created",
-                "nativeName" : "created",
-                "nativeType" : "timestamp",
-                "original" : "false",
-                "precision" : 29,
-                "scale" : 6,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "INFARS_CUSTOM_SCHEMA"
-                  }
-                ]
-              }
-            ]
-          },
-          "readOptions" : {
-            "commandType" : 0,
-            "descending" : "false",
-            "queryAll" : "false",
-            "rowLimit" : 0,
-            "selectDistinct" : "false"
-          },
-          "runtimeAttributes" : {
-            "attributes" : [
-              {
-                "name" : "Read Mode",
-                "value" : "Direct"
-              },
-              {
-                "name" : "Fetch Size",
-                "value" : "10000"
-              },
-              {
-                "name" : "Enable Compression",
-                "value" : "YES"
-              },
-              {
-                "name" : "Temporary Credential Duration",
-                "value" : "900"
-              },
-              {
-                "name" : "Treat NULL Value as NULL",
-                "value" : "NO"
-              },
-              {
-                "name" : "Encryption Type",
-                "value" : "None"
-              },
-              {
-                "name" : "Download S3 Files In Multiple Parts",
-                "value" : "NO"
-              },
-              {
-                "name" : "Multipart Download Threshold Size",
-                "value" : "5242880"
-              },
-              {
-                "name" : "Select Distinct",
-                "value" : "NO"
-              }
-            ]
-          }
-        }
-      },
-      {
-        "createTime" : "2025-12-08T19:52:23.276Z",
-        "name" : "Joiner",
-        "groups" : [
-          {
-            "input" : "true",
-            "name" : "Master",
-            "output" : "false",
-            "rules" : [
-              {
-                "bulkRename" : "true",
-                "include" : "true",
-                "bulkRenameOption" : {
-                  "literal" : "tgt_",
-                  "suffix" : "false"
-                }
-              }
-            ]
-          },
-          {
-            "input" : "true",
-            "name" : "Detail",
-            "output" : "false",
-            "rules" : [
-              {
-                "bulkRename" : "false",
-                "include" : "true"
-              }
-            ]
-          },
-          {
-            "input" : "false",
-            "name" : "OutputGroup",
-            "output" : "true"
-          }
-        ],
-        "joinType" : "Master Outer Join",
-        "joinConditions" : [
-          {
-            "leftOperand" : "tgt_id",
-            "operator" : "=",
-            "rightOperand" : "o_id"
-          }
-        ]
       },
       {
         "createTime" : "2025-12-08T20:00:25.435Z",
@@ -1865,7 +1704,7 @@
             "precision" : 10,
             "scale" : 0,
             "expFieldType" : "OUTPUT",
-            "expression" : "IIF(isnull(tgt_adm_agency_change_log_row_id),'I','X')"
+            "expression" : "IIF(isnull(adm_agency_change_log_row_id),'I','X')"
           },
           {
             "name" : "o_start_date",
@@ -1896,7 +1735,7 @@
             "precision" : 10,
             "scale" : 0,
             "expFieldType" : "OUTPUT",
-            "expression" : "iif(NOT ISNULL(tgt_adm_agency_change_log_row_id) AND tgt_adm_agency_change_log_md5checksum <> MD5_hash_value,'U','X')"
+            "expression" : "iif(NOT ISNULL(adm_agency_change_log_row_id) AND adm_agency_change_log_md5checksum <> MD5_hash_value,'U','X')"
           },
           {
             "defaultValue" : "ERROR('transformation error')",
@@ -2226,8 +2065,9 @@
           }
         ],
         "dataAdapter" : {
-          "connectionId" : "saas:@aYZ4ekzHgIPeKpiaoqDLKP",
-          "connectionName" : "redshift_nonprod_andover_dw_dev",
+          "connectionId$" : {
+            "name" : "DBConnection_UDM_TGT"
+          },
           "excludeDynamicFileNameField" : "false",
           "objectType" : "SINGLE",
           "typeSystem" : "TOOLKIT",
@@ -2622,6 +2462,10 @@
                 "value" : "5242880"
               },
               {
+                "name" : "Schema Name",
+                "value" : "$$staging_schema"
+              },
+              {
                 "name" : "Preserve record order on write",
                 "value" : "NO"
               },
@@ -2761,16 +2605,16 @@
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "tgt_adm_agency_change_log_row_id",
+              "fromFieldName" : "o_id",
               "toField" : {
-                "name" : "adm_agency_change_log_row_id"
+                "name" : "id"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "o_id",
+              "fromFieldName" : "adm_agency_change_log_row_id",
               "toField" : {
-                "name" : "id"
+                "name" : "adm_agency_change_log_row_id"
               },
               "fromFieldNames" : null
             }
@@ -2829,5 +2673,5 @@
       }
     ]
   },
-  "vcsExportTime" : "2025-12-15 07:57:18 PST"
+  "vcsExportTime" : "2025-12-22 11:41:37 PST"
 }
