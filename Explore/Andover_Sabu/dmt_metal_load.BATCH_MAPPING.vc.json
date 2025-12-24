@@ -1,0 +1,133 @@
+{
+  "name" : "dmt_metal_load",
+  "state" : "VALID",
+  "mappingId" : "01COEW17000000000236",
+  "mappingTemplateName" : "m_metal_load_template",
+  "mappingDocType" : "MAPPING",
+  "runtimeEnvironmentId" : "01COEW25000000000005",
+  "runtimeEnvironmentName" : "sag_aws_linux",
+  "params" : [
+    {
+      "uniqueName" : "Source:parm_src_conn",
+      "name" : "parm_src_conn",
+      "txName" : "Source",
+      "type" : "SOURCE_CONNECTION",
+      "scope" : "LOCAL",
+      "label" : "parm_src_conn"
+    },
+    {
+      "uniqueName" : "Source:parm_src_object",
+      "name" : "parm_src_object",
+      "txName" : "Source",
+      "type" : "SOURCE_OBJECT",
+      "scope" : "LOCAL",
+      "label" : "parm_src_object"
+    },
+    {
+      "uniqueName" : "Target:parm_tgt_conn",
+      "name" : "parm_tgt_conn",
+      "txName" : "Target",
+      "type" : "TARGET_CONNECTION",
+      "scope" : "LOCAL",
+      "label" : "parm_tgt_conn"
+    },
+    {
+      "uniqueName" : "Target:parm_tgt_object",
+      "name" : "parm_tgt_object",
+      "txName" : "Target",
+      "type" : "TARGET_OBJECT",
+      "scope" : "LOCAL"
+    }
+  ],
+  "groups" : [
+    {
+      "groupName" : "Group_1",
+      "enabled" : true
+    }
+  ],
+  "jobs" : [
+    {
+      "jobName" : "adm_agency_email_metal",
+      "jobType" : "USER",
+      "enabled" : true,
+      "stopOnError" : false,
+      "stopOnWarning" : false,
+      "jobParamBindings" : [
+        {
+          "type" : "Connection",
+          "paramDefn" : "Source:parm_src_conn",
+          "connectionId" : "01COEW0B00000000002K",
+          "connectionName" : "conn_mysql_model_adm"
+        },
+        {
+          "type" : "Source",
+          "paramDefn" : "Source:parm_src_object",
+          "handleSpecialChars" : false,
+          "isFileList" : false,
+          "customQuery" : "SELECT id, group_nup, agency_nup, email_type, email_address, create_date, modified_date\nFROM agencymanagement.agencyemail\nORDER BY modified_date DESC;",
+          "currentlyProcessedFileName" : false
+        },
+        {
+          "type" : "Connection",
+          "paramDefn" : "Target:parm_tgt_conn",
+          "connectionId" : "01COEW0B00000000000P",
+          "connectionName" : "redshift_nonprod_andover_dw_dev"
+        },
+        {
+          "type" : "Target",
+          "paramDefn" : "Target:parm_tgt_object",
+          "handleSpecialChars" : false,
+          "objectName" : "metal/test_agency_email",
+          "objectLabel" : "test_agency_email",
+          "truncateTarget" : false,
+          "bulkApiDBTarget" : false,
+          "dynamicFileName" : false,
+          "targetSchemaMode" : "DONT_APPLY_CHANGES"
+        }
+      ],
+      "group" : "Group_1"
+    },
+    {
+      "jobName" : "adm_agency_notes_metal",
+      "jobType" : "USER",
+      "enabled" : true,
+      "stopOnError" : false,
+      "stopOnWarning" : false,
+      "jobParamBindings" : [
+        {
+          "type" : "Connection",
+          "paramDefn" : "Source:parm_src_conn",
+          "connectionId" : "01COEW0B00000000002K",
+          "connectionName" : "conn_mysql_model_adm"
+        },
+        {
+          "type" : "Source",
+          "paramDefn" : "Source:parm_src_object",
+          "handleSpecialChars" : false,
+          "isFileList" : false,
+          "customQuery" : "SELECT note_id, agency_nup, note_type, note_text, created_date, modified_date \nFROM agencymanagement.agencynotes\nORDER BY modified_date DESC;",
+          "currentlyProcessedFileName" : false
+        },
+        {
+          "type" : "Connection",
+          "paramDefn" : "Target:parm_tgt_conn",
+          "connectionId" : "01COEW0B00000000000P",
+          "connectionName" : "redshift_nonprod_andover_dw_dev"
+        },
+        {
+          "type" : "Target",
+          "paramDefn" : "Target:parm_tgt_object",
+          "handleSpecialChars" : false,
+          "objectName" : "metal/test_agency_notes",
+          "objectLabel" : "test_agency_notes",
+          "truncateTarget" : false,
+          "bulkApiDBTarget" : false,
+          "dynamicFileName" : false,
+          "targetSchemaMode" : "DONT_APPLY_CHANGES"
+        }
+      ],
+      "group" : "Group_1"
+    }
+  ],
+  "vcsExportTime" : "2025-12-24 09:07:47 PST"
+}
