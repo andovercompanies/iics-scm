@@ -41,6 +41,7 @@
       "objectName" : "DUMMY_src_base_tables",
       "useExactSrcNames" : false,
       "userUpdated" : true,
+      "fetchMode" : "ORIGINAL",
       "runtimeParameterData" : {
         "connectionParameterName" : "DBConnection_SRC",
         "connectionRuntimeParameter" : false,
@@ -81,7 +82,7 @@
       "extendedObject" : {
         "singleMode" : false
       },
-      "customQuery" : "SELECT DISTINCT\n'Betterview' AS straight_through_processing_data_staging_source_system,\n'Straight Through Processing' AS straight_through_processing_data_staging_domain,\nnull AS cmm_container,\n'property' AS originating_source_name,\n'NULL' AS originating_load_type,\n'Loaded' AS straight_through_processing_data_staging_load_state,\nCAST(bvp.property_version_id AS varchar) AS straight_through_processing_data_staging_row_source_system_key,\nnull AS system_id,\nNULL AS parent_id,\nNULL AS policy_risk_id,\nbvp.property_risk_id,\n'dbo' AS source_schema_name,\n'betterview_property_stg' AS source_table_name,\n'property_status' AS source_field_name,\nbvp.property_status AS source_value\nFROM (\nSELECT DISTINCT\np.property_version_id as property_version_id,\np.property_version_number as property_version_number,\np.property_street as property_street,\np.property_city as property_city,\np.property_state as property_state,\np.property_zip as property_zip,\np.external_id as property_risk_id,\np.order_date as property_order_date_of_betterview_risk_data_pull,\np.completion_date as property_completion_date_of_ordered_betterview_risk_data_pull,\np.update_date as property_update_date,\np.latest_image_capture_date as property_latest_image_capture_date,\np.overall_visual_score as property_roof_spotlight_index,\np.property_status as property_status,\npb.property_version_id as building_property_version_id,\npb.property_building_id as building_property_building_id,\npb.building_number as building_number,\npb.property_level as building_property_level,\npb.building_area_sqft as building_area_in_square_feet,\npb.building_visual_score as building_spotlight_index,\npb.building_accumulated_risk_tree_coverage as building_aggregate_tree_score,\npb.building_tree_count as building_number_of_dangerous_trees,\npb.create_date as building_create_date,\npb.update_date as building_update_date\nFROM\n(SELECT * FROM\n(SELECT property_version_id,external_id,order_date,completion_date,latest_image_capture_date,overall_visual_score,update_date,property_version_number,property_street,property_city,property_state,property_zip,property_status,\nROW_NUMBER() OVER(PARTITION BY external_id ORDER BY latest_image_capture_date DESC NULLS LAST, completion_date DESC NULLS LAST,update_date DESC NULLS LAST) as rn\nFROM dbo.betterview_property_stg\n)\nWHERE rn = 1\n) p\nINNER JOIN\n(SELECT * FROM\n(SELECT property_level,building_number,property_version_id,property_building_id,building_tree_count,building_visual_score,building_accumulated_risk_tree_coverage,building_area_sqft,create_date,update_date,\nROW_NUMBER() OVER (PARTITION BY property_level,building_number,property_version_id ORDER BY create_date DESC NULLS LAST) AS rn\nFROM dbo.betterview_property_building_stg\nWHERE property_level = 'Building'\nAND building_number = 1\n)\nWHERE rn = 1\n)pb\nON p.property_version_id = pb.property_version_id\n) bvp\nWHERE bvp.building_number = 1;",
+      "customQuery" : "select\ndistinct 'Betterview' as straight_through_processing_data_staging_source_system,\n 'Straight Through Processing' as straight_through_processing_data_staging_domain,\nnull as cmm_container,\n 'property' as originating_source_name,\n 'NULL' as originating_load_type,\n 'Loaded' as straight_through_processing_data_staging_load_state,\ncast(bvp.property_version_id as varchar) as straight_through_processing_data_staging_row_source_system_key,\nnull as system_id,\nnull as parent_id,\nnull as policy_risk_id,\nbvp.property_risk_id,\n 'dbo' as source_schema_name,\n 'betterview_property_stg' as source_table_name,\n 'property_status' as source_field_name,\nbvp.property_status as source_value\nfrom\n(\nselect\ndistinct p.property_version_id as property_version_id,\np.property_version_number as property_version_number,\np.property_street as property_street,\np.property_city as property_city,\np.property_state as property_state,\np.property_zip as property_zip,\np.external_id as property_risk_id,\np.order_date as property_order_date_of_betterview_risk_data_pull,\np.completion_date as property_completion_date_of_ordered_betterview_risk_data_pull,\np.update_date as property_update_date,\np.latest_image_capture_date as property_latest_image_capture_date,\np.overall_visual_score as property_roof_spotlight_index,\np.property_status as property_status,\npb.property_version_id as building_property_version_id,\npb.property_building_id as building_property_building_id,\npb.building_number as building_number,\npb.property_level as building_property_level,\npb.building_area_sqft as building_area_in_square_feet,\npb.building_visual_score as building_spotlight_index,\npb.building_accumulated_risk_tree_coverage as building_aggregate_tree_score,\npb.building_tree_count as building_number_of_dangerous_trees,\npb.create_date as building_create_date,\npb.update_date as building_update_date\nfrom\n(\nselect\n*\nfrom\n(\nselect\nproperty_version_id,\nexternal_id,\norder_date,\ncompletion_date,\nlatest_image_capture_date,\noverall_visual_score,\nupdate_date,\nproperty_version_number,\nproperty_street,\nproperty_city,\nproperty_state,\nproperty_zip,\nproperty_status,\nrow_number() over(partition by external_id\norder by\nlatest_image_capture_date desc nulls last,\ncompletion_date desc nulls last,\nupdate_date desc nulls last) as rn\nfrom\ndbo.betterview_property_stg )\nwhere\nrn = 1 ) p\nleft join (\nselect\n*\nfrom\n(\nselect\nproperty_level,\nbuilding_number,\nproperty_version_id,\nproperty_building_id,\nbuilding_tree_count,\nbuilding_visual_score,\nbuilding_accumulated_risk_tree_coverage,\nbuilding_area_sqft,\ncreate_date,\nupdate_date,\nrow_number() over (partition by property_level,\nbuilding_number,\nproperty_version_id\norder by\ncreate_date desc nulls last) as rn\nfrom\ndbo.betterview_property_building_stg\nwhere\nproperty_level = 'Building'\nand building_number = 1 )\nwhere\nrn = 1 )pb on\np.property_version_id = pb.property_version_id ) bvp;",
       "commandType" : 0,
       "handleSpecialChars" : false,
       "handleDecimalRoundOff" : false,
@@ -92,6 +93,7 @@
       "retainFieldMetadata" : false,
       "useExactSrcNames" : false,
       "userUpdated" : true,
+      "fetchMode" : "ORIGINAL",
       "runtimeParameterData" : {
         "connectionParameterName" : "DBConnection_SRC",
         "objectParameterName" : "source_query",
@@ -145,6 +147,7 @@
       "objectLabel" : "silver/straight_through_processing_data_staging",
       "useExactSrcNames" : false,
       "userUpdated" : true,
+      "fetchMode" : "ORIGINAL",
       "runtimeParameterData" : {
         "connectionParameterName" : "DBConnection_TGT",
         "connectionRuntimeParameter" : false,
@@ -183,6 +186,7 @@
       "retainFieldMetadata" : false,
       "useExactSrcNames" : false,
       "userUpdated" : true,
+      "fetchMode" : "ORIGINAL",
       "runtimeParameterData" : {
         "connectionRuntimeParameter" : false,
         "objectRuntimeParameter" : false
@@ -193,7 +197,7 @@
     }
   ],
   "verbose" : false,
-  "lastRunTime" : 1758781932000,
+  "lastRunTime" : 1762206872000,
   "mappingId" : "@iIh3cmfr6ICgsQCW4j5AA5",
   "mappingTemplateName" : "cdi_map_stp_data_staging_silver_load",
   "sessionPropertiesList" : [
@@ -286,5 +290,5 @@
   "allowMaxFieldLength" : false,
   "specialCharacterSupport" : false,
   "midstreamPreview" : false,
-  "vcsExportTime" : "2025-09-25 06:07:05 PDT"
+  "vcsExportTime" : "2025-12-29 14:32:20 PST"
 }
