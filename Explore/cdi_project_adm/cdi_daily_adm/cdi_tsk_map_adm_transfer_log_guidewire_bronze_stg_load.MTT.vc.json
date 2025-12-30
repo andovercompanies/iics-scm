@@ -1,11 +1,11 @@
 {
-  "name" : "cdi_tsk_map_adm_role_permissions_bronze_load",
+  "name" : "cdi_tsk_map_adm_transfer_log_guidewire_bronze_stg_load",
   "runtimeEnvironmentId" : "@3pADNCV9u0PcgrXjM7rx0t",
   "runtimeEnvironmentName" : "sag_aws_linux",
   "maxLogs" : 10,
   "parameters" : [
     {
-      "name" : "$src_adm_role_permissions_and_tgt$",
+      "name" : "$src_metal_adm_transfer_log_guidewire$",
       "type" : "SOURCE",
       "label" : "DBConnection_UDM_SRC",
       "uiProperties" : {
@@ -17,11 +17,11 @@
         "isSelectDistinct" : "false",
         "objectParameterized" : "false",
         "visible" : "false",
-        "originalPath" : "src_adm_role_permissions_and_tgt"
+        "originalPath" : "src_metal_adm_transfer_log_guidewire"
       },
       "sourceConnectionId" : "@aYZ4ekzHgIPeKpiaoqDLKP",
       "connectionName" : "redshift_nonprod_andover_dw_dev",
-      "sourceObject" : "DUMMY_src_adm_role_permissions_and_tgt",
+      "sourceObject" : "DUMMY_src_metal_adm_transfer_log_guidewire",
       "newFlatFile" : false,
       "newObject" : false,
       "showBusinessNames" : true,
@@ -29,7 +29,7 @@
       "truncateTarget" : false,
       "bulkApiDBTarget" : false,
       "customFuncCfg" : { },
-      "customQuery" : "WITH current_batch AS (\n    SELECT \n        bls.batch_id,\n        bls.source_start_cutoff_datetime,\n        bls.source_end_cutoff_datetime\n    FROM $$operational_schema.batch_load_summary bls\n    WHERE bls.source_system_code = '$$sourcesystemcode'\n      AND bls.batch_status = '$$batch_status_inprogress'\n      AND bls.batch_id = (\n          SELECT MAX(batch_id)\n          FROM $$operational_schema.batch_load_summary\n          WHERE source_system_code = '$$sourcesystemcode'\n            AND batch_status = '$$batch_status_inprogress'\n      )\n)\nSELECT DISTINCT\nmetal_arp.source_name,\nmetal_arp.load_type,\nmetal_arp.id,\nmetal_arp.role_name,\nmetal_arp.permission_name,\ncurrent_batch.batch_id,\nbronze_arp.adm_role_permissions_row_id as role_permissions_row_id,\nbronze_arp.adm_role_permissions_md5checksum as role_permissions_md5checksum,\nbronze_arp.adm_role_permissions_row_effective_end_datetime as role_permissions_row_effective_datetime,\nbronze_arp.adm_role_permissions_batch_id as role_permissions_batch_id,\nbronze_arp.id as role_permissions_id\nFROM $$raw_schema.adm_role_permissions metal_arp\nleft outer join $$staging_schema.adm_role_permissions bronze_arp\non metal_arp.id = bronze_arp.id\nCROSS JOIN current_batch\nORDER BY \nmetal_arp.id",
+      "customQuery" : "with current_batch as (\nselect\n\tbls.batch_id,\n\tbls.source_start_cutoff_datetime,\n\tbls.source_end_cutoff_datetime\nfrom\n\t$$operational_schema.batch_load_summary bls\nwhere\n\tbls.source_system_code = '$$sourcesystemcode'\n\tand bls.batch_status = 'Inprogress'\n\tand bls.batch_id = (\n\tselect\n\t\tMAX(batch_id)\n\tfrom\n\t\t$$operational_schema.batch_load_summary\n\twhere\n\t\tsource_system_code = '$$sourcesystemcode'\n\t\tand batch_status = 'Inprogress' ))\nselect \ndistinct \nsrc.source_name,\nsrc.load_type,\nsrc.id,\nsrc.status,\nsrc.action_type,\nsrc.\"user\",\nsrc.job_id,\nsrc.record_nup,\nsrc.message,\nsrc.created_time,\nsrc.agency_nups,\nadm_transfer_log_guidewire_row_id,\nadm_transfer_log_guidewire_row_md5checksum,\ntgt.id as tgt_id,\ntgt.created_time as tgt_created_time,\nadm_transfer_log_guidewire_row_effective_end_datetime,\ncurrent_batch.batch_id\nFROM $$raw_schema.adm_transfer_log_guidewire src\nleft join $$staging_schema.adm_transfer_log_guidewire tgt\non src.id = tgt.id\nand adm_transfer_log_guidewire_row_effective_end_datetime = '9999-12-31 00:00:00.000'\nleft join current_batch on true",
       "commandType" : 0,
       "handleSpecialChars" : false,
       "handleDecimalRoundOff" : false,
@@ -38,12 +38,12 @@
       "excludeDynamicFileNameField" : false,
       "currentlyProcessedFileName" : false,
       "retainFieldMetadata" : false,
-      "objectName" : "DUMMY_src_adm_role_permissions_and_tgt",
+      "objectName" : "DUMMY_src_metal_adm_transfer_log_guidewire",
       "useExactSrcNames" : false,
       "userUpdated" : true,
       "runtimeParameterData" : {
         "connectionParameterName" : "DBConnection_UDM_SRC",
-        "connectionRuntimeParameter" : false,
+        "connectionRuntimeParameter" : true,
         "objectRuntimeParameter" : false
       },
       "restmodernSource" : true,
@@ -51,7 +51,7 @@
       "fileList" : false
     },
     {
-      "name" : "$tgt_insert_adm_role_permissions$",
+      "name" : "$tgt_insert_records$",
       "type" : "TARGET",
       "label" : "DBConnection_UDM_TGT",
       "uiProperties" : {
@@ -60,16 +60,16 @@
         "paramName" : "DBConnection_UDM_TGT",
         "paramType-mapping" : "Connection",
         "logcnx" : "DBConnection_UDM_TGT",
-        "default" : "bronze/adm_role_permissions",
+        "default" : "bronze/adm_transfer_log_guidewire",
         "objectParameterized" : "false",
         "visible" : "false",
         "supportApplyDDLChanges" : "false",
-        "originalPath" : "tgt_insert_adm_role_permissions"
+        "originalPath" : "tgt_insert_records"
       },
       "targetConnectionId" : "@aYZ4ekzHgIPeKpiaoqDLKP",
       "connectionName" : "redshift_nonprod_andover_dw_dev",
-      "targetObject" : "bronze/adm_role_permissions",
-      "targetObjectLabel" : "bronze/adm_role_permissions",
+      "targetObject" : "bronze/adm_transfer_log_guidewire",
+      "targetObjectLabel" : "bronze/adm_transfer_log_guidewire",
       "newFlatFile" : false,
       "newObject" : false,
       "showBusinessNames" : true,
@@ -89,13 +89,13 @@
       "excludeDynamicFileNameField" : false,
       "currentlyProcessedFileName" : false,
       "retainFieldMetadata" : false,
-      "objectName" : "bronze/adm_role_permissions",
-      "objectLabel" : "bronze/adm_role_permissions",
+      "objectName" : "bronze/adm_transfer_log_guidewire",
+      "objectLabel" : "bronze/adm_transfer_log_guidewire",
       "useExactSrcNames" : false,
       "userUpdated" : true,
       "runtimeParameterData" : {
         "connectionParameterName" : "DBConnection_UDM_TGT",
-        "connectionRuntimeParameter" : false,
+        "connectionRuntimeParameter" : true,
         "objectRuntimeParameter" : false
       },
       "restmodernSource" : true,
@@ -103,7 +103,7 @@
       "fileList" : false
     },
     {
-      "name" : "$tgt_update_closeout_adm_role_permissions$",
+      "name" : "$tgt_update_closeout$",
       "type" : "TARGET",
       "label" : "DBConnection_UDM_TGT",
       "uiProperties" : {
@@ -112,17 +112,17 @@
         "paramName" : "DBConnection_UDM_TGT",
         "paramType-mapping" : "Connection",
         "logcnx" : "DBConnection_UDM_TGT",
-        "default" : "bronze/adm_role_permissions",
+        "default" : "bronze/adm_transfer_log_guidewire",
         "objectParameterized" : "false",
         "visible" : "false",
-        "defaultTargetUpdateColumns" : "adm_role_permissions_row_id",
+        "defaultTargetUpdateColumns" : "adm_transfer_log_guidewire_row_id",
         "supportApplyDDLChanges" : "false",
-        "originalPath" : "tgt_update_closeout_adm_role_permissions"
+        "originalPath" : "tgt_update_closeout"
       },
       "targetConnectionId" : "@aYZ4ekzHgIPeKpiaoqDLKP",
       "connectionName" : "redshift_nonprod_andover_dw_dev",
-      "targetObject" : "bronze/adm_role_permissions",
-      "targetObjectLabel" : "bronze/adm_role_permissions",
+      "targetObject" : "bronze/adm_transfer_log_guidewire",
+      "targetObjectLabel" : "bronze/adm_transfer_log_guidewire",
       "newFlatFile" : false,
       "newObject" : false,
       "showBusinessNames" : true,
@@ -132,7 +132,7 @@
       "operationType" : "Update",
       "customFuncCfg" : { },
       "targetUpdateColumns" : [
-        "adm_role_permissions_row_id"
+        "adm_transfer_log_guidewire_row_id"
       ],
       "extendedObject" : {
         "singleMode" : true
@@ -145,13 +145,13 @@
       "excludeDynamicFileNameField" : false,
       "currentlyProcessedFileName" : false,
       "retainFieldMetadata" : false,
-      "objectName" : "bronze/adm_role_permissions",
-      "objectLabel" : "bronze/adm_role_permissions",
+      "objectName" : "bronze/adm_transfer_log_guidewire",
+      "objectLabel" : "bronze/adm_transfer_log_guidewire",
       "useExactSrcNames" : false,
       "userUpdated" : true,
       "runtimeParameterData" : {
         "connectionParameterName" : "DBConnection_UDM_TGT",
-        "connectionRuntimeParameter" : false,
+        "connectionRuntimeParameter" : true,
         "objectRuntimeParameter" : false
       },
       "restmodernSource" : true,
@@ -159,7 +159,7 @@
       "fileList" : false
     },
     {
-      "name" : "$tgt_update_insert_adm_role_permissions$",
+      "name" : "$tgt_update_records$",
       "type" : "TARGET",
       "label" : "DBConnection_UDM_TGT",
       "uiProperties" : {
@@ -168,16 +168,16 @@
         "paramName" : "DBConnection_UDM_TGT",
         "paramType-mapping" : "Connection",
         "logcnx" : "DBConnection_UDM_TGT",
-        "default" : "bronze/adm_role_permissions",
+        "default" : "bronze/adm_transfer_log_guidewire",
         "objectParameterized" : "false",
         "visible" : "false",
         "supportApplyDDLChanges" : "false",
-        "originalPath" : "tgt_update_insert_adm_role_permissions"
+        "originalPath" : "tgt_update_records"
       },
       "targetConnectionId" : "@aYZ4ekzHgIPeKpiaoqDLKP",
       "connectionName" : "redshift_nonprod_andover_dw_dev",
-      "targetObject" : "bronze/adm_role_permissions",
-      "targetObjectLabel" : "bronze/adm_role_permissions",
+      "targetObject" : "bronze/adm_transfer_log_guidewire",
+      "targetObjectLabel" : "bronze/adm_transfer_log_guidewire",
       "newFlatFile" : false,
       "newObject" : false,
       "showBusinessNames" : true,
@@ -197,13 +197,13 @@
       "excludeDynamicFileNameField" : false,
       "currentlyProcessedFileName" : false,
       "retainFieldMetadata" : false,
-      "objectName" : "bronze/adm_role_permissions",
-      "objectLabel" : "bronze/adm_role_permissions",
+      "objectName" : "bronze/adm_transfer_log_guidewire",
+      "objectLabel" : "bronze/adm_transfer_log_guidewire",
       "useExactSrcNames" : false,
       "userUpdated" : true,
       "runtimeParameterData" : {
         "connectionParameterName" : "DBConnection_UDM_TGT",
-        "connectionRuntimeParameter" : false,
+        "connectionRuntimeParameter" : true,
         "objectRuntimeParameter" : false
       },
       "restmodernSource" : true,
@@ -212,9 +212,9 @@
     }
   ],
   "verbose" : false,
-  "lastRunTime" : 1766436922000,
-  "mappingId" : "@9Rwu0bPeIqTfYan4dwwb2b",
-  "mappingTemplateName" : "cdi_map_adm_role_permissions_bronze_load",
+  "lastRunTime" : 1767039542000,
+  "mappingId" : "@87PkkOfjCLvkZwgIA2z06g",
+  "mappingTemplateName" : "cdi_tsk_map_adm_transfer_log_guidewire_bronze_stg_load",
   "sessionPropertiesList" : [
     {
       "name" : "Pushdown Optimization",
@@ -231,12 +231,22 @@
   ],
   "inOutParameters" : [
     {
+      "name" : "sourcesystemcode",
+      "initialValue" : "ADM",
+      "datatype" : "STRING",
+      "precision" : "10",
+      "scale" : "0",
+      "retentionPolicy" : "ON_SUCCESS_OR_WARNING",
+      "aggregationType" : "MAX",
+      "currentValue" : "ADM"
+    },
+    {
       "name" : "raw_schema",
       "initialValue" : "metal",
       "datatype" : "STRING",
-      "precision" : "40",
+      "precision" : "10",
       "scale" : "0",
-      "retentionPolicy" : "NEVER",
+      "retentionPolicy" : "ON_SUCCESS_OR_WARNING",
       "aggregationType" : "MAX",
       "currentValue" : "metal"
     },
@@ -244,39 +254,19 @@
       "name" : "operational_schema",
       "initialValue" : "operations",
       "datatype" : "STRING",
-      "precision" : "40",
+      "precision" : "10",
       "scale" : "0",
-      "retentionPolicy" : "NEVER",
+      "retentionPolicy" : "ON_SUCCESS_OR_WARNING",
       "aggregationType" : "MAX",
       "currentValue" : "operations"
-    },
-    {
-      "name" : "batch_status_inprogress",
-      "initialValue" : "Inprogress",
-      "datatype" : "STRING",
-      "precision" : "40",
-      "scale" : "0",
-      "retentionPolicy" : "NEVER",
-      "aggregationType" : "MAX",
-      "currentValue" : "Inprogress"
-    },
-    {
-      "name" : "sourcesystemcode",
-      "initialValue" : "ADM",
-      "datatype" : "STRING",
-      "precision" : "40",
-      "scale" : "0",
-      "retentionPolicy" : "NEVER",
-      "aggregationType" : "MAX",
-      "currentValue" : "ADM"
     },
     {
       "name" : "staging_schema",
       "initialValue" : "bronze",
       "datatype" : "STRING",
-      "precision" : "40",
+      "precision" : "10",
       "scale" : "0",
-      "retentionPolicy" : "NEVER",
+      "retentionPolicy" : "ON_SUCCESS_OR_WARNING",
       "aggregationType" : "MAX",
       "currentValue" : "bronze"
     }
@@ -295,5 +285,5 @@
   "allowMaxFieldLength" : false,
   "specialCharacterSupport" : false,
   "midstreamPreview" : false,
-  "vcsExportTime" : "2025-12-23 08:12:17 PST"
+  "vcsExportTime" : "2025-12-29 12:26:43 PST"
 }

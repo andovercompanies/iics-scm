@@ -1,5 +1,5 @@
 {
-  "name" : "cdi_tsk_map_stp_data_staging_uw_question_silver_load",
+  "name" : "cdi_tsk_map_stp_data_staging_external_id_silver_load",
   "runtimeEnvironmentId" : "@3pADNCV9u0PcgrXjM7rx0t",
   "runtimeEnvironmentName" : "sag_aws_linux",
   "maxLogs" : 10,
@@ -82,7 +82,7 @@
       "extendedObject" : {
         "singleMode" : false
       },
-      "customQuery" : "select\ndistinct 'ACX' as straight_through_processing_data_staging_source_system,\n 'Straight Through Processing' as straight_through_processing_data_staging_domain,\nudqrd.question_reply_record_type as cmm_container,\n 'questionreply' as originating_source_name,\n 'NULL' as originating_load_type,\n 'Loaded' as straight_through_processing_data_staging_load_state,\nudqrd.question_reply_id as straight_through_processing_data_staging_row_source_system_key,\nudqrd.policy_system_id as system_id,\nnull as parent_id,\nnull as policy_risk_id,\nnull as property_risk_id,\n 'dbo' as source_schema_name,\n 'uw_dashboard_question_reply_details' as source_table_name,\n 'uw_question' as source_field_name,\nudqrd.uw_question as source_value\nfrom\ndbo.uw_dashboard_question_reply_details udqrd\njoin dbo.policy_risk_key_reference prkr on\nprkr.policy_system_id = udqrd.policy_system_id\nand prkr.policy_cmm_container = udqrd.question_reply_record_type\nwhere\nudqrd.question_reply_record_type = 'Policy'\nand udqrd.uw_question not in ('PrevDiscussed', 'PrevKnown','OtherInsurance','AnyLapsePast')\nand udqrd.uw_dashboard_question_reply_details_row_effective_end_datetime = '9999-12-31 00:00:00.000000';",
+      "customQuery" : "select\ndistinct 'Betterview' as straight_through_processing_data_staging_source_system,\n 'Straight Through Processing' as straight_through_processing_data_staging_domain,\nprkr.policy_cmm_container as cmm_container,\n 'property' as originating_source_name,\n 'NULL' as originating_load_type,\n 'Loaded' as straight_through_processing_data_staging_load_state,\nprkr.policy_number || '-' || prkr.policy_module_number as straight_through_processing_data_staging_row_source_system_key,\nprkr.policy_system_id as system_id,\nnull as parent_id,\nnull as policy_risk_id,\nbvp.external_id as property_risk_id,\n 'dbo' as source_schema_name,\n 'betterview_property_stg' as source_table_name,\n 'external_id' as source_field_name,\nbvp.external_id as source_value\nfrom\ndbo.policy_risk_key_reference prkr\nleft join\ndbo.betterview_property_stg bvp\non\nprkr.policy_number || '-' || prkr.policy_module_number = bvp.external_id\nwhere\nprkr.policy_cmm_container = 'Policy'\nand prkr.policy_risk_key_reference_row_effective_end_date = '9999-12-31'\nand bvp.external_id is null;",
       "commandType" : 0,
       "handleSpecialChars" : false,
       "handleDecimalRoundOff" : false,
@@ -197,7 +197,6 @@
     }
   ],
   "verbose" : false,
-  "lastRunTime" : 1762208248000,
   "mappingId" : "@iIh3cmfr6ICgsQCW4j5AA5",
   "mappingTemplateName" : "cdi_map_stp_data_staging_silver_load",
   "sessionPropertiesList" : [
@@ -290,5 +289,5 @@
   "allowMaxFieldLength" : false,
   "specialCharacterSupport" : false,
   "midstreamPreview" : false,
-  "vcsExportTime" : "2025-12-29 16:18:24 PST"
+  "vcsExportTime" : "2025-12-30 08:01:17 PST"
 }
