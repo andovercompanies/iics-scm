@@ -1,5 +1,6 @@
 {
   "name" : "dmt_metal_load",
+  "description" : "test",
   "state" : "VALID",
   "mappingId" : "01COEW17000000000236",
   "mappingTemplateName" : "m_metal_load_template",
@@ -37,6 +38,20 @@
       "txName" : "Target",
       "type" : "TARGET_OBJECT",
       "scope" : "LOCAL"
+    },
+    {
+      "uniqueName" : "parm_load_type",
+      "name" : "parm_load_type",
+      "type" : "EXPRESSION",
+      "scope" : "LOCAL",
+      "label" : "parm_load_type"
+    },
+    {
+      "uniqueName" : "parm_source_name",
+      "name" : "parm_source_name",
+      "type" : "EXPRESSION",
+      "scope" : "LOCAL",
+      "label" : "parm_source_name"
     }
   ],
   "groups" : [
@@ -47,7 +62,7 @@
   ],
   "jobs" : [
     {
-      "jobName" : "adm_agency_email_metal",
+      "jobName" : "metal_load_test_agency_email",
       "jobType" : "USER",
       "enabled" : true,
       "stopOnError" : false,
@@ -64,7 +79,7 @@
           "paramDefn" : "Source:parm_src_object",
           "handleSpecialChars" : false,
           "isFileList" : false,
-          "customQuery" : "SELECT id, group_nup, agency_nup, email_type, email_address, create_date, modified_date\nFROM agencymanagement.agencyemail\nORDER BY modified_date DESC;",
+          "customQuery" : "SELECT id, group_nup, agency_nup, email_type, email_address, create_date, modified_date FROM agencymanagement.agencyemail;",
           "currentlyProcessedFileName" : false
         },
         {
@@ -83,12 +98,22 @@
           "bulkApiDBTarget" : false,
           "dynamicFileName" : false,
           "targetSchemaMode" : "DONT_APPLY_CHANGES"
+        },
+        {
+          "type" : "String",
+          "paramDefn" : "parm_load_type",
+          "text" : "'Daily Refresh'"
+        },
+        {
+          "type" : "String",
+          "paramDefn" : "parm_source_name",
+          "text" : "'agencyemail'"
         }
       ],
       "group" : "Group_1"
     },
     {
-      "jobName" : "adm_agency_notes_metal",
+      "jobName" : "metal_load_test_agency_notes",
       "jobType" : "USER",
       "enabled" : true,
       "stopOnError" : false,
@@ -105,7 +130,7 @@
           "paramDefn" : "Source:parm_src_object",
           "handleSpecialChars" : false,
           "isFileList" : false,
-          "customQuery" : "SELECT note_id, agency_nup, note_type, note_text, created_date, modified_date \nFROM agencymanagement.agencynotes\nORDER BY modified_date DESC;",
+          "customQuery" : "SELECT note_id, agency_nup, note_type, note_text, created_date, modified_date FROM agencymanagement.agencynotes;",
           "currentlyProcessedFileName" : false
         },
         {
@@ -124,10 +149,71 @@
           "bulkApiDBTarget" : false,
           "dynamicFileName" : false,
           "targetSchemaMode" : "DONT_APPLY_CHANGES"
+        },
+        {
+          "type" : "String",
+          "paramDefn" : "parm_load_type",
+          "text" : "'Daily Refresh'"
+        },
+        {
+          "type" : "String",
+          "paramDefn" : "parm_source_name",
+          "text" : "'agencynotes'"
+        }
+      ],
+      "group" : "Group_1"
+    },
+    {
+      "jobName" : "metal_load_test_agency_license",
+      "jobType" : "USER",
+      "enabled" : true,
+      "stopOnError" : false,
+      "stopOnWarning" : false,
+      "jobParamBindings" : [
+        {
+          "type" : "Connection",
+          "paramDefn" : "Source:parm_src_conn",
+          "connectionId" : "01COEW0B00000000002K",
+          "connectionName" : "conn_mysql_model_adm"
+        },
+        {
+          "type" : "Source",
+          "paramDefn" : "Source:parm_src_object",
+          "handleSpecialChars" : false,
+          "isFileList" : false,
+          "customQuery" : "SELECT id, agency_id, state, license_number, expiration_date, mk_appointed_date, ca_appointed_date, bs_appointed_date, lob, delete_flag, created, modified, term_id FROM agencymanagement.agencylicense;",
+          "currentlyProcessedFileName" : false
+        },
+        {
+          "type" : "Connection",
+          "paramDefn" : "Target:parm_tgt_conn",
+          "connectionId" : "01COEW0B00000000000P",
+          "connectionName" : "redshift_nonprod_andover_dw_dev"
+        },
+        {
+          "type" : "Target",
+          "paramDefn" : "Target:parm_tgt_object",
+          "handleSpecialChars" : false,
+          "objectName" : "metal/test_agency_license",
+          "objectLabel" : "test_agency_license",
+          "truncateTarget" : false,
+          "bulkApiDBTarget" : false,
+          "dynamicFileName" : false,
+          "targetSchemaMode" : "DONT_APPLY_CHANGES"
+        },
+        {
+          "type" : "String",
+          "paramDefn" : "parm_load_type",
+          "text" : "'Daily Refresh'"
+        },
+        {
+          "type" : "String",
+          "paramDefn" : "parm_source_name",
+          "text" : "'agencylicense'"
         }
       ],
       "group" : "Group_1"
     }
   ],
-  "vcsExportTime" : "2025-12-24 09:19:05 PST"
+  "vcsExportTime" : "2026-01-06 06:12:05 PST"
 }
