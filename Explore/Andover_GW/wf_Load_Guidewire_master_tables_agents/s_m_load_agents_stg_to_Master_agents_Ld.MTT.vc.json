@@ -30,7 +30,7 @@
       "truncateTarget" : false,
       "bulkApiDBTarget" : false,
       "customFuncCfg" : { },
-      "customQuery" : "SELECT DISTINCT\nads.sourcecd,\nads.bestaddr1,\nads.producertypecd,\nads.beststateprovcd,\nads.bestpostalcode,\nads.commercialname,\nads.agencymastercode,\nads.agentcd,\nads.agencycd,\nads.agencyterritory,\nads.agencygroupcd,\nads.statuscd,\nads.statusdt,\nads.bestaddrline1,\nads.bestaddrline2,\nads.bestcity,\nads.systemid,\nads.contacttypecd,\nads.paymentpreferencecd,\napl.producer_id,\napl.agency_code,\n(ap.last_name ||\nCASE\nWHEN ap.suffix IS NOT NULL AND ap.suffix != '' THEN (' ' || ap.suffix || ',')\nELSE ','\nend ||  ' ' ||\nap.first_name ||\nCASE\nWHEN ap.middle_name IS NOT NULL AND ap.middle_name != '' THEN (' ' || ap.middle_name)\nELSE ''\nend ||\nCASE\nWHEN ap.term_flag = 1 THEN ' (TERM''D)'\nELSE ''\nEND\n) AS ProducerName,\napl.gw_producer_id,\nstr.gw_sales_territory_group_desc AS AgencyTerritoryGroup\nFROM\ndbo.agents_detail_stg ads\nJOIN\nbronze.adm_producer_license apl\nON ads.sourcecd = apl.gw_producer_id\nAND apl.adm_producer_license_row_effective_end_datetime = '9999-12-31'\nJOIN\nbronze.adm_producer ap\nON apl.producer_id = ap.id\nAND ap.adm_producer_row_effective_end_datetime = '9999-12-31'\nLEFT JOIN dbo.salesterritory_ref str\nON ads.agencyterritory = str.gw_sales_territory_desc",
+      "customQuery" : "SELECT DISTINCT\nads.sourcecd,\nads.bestaddr1,\nads.producertypecd,\nads.beststateprovcd,\nads.bestpostalcode,\nads.commercialname,\nads.agencymastercode,\nads.agentcd,\nads.agencycd,\nads.agencyterritory,\nads.agencygroupcd,\nads.statuscd,\nads.statusdt,\nads.bestaddrline1,\nads.bestaddrline2,\nads.bestcity,\nads.systemid,\nads.contacttypecd,\nads.paymentpreferencecd,\n--apl.producer_id,\napl.agency_code,\n(ap.last_name ||\nCASE\nWHEN ap.suffix IS NOT NULL AND ap.suffix != '' THEN (' ' || ap.suffix || ',')\nELSE ','\nend ||  ' ' ||\nap.first_name ||\nCASE\nWHEN ap.middle_name IS NOT NULL AND ap.middle_name != '' THEN (' ' || ap.middle_name)\nELSE ''\nend ||\nCASE\nWHEN ap.term_flag = 1 THEN ' (TERM''D)'\nELSE ''\nEND\n) AS ProducerName,\napl.gw_producer_id,\nstr.gw_sales_territory_group_desc AS AgencyTerritoryGroup,\ntgt.agentkey as tgt_agentkey,\ntgt.agentshashkey as tgt_agentshashkey,\ntgt.sourcecd \nFROM\ndbo.agents_detail_stg ads\nJOIN\n(\nSELECT DISTINCT producer_id, gw_producer_id, agency_code, adm_producer_license_row_effective_end_datetime, state\nFROM bronze.adm_producer_license\nWHERE adm_producer_license_row_effective_end_datetime = '9999-12-31'\n) apl\nON ads.sourcecd = apl.gw_producer_id and ads.beststateprovcd = apl.state\nJOIN\nbronze.adm_producer ap\nON apl.producer_id = ap.id\nAND ap.adm_producer_row_effective_end_datetime = '9999-12-31'\nLEFT JOIN dbo.salesterritory_ref str\nON ads.agencyterritory = str.gw_sales_territory_desc\nleft join \n(\nSELECT Agents.AgentKey, Agents.AgentsHashKey, Agents.SourceCd, Agents.providersystemid \nFROM dbo.Agents \nwhere Agents.RowEffEndDt='9999-12-31 00:00:00.0000000'\n) tgt\non ads.sourcecd = tgt.sourcecd \nand ads.systemid = tgt.providersystemid",
       "commandType" : 0,
       "handleSpecialChars" : false,
       "handleDecimalRoundOff" : false,
@@ -42,7 +42,6 @@
       "objectName" : "DUMMY_Src_Agents_Detail_Stg",
       "useExactSrcNames" : false,
       "userUpdated" : true,
-      "fetchMode" : "ORIGINAL",
       "runtimeParameterData" : {
         "connectionParameterName" : "DBConnection_SRC",
         "connectionRuntimeParameter" : true,
@@ -95,7 +94,6 @@
       "objectLabel" : "agents",
       "useExactSrcNames" : false,
       "userUpdated" : true,
-      "fetchMode" : "ORIGINAL",
       "runtimeParameterData" : {
         "connectionParameterName" : "DBConnection_TGT",
         "connectionRuntimeParameter" : true,
@@ -148,7 +146,6 @@
       "objectLabel" : "agents",
       "useExactSrcNames" : false,
       "userUpdated" : true,
-      "fetchMode" : "ORIGINAL",
       "runtimeParameterData" : {
         "connectionParameterName" : "DBConnection_TGT",
         "connectionRuntimeParameter" : true,
@@ -205,74 +202,6 @@
       "objectLabel" : "agents",
       "useExactSrcNames" : false,
       "userUpdated" : true,
-      "fetchMode" : "ORIGINAL",
-      "runtimeParameterData" : {
-        "connectionParameterName" : "DBConnection_TGT",
-        "connectionRuntimeParameter" : true,
-        "objectRuntimeParameter" : false
-      },
-      "restmodernSource" : true,
-      "unspecified" : false,
-      "fileList" : false
-    },
-    {
-      "name" : "$Lkp_agents$",
-      "type" : "LOOKUP",
-      "label" : "DBConnection_TGT",
-      "uiProperties" : {
-        "cnxtype" : "Amazon Redshift v2",
-        "connectionParameterized" : "true",
-        "paramName" : "DBConnection_TGT",
-        "paramType-mapping" : "Connection",
-        "logcnx" : "DBConnection_TGT",
-        "isCachedLookup" : "true",
-        "multipleMatchPolicy" : "Use Any Value",
-        "objectParameterized" : "false",
-        "visible" : "false",
-        "originalPath" : "Lkp_agents"
-      },
-      "lookupConnectionId" : "@aYZ4ekzHgIPeKpiaoqDLKP",
-      "connectionName" : "redshift_nonprod_andover_dw_dev",
-      "lookupObject" : "DUMMY_Lkp_agents",
-      "newFlatFile" : false,
-      "newObject" : false,
-      "showBusinessNames" : true,
-      "naturalOrder" : true,
-      "truncateTarget" : false,
-      "bulkApiDBTarget" : false,
-      "customFuncCfg" : { },
-      "runtimeAttrs" : {
-        "Lookup Index Cache Size" : "AUTO",
-        "Optional" : "false",
-        "Lookup cache persistent" : "false",
-        "Lookup source is static" : "false",
-        "Update Dynamic Cache Condition" : "TRUE",
-        "Case Sensitive String Comparison" : "false",
-        "Use Lookup Field Default Value" : "false",
-        "Re-cache from lookup source" : "false",
-        "Insert Else Update" : "false",
-        "Lookup caching enabled" : "true",
-        "Lookup Data Cache Size" : "AUTO",
-        "Tracing Level" : "Normal",
-        "Sorted Input" : "false",
-        "Lookup cache directory name" : "$PMCacheDir",
-        "Output Old Value On Update" : "false",
-        "Dynamic Lookup Cache" : "false",
-        "Pre-build lookup cache" : "AUTO"
-      },
-      "customQuery" : "SELECT Agents.AgentKey as AgentKey, Agents.AgentsHashKey as AgentsHashKey, Agents.SourceCd as SourceCd FROM dbo.Agents where Agents.RowEffEndDt='9999-12-31 00:00:00.0000000'",
-      "commandType" : 0,
-      "handleSpecialChars" : false,
-      "handleDecimalRoundOff" : false,
-      "frsAsset" : false,
-      "dynamicFileName" : false,
-      "excludeDynamicFileNameField" : false,
-      "currentlyProcessedFileName" : false,
-      "retainFieldMetadata" : false,
-      "objectName" : "DUMMY_Lkp_agents",
-      "useExactSrcNames" : false,
-      "userUpdated" : true,
-      "fetchMode" : "ORIGINAL",
       "runtimeParameterData" : {
         "connectionParameterName" : "DBConnection_TGT",
         "connectionRuntimeParameter" : true,
@@ -284,7 +213,7 @@
     }
   ],
   "verbose" : false,
-  "lastRunTime" : 1767718169000,
+  "lastRunTime" : 1768232173000,
   "mappingId" : "@3fieDBOWIqNg9qACotKuco",
   "mappingTemplateName" : "m_load_agents_stg_to_Master_agents_Ld",
   "sessionPropertiesList" : [
@@ -343,5 +272,5 @@
   "allowMaxFieldLength" : false,
   "specialCharacterSupport" : false,
   "midstreamPreview" : false,
-  "vcsExportTime" : "2026-01-06 11:16:36 PST"
+  "vcsExportTime" : "2026-01-15 10:35:21 PST"
 }
