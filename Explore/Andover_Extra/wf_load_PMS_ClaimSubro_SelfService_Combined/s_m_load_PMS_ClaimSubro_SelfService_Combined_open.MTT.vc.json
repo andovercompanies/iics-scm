@@ -1,0 +1,157 @@
+{
+  "name" : "s_m_load_PMS_ClaimSubro_SelfService_Combined_open",
+  "description" : "Loads the PMS data into ClaimSubro Self service combned to provide MTD data for Subrogation related measures on the basis of Subrogation Open date",
+  "runtimeEnvironmentId" : "@jRYfI6mJ60tdJACgcoBhOB",
+  "runtimeEnvironmentName" : "sag_aws_linux",
+  "maxLogs" : 10,
+  "parameters" : [
+    {
+      "name" : "$SQ_claimdetail$",
+      "type" : "SOURCE",
+      "label" : "DBConnection_SRC",
+      "uiProperties" : {
+        "cnxtype" : "Amazon Redshift v2",
+        "connectionParameterized" : "true",
+        "paramName" : "DBConnection_SRC",
+        "paramType-mapping" : "Connection",
+        "logcnx" : "DBConnection_SRC",
+        "isSelectDistinct" : "false",
+        "objectParameterized" : "false",
+        "visible" : "false",
+        "originalPath" : "SQ_claimdetail"
+      },
+      "sourceConnectionId" : "@6Uao049gWFIeOw6WPSkjsu",
+      "connectionName" : "redshift_nonprod_andover_dw_dev",
+      "sourceObject" : "DUMMY_SQ_claimdetail",
+      "newFlatFile" : false,
+      "newObject" : false,
+      "showBusinessNames" : true,
+      "naturalOrder" : true,
+      "truncateTarget" : false,
+      "bulkApiDBTarget" : false,
+      "customFuncCfg" : { },
+      "customQuery" : "select isnull(pms.opened_date, '9999-12-31')                                                                   as account_entered_dt,\n       pms.risk_state                                                                                          as risk_state,\n       convert(varchar(12), pms.claim_number)                                                                  as claim_number,\n       pmc.cat_group_desc,\n       pms.\"loss cause\"                                                                                        as losscausecd,\n       pms.sub_loss_cause,\n       CASE\n           WHEN pms.lob like '%HP%' then 'Homeowners'\n           WHEN pms.lob like '%SBP%' then 'Businessowners'\n           WHEN pms.lob like '%FP%' then 'Dwelling'\n           when pms.lob like '%IMC%' then 'Inland Marine – Commercial (IMC)'\n           ELSE PMS.LOB END                                                                                    AS lob_desc,\n       CASE\n           WHEN pms.lob like '%HP%' then 'Personal'\n           WHEN pms.lob like '%SBP%' then 'Commercial'\n           WHEN pms.lob like '%FP%' then 'Personal'\n           when pms.lob like '%IMC%' then 'Commercial'\n           ELSE PMS.lob END                                                                                    AS lob_group_desc,\n       isnull(pms.opened_date, '9999-12-31')                                                                   as opened_date,\n       isnull(pms.closed_date, '9999-12-31')                                                                   as closed_date,\n       isnull(pms.reported_date, '9999-12-31')                                                                 as reported_date,\n       pmc.claim_type,\n       case\n           when pms.gross_recovery > 0 then abs(datediff(days, pms.closed_date, pms.opened_date))\n           else 0 end                                                                                          as cycle_time_files_with_recovery,\n       case\n           when pms.gross_recovery <= 0 then abs(datediff(days, pms.closed_date, pms.opened_date))\n           else 0 end                                                                                          as cycle_time_files_without_recovery,\n       ltrim(rtrim(pms.status))                                                                                as status,\n       case when pms.gross_recovery > 0 then 'Recovered' else 'Not Recovered' end                              as subro_success_status,\n       0                                                                                                       as loss_paid_amt,\n       pms.demand                                                                                              as demand,\n       isnull(pms.total_subrogation_expenses, 0)                                                               as subro_expense_amt,\n       isnull(pms.total_subrogation_expenses, 0)                                                               as allocated_loss_adjustment_expense,\n       isnull(pms.gross_recovery, 0)                                                                           as gross_recovery,\n       isnull(pms.deductible_returned, 0)                                                                      as deductible_returned,\n       isnull(pms.\"net recovery\", 0)                                                                           as net_recovery,\n       'OpenedDt-Dashboard'                                                                                    as dashboard_indicator,\n       pms.subrogation_examiner,\n       pms.subrogation_legal_counsel\nfrom dbo.pms_master_subrogation pms\n         left join (select distinct a.claim_number, a.cat_group_desc, claim_type, b.accident_dt\n                    from dbo.pms_master_claim a,\n                         dbo.pms_fact_loss b\n                    where a.claim_key = b.claim_key\n                      and b.claim_type = 'Property') pmc\n                   on pmc.claim_number = right(replicate('0', 12) + convert(varchar(12), pms.claim_number), 12) and\n                      pms.loss_date = pmc.accident_dt\nUNION ALL\nselect isnull(pfl.account_entered_dt, '9999-12-31') as account_entered_dt,\n       'NA'                                         as risk_state,\n       pfl.claim_number,\n       pmc.cat_group_desc,\n       'NA'                                         as losscausecd,\n       'NA'                                         as sub_loss_cause,\n       l.lob_display_desc                           AS lob_desc,\n       l.lob_display_group_desc                     AS lob_group_desc,\n       '8888-01-01'                                 as opened_date,\n       '8888-01-01'                                 as closed_date,\n       pfl.reported_dt                              as reported_date,\n       'NA'                                         as claim_type,\n       0                                            as cycle_time_files_with_recovery,\n       0                                            as cycle_time_files_without_recovery,\n       'NA'                                         as status,\n       'NA'                                         as subro_success_status,\n       sum(pfl.loss_paid_amt)                       as loss_paid_amt,\n       0                                            as demand,\n       0                                            as subro_expense_amt,\n       0                                            as allocated_loss_adjustment_expense,\n       0                                            as gross_recovery,\n       0                                            as deductible_returned,\n       0                                            as net_recovery,\n       'OpenedDt-Dashboard'                         as dashboard_indicator,\n       NULL                                         AS subrogation_examiner,\n       NULL                                         AS subrogation_legal_counsel\nfrom dbo.pms_fact_loss pfl\n         left join dbo.pms_master_claim pmc on pfl.claim_key = pmc.claim_key\n         left join dbo.pms_master_policy pmp on pfl.policy_key = pmp.policy_key\n         left join dbo.lob_ref l on pmp.lob_desc = l.pms_lob_desc\nwhere pfl.claim_type = 'Property'\n  and pmc.cat_group_desc = 'Non-Cat'\ngroup by pfl.account_entered_dt, pfl.claim_number, pmc.cat_group_desc, l.lob_display_desc, l.lob_display_group_desc,\n         pfl.reported_dt",
+      "commandType" : 0,
+      "handleSpecialChars" : false,
+      "handleDecimalRoundOff" : false,
+      "frsAsset" : false,
+      "dynamicFileName" : false,
+      "excludeDynamicFileNameField" : false,
+      "currentlyProcessedFileName" : false,
+      "retainFieldMetadata" : false,
+      "objectName" : "DUMMY_SQ_claimdetail",
+      "useExactSrcNames" : false,
+      "userUpdated" : true,
+      "fetchMode" : "ORIGINAL",
+      "runtimeParameterData" : {
+        "connectionParameterName" : "DBConnection_SRC",
+        "connectionRuntimeParameter" : true,
+        "objectRuntimeParameter" : false
+      },
+      "restmodernSource" : true,
+      "unspecified" : false,
+      "fileList" : false
+    },
+    {
+      "name" : "$ClaimSubro_SelfService_Combined$",
+      "type" : "TARGET",
+      "label" : "DBConnection_TGT",
+      "uiProperties" : {
+        "cnxtype" : "Amazon Redshift v2",
+        "connectionParameterized" : "true",
+        "paramName" : "DBConnection_TGT",
+        "paramType-mapping" : "Connection",
+        "logcnx" : "DBConnection_TGT",
+        "default" : "dbo/claimsubro_selfservice_combined",
+        "objectParameterized" : "false",
+        "visible" : "false",
+        "supportApplyDDLChanges" : "false",
+        "originalPath" : "ClaimSubro_SelfService_Combined"
+      },
+      "targetConnectionId" : "@6Uao049gWFIeOw6WPSkjsu",
+      "connectionName" : "redshift_nonprod_andover_dw_dev",
+      "targetObject" : "dbo/claimsubro_selfservice_combined",
+      "targetObjectLabel" : "claimsubro_selfservice_combined",
+      "newFlatFile" : false,
+      "newObject" : false,
+      "showBusinessNames" : true,
+      "naturalOrder" : true,
+      "truncateTarget" : false,
+      "bulkApiDBTarget" : false,
+      "operationType" : "Insert",
+      "customFuncCfg" : { },
+      "extendedObject" : {
+        "singleMode" : true
+      },
+      "commandType" : 0,
+      "handleSpecialChars" : false,
+      "handleDecimalRoundOff" : false,
+      "frsAsset" : false,
+      "dynamicFileName" : false,
+      "excludeDynamicFileNameField" : false,
+      "currentlyProcessedFileName" : false,
+      "retainFieldMetadata" : false,
+      "objectName" : "dbo/claimsubro_selfservice_combined",
+      "objectLabel" : "claimsubro_selfservice_combined",
+      "useExactSrcNames" : false,
+      "userUpdated" : true,
+      "fetchMode" : "ORIGINAL",
+      "runtimeParameterData" : {
+        "connectionParameterName" : "DBConnection_TGT",
+        "connectionRuntimeParameter" : true,
+        "objectRuntimeParameter" : false
+      },
+      "restmodernSource" : true,
+      "unspecified" : false,
+      "fileList" : false
+    }
+  ],
+  "verbose" : false,
+  "mappingId" : "@gk3Ls5P5ZQujyhSsSAG8sb",
+  "mappingTemplateName" : "m_load_PMS_ClaimSubro_SelfService_Combined_Open",
+  "sessionPropertiesList" : [
+    {
+      "name" : "Allow Temporary Sequence for Pushdown",
+      "value" : "NO"
+    },
+    {
+      "name" : "Allow Temporary View for Pushdown",
+      "value" : "NO"
+    },
+    {
+      "name" : "Data Column Delimiter",
+      "value" : "|"
+    },
+    {
+      "name" : "Error Log File Name",
+      "value" : "PMError.log"
+    },
+    {
+      "name" : "Pushdown Optimization",
+      "value" : "None"
+    },
+    {
+      "name" : "Pushdown Optimization Context",
+      "value" : "None"
+    },
+    {
+      "name" : "Pushdown Optimization Fallback Option",
+      "value" : "Partial PDO"
+    }
+  ],
+  "hidden" : false,
+  "enableCrossSchemaPushdown" : false,
+  "enableParallelRun" : false,
+  "autoTunedApplied" : false,
+  "autoTunedAppliedType" : "NONE",
+  "parameterFileName" : "Andover_Param_GW.param",
+  "parameterFileDir" : "$PMRootDir/andover/parameters",
+  "paramFileType" : "PARAM_FILE_LOCAL",
+  "schemaMode" : "async",
+  "valid" : true,
+  "optimizationPlan" : "NONE",
+  "allowMaxFieldLength" : false,
+  "specialCharacterSupport" : false,
+  "midstreamPreview" : false,
+  "vcsExportTime" : "2026-01-19 09:44:59 PST"
+}

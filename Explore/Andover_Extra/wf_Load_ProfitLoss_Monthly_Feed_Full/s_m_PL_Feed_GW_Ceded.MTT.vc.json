@@ -1,0 +1,183 @@
+{
+  "name" : "s_m_PL_Feed_GW_Ceded",
+  "description" : "Session pushed from PC to ICS : s_m_PL_Feed_GW_Ceded",
+  "runtimeEnvironmentId" : "@jRYfI6mJ60tdJACgcoBhOB",
+  "runtimeEnvironmentName" : "sag_aws_linux",
+  "maxLogs" : 10,
+  "parameters" : [
+    {
+      "name" : "$SQ_ProfitLoss_Monthly_Base$",
+      "type" : "EXTENDED_SOURCE",
+      "label" : "DBConnection_Src",
+      "uiProperties" : {
+        "cnxtype" : "Amazon Redshift v2",
+        "connectionParameterized" : "true",
+        "paramName" : "DBConnection_Src",
+        "paramType-mapping" : "Connection",
+        "logcnx" : "DBConnection_Src",
+        "isSelectDistinct" : "false",
+        "isMsrcFilterParameterized" : "false",
+        "isMsrcSortParameterized" : "false",
+        "objectParameterized" : "false",
+        "visible" : "false",
+        "originalPath" : "SQ_ProfitLoss_Monthly_Base"
+      },
+      "sourceConnectionId" : "@6Uao049gWFIeOw6WPSkjsu",
+      "connectionName" : "redshift_nonprod_andover_dw_dev",
+      "newFlatFile" : false,
+      "newObject" : false,
+      "showBusinessNames" : true,
+      "naturalOrder" : true,
+      "truncateTarget" : false,
+      "bulkApiDBTarget" : false,
+      "customFuncCfg" : { },
+      "extendedObject" : {
+        "object" : {
+          "name" : "dbo/profitloss_monthly_base",
+          "label" : "profitloss_monthly_base",
+          "metadataUpdated" : false
+        },
+        "singleMode" : true,
+        "objects" : [
+          {
+            "name" : "dbo/profitloss_monthly_base",
+            "label" : "profitloss_monthly_base",
+            "metadataUpdated" : false
+          }
+        ]
+      },
+      "runtimeAttrs" : {
+        "SQL Query" : "\nSELECT DISTINCT \n    source, \n    companydesc, \n    lobdesc, \n    riskstate, \n    a.annual_statement_line, \n    stateline, \n    directwrittenpremium, \n    cededwrittenpremium, \n    directunearnedpremium, \n    cededunearnedpremium, \n    directlosspaid, \n    directcasereserve, \n    directlossibnrreserve, \n    cededlosspaid, \n    cededcasereserve, \n    cededlossibnrreserve, \n    directpaiddcc, \n    directpaidao, \n    directlaecasreserve, \n    directlaeibnrreserve, \n    cededpaiddcc, \n    cededpaidao, \n    cededlaecasreserve, \n    cededlaeibnrreserve, \n    directcommissionsincurred, \n    cededcommissionsincurred, \n    account_entered_dt, \n    CASE \n        WHEN LENGTH(TRIM(reinsurancecompany)) = 3 THEN CONCAT('0', TRIM(reinsurancecompany)) \n        ELSE TRIM(reinsurancecompany) \n    END AS reinsurancecompany \nFROM ( \n    SELECT \n        'GW_Ceded_Premiums' AS source, \n        p.\"company desc\" AS companydesc, \n        CASE \n            WHEN f.statelinecd = '1' THEN 'Fire' \n            WHEN f.statelinecd = '2' THEN 'Extended Coverage (EC)' \n            WHEN f.statelinecd IN ('A', '4', '6', '7') THEN 'Homeowner (HO)' \n            WHEN f.statelinecd = '9' THEN 'Inland Marine (IM)' \n            WHEN f.statelinecd = 'X' AND COALESCE(p.\"lob desc\", 'Not Applicable') = 'PersonalUmbrella' THEN 'Personal Umbrella (PUMB)' \n            WHEN f.statelinecd = 'X' AND COALESCE(p.\"lob desc\", 'Not Applicable') = 'CommercialUmbrella' THEN 'Commercial Umbrella (CUMB)' \n            WHEN f.statelinecd IN ('81', '82', 'D', 'C') THEN 'Business Owners Policy (BOP)' \n            WHEN f.statelinecd IN ('E', '5') THEN 'Commercial Multi Peril (CMP)' \n            WHEN f.statelinecd = 'Y' THEN 'Dwelling Liability' \n        END AS lobdesc, \n        COALESCE(p.\"risk state\", 'Not Applicable') AS riskstate, \n        f.annualstatementlinecd AS annual_statement_line, \n        f.statelinecd AS stateline, \n        NULL AS directwrittenpremium, \n        SUM(f.mtdwrittenpremiumamt) AS cededwrittenpremium, \n        NULL AS directunearnedpremium, \n        SUM(f.unearnedamt) AS cededunearnedpremium, \n        NULL AS directlosspaid, \n        NULL AS directcasereserve, \n        NULL AS directlossibnrreserve, \n        NULL AS cededlosspaid, \n        NULL AS cededcasereserve, \n        SUM(f.unearnedamt * ref.ibnr_factor) AS cededlossibnrreserve, \n        NULL AS directpaiddcc, \n        NULL AS directpaidao, \n        NULL AS directlaecasreserve, \n        NULL AS directlaeibnrreserve, \n        NULL AS cededpaiddcc, \n        NULL AS cededpaidao, \n        NULL AS cededlaecasreserve, \n        NULL AS cededlaeibnrreserve, \n        NULL AS directcommissionsincurred, \n        SUM(f.mtdwrittencommissionamt) AS cededcommissionsincurred, \n        f.accountentereddt AS account_entered_dt, \n        f.reinsurercode AS reinsurancecompany \n    FROM dbo.policyreinsuranceearnedpremiumfact f \n    LEFT JOIN dbo.view_policy p ON p.\"part policy key\" = f.policykey \n    LEFT JOIN dbo.profitloss_factors_ref ref ON ref.state_line_code = f.statelinecd \n        AND ref.year = CASE \n            WHEN EXTRACT(YEAR FROM f.accountentereddt) <= 2019 THEN 2019 \n            ELSE EXTRACT(YEAR FROM f.accountentereddt) \n        END \n    GROUP BY \n        p.\"company desc\", \n        p.\"risk state\", \n        CASE \n            WHEN f.statelinecd = '1' THEN 'Fire' \n            WHEN f.statelinecd = '2' THEN 'Extended Coverage (EC)' \n            WHEN f.statelinecd IN ('A', '4', '6', '7') THEN 'Homeowner (HO)' \n            WHEN f.statelinecd = '9' THEN 'Inland Marine (IM)' \n            WHEN f.statelinecd = 'X' AND COALESCE(p.\"lob desc\", 'Not Applicable') = 'PersonalUmbrella' THEN 'Personal Umbrella (PUMB)' \n            WHEN f.statelinecd = 'X' AND COALESCE(p.\"lob desc\", 'Not Applicable') = 'CommercialUmbrella' THEN 'Commercial Umbrella (CUMB)' \n            WHEN f.statelinecd IN ('81', '82', 'D', 'C') THEN 'Business Owners Policy (BOP)' \n            WHEN f.statelinecd IN ('E', '5') THEN 'Commercial Multi Peril (CMP)' \n            WHEN f.statelinecd = 'Y' THEN 'Dwelling Liability' \n        END, \n        f.accountentereddt, \n        f.annualstatementlinecd, \n        f.statelinecd, \n        f.reinsurercode \n    UNION \n    SELECT \n        'GW_Ceded_Loss' AS source, \n        p.\"company desc\" AS companydesc, \n        CASE \n            WHEN f.statelinecd = '1' THEN 'Fire' \n            WHEN f.statelinecd = '2' THEN 'Extended Coverage (EC)' \n            WHEN f.statelinecd IN ('A', '4', '6', '7') THEN 'Homeowner (HO)' \n            WHEN f.statelinecd = '9' THEN 'Inland Marine (IM)' \n            WHEN f.statelinecd = 'X' AND COALESCE(p.\"lob desc\", 'Not Applicable') = 'PersonalUmbrella' THEN 'Personal Umbrella (PUMB)' \n            WHEN f.statelinecd = 'X' AND COALESCE(p.\"lob desc\", 'Not Applicable') = 'CommercialUmbrella' THEN 'Commercial Umbrella (CUMB)' \n            WHEN f.statelinecd IN ('81', '82', 'D', 'C') THEN 'Business Owners Policy (BOP)' \n            WHEN f.statelinecd IN ('E', '5') THEN 'Commercial Multi Peril (CMP)' \n            WHEN f.statelinecd = 'Y' THEN 'Dwelling Liability' \n        END AS lobdesc, \n        COALESCE(p.\"risk state\", 'Not Applicable') AS riskstate, \n        f.annualstatementlinecd AS annual_statement_line, \n        f.statelinecd AS stateline, \n        NULL AS directwrittenpremium, \n        NULL AS cededwrittenpremium, \n        NULL AS directunearnedpremium, \n        NULL AS cededunearnedpremium, \n        NULL AS directlosspaid, \n        NULL AS directcasereserve, \n        NULL AS directlossibnrreserve, \n        SUM(CASE WHEN f.reservecd = 'Indemnity' THEN f.paidamt END) AS cededlosspaid, \n        SUM(CASE WHEN f.reservecd = 'Indemnity' THEN f.reservechangeamt END) AS cededcasereserve, \n        NULL AS cededlossibnrreserve, \n        NULL AS directpaiddcc, \n        0 AS directpaidao, \n        NULL AS directlaecasreserve, \n        NULL AS directlaeibnrreserve, \n        SUM(CASE WHEN f.reservecd = 'Defense' THEN f.paidamt END) AS cededpaiddcc, \n        SUM(CASE WHEN f.reservecd = 'Adjustment' THEN f.paidamt END) AS cededpaidao, \n        SUM(CASE WHEN f.reservecd = 'Indemnity' THEN f.reservechangeamt * ref.lae_case_factor END) AS cededlaecasreserve, \n        SUM(CASE WHEN f.reservecd = 'Indemnity' THEN f.reservechangeamt * ref.lae_case_factor * ref.lae_ibnr_factor ELSE 0 END) AS cededlaeibnrreserve, \n        NULL AS directcommissionsincurred, \n        NULL AS cededcommissionsincurred, \n        DATE_TRUNC('month', f.adddt) AS account_entered_dt, \n        f.reinsurancecode AS reinsurancecompany \n    FROM dbo.claimreinsurancetransaction f \n    LEFT JOIN dbo.view_policy p ON p.\"part policy key\" = f.policykey \n    LEFT JOIN dbo.profitloss_factors_ref ref ON ref.state_line_code = f.statelinecd \n        AND ref.year = CASE \n            WHEN EXTRACT(YEAR FROM DATE_TRUNC('month', f.accountentereddt)) <= 2019 THEN 2019 \n            ELSE EXTRACT(YEAR FROM DATE_TRUNC('month', f.accountentereddt)) \n        END\n        where\n\t\tf.accountentereddt <= date_trunc('month', current_date)\n    GROUP BY \n        p.\"company desc\", \n        p.\"risk state\", \n        CASE \n            WHEN f.statelinecd = '1' THEN 'Fire' \n            WHEN f.statelinecd = '2' THEN 'Extended Coverage (EC)' \n            WHEN f.statelinecd IN ('A', '4', '6', '7') THEN 'Homeowner (HO)' \n            WHEN f.statelinecd = '9' THEN 'Inland Marine (IM)' \n            WHEN f.statelinecd = 'X' AND COALESCE(p.\"lob desc\", 'Not Applicable') = 'PersonalUmbrella' THEN 'Personal Umbrella (PUMB)' \n            WHEN f.statelinecd = 'X' AND COALESCE(p.\"lob desc\", 'Not Applicable') = 'CommercialUmbrella' THEN 'Commercial Umbrella (CUMB)' \n            WHEN f.statelinecd IN ('81', '82', 'D', 'C') THEN 'Business Owners Policy (BOP)' \n            WHEN f.statelinecd IN ('E', '5') THEN 'Commercial Multi Peril (CMP)' \n            WHEN f.statelinecd = 'Y' THEN 'Dwelling Liability' \n        END, \n        DATE_TRUNC('month', f.adddt), \n        COALESCE(p.\"risk state\", 'Not Applicable'), \n        f.annualstatementlinecd, \n        f.statelinecd, \n        f.reinsurancecode \n) a \nORDER BY a.account_entered_dt, source"
+      },
+      "oprRuntimeAttrs" : {
+        "sqlQuery" : "\nSELECT DISTINCT \n    source, \n    companydesc, \n    lobdesc, \n    riskstate, \n    a.annual_statement_line, \n    stateline, \n    directwrittenpremium, \n    cededwrittenpremium, \n    directunearnedpremium, \n    cededunearnedpremium, \n    directlosspaid, \n    directcasereserve, \n    directlossibnrreserve, \n    cededlosspaid, \n    cededcasereserve, \n    cededlossibnrreserve, \n    directpaiddcc, \n    directpaidao, \n    directlaecasreserve, \n    directlaeibnrreserve, \n    cededpaiddcc, \n    cededpaidao, \n    cededlaecasreserve, \n    cededlaeibnrreserve, \n    directcommissionsincurred, \n    cededcommissionsincurred, \n    account_entered_dt, \n    CASE \n        WHEN LENGTH(TRIM(reinsurancecompany)) = 3 THEN CONCAT('0', TRIM(reinsurancecompany)) \n        ELSE TRIM(reinsurancecompany) \n    END AS reinsurancecompany \nFROM ( \n    SELECT \n        'GW_Ceded_Premiums' AS source, \n        p.\"company desc\" AS companydesc, \n        CASE \n            WHEN f.statelinecd = '1' THEN 'Fire' \n            WHEN f.statelinecd = '2' THEN 'Extended Coverage (EC)' \n            WHEN f.statelinecd IN ('A', '4', '6', '7') THEN 'Homeowner (HO)' \n            WHEN f.statelinecd = '9' THEN 'Inland Marine (IM)' \n            WHEN f.statelinecd = 'X' AND COALESCE(p.\"lob desc\", 'Not Applicable') = 'PersonalUmbrella' THEN 'Personal Umbrella (PUMB)' \n            WHEN f.statelinecd = 'X' AND COALESCE(p.\"lob desc\", 'Not Applicable') = 'CommercialUmbrella' THEN 'Commercial Umbrella (CUMB)' \n            WHEN f.statelinecd IN ('81', '82', 'D', 'C') THEN 'Business Owners Policy (BOP)' \n            WHEN f.statelinecd IN ('E', '5') THEN 'Commercial Multi Peril (CMP)' \n            WHEN f.statelinecd = 'Y' THEN 'Dwelling Liability' \n        END AS lobdesc, \n        COALESCE(p.\"risk state\", 'Not Applicable') AS riskstate, \n        f.annualstatementlinecd AS annual_statement_line, \n        f.statelinecd AS stateline, \n        NULL AS directwrittenpremium, \n        SUM(f.mtdwrittenpremiumamt) AS cededwrittenpremium, \n        NULL AS directunearnedpremium, \n        SUM(f.unearnedamt) AS cededunearnedpremium, \n        NULL AS directlosspaid, \n        NULL AS directcasereserve, \n        NULL AS directlossibnrreserve, \n        NULL AS cededlosspaid, \n        NULL AS cededcasereserve, \n        SUM(f.unearnedamt * ref.ibnr_factor) AS cededlossibnrreserve, \n        NULL AS directpaiddcc, \n        NULL AS directpaidao, \n        NULL AS directlaecasreserve, \n        NULL AS directlaeibnrreserve, \n        NULL AS cededpaiddcc, \n        NULL AS cededpaidao, \n        NULL AS cededlaecasreserve, \n        NULL AS cededlaeibnrreserve, \n        NULL AS directcommissionsincurred, \n        SUM(f.mtdwrittencommissionamt) AS cededcommissionsincurred, \n        f.accountentereddt AS account_entered_dt, \n        f.reinsurercode AS reinsurancecompany \n    FROM dbo.policyreinsuranceearnedpremiumfact f \n    LEFT JOIN dbo.view_policy p ON p.\"part policy key\" = f.policykey \n    LEFT JOIN dbo.profitloss_factors_ref ref ON ref.state_line_code = f.statelinecd \n        AND ref.year = CASE \n            WHEN EXTRACT(YEAR FROM f.accountentereddt) <= 2019 THEN 2019 \n            ELSE EXTRACT(YEAR FROM f.accountentereddt) \n        END \n    GROUP BY \n        p.\"company desc\", \n        p.\"risk state\", \n        CASE \n            WHEN f.statelinecd = '1' THEN 'Fire' \n            WHEN f.statelinecd = '2' THEN 'Extended Coverage (EC)' \n            WHEN f.statelinecd IN ('A', '4', '6', '7') THEN 'Homeowner (HO)' \n            WHEN f.statelinecd = '9' THEN 'Inland Marine (IM)' \n            WHEN f.statelinecd = 'X' AND COALESCE(p.\"lob desc\", 'Not Applicable') = 'PersonalUmbrella' THEN 'Personal Umbrella (PUMB)' \n            WHEN f.statelinecd = 'X' AND COALESCE(p.\"lob desc\", 'Not Applicable') = 'CommercialUmbrella' THEN 'Commercial Umbrella (CUMB)' \n            WHEN f.statelinecd IN ('81', '82', 'D', 'C') THEN 'Business Owners Policy (BOP)' \n            WHEN f.statelinecd IN ('E', '5') THEN 'Commercial Multi Peril (CMP)' \n            WHEN f.statelinecd = 'Y' THEN 'Dwelling Liability' \n        END, \n        f.accountentereddt, \n        f.annualstatementlinecd, \n        f.statelinecd, \n        f.reinsurercode \n    UNION \n    SELECT \n        'GW_Ceded_Loss' AS source, \n        p.\"company desc\" AS companydesc, \n        CASE \n            WHEN f.statelinecd = '1' THEN 'Fire' \n            WHEN f.statelinecd = '2' THEN 'Extended Coverage (EC)' \n            WHEN f.statelinecd IN ('A', '4', '6', '7') THEN 'Homeowner (HO)' \n            WHEN f.statelinecd = '9' THEN 'Inland Marine (IM)' \n            WHEN f.statelinecd = 'X' AND COALESCE(p.\"lob desc\", 'Not Applicable') = 'PersonalUmbrella' THEN 'Personal Umbrella (PUMB)' \n            WHEN f.statelinecd = 'X' AND COALESCE(p.\"lob desc\", 'Not Applicable') = 'CommercialUmbrella' THEN 'Commercial Umbrella (CUMB)' \n            WHEN f.statelinecd IN ('81', '82', 'D', 'C') THEN 'Business Owners Policy (BOP)' \n            WHEN f.statelinecd IN ('E', '5') THEN 'Commercial Multi Peril (CMP)' \n            WHEN f.statelinecd = 'Y' THEN 'Dwelling Liability' \n        END AS lobdesc, \n        COALESCE(p.\"risk state\", 'Not Applicable') AS riskstate, \n        f.annualstatementlinecd AS annual_statement_line, \n        f.statelinecd AS stateline, \n        NULL AS directwrittenpremium, \n        NULL AS cededwrittenpremium, \n        NULL AS directunearnedpremium, \n        NULL AS cededunearnedpremium, \n        NULL AS directlosspaid, \n        NULL AS directcasereserve, \n        NULL AS directlossibnrreserve, \n        SUM(CASE WHEN f.reservecd = 'Indemnity' THEN f.paidamt END) AS cededlosspaid, \n        SUM(CASE WHEN f.reservecd = 'Indemnity' THEN f.reservechangeamt END) AS cededcasereserve, \n        NULL AS cededlossibnrreserve, \n        NULL AS directpaiddcc, \n        0 AS directpaidao, \n        NULL AS directlaecasreserve, \n        NULL AS directlaeibnrreserve, \n        SUM(CASE WHEN f.reservecd = 'Defense' THEN f.paidamt END) AS cededpaiddcc, \n        SUM(CASE WHEN f.reservecd = 'Adjustment' THEN f.paidamt END) AS cededpaidao, \n        SUM(CASE WHEN f.reservecd = 'Indemnity' THEN f.reservechangeamt * ref.lae_case_factor END) AS cededlaecasreserve, \n        SUM(CASE WHEN f.reservecd = 'Indemnity' THEN f.reservechangeamt * ref.lae_case_factor * ref.lae_ibnr_factor ELSE 0 END) AS cededlaeibnrreserve, \n        NULL AS directcommissionsincurred, \n        NULL AS cededcommissionsincurred, \n        DATE_TRUNC('month', f.adddt) AS account_entered_dt, \n        f.reinsurancecode AS reinsurancecompany \n    FROM dbo.claimreinsurancetransaction f \n    LEFT JOIN dbo.view_policy p ON p.\"part policy key\" = f.policykey \n    LEFT JOIN dbo.profitloss_factors_ref ref ON ref.state_line_code = f.statelinecd \n        AND ref.year = CASE \n            WHEN EXTRACT(YEAR FROM DATE_TRUNC('month', f.accountentereddt)) <= 2019 THEN 2019 \n            ELSE EXTRACT(YEAR FROM DATE_TRUNC('month', f.accountentereddt)) \n        END\n        where\n\t\tf.accountentereddt <= date_trunc('month', current_date)\n    GROUP BY \n        p.\"company desc\", \n        p.\"risk state\", \n        CASE \n            WHEN f.statelinecd = '1' THEN 'Fire' \n            WHEN f.statelinecd = '2' THEN 'Extended Coverage (EC)' \n            WHEN f.statelinecd IN ('A', '4', '6', '7') THEN 'Homeowner (HO)' \n            WHEN f.statelinecd = '9' THEN 'Inland Marine (IM)' \n            WHEN f.statelinecd = 'X' AND COALESCE(p.\"lob desc\", 'Not Applicable') = 'PersonalUmbrella' THEN 'Personal Umbrella (PUMB)' \n            WHEN f.statelinecd = 'X' AND COALESCE(p.\"lob desc\", 'Not Applicable') = 'CommercialUmbrella' THEN 'Commercial Umbrella (CUMB)' \n            WHEN f.statelinecd IN ('81', '82', 'D', 'C') THEN 'Business Owners Policy (BOP)' \n            WHEN f.statelinecd IN ('E', '5') THEN 'Commercial Multi Peril (CMP)' \n            WHEN f.statelinecd = 'Y' THEN 'Dwelling Liability' \n        END, \n        DATE_TRUNC('month', f.adddt), \n        COALESCE(p.\"risk state\", 'Not Applicable'), \n        f.annualstatementlinecd, \n        f.statelinecd, \n        f.reinsurancecode \n) a \nORDER BY a.account_entered_dt, source"
+      },
+      "commandType" : 0,
+      "handleSpecialChars" : false,
+      "handleDecimalRoundOff" : false,
+      "frsAsset" : false,
+      "dynamicFileName" : false,
+      "excludeDynamicFileNameField" : false,
+      "currentlyProcessedFileName" : false,
+      "retainFieldMetadata" : false,
+      "useExactSrcNames" : false,
+      "userUpdated" : true,
+      "runtimeParameterData" : {
+        "connectionParameterName" : "DBConnection_Src",
+        "connectionRuntimeParameter" : true,
+        "objectRuntimeParameter" : false
+      },
+      "restmodernSource" : true,
+      "unspecified" : false,
+      "fileList" : false
+    },
+    {
+      "name" : "$ProfitLoss_Monthly_Base1$",
+      "type" : "TARGET",
+      "label" : "DBConnection_Tgt",
+      "uiProperties" : {
+        "cnxtype" : "Amazon Redshift v2",
+        "connectionParameterized" : "true",
+        "paramName" : "DBConnection_Tgt",
+        "paramType-mapping" : "Connection",
+        "logcnx" : "DBConnection_Tgt",
+        "default" : "dbo/profitloss_monthly_base",
+        "objectParameterized" : "false",
+        "visible" : "false",
+        "supportApplyDDLChanges" : "false",
+        "originalPath" : "ProfitLoss_Monthly_Base1"
+      },
+      "targetConnectionId" : "@6Uao049gWFIeOw6WPSkjsu",
+      "connectionName" : "redshift_nonprod_andover_dw_dev",
+      "targetObject" : "dbo/profitloss_monthly_base",
+      "targetObjectLabel" : "profitloss_monthly_base",
+      "newFlatFile" : false,
+      "newObject" : false,
+      "showBusinessNames" : true,
+      "naturalOrder" : true,
+      "truncateTarget" : false,
+      "bulkApiDBTarget" : false,
+      "operationType" : "Insert",
+      "customFuncCfg" : { },
+      "extendedObject" : {
+        "singleMode" : true
+      },
+      "commandType" : 0,
+      "handleSpecialChars" : false,
+      "handleDecimalRoundOff" : false,
+      "frsAsset" : false,
+      "dynamicFileName" : false,
+      "excludeDynamicFileNameField" : false,
+      "currentlyProcessedFileName" : false,
+      "retainFieldMetadata" : false,
+      "objectName" : "dbo/profitloss_monthly_base",
+      "objectLabel" : "profitloss_monthly_base",
+      "useExactSrcNames" : false,
+      "userUpdated" : true,
+      "runtimeParameterData" : {
+        "connectionParameterName" : "DBConnection_Tgt",
+        "connectionRuntimeParameter" : true,
+        "objectRuntimeParameter" : false
+      },
+      "restmodernSource" : true,
+      "unspecified" : false,
+      "fileList" : false
+    }
+  ],
+  "verbose" : false,
+  "mappingId" : "@9aOzZXfADg9ecqbxSVaA65",
+  "mappingTemplateName" : "m_PL_Feed_Summations",
+  "sessionPropertiesList" : [
+    {
+      "name" : "Allow Temporary Sequence for Pushdown",
+      "value" : "NO"
+    },
+    {
+      "name" : "Allow Temporary View for Pushdown",
+      "value" : "NO"
+    },
+    {
+      "name" : "Cache LOOKUP() function",
+      "value" : "YES"
+    },
+    {
+      "name" : "Data Column Delimiter",
+      "value" : "|"
+    },
+    {
+      "name" : "DateTime Format String",
+      "value" : "MM/DD/YYYY HH24:MI:SS.US"
+    },
+    {
+      "name" : "Error Log File Name",
+      "value" : "PMError.log"
+    },
+    {
+      "name" : "Pushdown Optimization",
+      "value" : "None"
+    },
+    {
+      "name" : "Pushdown Optimization Context",
+      "value" : "None"
+    },
+    {
+      "name" : "Pushdown Optimization Fallback Option",
+      "value" : "Partial PDO"
+    }
+  ],
+  "hidden" : false,
+  "enableCrossSchemaPushdown" : false,
+  "enableParallelRun" : false,
+  "autoTunedApplied" : false,
+  "autoTunedAppliedType" : "NONE",
+  "parameterFileName" : "Andover_Parm_Feed.txt",
+  "parameterFileDir" : "$PMRootDir/andover/parameters",
+  "paramFileType" : "PARAM_FILE_LOCAL",
+  "schemaMode" : "async",
+  "valid" : true,
+  "optimizationPlan" : "NONE",
+  "allowMaxFieldLength" : false,
+  "specialCharacterSupport" : false,
+  "midstreamPreview" : false,
+  "vcsExportTime" : "2026-01-19 09:45:00 PST"
+}
