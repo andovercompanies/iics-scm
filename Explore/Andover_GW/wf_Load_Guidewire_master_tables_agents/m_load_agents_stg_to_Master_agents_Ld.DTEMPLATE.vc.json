@@ -41,12 +41,6 @@
       },
       {
         "link" : "Exp_UPD -> Tgt_Agents_Upd"
-      },
-      {
-        "link" : "Exp_Anchor -> Lkp_agents"
-      },
-      {
-        "link" : "Lkp_agents -> Exp_Flag"
       }
     ],
     "parameters" : [
@@ -1054,13 +1048,6 @@
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "territoryGroup",
-              "toField" : {
-                "name" : "agencyterritorygroup"
-              },
-              "fromFieldNames" : null
-            },
-            {
               "fromFieldName" : "producertypecd",
               "toField" : {
                 "name" : "producertypecd"
@@ -1183,6 +1170,13 @@
               "fromFieldName" : "Source_Cd",
               "toField" : {
                 "name" : "sourcecd"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "agencyterritorygroup",
+              "toField" : {
+                "name" : "agencyterritorygroup"
               },
               "fromFieldNames" : null
             }
@@ -3025,13 +3019,6 @@
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "territoryGroup",
-              "toField" : {
-                "name" : "agencyterritorygroup"
-              },
-              "fromFieldNames" : null
-            },
-            {
               "fromFieldName" : "producertypecd",
               "toField" : {
                 "name" : "producertypecd"
@@ -3147,6 +3134,13 @@
               "fromFieldName" : "Source_Cd",
               "toField" : {
                 "name" : "sourcecd"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "agencyterritorygroup",
+              "toField" : {
+                "name" : "agencyterritorygroup"
               },
               "fromFieldNames" : null
             }
@@ -3503,17 +3497,6 @@
           },
           {
             "adapterField" : {
-              "name" : "producer_id"
-            },
-            "name" : "producer_id",
-            "platformType" : {
-              "name" : "integer"
-            },
-            "precision" : 10,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
               "name" : "agency_code"
             },
             "name" : "agency_code",
@@ -3555,6 +3538,39 @@
             },
             "precision" : 360,
             "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "tgt_agentkey"
+            },
+            "name" : "tgt_agentkey",
+            "platformType" : {
+              "name" : "bigint"
+            },
+            "precision" : 19,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "tgt_agentshashkey"
+            },
+            "name" : "tgt_agentshashkey",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 765,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "sourcecd_26"
+            },
+            "name" : "sourcecd_26",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 360,
+            "scale" : 0
           }
         ],
         "dataAdapter" : {
@@ -3566,7 +3582,7 @@
           "typeSystem" : "TOOLKIT",
           "useDynamicFileName" : "false",
           "object" : {
-            "customQuery" : "SELECT DISTINCT\nads.sourcecd,\nads.bestaddr1,\nads.producertypecd,\nads.beststateprovcd,\nads.bestpostalcode,\nads.commercialname,\nads.agencymastercode,\nads.agentcd,\nads.agencycd,\nads.agencyterritory,\nads.agencygroupcd,\nads.statuscd,\nads.statusdt,\nads.bestaddrline1,\nads.bestaddrline2,\nads.bestcity,\nads.systemid,\nads.contacttypecd,\nads.paymentpreferencecd,\napl.producer_id,\napl.agency_code,\n(ap.last_name ||\nCASE\nWHEN ap.suffix IS NOT NULL AND ap.suffix != '' THEN (' ' || ap.suffix || ',')\nELSE ','\nend ||  ' ' ||\nap.first_name ||\nCASE\nWHEN ap.middle_name IS NOT NULL AND ap.middle_name != '' THEN (' ' || ap.middle_name)\nELSE ''\nend ||\nCASE\nWHEN ap.term_flag = 1 THEN ' (TERM''D)'\nELSE ''\nEND\n) AS ProducerName,\napl.gw_producer_id,\nstr.gw_sales_territory_group_desc AS AgencyTerritoryGroup\nFROM\ndbo.agents_detail_stg ads\nJOIN\nbronze.adm_producer_license apl\nON ads.sourcecd = apl.gw_producer_id\nAND apl.adm_producer_license_row_effective_end_datetime = '9999-12-31'\nJOIN\nbronze.adm_producer ap\nON apl.producer_id = ap.id\nAND ap.adm_producer_row_effective_end_datetime = '9999-12-31'\nLEFT JOIN dbo.salesterritory_ref str\nON ads.agencyterritory = str.gw_sales_territory_desc",
+            "customQuery" : "SELECT DISTINCT\nads.sourcecd,\nads.bestaddr1,\nads.producertypecd,\nads.beststateprovcd,\nads.bestpostalcode,\nads.commercialname,\nads.agencymastercode,\nads.agentcd,\nads.agencycd,\nads.agencyterritory,\nads.agencygroupcd,\nads.statuscd,\nads.statusdt,\nads.bestaddrline1,\nads.bestaddrline2,\nads.bestcity,\nads.systemid,\nads.contacttypecd,\nads.paymentpreferencecd,\n--apl.producer_id,\napl.agency_code,\n(ap.last_name ||\nCASE\nWHEN ap.suffix IS NOT NULL AND ap.suffix != '' THEN (' ' || ap.suffix || ',')\nELSE ','\nend ||  ' ' ||\nap.first_name ||\nCASE\nWHEN ap.middle_name IS NOT NULL AND ap.middle_name != '' THEN (' ' || ap.middle_name)\nELSE ''\nend ||\nCASE\nWHEN ap.term_flag = 1 THEN ' (TERM''D)'\nELSE ''\nEND\n) AS ProducerName,\napl.gw_producer_id,\nstr.gw_sales_territory_group_desc AS AgencyTerritoryGroup,\ntgt.agentkey as tgt_agentkey,\ntgt.agentshashkey as tgt_agentshashkey,\ntgt.sourcecd \nFROM\ndbo.agents_detail_stg ads\nJOIN\n(\nSELECT DISTINCT producer_id, gw_producer_id, agency_code, adm_producer_license_row_effective_end_datetime, state\nFROM bronze.adm_producer_license\nWHERE adm_producer_license_row_effective_end_datetime = '9999-12-31'\n) apl\nON ads.sourcecd = apl.gw_producer_id and ads.beststateprovcd = apl.state\nJOIN\nbronze.adm_producer ap\nON apl.producer_id = ap.id\nAND ap.adm_producer_row_effective_end_datetime = '9999-12-31'\nLEFT JOIN dbo.salesterritory_ref str\nON ads.agencyterritory = str.gw_sales_territory_desc\nleft join \n(\nSELECT Agents.AgentKey, Agents.AgentsHashKey, Agents.SourceCd, Agents.providersystemid \nFROM dbo.Agents \nwhere Agents.RowEffEndDt='9999-12-31 00:00:00.0000000'\n) tgt\non ads.sourcecd = tgt.sourcecd \nand ads.systemid = tgt.providersystemid",
             "retainMetadata" : "false",
             "fields" : [
               {
@@ -3874,22 +3890,6 @@
                 ]
               },
               {
-                "name" : "producer_id",
-                "fieldType" : "CONNECTOR",
-                "label" : "producer_id",
-                "nativeName" : "producer_id",
-                "nativeType" : "int4",
-                "original" : "false",
-                "precision" : 10,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "INFARS_CUSTOM_SCHEMA"
-                  }
-                ]
-              },
-              {
                 "name" : "agency_code",
                 "fieldType" : "CONNECTOR",
                 "label" : "agency_code",
@@ -3942,6 +3942,54 @@
                 "fieldType" : "CONNECTOR",
                 "label" : "agencyterritorygroup",
                 "nativeName" : "agencyterritorygroup",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 360,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "tgt_agentkey",
+                "fieldType" : "CONNECTOR",
+                "label" : "tgt_agentkey",
+                "nativeName" : "tgt_agentkey",
+                "nativeType" : "int8",
+                "original" : "false",
+                "precision" : 19,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "tgt_agentshashkey",
+                "fieldType" : "CONNECTOR",
+                "label" : "tgt_agentshashkey",
+                "nativeName" : "tgt_agentshashkey",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 765,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "sourcecd_26",
+                "fieldType" : "CONNECTOR",
+                "label" : "sourcecd",
+                "nativeName" : "sourcecd",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 360,
@@ -4497,20 +4545,6 @@
               },
               {
                 "bulkRename" : "false",
-                "include" : "true",
-                "names" : [
-                  {
-                    "inputName" : "agentkey_lkp_agents",
-                    "outputName" : "AgentKey"
-                  },
-                  {
-                    "inputName" : "agentshashkey_lkp_agents",
-                    "outputName" : "AgentMD5"
-                  }
-                ]
-              },
-              {
-                "bulkRename" : "false",
                 "include" : "false",
                 "names" : [
                   {
@@ -4524,6 +4558,20 @@
                   },
                   {
                     "inputName" : "sourcecd_lkp_agents"
+                  }
+                ]
+              },
+              {
+                "bulkRename" : "false",
+                "include" : "true",
+                "names" : [
+                  {
+                    "inputName" : "tgt_agentkey",
+                    "outputName" : "AgentKey"
+                  },
+                  {
+                    "inputName" : "tgt_agentshashkey",
+                    "outputName" : "AgentMD5"
                   }
                 ]
               }
@@ -4541,7 +4589,7 @@
             "precision" : 10,
             "scale" : 0,
             "expFieldType" : "OUTPUT",
-            "expression" : "IIF(ISNULL(agentkey),'I',IIF(NOT ISNULL(agentkey) AND (StgAgentMD5<>AgentMD5),'U','R'))"
+            "expression" : "IIF(ISNULL(agentkey),'I',IIF(NOT ISNULL(agentkey) AND (StgAgentMD5 != AgentMD5),'U','R'))"
           }
         ]
       },
@@ -4571,257 +4619,8 @@
           }
         ],
         "windowConfigurationEnabled" : "false"
-      },
-      {
-        "createTime" : "2023-12-14T13:19:54.310Z",
-        "name" : "Lkp_agents",
-        "advancedProperties" : [
-          {
-            "name" : "Tracing Level",
-            "value" : "Normal"
-          },
-          {
-            "name" : "Lookup caching enabled",
-            "value" : "true"
-          },
-          {
-            "name" : "Use Lookup Field Default Value",
-            "value" : "false"
-          },
-          {
-            "name" : "Lookup cache directory name",
-            "value" : "$PMCacheDir"
-          },
-          {
-            "name" : "Lookup cache persistent",
-            "value" : "false"
-          },
-          {
-            "name" : "Re-cache from lookup source",
-            "value" : "false"
-          },
-          {
-            "name" : "Lookup Data Cache Size",
-            "value" : "AUTO"
-          },
-          {
-            "name" : "Lookup Index Cache Size",
-            "value" : "AUTO"
-          },
-          {
-            "name" : "Dynamic Lookup Cache",
-            "value" : "false"
-          },
-          {
-            "name" : "Update Dynamic Cache Condition",
-            "value" : "TRUE"
-          },
-          {
-            "name" : "Output Old Value On Update",
-            "value" : "false"
-          },
-          {
-            "name" : "Insert Else Update",
-            "value" : "false"
-          },
-          {
-            "name" : "Case Sensitive String Comparison",
-            "value" : "false"
-          },
-          {
-            "name" : "Sorted Input",
-            "value" : "false"
-          },
-          {
-            "name" : "Lookup source is static",
-            "value" : "false"
-          },
-          {
-            "name" : "Pre-build lookup cache",
-            "value" : "AUTO"
-          },
-          {
-            "name" : "Optional",
-            "value" : "false"
-          }
-        ],
-        "groups" : [
-          {
-            "input" : "true",
-            "name" : "DefaultGroup",
-            "output" : "true",
-            "rules" : [
-              {
-                "bulkRename" : "false",
-                "include" : "true",
-                "names" : [
-                  {
-                    "inputName" : "Source_Cd",
-                    "outputName" : "SourceCd1"
-                  }
-                ]
-              }
-            ]
-          }
-        ],
-        "multipleMatchPolicy" : "Use Any Value",
-        "unconnected" : "false",
-        "useLabels" : "false",
-        "fields" : [
-          {
-            "adapterField" : {
-              "name" : "agentkey"
-            },
-            "name" : "agentkey",
-            "platformType" : {
-              "name" : "bigint"
-            },
-            "precision" : 19,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "agentshashkey"
-            },
-            "name" : "agentshashkey",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 765,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "sourcecd"
-            },
-            "name" : "sourcecd",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 360,
-            "scale" : 0
-          }
-        ],
-        "inputPortNames" : null,
-        "lookupConditions" : [
-          {
-            "leftOperand" : "sourcecd",
-            "operator" : "=",
-            "rightOperand" : "SourceCd1"
-          }
-        ],
-        "dataAdapter" : {
-          "connectionId$" : {
-            "name" : "DBConnection_TGT"
-          },
-          "excludeDynamicFileNameField" : "false",
-          "objectType" : "QUERY",
-          "typeSystem" : "TOOLKIT",
-          "useDynamicFileName" : "false",
-          "object" : {
-            "customQuery" : "SELECT Agents.AgentKey as AgentKey, Agents.AgentsHashKey as AgentsHashKey, Agents.SourceCd as SourceCd FROM dbo.Agents where Agents.RowEffEndDt='9999-12-31 00:00:00.0000000'",
-            "retainMetadata" : "false",
-            "fields" : [
-              {
-                "name" : "agentkey",
-                "fieldType" : "CONNECTOR",
-                "label" : "agentkey",
-                "nativeName" : "agentkey",
-                "nativeType" : "int8",
-                "original" : "false",
-                "precision" : 19,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "INFARS_CUSTOM_SCHEMA"
-                  }
-                ]
-              },
-              {
-                "name" : "agentshashkey",
-                "fieldType" : "CONNECTOR",
-                "label" : "agentshashkey",
-                "nativeName" : "agentshashkey",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 765,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "INFARS_CUSTOM_SCHEMA"
-                  }
-                ]
-              },
-              {
-                "name" : "sourcecd",
-                "fieldType" : "CONNECTOR",
-                "label" : "sourcecd",
-                "nativeName" : "sourcecd",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 360,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "INFARS_CUSTOM_SCHEMA"
-                  }
-                ]
-              }
-            ]
-          },
-          "readOptions" : {
-            "commandType" : 0,
-            "descending" : "false",
-            "queryAll" : "false",
-            "rowLimit" : 0,
-            "selectDistinct" : "false"
-          },
-          "runtimeAttributes" : {
-            "attributes" : [
-              {
-                "name" : "Read Mode",
-                "value" : "Direct"
-              },
-              {
-                "name" : "Fetch Size",
-                "value" : "10000"
-              },
-              {
-                "name" : "Enable Compression",
-                "value" : "YES"
-              },
-              {
-                "name" : "Temporary Credential Duration",
-                "value" : "3600"
-              },
-              {
-                "name" : "Treat NULL Value as NULL",
-                "value" : "NO"
-              },
-              {
-                "name" : "Encryption Type",
-                "value" : "None"
-              },
-              {
-                "name" : "Download S3 Files In Multiple Parts",
-                "value" : "NO"
-              },
-              {
-                "name" : "Multipart Download Threshold Size",
-                "value" : "5242880"
-              },
-              {
-                "name" : "Select Distinct",
-                "value" : "NO"
-              }
-            ]
-          }
-        }
       }
     ]
   },
-  "vcsExportTime" : "2026-01-06 11:16:36 PST"
+  "vcsExportTime" : "2026-01-15 10:35:20 PST"
 }
