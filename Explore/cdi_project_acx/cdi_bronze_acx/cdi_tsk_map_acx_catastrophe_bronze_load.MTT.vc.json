@@ -7,9 +7,13 @@
     {
       "name" : "$src_Query$",
       "type" : "SOURCE",
-      "label" : "src_Query",
+      "label" : "DBConnection_SRC",
       "uiProperties" : {
-        "connectionParameterized" : "false",
+        "cnxtype" : "Amazon Redshift v2",
+        "connectionParameterized" : "true",
+        "paramName" : "DBConnection_SRC",
+        "paramType-mapping" : "Connection",
+        "logcnx" : "DBConnection_SRC",
         "isSelectDistinct" : "false",
         "objectParameterized" : "false",
         "visible" : "false",
@@ -20,22 +24,11 @@
       "sourceObject" : "DUMMY_src_Query",
       "newFlatFile" : false,
       "newObject" : false,
-      "showBusinessNames" : false,
+      "showBusinessNames" : true,
       "naturalOrder" : true,
       "truncateTarget" : false,
       "bulkApiDBTarget" : false,
       "customFuncCfg" : { },
-      "oprRuntimeAttrs" : {
-        "selectDistinct" : "NO",
-        "EncryptionType" : "None",
-        "EnableCompression" : "YES",
-        "fetchSize" : "10000",
-        "multipartDownloadThreshold" : "5242880",
-        "temporaryCredentialDuration" : "900",
-        "TreatNullValueAsNull" : "NO",
-        "DownloadS3FilesInMultipleParts" : "NO",
-        "readMode" : "Direct"
-      },
       "customQuery" : "WITH current_batch AS (\n    SELECT \n        bls.batch_id,\n        bls.source_start_cutoff_datetime,\n        bls.source_end_cutoff_datetime\n    FROM $$operational_schema.batch_load_summary bls\n    WHERE bls.source_system_code = '$$sourcesystemcode'\n      AND bls.batch_status = 'Inprogress'\n      AND bls.batch_id = (\n          SELECT MAX(batch_id)\n          FROM $$operational_schema.batch_load_summary\n          WHERE source_system_code = '$$sourcesystemcode'\n            AND batch_status = 'Inprogress'\n      )\n)\nselect distinct \ncb.batch_id,\nmetal_ac.source_name, metal_ac.load_type, metal_ac.system_id, metal_ac.parent_id, metal_ac.cmm_container, metal_ac.id, metal_ac.update_count, \nmetal_ac.update_user, metal_ac.update_timestamp, metal_ac.catastrophe_yr, metal_ac.catastrophe_number, metal_ac.description, metal_ac.start_tm, metal_ac.end_tm, metal_ac.status_cd, metal_ac.row_id, metal_ac.event_type, bronze_dr.acx_catastrophe_row_id,bronze_dr.acx_catastrophe_row_md5checksum, metal_ac.start_dt, metal_ac.end_dt\nFROM $$raw_schema.acx_catastrophe metal_ac\nLEFT JOIN $$staging_schema.acx_catastrophe bronze_dr\n    ON CAST(TRIM(metal_ac.system_id) AS INT) = CAST(bronze_dr.system_id AS INT)\n   AND COALESCE(TRIM(metal_ac.cmm_container), '') = COALESCE(bronze_dr.cmm_container, '')\n   AND bronze_dr.acx_catastrophe_row_effective_end_datetime = '9999-12-31 00:00:00.000'\n   AND bronze_dr.acx_catastrophe_row_status = 'Active'\nCROSS JOIN current_batch cb\nORDER BY \n    metal_ac.system_id,\n    metal_ac.cmm_container,\n    metal_ac.id;",
       "commandType" : 0,
       "handleSpecialChars" : false,
@@ -48,7 +41,9 @@
       "objectName" : "DUMMY_src_Query",
       "useExactSrcNames" : false,
       "userUpdated" : true,
+      "fetchMode" : "ORIGINAL",
       "runtimeParameterData" : {
+        "connectionParameterName" : "DBConnection_SRC",
         "connectionRuntimeParameter" : false,
         "objectRuntimeParameter" : false
       },
@@ -99,6 +94,7 @@
       "objectLabel" : "bronze/acx_catastrophe",
       "useExactSrcNames" : false,
       "userUpdated" : true,
+      "fetchMode" : "ORIGINAL",
       "runtimeParameterData" : {
         "connectionParameterName" : "DBConnection_TGT",
         "connectionRuntimeParameter" : false,
@@ -151,6 +147,7 @@
       "objectLabel" : "bronze/acx_catastrophe",
       "useExactSrcNames" : false,
       "userUpdated" : true,
+      "fetchMode" : "ORIGINAL",
       "runtimeParameterData" : {
         "connectionParameterName" : "DBConnection_TGT",
         "connectionRuntimeParameter" : false,
@@ -207,6 +204,7 @@
       "objectLabel" : "bronze/acx_catastrophe",
       "useExactSrcNames" : false,
       "userUpdated" : true,
+      "fetchMode" : "ORIGINAL",
       "runtimeParameterData" : {
         "connectionParameterName" : "DBConnection_TGT",
         "connectionRuntimeParameter" : false,
@@ -218,7 +216,7 @@
     }
   ],
   "verbose" : false,
-  "lastRunTime" : 1769465572000,
+  "lastRunTime" : 1769612912000,
   "mappingId" : "@8LhvqzB5LW1f0ZNdzvOEmd",
   "mappingTemplateName" : "cdi_map_acx_catastrophe_bronze_load",
   "sessionPropertiesList" : [
@@ -291,5 +289,5 @@
   "allowMaxFieldLength" : false,
   "specialCharacterSupport" : false,
   "midstreamPreview" : false,
-  "vcsExportTime" : "2026-01-26 14:41:37 PST"
+  "vcsExportTime" : "2026-01-28 07:12:51 PST"
 }
