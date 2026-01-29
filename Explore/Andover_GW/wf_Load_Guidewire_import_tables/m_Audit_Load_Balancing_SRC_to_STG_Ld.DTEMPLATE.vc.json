@@ -1,0 +1,3487 @@
+{
+  "content" : {
+    "allowMaxFieldLength" : "false",
+    "name" : "m_Audit_Load_Balancing_SRC_to_STG_Ld",
+    "specialCharacterSupport" : "false",
+    "flowOrderEntries" : [
+      {
+        "sourceTypes" : [
+          "Source",
+          "Source"
+        ],
+        "sources" : [
+          "SQ_claimstats",
+          "SQ_claimstats_stg"
+        ],
+        "targetTypes" : [
+          "Target"
+        ],
+        "targets" : [
+          "Load_Balancing_Src_to_Import_INS"
+        ]
+      },
+      {
+        "sourceTypes" : [
+          "Source"
+        ],
+        "sources" : [
+          "SQ_Load_Balancing_Src_to_Import"
+        ],
+        "targetTypes" : [
+          "Target"
+        ],
+        "targets" : [
+          "Load_Balancing_Src_to_Import_ERR"
+        ]
+      }
+    ],
+    "links" : [
+      {
+        "link" : "SQ_claimstats -> EXP_GW_DATA"
+      },
+      {
+        "link" : "EXPTRANS -> FILTRANS"
+      },
+      {
+        "link" : "EXP_VarianceFail -> EXPTRANS"
+      },
+      {
+        "link" : "SQ_claimstats_stg -> EXP_Import_Data"
+      },
+      {
+        "link" : "EXP_Variance_Check -> EXP_Failure_check"
+      },
+      {
+        "link" : "SQ_Load_Balancing_Src_to_Import -> EXP_VarianceFail"
+      },
+      {
+        "link" : "JNR_GW_Import -> EXP_Variance_Check",
+        "groupLink" : "OutputGroup -> DefaultGroup"
+      },
+      {
+        "link" : "EXP_GW_DATA -> JNR_GW_Import",
+        "groupLink" : "DefaultGroup -> Detail"
+      },
+      {
+        "link" : "EXP_Import_Data -> JNR_GW_Import",
+        "groupLink" : "DefaultGroup -> Master"
+      },
+      {
+        "link" : "EXP_Failure_check -> Load_Balancing_Src_to_Import_INS"
+      },
+      {
+        "link" : "FILTRANS -> Load_Balancing_Src_to_Import_ERR"
+      }
+    ],
+    "parameters" : [
+      {
+        "input" : "true",
+        "output" : "false",
+        "precision" : 0,
+        "scale" : 0,
+        "allowRuntimeOverride" : "false",
+        "expressionVariable" : "false",
+        "name" : "S3_Staging_Bucket"
+      },
+      {
+        "input" : "true",
+        "output" : "false",
+        "precision" : 0,
+        "scale" : 0,
+        "allowRuntimeOverride" : "true",
+        "expressionVariable" : "false",
+        "name" : "DBConnection_SRC",
+        "anonymousType" : {
+          "subType" : "TOOLKIT_CCI",
+          "typeSystem" : "TOOLKIT",
+          "connectionType" : "Amazon Redshift v2"
+        }
+      },
+      {
+        "input" : "true",
+        "output" : "false",
+        "precision" : 0,
+        "scale" : 0,
+        "allowRuntimeOverride" : "true",
+        "expressionVariable" : "false",
+        "name" : "DBConnection_TGT",
+        "anonymousType" : {
+          "subType" : "TOOLKIT_CCI",
+          "typeSystem" : "TOOLKIT",
+          "connectionType" : "Amazon Redshift v2"
+        }
+      },
+      {
+        "input" : "true",
+        "output" : "false",
+        "precision" : 0,
+        "scale" : 0,
+        "allowRuntimeOverride" : "true",
+        "expressionVariable" : "false",
+        "name" : "DBConnection_SRCM",
+        "anonymousType" : {
+          "typeSystem" : "MySQL",
+          "connectionType" : "MySQL"
+        }
+      }
+    ],
+    "transformations" : [
+      {
+        "name" : "Load_Balancing_Src_to_Import_INS",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "false",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "sessionProperties" : [
+          {
+            "name" : "Reject file directory",
+            "value" : "$PMBadFileDir\\"
+          },
+          {
+            "name" : "Reject filename",
+            "value" : "load_balancing_src_to_import_ins1.bad"
+          }
+        ],
+        "createTarget" : "false",
+        "fieldMappingMode" : "MANUAL",
+        "inputSorted" : "false",
+        "schemaProviderType" : "SELECTED_OBJECT",
+        "targetFieldsOrdered" : "false",
+        "updateColumns" : null,
+        "useLabels" : "false",
+        "useSequenceFields" : "false",
+        "fields" : [
+          {
+            "adapterField" : {
+              "name" : "gw_policy_count"
+            },
+            "name" : "gw_policy_count",
+            "platformType" : {
+              "name" : "bigint"
+            },
+            "precision" : 19,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "gw_claim_count"
+            },
+            "name" : "gw_claim_count",
+            "platformType" : {
+              "name" : "bigint"
+            },
+            "precision" : 19,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "gw_mtdwrittenpremiumamt"
+            },
+            "name" : "gw_mtdwrittenpremiumamt",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 28,
+            "scale" : 6
+          },
+          {
+            "adapterField" : {
+              "name" : "gw_mtdearnedpremiumamount"
+            },
+            "name" : "gw_mtdearnedpremiumamount",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 28,
+            "scale" : 6
+          },
+          {
+            "adapterField" : {
+              "name" : "gw_lossexpense"
+            },
+            "name" : "gw_lossexpense",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 28,
+            "scale" : 6
+          },
+          {
+            "adapterField" : {
+              "name" : "gw_losspaid"
+            },
+            "name" : "gw_losspaid",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 28,
+            "scale" : 6
+          },
+          {
+            "adapterField" : {
+              "name" : "import_policy_count"
+            },
+            "name" : "import_policy_count",
+            "platformType" : {
+              "name" : "bigint"
+            },
+            "precision" : 19,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "import_claim_count"
+            },
+            "name" : "import_claim_count",
+            "platformType" : {
+              "name" : "bigint"
+            },
+            "precision" : 19,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "import_mtdwrittenpremiumamt"
+            },
+            "name" : "import_mtdwrittenpremiumamt",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 28,
+            "scale" : 6
+          },
+          {
+            "adapterField" : {
+              "name" : "import_mtdearnedpremiumamount"
+            },
+            "name" : "import_mtdearnedpremiumamount",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 28,
+            "scale" : 6
+          },
+          {
+            "adapterField" : {
+              "name" : "import_lossexpense"
+            },
+            "name" : "import_lossexpense",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 28,
+            "scale" : 6
+          },
+          {
+            "adapterField" : {
+              "name" : "import_losspaid"
+            },
+            "name" : "import_losspaid",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 28,
+            "scale" : 6
+          },
+          {
+            "adapterField" : {
+              "name" : "variance_policy_count"
+            },
+            "name" : "variance_policy_count",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "variance_claim_count"
+            },
+            "name" : "variance_claim_count",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "variance_mtdwrittenpremiumamt"
+            },
+            "name" : "variance_mtdwrittenpremiumamt",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "variance_mtdearnedpremiumamount"
+            },
+            "name" : "variance_mtdearnedpremiumamount",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "variance_lossexpense"
+            },
+            "name" : "variance_lossexpense",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "variance_losspaid"
+            },
+            "name" : "variance_losspaid",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "rowinsdt"
+            },
+            "name" : "rowinsdt",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          }
+        ],
+        "dataAdapter" : {
+          "connectionId$" : {
+            "name" : "DBConnection_TGT"
+          },
+          "excludeDynamicFileNameField" : "false",
+          "objectType" : "SINGLE",
+          "typeSystem" : "TOOLKIT",
+          "useDynamicFileName" : "false",
+          "object" : {
+            "name" : "dbo/load_balancing_src_to_import",
+            "label" : "load_balancing_src_to_import",
+            "objectName" : "load_balancing_src_to_import",
+            "objectType" : "amazonredshift",
+            "path" : "dbo/load_balancing_src_to_import",
+            "retainMetadata" : "false",
+            "fields" : [
+              {
+                "name" : "gw_policy_count",
+                "fieldType" : "CONNECTOR",
+                "label" : "gw_policy_count",
+                "nativeName" : "gw_policy_count",
+                "nativeType" : "int8",
+                "original" : "false",
+                "precision" : 19,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "load_balancing_src_to_import"
+                  }
+                ]
+              },
+              {
+                "name" : "gw_claim_count",
+                "fieldType" : "CONNECTOR",
+                "label" : "gw_claim_count",
+                "nativeName" : "gw_claim_count",
+                "nativeType" : "int8",
+                "original" : "false",
+                "precision" : 19,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "load_balancing_src_to_import"
+                  }
+                ]
+              },
+              {
+                "name" : "gw_mtdwrittenpremiumamt",
+                "fieldType" : "CONNECTOR",
+                "label" : "gw_mtdwrittenpremiumamt",
+                "nativeName" : "gw_mtdwrittenpremiumamt",
+                "nativeType" : "numeric",
+                "original" : "false",
+                "precision" : 28,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "load_balancing_src_to_import"
+                  }
+                ]
+              },
+              {
+                "name" : "gw_mtdearnedpremiumamount",
+                "fieldType" : "CONNECTOR",
+                "label" : "gw_mtdearnedpremiumamount",
+                "nativeName" : "gw_mtdearnedpremiumamount",
+                "nativeType" : "numeric",
+                "original" : "false",
+                "precision" : 28,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "load_balancing_src_to_import"
+                  }
+                ]
+              },
+              {
+                "name" : "gw_lossexpense",
+                "fieldType" : "CONNECTOR",
+                "label" : "gw_lossexpense",
+                "nativeName" : "gw_lossexpense",
+                "nativeType" : "numeric",
+                "original" : "false",
+                "precision" : 28,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "load_balancing_src_to_import"
+                  }
+                ]
+              },
+              {
+                "name" : "gw_losspaid",
+                "fieldType" : "CONNECTOR",
+                "label" : "gw_losspaid",
+                "nativeName" : "gw_losspaid",
+                "nativeType" : "numeric",
+                "original" : "false",
+                "precision" : 28,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "load_balancing_src_to_import"
+                  }
+                ]
+              },
+              {
+                "name" : "import_policy_count",
+                "fieldType" : "CONNECTOR",
+                "label" : "import_policy_count",
+                "nativeName" : "import_policy_count",
+                "nativeType" : "int8",
+                "original" : "false",
+                "precision" : 19,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "load_balancing_src_to_import"
+                  }
+                ]
+              },
+              {
+                "name" : "import_claim_count",
+                "fieldType" : "CONNECTOR",
+                "label" : "import_claim_count",
+                "nativeName" : "import_claim_count",
+                "nativeType" : "int8",
+                "original" : "false",
+                "precision" : 19,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "load_balancing_src_to_import"
+                  }
+                ]
+              },
+              {
+                "name" : "import_mtdwrittenpremiumamt",
+                "fieldType" : "CONNECTOR",
+                "label" : "import_mtdwrittenpremiumamt",
+                "nativeName" : "import_mtdwrittenpremiumamt",
+                "nativeType" : "numeric",
+                "original" : "false",
+                "precision" : 28,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "load_balancing_src_to_import"
+                  }
+                ]
+              },
+              {
+                "name" : "import_mtdearnedpremiumamount",
+                "fieldType" : "CONNECTOR",
+                "label" : "import_mtdearnedpremiumamount",
+                "nativeName" : "import_mtdearnedpremiumamount",
+                "nativeType" : "numeric",
+                "original" : "false",
+                "precision" : 28,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "load_balancing_src_to_import"
+                  }
+                ]
+              },
+              {
+                "name" : "import_lossexpense",
+                "fieldType" : "CONNECTOR",
+                "label" : "import_lossexpense",
+                "nativeName" : "import_lossexpense",
+                "nativeType" : "numeric",
+                "original" : "false",
+                "precision" : 28,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "load_balancing_src_to_import"
+                  }
+                ]
+              },
+              {
+                "name" : "import_losspaid",
+                "fieldType" : "CONNECTOR",
+                "label" : "import_losspaid",
+                "nativeName" : "import_losspaid",
+                "nativeType" : "numeric",
+                "original" : "false",
+                "precision" : 28,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "load_balancing_src_to_import"
+                  }
+                ]
+              },
+              {
+                "name" : "variance_policy_count",
+                "fieldType" : "CONNECTOR",
+                "label" : "variance_policy_count",
+                "nativeName" : "variance_policy_count",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "load_balancing_src_to_import"
+                  }
+                ]
+              },
+              {
+                "name" : "variance_claim_count",
+                "fieldType" : "CONNECTOR",
+                "label" : "variance_claim_count",
+                "nativeName" : "variance_claim_count",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "load_balancing_src_to_import"
+                  }
+                ]
+              },
+              {
+                "name" : "variance_mtdwrittenpremiumamt",
+                "fieldType" : "CONNECTOR",
+                "label" : "variance_mtdwrittenpremiumamt",
+                "nativeName" : "variance_mtdwrittenpremiumamt",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "load_balancing_src_to_import"
+                  }
+                ]
+              },
+              {
+                "name" : "variance_mtdearnedpremiumamount",
+                "fieldType" : "CONNECTOR",
+                "label" : "variance_mtdearnedpremiumamount",
+                "nativeName" : "variance_mtdearnedpremiumamount",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "load_balancing_src_to_import"
+                  }
+                ]
+              },
+              {
+                "name" : "variance_lossexpense",
+                "fieldType" : "CONNECTOR",
+                "label" : "variance_lossexpense",
+                "nativeName" : "variance_lossexpense",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "load_balancing_src_to_import"
+                  }
+                ]
+              },
+              {
+                "name" : "variance_losspaid",
+                "fieldType" : "CONNECTOR",
+                "label" : "variance_losspaid",
+                "nativeName" : "variance_losspaid",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "load_balancing_src_to_import"
+                  }
+                ]
+              },
+              {
+                "name" : "rowinsdt",
+                "fieldType" : "CONNECTOR",
+                "label" : "rowinsdt",
+                "nativeName" : "rowinsdt",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "load_balancing_src_to_import"
+                  }
+                ]
+              }
+            ],
+            "objectAttributes" : [
+              {
+                "name" : "recordType",
+                "value" : "TABLE"
+              }
+            ]
+          },
+          "runtimeAttributes" : {
+            "attributes" : [
+              {
+                "name" : "S3 Bucket Name",
+                "value" : "$$S3_Staging_Bucket"
+              },
+              {
+                "name" : "Enable Compression",
+                "value" : "YES"
+              },
+              {
+                "name" : "Batch Size",
+                "value" : "2000000"
+              },
+              {
+                "name" : "Max Errors Per Batch Upload Insert",
+                "value" : "1"
+              },
+              {
+                "name" : "Truncate Target Table Before Data Upload",
+                "value" : "NO"
+              },
+              {
+                "name" : "WaitTime In Seconds For S3 File Consistency",
+                "value" : "0"
+              },
+              {
+                "name" : "Temporary Credential Duration",
+                "value" : "900"
+              },
+              {
+                "name" : "S3 Server Side Encryption",
+                "value" : "NO"
+              },
+              {
+                "name" : "S3 Client Side Encryption",
+                "value" : "NO"
+              },
+              {
+                "name" : "Analyze Target Table",
+                "value" : "NO"
+              },
+              {
+                "name" : "Vacuum Target Table",
+                "value" : "None"
+              },
+              {
+                "name" : "Treat Source Rows As",
+                "value" : "INSERT"
+              },
+              {
+                "name" : "Transfer Manager Thread Pool Size",
+                "value" : "10"
+              },
+              {
+                "name" : "Minimum Upload Part Size",
+                "value" : "5242880"
+              },
+              {
+                "name" : "Preserve record order on write",
+                "value" : "NO"
+              },
+              {
+                "name" : "Number of files per batch",
+                "value" : "0"
+              }
+            ]
+          },
+          "writeOptions" : {
+            "batchSize" : 0,
+            "bulkApi" : "false",
+            "handleDecimalRoundOff" : "false",
+            "handleSpecialChars" : "false",
+            "operations" : [
+              "Insert",
+              "Insert",
+              "Insert"
+            ],
+            "setFieldsToNull" : "false",
+            "truncate" : "false",
+            "useErrorFile" : "false",
+            "useExactSrcNames" : "false",
+            "useSuccessFile" : "false"
+          }
+        },
+        "manualMappings" : {
+          "mappingList" : [
+            {
+              "fromFieldName" : "GW_Policy_Count",
+              "toField" : {
+                "name" : "gw_policy_count"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "GW_Claim_count",
+              "toField" : {
+                "name" : "gw_claim_count"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "GW_MTDWrittenPremiumAmt",
+              "toField" : {
+                "name" : "gw_mtdwrittenpremiumamt"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "GW_MTDEarnedPremiumAmount",
+              "toField" : {
+                "name" : "gw_mtdearnedpremiumamount"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "GW_LossExpense",
+              "toField" : {
+                "name" : "gw_lossexpense"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "GW_LossPaid",
+              "toField" : {
+                "name" : "gw_losspaid"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "import_policy_count",
+              "toField" : {
+                "name" : "import_policy_count"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "import_claim_count",
+              "toField" : {
+                "name" : "import_claim_count"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "import_mtdwrittenpremiumamt",
+              "toField" : {
+                "name" : "import_mtdwrittenpremiumamt"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "import_mtdearnedpremiumamount",
+              "toField" : {
+                "name" : "import_mtdearnedpremiumamount"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "import_lossexpense",
+              "toField" : {
+                "name" : "import_lossexpense"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "import_losspaid",
+              "toField" : {
+                "name" : "import_losspaid"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "Variance_Policy_Count",
+              "toField" : {
+                "name" : "variance_policy_count"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "Variance_Claim_count",
+              "toField" : {
+                "name" : "variance_claim_count"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "Variance_MTDWrittenPremiumAmt",
+              "toField" : {
+                "name" : "variance_mtdwrittenpremiumamt"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "Variance_MTDEarnedPremiumAmount",
+              "toField" : {
+                "name" : "variance_mtdearnedpremiumamount"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "Variance_LossExpense",
+              "toField" : {
+                "name" : "variance_lossexpense"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "Variance_LossPaid",
+              "toField" : {
+                "name" : "variance_losspaid"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "RowInsDt",
+              "toField" : {
+                "name" : "rowinsdt"
+              },
+              "fromFieldNames" : null
+            }
+          ]
+        }
+      },
+      {
+        "name" : "Load_Balancing_Src_to_Import_ERR",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "false",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              },
+              {
+                "bulkRename" : "false",
+                "include" : "false",
+                "names" : [
+                  {
+                    "inputName" : "Variance_check_Fail"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "sessionProperties" : [
+          {
+            "name" : "Reject file directory",
+            "value" : "$PMBadFileDir\\"
+          },
+          {
+            "name" : "Reject filename",
+            "value" : "load_balancing_src_to_import_err1.bad"
+          }
+        ],
+        "createTarget" : "false",
+        "fieldMappingMode" : "MANUAL",
+        "inputSorted" : "false",
+        "schemaProviderType" : "SELECTED_OBJECT",
+        "targetFieldsOrdered" : "false",
+        "updateColumns" : null,
+        "useLabels" : "false",
+        "useSequenceFields" : "false",
+        "fields" : [
+          {
+            "adapterField" : {
+              "name" : "gw_policy_count"
+            },
+            "name" : "gw_policy_count",
+            "platformType" : {
+              "name" : "bigint"
+            },
+            "precision" : 19,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "gw_claim_count"
+            },
+            "name" : "gw_claim_count",
+            "platformType" : {
+              "name" : "bigint"
+            },
+            "precision" : 19,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "gw_mtdwrittenpremiumamt"
+            },
+            "name" : "gw_mtdwrittenpremiumamt",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 28,
+            "scale" : 6
+          },
+          {
+            "adapterField" : {
+              "name" : "gw_mtdearnedpremiumamount"
+            },
+            "name" : "gw_mtdearnedpremiumamount",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 28,
+            "scale" : 6
+          },
+          {
+            "adapterField" : {
+              "name" : "gw_lossexpense"
+            },
+            "name" : "gw_lossexpense",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 28,
+            "scale" : 6
+          },
+          {
+            "adapterField" : {
+              "name" : "gw_losspaid"
+            },
+            "name" : "gw_losspaid",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 28,
+            "scale" : 6
+          },
+          {
+            "adapterField" : {
+              "name" : "import_policy_count"
+            },
+            "name" : "import_policy_count",
+            "platformType" : {
+              "name" : "bigint"
+            },
+            "precision" : 19,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "import_claim_count"
+            },
+            "name" : "import_claim_count",
+            "platformType" : {
+              "name" : "bigint"
+            },
+            "precision" : 19,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "import_mtdwrittenpremiumamt"
+            },
+            "name" : "import_mtdwrittenpremiumamt",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 28,
+            "scale" : 6
+          },
+          {
+            "adapterField" : {
+              "name" : "import_mtdearnedpremiumamount"
+            },
+            "name" : "import_mtdearnedpremiumamount",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 28,
+            "scale" : 6
+          },
+          {
+            "adapterField" : {
+              "name" : "import_lossexpense"
+            },
+            "name" : "import_lossexpense",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 28,
+            "scale" : 6
+          },
+          {
+            "adapterField" : {
+              "name" : "import_losspaid"
+            },
+            "name" : "import_losspaid",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 28,
+            "scale" : 6
+          },
+          {
+            "adapterField" : {
+              "name" : "variance_policy_count"
+            },
+            "name" : "variance_policy_count",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "variance_claim_count"
+            },
+            "name" : "variance_claim_count",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "variance_mtdwrittenpremiumamt"
+            },
+            "name" : "variance_mtdwrittenpremiumamt",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "variance_mtdearnedpremiumamount"
+            },
+            "name" : "variance_mtdearnedpremiumamount",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "variance_lossexpense"
+            },
+            "name" : "variance_lossexpense",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "variance_losspaid"
+            },
+            "name" : "variance_losspaid",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "rowinsdt"
+            },
+            "name" : "rowinsdt",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          }
+        ],
+        "dataAdapter" : {
+          "connectionId$" : {
+            "name" : "DBConnection_TGT"
+          },
+          "excludeDynamicFileNameField" : "false",
+          "objectType" : "SINGLE",
+          "typeSystem" : "TOOLKIT",
+          "useDynamicFileName" : "false",
+          "object" : {
+            "name" : "dbo/load_balancing_src_to_import",
+            "label" : "load_balancing_src_to_import",
+            "objectName" : "load_balancing_src_to_import",
+            "objectType" : "amazonredshift",
+            "path" : "dbo/load_balancing_src_to_import",
+            "retainMetadata" : "false",
+            "fields" : [
+              {
+                "name" : "gw_policy_count",
+                "fieldType" : "CONNECTOR",
+                "label" : "gw_policy_count",
+                "nativeName" : "gw_policy_count",
+                "nativeType" : "int8",
+                "original" : "false",
+                "precision" : 19,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "load_balancing_src_to_import"
+                  }
+                ]
+              },
+              {
+                "name" : "gw_claim_count",
+                "fieldType" : "CONNECTOR",
+                "label" : "gw_claim_count",
+                "nativeName" : "gw_claim_count",
+                "nativeType" : "int8",
+                "original" : "false",
+                "precision" : 19,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "load_balancing_src_to_import"
+                  }
+                ]
+              },
+              {
+                "name" : "gw_mtdwrittenpremiumamt",
+                "fieldType" : "CONNECTOR",
+                "label" : "gw_mtdwrittenpremiumamt",
+                "nativeName" : "gw_mtdwrittenpremiumamt",
+                "nativeType" : "numeric",
+                "original" : "false",
+                "precision" : 28,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "load_balancing_src_to_import"
+                  }
+                ]
+              },
+              {
+                "name" : "gw_mtdearnedpremiumamount",
+                "fieldType" : "CONNECTOR",
+                "label" : "gw_mtdearnedpremiumamount",
+                "nativeName" : "gw_mtdearnedpremiumamount",
+                "nativeType" : "numeric",
+                "original" : "false",
+                "precision" : 28,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "load_balancing_src_to_import"
+                  }
+                ]
+              },
+              {
+                "name" : "gw_lossexpense",
+                "fieldType" : "CONNECTOR",
+                "label" : "gw_lossexpense",
+                "nativeName" : "gw_lossexpense",
+                "nativeType" : "numeric",
+                "original" : "false",
+                "precision" : 28,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "load_balancing_src_to_import"
+                  }
+                ]
+              },
+              {
+                "name" : "gw_losspaid",
+                "fieldType" : "CONNECTOR",
+                "label" : "gw_losspaid",
+                "nativeName" : "gw_losspaid",
+                "nativeType" : "numeric",
+                "original" : "false",
+                "precision" : 28,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "load_balancing_src_to_import"
+                  }
+                ]
+              },
+              {
+                "name" : "import_policy_count",
+                "fieldType" : "CONNECTOR",
+                "label" : "import_policy_count",
+                "nativeName" : "import_policy_count",
+                "nativeType" : "int8",
+                "original" : "false",
+                "precision" : 19,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "load_balancing_src_to_import"
+                  }
+                ]
+              },
+              {
+                "name" : "import_claim_count",
+                "fieldType" : "CONNECTOR",
+                "label" : "import_claim_count",
+                "nativeName" : "import_claim_count",
+                "nativeType" : "int8",
+                "original" : "false",
+                "precision" : 19,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "load_balancing_src_to_import"
+                  }
+                ]
+              },
+              {
+                "name" : "import_mtdwrittenpremiumamt",
+                "fieldType" : "CONNECTOR",
+                "label" : "import_mtdwrittenpremiumamt",
+                "nativeName" : "import_mtdwrittenpremiumamt",
+                "nativeType" : "numeric",
+                "original" : "false",
+                "precision" : 28,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "load_balancing_src_to_import"
+                  }
+                ]
+              },
+              {
+                "name" : "import_mtdearnedpremiumamount",
+                "fieldType" : "CONNECTOR",
+                "label" : "import_mtdearnedpremiumamount",
+                "nativeName" : "import_mtdearnedpremiumamount",
+                "nativeType" : "numeric",
+                "original" : "false",
+                "precision" : 28,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "load_balancing_src_to_import"
+                  }
+                ]
+              },
+              {
+                "name" : "import_lossexpense",
+                "fieldType" : "CONNECTOR",
+                "label" : "import_lossexpense",
+                "nativeName" : "import_lossexpense",
+                "nativeType" : "numeric",
+                "original" : "false",
+                "precision" : 28,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "load_balancing_src_to_import"
+                  }
+                ]
+              },
+              {
+                "name" : "import_losspaid",
+                "fieldType" : "CONNECTOR",
+                "label" : "import_losspaid",
+                "nativeName" : "import_losspaid",
+                "nativeType" : "numeric",
+                "original" : "false",
+                "precision" : 28,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "load_balancing_src_to_import"
+                  }
+                ]
+              },
+              {
+                "name" : "variance_policy_count",
+                "fieldType" : "CONNECTOR",
+                "label" : "variance_policy_count",
+                "nativeName" : "variance_policy_count",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "load_balancing_src_to_import"
+                  }
+                ]
+              },
+              {
+                "name" : "variance_claim_count",
+                "fieldType" : "CONNECTOR",
+                "label" : "variance_claim_count",
+                "nativeName" : "variance_claim_count",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "load_balancing_src_to_import"
+                  }
+                ]
+              },
+              {
+                "name" : "variance_mtdwrittenpremiumamt",
+                "fieldType" : "CONNECTOR",
+                "label" : "variance_mtdwrittenpremiumamt",
+                "nativeName" : "variance_mtdwrittenpremiumamt",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "load_balancing_src_to_import"
+                  }
+                ]
+              },
+              {
+                "name" : "variance_mtdearnedpremiumamount",
+                "fieldType" : "CONNECTOR",
+                "label" : "variance_mtdearnedpremiumamount",
+                "nativeName" : "variance_mtdearnedpremiumamount",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "load_balancing_src_to_import"
+                  }
+                ]
+              },
+              {
+                "name" : "variance_lossexpense",
+                "fieldType" : "CONNECTOR",
+                "label" : "variance_lossexpense",
+                "nativeName" : "variance_lossexpense",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "load_balancing_src_to_import"
+                  }
+                ]
+              },
+              {
+                "name" : "variance_losspaid",
+                "fieldType" : "CONNECTOR",
+                "label" : "variance_losspaid",
+                "nativeName" : "variance_losspaid",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "load_balancing_src_to_import"
+                  }
+                ]
+              },
+              {
+                "name" : "rowinsdt",
+                "fieldType" : "CONNECTOR",
+                "label" : "rowinsdt",
+                "nativeName" : "rowinsdt",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "load_balancing_src_to_import"
+                  }
+                ]
+              }
+            ],
+            "objectAttributes" : [
+              {
+                "name" : "recordType",
+                "value" : "TABLE"
+              }
+            ]
+          },
+          "runtimeAttributes" : {
+            "attributes" : [
+              {
+                "name" : "S3 Bucket Name",
+                "value" : "nonproddatawarehouseredshiftclust-staging12d1754e-1w9c6risqayrf"
+              },
+              {
+                "name" : "Enable Compression",
+                "value" : "YES"
+              },
+              {
+                "name" : "Batch Size",
+                "value" : "2000000"
+              },
+              {
+                "name" : "Max Errors Per Batch Upload Insert",
+                "value" : "1"
+              },
+              {
+                "name" : "Truncate Target Table Before Data Upload",
+                "value" : "NO"
+              },
+              {
+                "name" : "WaitTime In Seconds For S3 File Consistency",
+                "value" : "0"
+              },
+              {
+                "name" : "Temporary Credential Duration",
+                "value" : "900"
+              },
+              {
+                "name" : "S3 Server Side Encryption",
+                "value" : "NO"
+              },
+              {
+                "name" : "S3 Client Side Encryption",
+                "value" : "NO"
+              },
+              {
+                "name" : "Analyze Target Table",
+                "value" : "NO"
+              },
+              {
+                "name" : "Vacuum Target Table",
+                "value" : "None"
+              },
+              {
+                "name" : "Treat Source Rows As",
+                "value" : "INSERT"
+              },
+              {
+                "name" : "Transfer Manager Thread Pool Size",
+                "value" : "10"
+              },
+              {
+                "name" : "Minimum Upload Part Size",
+                "value" : "5242880"
+              },
+              {
+                "name" : "Preserve record order on write",
+                "value" : "NO"
+              },
+              {
+                "name" : "Number of files per batch",
+                "value" : "0"
+              }
+            ]
+          },
+          "writeOptions" : {
+            "batchSize" : 0,
+            "bulkApi" : "false",
+            "handleDecimalRoundOff" : "false",
+            "handleSpecialChars" : "false",
+            "operations" : [
+              "Insert",
+              "Insert",
+              "Insert"
+            ],
+            "setFieldsToNull" : "false",
+            "truncate" : "false",
+            "useErrorFile" : "false",
+            "useExactSrcNames" : "false",
+            "useSuccessFile" : "false"
+          }
+        },
+        "manualMappings" : {
+          "mappingList" : [
+            {
+              "fromFieldName" : "gw_policy_count",
+              "toField" : {
+                "name" : "gw_policy_count"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "gw_claim_count",
+              "toField" : {
+                "name" : "gw_claim_count"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "gw_mtdwrittenpremiumamt",
+              "toField" : {
+                "name" : "gw_mtdwrittenpremiumamt"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "gw_mtdearnedpremiumamount",
+              "toField" : {
+                "name" : "gw_mtdearnedpremiumamount"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "gw_lossexpense",
+              "toField" : {
+                "name" : "gw_lossexpense"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "gw_losspaid",
+              "toField" : {
+                "name" : "gw_losspaid"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "import_policy_count",
+              "toField" : {
+                "name" : "import_policy_count"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "import_claim_count",
+              "toField" : {
+                "name" : "import_claim_count"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "import_mtdwrittenpremiumamt",
+              "toField" : {
+                "name" : "import_mtdwrittenpremiumamt"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "import_mtdearnedpremiumamount",
+              "toField" : {
+                "name" : "import_mtdearnedpremiumamount"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "import_lossexpense",
+              "toField" : {
+                "name" : "import_lossexpense"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "import_losspaid",
+              "toField" : {
+                "name" : "import_losspaid"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "variance_policy_count",
+              "toField" : {
+                "name" : "variance_policy_count"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "variance_claim_count",
+              "toField" : {
+                "name" : "variance_claim_count"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "variance_mtdwrittenpremiumamt",
+              "toField" : {
+                "name" : "variance_mtdwrittenpremiumamt"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "variance_mtdearnedpremiumamount",
+              "toField" : {
+                "name" : "variance_mtdearnedpremiumamount"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "variance_lossexpense",
+              "toField" : {
+                "name" : "variance_lossexpense"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "variance_losspaid",
+              "toField" : {
+                "name" : "variance_losspaid"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "rowinsdt",
+              "toField" : {
+                "name" : "rowinsdt"
+              },
+              "fromFieldNames" : null
+            }
+          ]
+        }
+      },
+      {
+        "name" : "EXP_GW_DATA",
+        "advancedProperties" : [
+          {
+            "name" : "Tracing Level",
+            "value" : "Normal"
+          },
+          {
+            "name" : "Optional",
+            "value" : "true"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              },
+              {
+                "bulkRename" : "false",
+                "include" : "true",
+                "names" : [
+                  {
+                    "inputName" : "MTDWrittenPremiumAmt",
+                    "outputName" : "GW_MTDWrittenPremiumAmt"
+                  },
+                  {
+                    "inputName" : "MTDEarnedPremiumAmount",
+                    "outputName" : "GW_MTDEarnedPremiumAmount"
+                  },
+                  {
+                    "inputName" : "LossExpense",
+                    "outputName" : "GW_LossExpense"
+                  },
+                  {
+                    "inputName" : "Claim_count",
+                    "outputName" : "GW_Claim_count"
+                  },
+                  {
+                    "inputName" : "LossPaid",
+                    "outputName" : "GW_LossPaid"
+                  },
+                  {
+                    "inputName" : "Policy_Count",
+                    "outputName" : "GW_Policy_Count"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "windowConfigurationEnabled" : "false",
+        "fields" : [
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "GW_UniqueIdentifier",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "'1'"
+          }
+        ]
+      },
+      {
+        "name" : "FILTRANS",
+        "advancedProperties" : [
+          {
+            "name" : "Tracing Level",
+            "value" : "Normal"
+          },
+          {
+            "name" : "Optional",
+            "value" : "true"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "advancedFilterCondition" : "FALSE"
+      },
+      {
+        "name" : "SQ_Load_Balancing_Src_to_Import",
+        "advancedProperties" : [
+          {
+            "name" : "Number Of Sorted Ports",
+            "value" : "0"
+          },
+          {
+            "name" : "Tracing Level",
+            "value" : "Normal"
+          },
+          {
+            "name" : "Is Partitionable",
+            "value" : "false"
+          },
+          {
+            "name" : "Output is deterministic",
+            "value" : "false"
+          },
+          {
+            "name" : "Output is repeatable",
+            "value" : "Never"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "false",
+            "name" : "DefaultGroup",
+            "output" : "true"
+          }
+        ],
+        "generateFilenamePort" : "false",
+        "useLabels" : "false",
+        "useSequenceFields" : "false",
+        "fields" : [
+          {
+            "adapterField" : {
+              "name" : "gw_policy_count"
+            },
+            "name" : "gw_policy_count",
+            "platformType" : {
+              "name" : "bigint"
+            },
+            "precision" : 19,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "gw_claim_count"
+            },
+            "name" : "gw_claim_count",
+            "platformType" : {
+              "name" : "bigint"
+            },
+            "precision" : 19,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "gw_mtdwrittenpremiumamt"
+            },
+            "name" : "gw_mtdwrittenpremiumamt",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 28,
+            "scale" : 6
+          },
+          {
+            "adapterField" : {
+              "name" : "gw_mtdearnedpremiumamount"
+            },
+            "name" : "gw_mtdearnedpremiumamount",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 28,
+            "scale" : 6
+          },
+          {
+            "adapterField" : {
+              "name" : "gw_lossexpense"
+            },
+            "name" : "gw_lossexpense",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 28,
+            "scale" : 6
+          },
+          {
+            "adapterField" : {
+              "name" : "gw_losspaid"
+            },
+            "name" : "gw_losspaid",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 28,
+            "scale" : 6
+          },
+          {
+            "adapterField" : {
+              "name" : "import_policy_count"
+            },
+            "name" : "import_policy_count",
+            "platformType" : {
+              "name" : "bigint"
+            },
+            "precision" : 19,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "import_claim_count"
+            },
+            "name" : "import_claim_count",
+            "platformType" : {
+              "name" : "bigint"
+            },
+            "precision" : 19,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "import_mtdwrittenpremiumamt"
+            },
+            "name" : "import_mtdwrittenpremiumamt",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 28,
+            "scale" : 6
+          },
+          {
+            "adapterField" : {
+              "name" : "import_mtdearnedpremiumamount"
+            },
+            "name" : "import_mtdearnedpremiumamount",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 28,
+            "scale" : 6
+          },
+          {
+            "adapterField" : {
+              "name" : "import_lossexpense"
+            },
+            "name" : "import_lossexpense",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 28,
+            "scale" : 6
+          },
+          {
+            "adapterField" : {
+              "name" : "import_losspaid"
+            },
+            "name" : "import_losspaid",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 28,
+            "scale" : 6
+          },
+          {
+            "adapterField" : {
+              "name" : "variance_policy_count"
+            },
+            "name" : "variance_policy_count",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "variance_claim_count"
+            },
+            "name" : "variance_claim_count",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "variance_mtdwrittenpremiumamt"
+            },
+            "name" : "variance_mtdwrittenpremiumamt",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "variance_mtdearnedpremiumamount"
+            },
+            "name" : "variance_mtdearnedpremiumamount",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "variance_lossexpense"
+            },
+            "name" : "variance_lossexpense",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "variance_losspaid"
+            },
+            "name" : "variance_losspaid",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "rowinsdt"
+            },
+            "name" : "rowinsdt",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          }
+        ],
+        "dataAdapter" : {
+          "connectionId$" : {
+            "name" : "DBConnection_SRC"
+          },
+          "excludeDynamicFileNameField" : "false",
+          "objectType" : "QUERY",
+          "typeSystem" : "TOOLKIT",
+          "useDynamicFileName" : "false",
+          "object" : {
+            "customQuery" : "SELECT Load_Balancing_Src_to_Import.GW_Policy_Count, Load_Balancing_Src_to_Import.GW_Claim_count, Load_Balancing_Src_to_Import.GW_MTDWrittenPremiumAmt, Load_Balancing_Src_to_Import.GW_MTDEarnedPremiumAmount, Load_Balancing_Src_to_Import.GW_LossExpense, Load_Balancing_Src_to_Import.GW_LossPaid, Load_Balancing_Src_to_Import.Import_Policy_Count, Load_Balancing_Src_to_Import.Import_Claim_count, Load_Balancing_Src_to_Import.Import_MTDWrittenPremiumAmt, Load_Balancing_Src_to_Import.Import_MTDEarnedPremiumAmount, Load_Balancing_Src_to_Import.Import_LossExpense, Load_Balancing_Src_to_Import.Import_LossPaid, Load_Balancing_Src_to_Import.Variance_Policy_Count, Load_Balancing_Src_to_Import.Variance_Claim_count, Load_Balancing_Src_to_Import.Variance_MTDWrittenPremiumAmt, Load_Balancing_Src_to_Import.Variance_MTDEarnedPremiumAmount, Load_Balancing_Src_to_Import.Variance_LossExpense, Load_Balancing_Src_to_Import.Variance_LossPaid, Load_Balancing_Src_to_Import.RowInsDt\nFROM\n dbo.Load_Balancing_Src_to_Import  where\nRowinsdt in (select max(Rowinsdt) from dbo.Load_Balancing_Src_to_Import)",
+            "retainMetadata" : "false",
+            "fields" : [
+              {
+                "name" : "gw_policy_count",
+                "fieldType" : "CONNECTOR",
+                "label" : "gw_policy_count",
+                "nativeName" : "gw_policy_count",
+                "nativeType" : "int8",
+                "original" : "false",
+                "precision" : 19,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "gw_claim_count",
+                "fieldType" : "CONNECTOR",
+                "label" : "gw_claim_count",
+                "nativeName" : "gw_claim_count",
+                "nativeType" : "int8",
+                "original" : "false",
+                "precision" : 19,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "gw_mtdwrittenpremiumamt",
+                "fieldType" : "CONNECTOR",
+                "label" : "gw_mtdwrittenpremiumamt",
+                "nativeName" : "gw_mtdwrittenpremiumamt",
+                "nativeType" : "numeric",
+                "original" : "false",
+                "precision" : 28,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "gw_mtdearnedpremiumamount",
+                "fieldType" : "CONNECTOR",
+                "label" : "gw_mtdearnedpremiumamount",
+                "nativeName" : "gw_mtdearnedpremiumamount",
+                "nativeType" : "numeric",
+                "original" : "false",
+                "precision" : 28,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "gw_lossexpense",
+                "fieldType" : "CONNECTOR",
+                "label" : "gw_lossexpense",
+                "nativeName" : "gw_lossexpense",
+                "nativeType" : "numeric",
+                "original" : "false",
+                "precision" : 28,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "gw_losspaid",
+                "fieldType" : "CONNECTOR",
+                "label" : "gw_losspaid",
+                "nativeName" : "gw_losspaid",
+                "nativeType" : "numeric",
+                "original" : "false",
+                "precision" : 28,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "import_policy_count",
+                "fieldType" : "CONNECTOR",
+                "label" : "import_policy_count",
+                "nativeName" : "import_policy_count",
+                "nativeType" : "int8",
+                "original" : "false",
+                "precision" : 19,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "import_claim_count",
+                "fieldType" : "CONNECTOR",
+                "label" : "import_claim_count",
+                "nativeName" : "import_claim_count",
+                "nativeType" : "int8",
+                "original" : "false",
+                "precision" : 19,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "import_mtdwrittenpremiumamt",
+                "fieldType" : "CONNECTOR",
+                "label" : "import_mtdwrittenpremiumamt",
+                "nativeName" : "import_mtdwrittenpremiumamt",
+                "nativeType" : "numeric",
+                "original" : "false",
+                "precision" : 28,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "import_mtdearnedpremiumamount",
+                "fieldType" : "CONNECTOR",
+                "label" : "import_mtdearnedpremiumamount",
+                "nativeName" : "import_mtdearnedpremiumamount",
+                "nativeType" : "numeric",
+                "original" : "false",
+                "precision" : 28,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "import_lossexpense",
+                "fieldType" : "CONNECTOR",
+                "label" : "import_lossexpense",
+                "nativeName" : "import_lossexpense",
+                "nativeType" : "numeric",
+                "original" : "false",
+                "precision" : 28,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "import_losspaid",
+                "fieldType" : "CONNECTOR",
+                "label" : "import_losspaid",
+                "nativeName" : "import_losspaid",
+                "nativeType" : "numeric",
+                "original" : "false",
+                "precision" : 28,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "variance_policy_count",
+                "fieldType" : "CONNECTOR",
+                "label" : "variance_policy_count",
+                "nativeName" : "variance_policy_count",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "variance_claim_count",
+                "fieldType" : "CONNECTOR",
+                "label" : "variance_claim_count",
+                "nativeName" : "variance_claim_count",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "variance_mtdwrittenpremiumamt",
+                "fieldType" : "CONNECTOR",
+                "label" : "variance_mtdwrittenpremiumamt",
+                "nativeName" : "variance_mtdwrittenpremiumamt",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "variance_mtdearnedpremiumamount",
+                "fieldType" : "CONNECTOR",
+                "label" : "variance_mtdearnedpremiumamount",
+                "nativeName" : "variance_mtdearnedpremiumamount",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "variance_lossexpense",
+                "fieldType" : "CONNECTOR",
+                "label" : "variance_lossexpense",
+                "nativeName" : "variance_lossexpense",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "variance_losspaid",
+                "fieldType" : "CONNECTOR",
+                "label" : "variance_losspaid",
+                "nativeName" : "variance_losspaid",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "rowinsdt",
+                "fieldType" : "CONNECTOR",
+                "label" : "rowinsdt",
+                "nativeName" : "rowinsdt",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              }
+            ]
+          },
+          "readOptions" : {
+            "commandType" : 0,
+            "descending" : "false",
+            "queryAll" : "false",
+            "rowLimit" : 0,
+            "selectDistinct" : "false"
+          },
+          "runtimeAttributes" : {
+            "attributes" : [
+              {
+                "name" : "Read Mode",
+                "value" : "Direct"
+              },
+              {
+                "name" : "Fetch Size",
+                "value" : "10000"
+              },
+              {
+                "name" : "Enable Compression",
+                "value" : "YES"
+              },
+              {
+                "name" : "Temporary Credential Duration",
+                "value" : "900"
+              },
+              {
+                "name" : "Treat NULL Value as NULL",
+                "value" : "NO"
+              },
+              {
+                "name" : "Encryption Type",
+                "value" : "None"
+              },
+              {
+                "name" : "Download S3 Files In Multiple Parts",
+                "value" : "NO"
+              },
+              {
+                "name" : "Multipart Download Threshold Size",
+                "value" : "5242880"
+              },
+              {
+                "name" : "Select Distinct",
+                "value" : "NO"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "name" : "EXPTRANS",
+        "advancedProperties" : [
+          {
+            "name" : "Tracing Level",
+            "value" : "Normal"
+          },
+          {
+            "name" : "Optional",
+            "value" : "true"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "windowConfigurationEnabled" : "false"
+      },
+      {
+        "name" : "EXP_Import_Data",
+        "advancedProperties" : [
+          {
+            "name" : "Tracing Level",
+            "value" : "Normal"
+          },
+          {
+            "name" : "Optional",
+            "value" : "true"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true",
+                "names" : [
+                  {
+                    "inputName" : "import_claim_count"
+                  },
+                  {
+                    "inputName" : "import_lossexpense"
+                  },
+                  {
+                    "inputName" : "import_losspaid"
+                  },
+                  {
+                    "inputName" : "import_mtdearnedpremiumamount"
+                  },
+                  {
+                    "inputName" : "import_mtdwrittenpremiumamt"
+                  },
+                  {
+                    "inputName" : "import_policy_count"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "windowConfigurationEnabled" : "false",
+        "fields" : [
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "Import_UniqueIdentifier",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "'1'"
+          }
+        ]
+      },
+      {
+        "name" : "EXP_Failure_check",
+        "advancedProperties" : [
+          {
+            "name" : "Tracing Level",
+            "value" : "Normal"
+          },
+          {
+            "name" : "Optional",
+            "value" : "true"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              },
+              {
+                "bulkRename" : "false",
+                "include" : "false",
+                "names" : [
+                  {
+                    "inputName" : "GW_UniqueIdentifier"
+                  },
+                  {
+                    "inputName" : "Import_UniqueIdentifier"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "windowConfigurationEnabled" : "false"
+      },
+      {
+        "name" : "SQ_claimstats",
+        "advancedProperties" : [
+          {
+            "name" : "Number Of Sorted Ports",
+            "value" : "0"
+          },
+          {
+            "name" : "Tracing Level",
+            "value" : "Normal"
+          },
+          {
+            "name" : "Is Partitionable",
+            "value" : "false"
+          },
+          {
+            "name" : "Output is deterministic",
+            "value" : "false"
+          },
+          {
+            "name" : "Output is repeatable",
+            "value" : "Never"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "false",
+            "name" : "DefaultGroup",
+            "output" : "true"
+          }
+        ],
+        "generateFilenamePort" : "false",
+        "useLabels" : "false",
+        "useSequenceFields" : "false",
+        "dataAdapter" : {
+          "connectionId$" : {
+            "name" : "DBConnection_SRCM"
+          },
+          "excludeDynamicFileNameField" : "false",
+          "objectType" : "QUERY",
+          "typeSystem" : "MySQL",
+          "useDynamicFileName" : "false",
+          "object" : {
+            "customQuery" : "SELECT Policy_Count,Claim_count, MTDWrittenPremiumAmt, MTDEarnedPremiumAmount, LossExpense,LossPaid \nFROM\n(select max(Policy_Count) as Policy_Count,max(Claim_count) as Claim_count,\nmax(MTDWrittenPremiumAmt) as MTDWrittenPremiumAmt,max(MTDEarnedPremiumAmount) as MTDEarnedPremiumAmount,(sum(ULAEExpense)+sum(ALAEExpense)) as LossExpense,sum(LossPaid) as LossPaid from (select coalesce(sum(ULAEExpense),0) as ULAEExpense,coalesce(sum(ALAEExpense),0) as ALAEExpense,coalesce(sum(LossPaid),0) as LossPaid from  (select case when Reservecd in ('Adjustment') then PaidAmt else NULL end as ULAEExpense,\ncase when ReserveCd='DEFENSE' then PaidAmt else NULL end as ALAEExpense,\ncase when ReserveCd='Indemnity' then PaidAmt else NULL end as LossPaid\nfrom (SELECT \n  sum(Claimstats_Stg.PaidAmt) as PaidAmt,\nClaimstats_Stg.ReserveCd ReserveCd,\nClaimstats_Stg.ClaimantTransactionCd ClaimantTransactionCd,\nClaimstats_Stg.PolicyNumber PolicyNumber,\ncase when length(claimstats_stg.policyversion)='1' then concat('00',claimstats_stg.policyversion)\n             when length(claimstats_stg.policyversion)='2' then concat('0',claimstats_stg.policyversion)\n             else claimstats_stg.policyversion end as policyversion,\nClaimstats_Stg.LineCd LineCd,\nClaimstats_Stg.RiskCd RiskCd,\nClaimstats_Stg.CoverageCd CoverageCd,\nClaimstats_Stg.ClaimNumber ClaimNumber,\nClaimstats_Stg.LosscauseCd LosscauseCd,\nSum(Claimstats_Stg.PostedRecoveryAmt) as PostedRecoveryAmt,\nsum(Claimstats_Stg.ReserveChangeAmt) as ReserveChangeAmt,\nClaimstats_Stg.StateCd StateCd, \n min(Claimstats_Stg.BookDt) as BookDt,\nClaimstats_Stg.TransactionNumber TransactionNumber,\nmin(Claimstats_Stg.AddDt) as AddDt,\nmin(Claimstats_Stg.EffectiveDt) as EffectiveDt,\nClaimstats_Stg.MajorPerilCd MajorPerilCd\nfrom ClaimStats  ClaimStats_stg where adddt>='$$M_StartDt' and adddt<='$$M_EndDt'\ngroup by \n  Claimstats_Stg.PolicyNumber,\nclaimstats_stg.policyversion,\nClaimstats_Stg.LineCd,\nClaimstats_Stg.RiskCd,\nClaimstats_Stg.CoverageCd,\nClaimstats_Stg.ClaimNumber,\nClaimstats_Stg.LosscauseCd,\nClaimstats_Stg.StateCd,\nClaimstats_Stg.ReserveCd,\nClaimstats_Stg.TransactionNumber,\nClaimstats_Stg.ClaimantTransactionCd,\nClaimstats_Stg.MajorPerilCd\n)claimstats)T )CS\ninner join (select coalesce(sum(MTDWrittenPremiumAmt),0) as MTDWrittenPremiumAmt,\ncoalesce(sum(MTDEarnedPremiumAmt),0) as MTDEarnedPremiumAmount from policysummarystats where updatedt>='$$M_StartDt' and updatedt<='$$M_EndDt')PSS\non 1=1\ninner join (select count(policykey) as Policy_Count from \n(select distinct concat(policynumber,policyversion) as policykey from basicpolicy where cmmcontainer='policy' and systemid in \n(\nselect SystemId from advrxxchangedbeans where concat(adddt,addtm)>='$$M_StartDt' and concat(adddt,addtm) <='$$M_EndDt' and\ncmmcontainer='Policy'))x)BP\non 1=1\ninner join (select count(claimnumber) as Claim_count from (select distinct claimnumber from claim left join \n              (Select SystemId from claimPolicyInfo where  ClaimPolicyinfo.cmmcontainer='Claim') ClaimPolicyInfo on \nClaim.Systemid=ClaimPolicyinfo.Systemid \nLeft join (select systemid,id, riskidref from PolicyRisk) PolicyRisk on claim.riskidref = PolicyRisk.id \nwhere \nclaim.cmmcontainer='Claim' \nand claim.systemid in \n(select SystemId from advrxxchangedbeans where concat(adddt,addtm)>='$$M_StartDt' and concat(adddt,addtm) <='$$M_EndDt' and cmmcontainer='Claim' )\n)r)C\non 1=1)SRCLoadBalancing",
+            "retainMetadata" : "false"
+          },
+          "readOptions" : {
+            "commandType" : 0,
+            "descending" : "false",
+            "queryAll" : "false",
+            "rowLimit" : 0,
+            "selectDistinct" : "false"
+          }
+        }
+      },
+      {
+        "name" : "EXP_VarianceFail",
+        "advancedProperties" : [
+          {
+            "name" : "Tracing Level",
+            "value" : "Normal"
+          },
+          {
+            "name" : "Optional",
+            "value" : "true"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "windowConfigurationEnabled" : "false",
+        "fields" : [
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "Variance_check_Fail",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 120,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "IIF(Variance_Policy_Count<>0 OR Variance_Claim_count<>0 OR Variance_MTDWrittenPremiumAmt<>0 OR Variance_MTDEarnedPremiumAmount<>0 OR Variance_LossExpense<>0 OR Variance_LossPaid<>0,ABORT('DATA VARIANCE'),'I')"
+          }
+        ]
+      },
+      {
+        "name" : "EXP_Variance_Check",
+        "advancedProperties" : [
+          {
+            "name" : "Tracing Level",
+            "value" : "Normal"
+          },
+          {
+            "name" : "Optional",
+            "value" : "true"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "windowConfigurationEnabled" : "false",
+        "fields" : [
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "Variance_Policy_Count",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "GW_Policy_Count-Import_Policy_Count"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "Variance_Claim_count",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "GW_Claim_count-Import_Claim_count"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "Variance_MTDWrittenPremiumAmt",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "GW_MTDWrittenPremiumAmt-Import_MTDWrittenPremiumAmt"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "Variance_MTDEarnedPremiumAmount",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "GW_MTDEarnedPremiumAmount-Import_MTDEarnedPremiumAmount"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "Variance_LossExpense",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "GW_LossExpense-Import_LossExpense"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "Variance_LossPaid",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "GW_LossPaid-Import_LossPaid"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "RowInsDt",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9,
+            "expFieldType" : "OUTPUT",
+            "expression" : "sysdate"
+          }
+        ]
+      },
+      {
+        "name" : "SQ_claimstats_stg",
+        "advancedProperties" : [
+          {
+            "name" : "Number Of Sorted Ports",
+            "value" : "0"
+          },
+          {
+            "name" : "Tracing Level",
+            "value" : "Normal"
+          },
+          {
+            "name" : "Is Partitionable",
+            "value" : "false"
+          },
+          {
+            "name" : "Output is deterministic",
+            "value" : "false"
+          },
+          {
+            "name" : "Output is repeatable",
+            "value" : "Never"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "false",
+            "name" : "DefaultGroup",
+            "output" : "true"
+          }
+        ],
+        "generateFilenamePort" : "false",
+        "useLabels" : "false",
+        "useSequenceFields" : "false",
+        "fields" : [
+          {
+            "adapterField" : {
+              "name" : "gw_policy_count"
+            },
+            "name" : "gw_policy_count",
+            "platformType" : {
+              "name" : "bigint"
+            },
+            "precision" : 19,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "gw_claim_count"
+            },
+            "name" : "gw_claim_count",
+            "platformType" : {
+              "name" : "bigint"
+            },
+            "precision" : 19,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "gw_mtdwrittenpremiumamt"
+            },
+            "name" : "gw_mtdwrittenpremiumamt",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 28,
+            "scale" : 6
+          },
+          {
+            "adapterField" : {
+              "name" : "gw_mtdearnedpremiumamount"
+            },
+            "name" : "gw_mtdearnedpremiumamount",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 28,
+            "scale" : 6
+          },
+          {
+            "adapterField" : {
+              "name" : "gw_lossexpense"
+            },
+            "name" : "gw_lossexpense",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 28,
+            "scale" : 6
+          },
+          {
+            "adapterField" : {
+              "name" : "gw_losspaid"
+            },
+            "name" : "gw_losspaid",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 28,
+            "scale" : 6
+          },
+          {
+            "adapterField" : {
+              "name" : "import_policy_count"
+            },
+            "name" : "import_policy_count",
+            "platformType" : {
+              "name" : "bigint"
+            },
+            "precision" : 19,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "import_claim_count"
+            },
+            "name" : "import_claim_count",
+            "platformType" : {
+              "name" : "bigint"
+            },
+            "precision" : 19,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "import_mtdwrittenpremiumamt"
+            },
+            "name" : "import_mtdwrittenpremiumamt",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 28,
+            "scale" : 6
+          },
+          {
+            "adapterField" : {
+              "name" : "import_mtdearnedpremiumamount"
+            },
+            "name" : "import_mtdearnedpremiumamount",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 28,
+            "scale" : 6
+          },
+          {
+            "adapterField" : {
+              "name" : "import_lossexpense"
+            },
+            "name" : "import_lossexpense",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 28,
+            "scale" : 6
+          },
+          {
+            "adapterField" : {
+              "name" : "import_losspaid"
+            },
+            "name" : "import_losspaid",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 28,
+            "scale" : 6
+          },
+          {
+            "adapterField" : {
+              "name" : "variance_policy_count"
+            },
+            "name" : "variance_policy_count",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "variance_claim_count"
+            },
+            "name" : "variance_claim_count",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "variance_mtdwrittenpremiumamt"
+            },
+            "name" : "variance_mtdwrittenpremiumamt",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "variance_mtdearnedpremiumamount"
+            },
+            "name" : "variance_mtdearnedpremiumamount",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "variance_lossexpense"
+            },
+            "name" : "variance_lossexpense",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "variance_losspaid"
+            },
+            "name" : "variance_losspaid",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "rowinsdt"
+            },
+            "name" : "rowinsdt",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          }
+        ],
+        "dataAdapter" : {
+          "connectionId$" : {
+            "name" : "DBConnection_SRC"
+          },
+          "excludeDynamicFileNameField" : "false",
+          "objectType" : "QUERY",
+          "typeSystem" : "TOOLKIT",
+          "useDynamicFileName" : "false",
+          "object" : {
+            "customQuery" : "SELECT Load_Balancing_Src_to_Import.GW_Policy_Count, Load_Balancing_Src_to_Import.GW_Claim_count, Load_Balancing_Src_to_Import.GW_MTDWrittenPremiumAmt, Load_Balancing_Src_to_Import.GW_MTDEarnedPremiumAmount, Load_Balancing_Src_to_Import.GW_LossExpense, Load_Balancing_Src_to_Import.GW_LossPaid, Load_Balancing_Src_to_Import.Import_Policy_Count, Load_Balancing_Src_to_Import.Import_Claim_count, Load_Balancing_Src_to_Import.Import_MTDWrittenPremiumAmt, Load_Balancing_Src_to_Import.Import_MTDEarnedPremiumAmount, Load_Balancing_Src_to_Import.Import_LossExpense, Load_Balancing_Src_to_Import.Import_LossPaid, Load_Balancing_Src_to_Import.Variance_Policy_Count, Load_Balancing_Src_to_Import.Variance_Claim_count, Load_Balancing_Src_to_Import.Variance_MTDWrittenPremiumAmt, Load_Balancing_Src_to_Import.Variance_MTDEarnedPremiumAmount, Load_Balancing_Src_to_Import.Variance_LossExpense, Load_Balancing_Src_to_Import.Variance_LossPaid, Load_Balancing_Src_to_Import.RowInsDt \nFROM\n dbo.Load_Balancing_Src_to_Import  where \nRowinsdt in (select max(Rowinsdt) from dbo.Load_Balancing_Src_to_Import)",
+            "retainMetadata" : "false",
+            "fields" : [
+              {
+                "name" : "gw_policy_count",
+                "fieldType" : "CONNECTOR",
+                "label" : "gw_policy_count",
+                "nativeName" : "gw_policy_count",
+                "nativeType" : "int8",
+                "original" : "false",
+                "precision" : 19,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "gw_claim_count",
+                "fieldType" : "CONNECTOR",
+                "label" : "gw_claim_count",
+                "nativeName" : "gw_claim_count",
+                "nativeType" : "int8",
+                "original" : "false",
+                "precision" : 19,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "gw_mtdwrittenpremiumamt",
+                "fieldType" : "CONNECTOR",
+                "label" : "gw_mtdwrittenpremiumamt",
+                "nativeName" : "gw_mtdwrittenpremiumamt",
+                "nativeType" : "numeric",
+                "original" : "false",
+                "precision" : 28,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "gw_mtdearnedpremiumamount",
+                "fieldType" : "CONNECTOR",
+                "label" : "gw_mtdearnedpremiumamount",
+                "nativeName" : "gw_mtdearnedpremiumamount",
+                "nativeType" : "numeric",
+                "original" : "false",
+                "precision" : 28,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "gw_lossexpense",
+                "fieldType" : "CONNECTOR",
+                "label" : "gw_lossexpense",
+                "nativeName" : "gw_lossexpense",
+                "nativeType" : "numeric",
+                "original" : "false",
+                "precision" : 28,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "gw_losspaid",
+                "fieldType" : "CONNECTOR",
+                "label" : "gw_losspaid",
+                "nativeName" : "gw_losspaid",
+                "nativeType" : "numeric",
+                "original" : "false",
+                "precision" : 28,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "import_policy_count",
+                "fieldType" : "CONNECTOR",
+                "label" : "import_policy_count",
+                "nativeName" : "import_policy_count",
+                "nativeType" : "int8",
+                "original" : "false",
+                "precision" : 19,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "import_claim_count",
+                "fieldType" : "CONNECTOR",
+                "label" : "import_claim_count",
+                "nativeName" : "import_claim_count",
+                "nativeType" : "int8",
+                "original" : "false",
+                "precision" : 19,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "import_mtdwrittenpremiumamt",
+                "fieldType" : "CONNECTOR",
+                "label" : "import_mtdwrittenpremiumamt",
+                "nativeName" : "import_mtdwrittenpremiumamt",
+                "nativeType" : "numeric",
+                "original" : "false",
+                "precision" : 28,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "import_mtdearnedpremiumamount",
+                "fieldType" : "CONNECTOR",
+                "label" : "import_mtdearnedpremiumamount",
+                "nativeName" : "import_mtdearnedpremiumamount",
+                "nativeType" : "numeric",
+                "original" : "false",
+                "precision" : 28,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "import_lossexpense",
+                "fieldType" : "CONNECTOR",
+                "label" : "import_lossexpense",
+                "nativeName" : "import_lossexpense",
+                "nativeType" : "numeric",
+                "original" : "false",
+                "precision" : 28,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "import_losspaid",
+                "fieldType" : "CONNECTOR",
+                "label" : "import_losspaid",
+                "nativeName" : "import_losspaid",
+                "nativeType" : "numeric",
+                "original" : "false",
+                "precision" : 28,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "variance_policy_count",
+                "fieldType" : "CONNECTOR",
+                "label" : "variance_policy_count",
+                "nativeName" : "variance_policy_count",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "variance_claim_count",
+                "fieldType" : "CONNECTOR",
+                "label" : "variance_claim_count",
+                "nativeName" : "variance_claim_count",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "variance_mtdwrittenpremiumamt",
+                "fieldType" : "CONNECTOR",
+                "label" : "variance_mtdwrittenpremiumamt",
+                "nativeName" : "variance_mtdwrittenpremiumamt",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "variance_mtdearnedpremiumamount",
+                "fieldType" : "CONNECTOR",
+                "label" : "variance_mtdearnedpremiumamount",
+                "nativeName" : "variance_mtdearnedpremiumamount",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "variance_lossexpense",
+                "fieldType" : "CONNECTOR",
+                "label" : "variance_lossexpense",
+                "nativeName" : "variance_lossexpense",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "variance_losspaid",
+                "fieldType" : "CONNECTOR",
+                "label" : "variance_losspaid",
+                "nativeName" : "variance_losspaid",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "rowinsdt",
+                "fieldType" : "CONNECTOR",
+                "label" : "rowinsdt",
+                "nativeName" : "rowinsdt",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              }
+            ]
+          },
+          "readOptions" : {
+            "commandType" : 0,
+            "descending" : "false",
+            "queryAll" : "false",
+            "rowLimit" : 0,
+            "selectDistinct" : "false"
+          },
+          "runtimeAttributes" : {
+            "attributes" : [
+              {
+                "name" : "Read Mode",
+                "value" : "Direct"
+              },
+              {
+                "name" : "Fetch Size",
+                "value" : "10000"
+              },
+              {
+                "name" : "Enable Compression",
+                "value" : "YES"
+              },
+              {
+                "name" : "Temporary Credential Duration",
+                "value" : "900"
+              },
+              {
+                "name" : "Treat NULL Value as NULL",
+                "value" : "NO"
+              },
+              {
+                "name" : "Encryption Type",
+                "value" : "None"
+              },
+              {
+                "name" : "Download S3 Files In Multiple Parts",
+                "value" : "NO"
+              },
+              {
+                "name" : "Multipart Download Threshold Size",
+                "value" : "5242880"
+              },
+              {
+                "name" : "Select Distinct",
+                "value" : "NO"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "name" : "JNR_GW_Import",
+        "advancedProperties" : [
+          {
+            "name" : "Tracing Level",
+            "value" : "Normal"
+          },
+          {
+            "name" : "Optional",
+            "value" : "true"
+          },
+          {
+            "name" : "Null ordering in master",
+            "value" : "Null is Highest Value"
+          },
+          {
+            "name" : "Null ordering in detail",
+            "value" : "Null is Highest Value"
+          },
+          {
+            "name" : "Cache Directory",
+            "value" : "$PMCacheDir"
+          },
+          {
+            "name" : "Joiner Data Cache Size",
+            "value" : "AUTO"
+          },
+          {
+            "name" : "Joiner Index Cache Size",
+            "value" : "AUTO"
+          },
+          {
+            "name" : "Sorted Input",
+            "value" : "false"
+          },
+          {
+            "name" : "Master Sort Order",
+            "value" : "Auto"
+          },
+          {
+            "name" : "Transformation Scope",
+            "value" : "All Input"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "Master",
+            "output" : "false",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          },
+          {
+            "input" : "true",
+            "name" : "Detail",
+            "output" : "false",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          },
+          {
+            "input" : "false",
+            "name" : "OutputGroup",
+            "output" : "true"
+          }
+        ],
+        "joinType" : "Normal Join",
+        "joinConditions" : [
+          {
+            "leftOperand" : "Import_UniqueIdentifier",
+            "operator" : "=",
+            "rightOperand" : "GW_UniqueIdentifier"
+          }
+        ]
+      }
+    ],
+    "variables" : [
+      {
+        "aggregationType" : "MAX",
+        "expressionVariable" : "false",
+        "name" : "M_StartDt",
+        "platformType" : {
+          "name" : "string"
+        },
+        "precision" : 120,
+        "retentionPolicy" : "NEVER",
+        "scale" : 0,
+        "defaultValue" : "2023-08-31"
+      },
+      {
+        "aggregationType" : "MAX",
+        "expressionVariable" : "false",
+        "name" : "M_EndDt",
+        "platformType" : {
+          "name" : "string"
+        },
+        "precision" : 120,
+        "retentionPolicy" : "NEVER",
+        "scale" : 0,
+        "defaultValue" : "2023-08-31"
+      }
+    ]
+  },
+  "vcsExportTime" : "2026-01-21 10:41:46 EST"
+}
