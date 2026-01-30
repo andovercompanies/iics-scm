@@ -1,0 +1,305 @@
+{
+  "name" : "cdi_tsk_map_agency_addresses_silver_load",
+  "runtimeEnvironmentId" : "@3pADNCV9u0PcgrXjM7rx0t",
+  "runtimeEnvironmentName" : "sag_aws_linux",
+  "maxLogs" : 10,
+  "parameters" : [
+    {
+      "name" : "$src_data_report$",
+      "type" : "SOURCE",
+      "label" : "src_data_report",
+      "uiProperties" : {
+        "connectionParameterized" : "false",
+        "isSelectDistinct" : "false",
+        "objectParameterized" : "false",
+        "visible" : "false",
+        "originalPath" : "src_data_report"
+      },
+      "sourceConnectionId" : "@aYZ4ekzHgIPeKpiaoqDLKP",
+      "connectionName" : "redshift_nonprod_andover_dw_dev",
+      "sourceObject" : "DUMMY_src_data_report",
+      "newFlatFile" : false,
+      "newObject" : false,
+      "showBusinessNames" : false,
+      "naturalOrder" : true,
+      "truncateTarget" : false,
+      "bulkApiDBTarget" : false,
+      "customFuncCfg" : { },
+      "oprRuntimeAttrs" : {
+        "selectDistinct" : "NO",
+        "EncryptionType" : "None",
+        "EnableCompression" : "YES",
+        "fetchSize" : "10000",
+        "multipartDownloadThreshold" : "5242880",
+        "temporaryCredentialDuration" : "900",
+        "TreatNullValueAsNull" : "NO",
+        "DownloadS3FilesInMultipleParts" : "NO",
+        "readMode" : "Direct"
+      },
+      "customQuery" : "WITH current_batch AS (\n    SELECT \n        bls.batch_id,\n        bls.source_start_cutoff_datetime,\n        bls.source_end_cutoff_datetime\n    FROM $$operational_schema.batch_load_summary bls\n    WHERE bls.source_system_code = '$$sourcesystemcode'\n      AND bls.batch_status = 'Inprogress'\n      AND bls.target_schema_name = '$$refined_schema'\n      AND bls.batch_id = (\n          SELECT MAX(batch_id)\n          FROM $$operational_schema.batch_load_summary\n          WHERE source_system_code = '$$sourcesystemcode'\n            AND batch_status = 'Inprogress'\n            AND target_schema_name = '$$refined_schema'\n      )\n),\naddress_data AS (\nSELECT DISTINCT \n    NULL AS address_id,\n    'ADM' AS address_source_system,\n    'Agency' AS address_domain,\n    CASE\n        WHEN ag.type = 'C' THEN 'Commissions Address'\n        WHEN ag.type = 'M' THEN 'Mailing Address'\n        ELSE NULL\n    END AS address_type,\n    NULL AS address_batch_id,\n    ISNULL(ag.originating_source_name, NULL) AS originating_source_name,\n    ISNULL(ag.originating_load_type, NULL) AS originating_load_type,\n    GETDATE() AS address_row_effective_start_datetime,\n    '9999-12-31 00:00:00.000000'::timestamp AS address_row_effective_end_datetime,\n    ag.adm_address_guidewire_row_status AS address_row_status,\n    NULL AS address_row_md5checksum,\n    'prd_informatica' AS address_row_created_by, --**Note:Review \n    'prd_informatica' AS address_row_modified_by, --**Note:Review \n    'Loaded' AS address_row_load_state,\n    ISNULL(ag.id, NULL) AS address_row_source_system_key,\n    '1 - Primary' AS address_rank,\n    ISNULL(UPPER(ag.address1), NULL) AS address_line1,\n    ISNULL(UPPER(ag.address2), NULL) AS address_line2,\n    NULL AS address_line3,\n    NULL AS address_line4,\n    CASE\n        WHEN ag.address1 IS NULL AND ag.address2 IS NULL THEN NULL\n        WHEN ag.address1 IS NOT NULL AND ag.address2 IS NOT NULL\n            THEN UPPER(ag.address1) || ', ' || UPPER(ag.address2)\n        WHEN ag.address1 IS NOT NULL\n            THEN UPPER(ag.address1)\n        WHEN ag.address2 IS NOT NULL\n            THEN UPPER(ag.address2)\n        ELSE NULL\n    END AS address_lines_consolidated,\n    ISNULL(UPPER(ag.city), NULL) AS address_city_name,\n    CASE\n        WHEN TRIM(ag.state) IS NULL OR TRIM(ag.state) = '' THEN NULL\n        WHEN us.usa_state_and_territory_alpha_2_code IS NOT NULL\n            THEN us.usa_state_and_territory_alpha_2_code\n        ELSE NULL\n    END AS address_usa_state_and_territory_alpha_2_code,\n    ISNULL(ag.zip, NULL) AS address_postal_code,\n    CASE\n        WHEN TRIM(ag.country) IS NULL OR TRIM(ag.country) = '' THEN NULL\n        WHEN LENGTH(TRIM(ag.country)) = 2\n             AND wc.country_iso_alpha_2_code IS NOT NULL\n            THEN wc.country_iso_alpha_3_code\n        WHEN LENGTH(TRIM(ag.country)) = 3\n             AND wc.country_iso_alpha_3_code IS NOT NULL\n            THEN wc.country_iso_alpha_3_code\n        ELSE NULL\n    END AS address_country_iso_alpha_3_code,\n    ISNULL(ag.created, '1900-01-01 00:00:00') AS address_row_source_system_created_datetime,\n    ISNULL(ag.modified, '1900-01-01 00:00:00') AS address_row_source_system_modified_datetime\nFROM $$staging_schema.adm_address_guidewire ag\nLEFT JOIN $$reference_schema.usa_states_and_territories us\n    ON UPPER(TRIM(ag.state)) = us.usa_state_and_territory_alpha_2_code\n\tAND ag.adm_address_guidewire_row_effective_end_datetime = '9999-12-31 00:00:00.000000'\n\tAND us.usa_state_and_territory_row_effective_end_datetime = '9999-12-31 00:00:00.000000'\nLEFT JOIN $$reference_schema.world_countries wc\n    ON UPPER(TRIM(ag.country)) IN (\n        wc.country_iso_alpha_2_code,\n        wc.country_iso_alpha_3_code\n    )\n\tAND wc.world_country_row_effective_end_datetime = '9999-12-31 00:00:00.000000'\n\nUNION\n\nSELECT DISTINCT NULL AS address_id,\n       'ADM' AS address_source_system,\n       'Agency' AS address_domain,\n       'Physical Location' AS address_type, -- ETL Generated\n NULL AS address_batch_id,\n ISNULL($$staging_schema.adm_t_agency.originating_source_name, NULL) AS originating_source_name,\n ISNULL($$staging_schema.adm_t_agency.originating_load_type, NULL) AS originating_load_type,\n GETDATE() AS address_row_effective_start_datetime,\n '9999-12-31 00:00:00.000000'::timestamp AS address_row_effective_end_datetime,\n $$staging_schema.adm_t_agency.adm_t_agency_row_status AS address_row_status, -- ETL Generated\n NULL AS address_row_md5checksum,\n 'prd_informatica' AS address_row_created_by, --**Note:Review\n 'prd_informatica' AS address_row_modified_by, --**Note:Review\n 'Loaded' AS address_row_load_state,\n ISNULL($$staging_schema.adm_t_agency.agency_nup, NULL) AS address_row_source_system_key,\n CASE\n     WHEN $$staging_schema.adm_t_agency.location_num IS NOT NULL THEN $$staging_schema.adm_t_agency.location_num || ' - Primary'\n     ELSE NULL\n END AS address_rank,\n ISNULL(UPPER($$staging_schema.adm_t_agency.agency_str_1), NULL) AS address_line1,\n ISNULL(UPPER($$staging_schema.adm_t_agency.agency_str_2), NULL) AS address_line2,\n ISNULL(UPPER($$staging_schema.adm_t_agency.agency_str_3), NULL) AS address_line3,\n NULL AS address_line4, -- Consolidated address lines\n NULLIF(TRIM(BOTH ', '\n             FROM COALESCE(NULLIF(UPPER($$staging_schema.adm_t_agency.agency_str_1), NULL) || ', ', '') || COALESCE(NULLIF(UPPER($$staging_schema.adm_t_agency.agency_str_2), NULL) || ', ', '') || COALESCE(NULLIF(UPPER($$staging_schema.adm_t_agency.agency_str_3), NULL), '')), '') AS address_lines_consolidated,\n ISNULL(UPPER($$staging_schema.adm_t_agency.agency_city), NULL) AS address_city_name,\n CASE\n     WHEN TRIM($$staging_schema.adm_t_agency.agency_st) IS NULL\n          OR TRIM($$staging_schema.adm_t_agency.agency_st) = '' THEN NULL\n     WHEN us.usa_state_and_territory_alpha_2_code IS NOT NULL THEN us.usa_state_and_territory_alpha_2_code\n     ELSE NULL\n END AS address_usa_state_and_territory_alpha_2_code,\n ISNULL($$staging_schema.adm_t_agency.agency_zip, NULL) AS address_postal_code,\n NULL AS address_country_iso_alpha_3_code,\n ISNULL($$staging_schema.adm_t_agency.create_date, '1900-01-01 00:00:00') AS address_row_source_system_created_datetime,\n ISNULL($$staging_schema.adm_t_agency.last_modified, '1900-01-01 00:00:00') AS address_row_source_system_modified_datetime\nFROM $$staging_schema.adm_t_agency\nLEFT JOIN $$reference_schema.usa_states_and_territories us\n    ON UPPER(TRIM($$staging_schema.adm_t_agency.agency_st)) = us.usa_state_and_territory_alpha_2_code\n    AND adm_t_agency.adm_t_agency_row_effective_end_datetime = '9999-12-31 00:00:00.000000'\n\tAND us.usa_state_and_territory_row_effective_end_datetime = '9999-12-31 00:00:00.000000'\n)\nSELECT DISTINCT \nad.address_id,\nad.address_source_system,\nad.address_domain,\nad.address_type,\ncb.batch_id as address_batch_id,\nad.originating_source_name,\nad.originating_load_type,\nad.address_row_effective_start_datetime,\nad.address_row_effective_end_datetime,\nad.address_row_status,\nMD5(\n    COALESCE(ad.address_row_status, '') || '|' ||\n    COALESCE(ad.address_lines_consolidated, '') || '|' ||\n    COALESCE(ad.address_city_name, '') || '|' ||\n    COALESCE(ad.address_usa_state_and_territory_alpha_2_code, '') || '|' ||\n    COALESCE(ad.address_postal_code, '') || '|' ||\n    COALESCE(ad.address_country_iso_alpha_3_code, '') || '|' ||\n\tCOALESCE(ad.address_type, '')\n) AS address_row_md5checksum,\n\nad.address_row_created_by,\nad.address_row_modified_by,\nad.address_row_load_state,\nad.address_row_source_system_key,\nad.address_rank,\nad.address_line1,\nad.address_line2,\nad.address_line3,\nad.address_line4,\nad.address_lines_consolidated,\nad.address_city_name,\nad.address_usa_state_and_territory_alpha_2_code,\nad.address_postal_code,\nad.address_country_iso_alpha_3_code,\nad.address_row_source_system_created_datetime,\nad.address_row_source_system_modified_datetime,\ntgt.originating_source_name as tgt_originating_source_name,\ntgt.address_type as tgt_address_type,\ntgt.address_row_source_system_key as tgt_address_row_source_system_key,\ntgt.address_row_md5checksum as tgt_address_row_md5checksum,\ntgt.address_id as tgt_address_id\n\nFROM address_data ad\nleft join \n\t(select originating_source_name,\n\taddress_type,\n\taddress_row_source_system_key,\n\taddress_row_md5checksum,\n\taddress_id\n\tfrom silver.addresses\n\twhere address_row_effective_end_datetime= '9999-12-31 00:00:00.000000' \n\t) tgt\non ad.originating_source_name = tgt.originating_source_name\nand ad.address_type = tgt.address_type\nand ad.address_row_source_system_key = tgt.address_row_source_system_key\nleft join current_batch cb on true\nwhere ad.address_row_source_system_key = 2009",
+      "commandType" : 0,
+      "handleSpecialChars" : false,
+      "handleDecimalRoundOff" : false,
+      "frsAsset" : false,
+      "dynamicFileName" : false,
+      "excludeDynamicFileNameField" : false,
+      "currentlyProcessedFileName" : false,
+      "retainFieldMetadata" : false,
+      "objectName" : "DUMMY_src_data_report",
+      "useExactSrcNames" : false,
+      "userUpdated" : true,
+      "runtimeParameterData" : {
+        "connectionRuntimeParameter" : false,
+        "objectRuntimeParameter" : false
+      },
+      "restmodernSource" : true,
+      "unspecified" : false,
+      "fileList" : false
+    },
+    {
+      "name" : "$tgt_insert_records$",
+      "type" : "TARGET",
+      "label" : "tgt_insert_records",
+      "uiProperties" : {
+        "connectionParameterized" : "false",
+        "objectParameterized" : "false",
+        "visible" : "false",
+        "supportApplyDDLChanges" : "false",
+        "originalPath" : "tgt_insert_records"
+      },
+      "targetConnectionId" : "@aYZ4ekzHgIPeKpiaoqDLKP",
+      "connectionName" : "redshift_nonprod_andover_dw_dev",
+      "targetObject" : "silver/addresses",
+      "targetObjectLabel" : "silver/addresses",
+      "newFlatFile" : false,
+      "newObject" : false,
+      "showBusinessNames" : false,
+      "naturalOrder" : true,
+      "truncateTarget" : false,
+      "bulkApiDBTarget" : false,
+      "operationType" : "Insert",
+      "customFuncCfg" : { },
+      "extendedObject" : {
+        "singleMode" : true
+      },
+      "commandType" : 0,
+      "handleSpecialChars" : false,
+      "handleDecimalRoundOff" : false,
+      "frsAsset" : false,
+      "dynamicFileName" : false,
+      "excludeDynamicFileNameField" : false,
+      "currentlyProcessedFileName" : false,
+      "retainFieldMetadata" : false,
+      "objectName" : "silver/addresses",
+      "objectLabel" : "silver/addresses",
+      "useExactSrcNames" : false,
+      "userUpdated" : true,
+      "runtimeParameterData" : {
+        "connectionRuntimeParameter" : false,
+        "objectRuntimeParameter" : false
+      },
+      "restmodernSource" : true,
+      "unspecified" : false,
+      "fileList" : false
+    },
+    {
+      "name" : "$tgt_update_closeout$",
+      "type" : "TARGET",
+      "label" : "tgt_update_closeout",
+      "uiProperties" : {
+        "connectionParameterized" : "false",
+        "objectParameterized" : "false",
+        "visible" : "false",
+        "defaultTargetUpdateColumns" : "address_id",
+        "supportApplyDDLChanges" : "false",
+        "originalPath" : "tgt_update_closeout"
+      },
+      "targetConnectionId" : "@aYZ4ekzHgIPeKpiaoqDLKP",
+      "connectionName" : "redshift_nonprod_andover_dw_dev",
+      "targetObject" : "silver/addresses",
+      "targetObjectLabel" : "silver/addresses",
+      "newFlatFile" : false,
+      "newObject" : false,
+      "showBusinessNames" : false,
+      "naturalOrder" : true,
+      "truncateTarget" : false,
+      "bulkApiDBTarget" : false,
+      "operationType" : "Update",
+      "customFuncCfg" : { },
+      "targetUpdateColumns" : [
+        "address_id"
+      ],
+      "extendedObject" : {
+        "singleMode" : true
+      },
+      "commandType" : 0,
+      "handleSpecialChars" : false,
+      "handleDecimalRoundOff" : false,
+      "frsAsset" : false,
+      "dynamicFileName" : false,
+      "excludeDynamicFileNameField" : false,
+      "currentlyProcessedFileName" : false,
+      "retainFieldMetadata" : false,
+      "objectName" : "silver/addresses",
+      "objectLabel" : "silver/addresses",
+      "useExactSrcNames" : false,
+      "userUpdated" : true,
+      "runtimeParameterData" : {
+        "connectionRuntimeParameter" : false,
+        "objectRuntimeParameter" : false
+      },
+      "restmodernSource" : true,
+      "unspecified" : false,
+      "fileList" : false
+    },
+    {
+      "name" : "$tgt_update_records$",
+      "type" : "TARGET",
+      "label" : "tgt_update_records",
+      "uiProperties" : {
+        "connectionParameterized" : "false",
+        "objectParameterized" : "false",
+        "visible" : "false",
+        "supportApplyDDLChanges" : "false",
+        "originalPath" : "tgt_update_records"
+      },
+      "targetConnectionId" : "@aYZ4ekzHgIPeKpiaoqDLKP",
+      "connectionName" : "redshift_nonprod_andover_dw_dev",
+      "targetObject" : "silver/addresses",
+      "targetObjectLabel" : "silver/addresses",
+      "newFlatFile" : false,
+      "newObject" : false,
+      "showBusinessNames" : false,
+      "naturalOrder" : true,
+      "truncateTarget" : false,
+      "bulkApiDBTarget" : false,
+      "operationType" : "Insert",
+      "customFuncCfg" : { },
+      "extendedObject" : {
+        "singleMode" : true
+      },
+      "commandType" : 0,
+      "handleSpecialChars" : false,
+      "handleDecimalRoundOff" : false,
+      "frsAsset" : false,
+      "dynamicFileName" : false,
+      "excludeDynamicFileNameField" : false,
+      "currentlyProcessedFileName" : false,
+      "retainFieldMetadata" : false,
+      "objectName" : "silver/addresses",
+      "objectLabel" : "silver/addresses",
+      "useExactSrcNames" : false,
+      "userUpdated" : true,
+      "runtimeParameterData" : {
+        "connectionRuntimeParameter" : false,
+        "objectRuntimeParameter" : false
+      },
+      "restmodernSource" : true,
+      "unspecified" : false,
+      "fileList" : false
+    }
+  ],
+  "verbose" : false,
+  "lastRunTime" : 1769025052000,
+  "mappingId" : "@5UHpD1ewM5XjJWYXAX6koJ",
+  "mappingTemplateName" : "cdi_map_agency_addresses_silver_load",
+  "sessionPropertiesList" : [
+    {
+      "name" : "Pushdown Optimization",
+      "value" : "None"
+    },
+    {
+      "name" : "Pushdown Optimization Context",
+      "value" : "None"
+    },
+    {
+      "name" : "Pushdown Optimization Fallback Option",
+      "value" : "Partial PDO"
+    }
+  ],
+  "inOutParameters" : [
+    {
+      "name" : "staging_schema",
+      "initialValue" : "bronze",
+      "datatype" : "STRING",
+      "precision" : "20",
+      "scale" : "0",
+      "retentionPolicy" : "NEVER",
+      "aggregationType" : "MAX",
+      "currentValue" : "bronze"
+    },
+    {
+      "name" : "operational_schema",
+      "initialValue" : "operations",
+      "datatype" : "STRING",
+      "precision" : "20",
+      "scale" : "0",
+      "retentionPolicy" : "NEVER",
+      "aggregationType" : "MAX",
+      "currentValue" : "operations"
+    },
+    {
+      "name" : "sourcesystemcode",
+      "initialValue" : "ACX",
+      "datatype" : "STRING",
+      "precision" : "20",
+      "scale" : "0",
+      "retentionPolicy" : "NEVER",
+      "aggregationType" : "MAX",
+      "currentValue" : "ACX"
+    },
+    {
+      "name" : "refined_schema",
+      "initialValue" : "silver",
+      "datatype" : "STRING",
+      "precision" : "20",
+      "scale" : "0",
+      "retentionPolicy" : "NEVER",
+      "aggregationType" : "MAX",
+      "currentValue" : "silver"
+    },
+    {
+      "name" : "target_table_name",
+      "initialValue" : "predictive_analytics_data_report",
+      "datatype" : "STRING",
+      "precision" : "10",
+      "scale" : "0",
+      "retentionPolicy" : "NEVER",
+      "aggregationType" : "MAX",
+      "currentValue" : "predictive_analytics_data_report"
+    },
+    {
+      "name" : "reference_schema",
+      "initialValue" : "reference",
+      "datatype" : "STRING",
+      "precision" : "20",
+      "scale" : "0",
+      "retentionPolicy" : "ON_SUCCESS_OR_WARNING",
+      "aggregationType" : "MAX",
+      "currentValue" : "reference"
+    },
+    {
+      "name" : "env",
+      "datatype" : "STRING",
+      "precision" : "10",
+      "scale" : "0",
+      "retentionPolicy" : "ON_SUCCESS_OR_WARNING",
+      "aggregationType" : "MAX"
+    }
+  ],
+  "hidden" : false,
+  "enableCrossSchemaPushdown" : true,
+  "enableParallelRun" : false,
+  "autoTunedApplied" : false,
+  "autoTunedAppliedType" : "NONE",
+  "parameterFileName" : "Andover_Param_ADM.param",
+  "parameterFileDir" : "$PMRootDir/andover/parameters",
+  "paramFileType" : "PARAM_FILE_LOCAL",
+  "schemaMode" : "async",
+  "valid" : true,
+  "optimizationPlan" : "NONE",
+  "allowMaxFieldLength" : false,
+  "specialCharacterSupport" : false,
+  "midstreamPreview" : false,
+  "vcsExportTime" : "2026-01-30 12:39:22 PST"
+}
