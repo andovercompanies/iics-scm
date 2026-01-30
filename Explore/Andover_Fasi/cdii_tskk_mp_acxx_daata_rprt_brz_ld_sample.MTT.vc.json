@@ -1,0 +1,299 @@
+{
+  "name" : "cdii_tskk_mp_acxx_daata_rprt_brz_ld_sample",
+  "runtimeEnvironmentId" : "@3pADNCV9u0PcgrXjM7rx0t",
+  "runtimeEnvironmentName" : "sag_aws_linux",
+  "maxLogs" : 10,
+  "parameters" : [
+    {
+      "name" : "$src_data_report$",
+      "type" : "SOURCE",
+      "label" : "DBConnection_SRC",
+      "uiProperties" : {
+        "cnxtype" : "Amazon Redshift v2",
+        "connectionParameterized" : "true",
+        "paramName" : "DBConnection_SRC",
+        "paramType-mapping" : "Connection",
+        "logcnx" : "DBConnection_SRC",
+        "isSelectDistinct" : "false",
+        "objectParameterized" : "false",
+        "visible" : "false",
+        "originalPath" : "src_data_report"
+      },
+      "sourceConnectionId" : "@aYZ4ekzHgIPeKpiaoqDLKP",
+      "connectionName" : "redshift_nonprod_andover_dw_dev",
+      "sourceObject" : "DUMMY_src_data_report",
+      "newFlatFile" : false,
+      "newObject" : false,
+      "showBusinessNames" : true,
+      "naturalOrder" : true,
+      "truncateTarget" : false,
+      "bulkApiDBTarget" : false,
+      "customFuncCfg" : { },
+      "customQuery" : "WITH current_batch AS (\n    SELECT \n        bls.batch_id,\n        bls.source_start_cutoff_datetime,\n        bls.source_end_cutoff_datetime\n    FROM $$operational_schema.batch_load_summary bls\n    WHERE bls.source_system_code = '$$sourcesystemcode'\n      AND bls.batch_status = 'Inprogress'\n      AND bls.batch_id = (\n          SELECT MAX(batch_id)\n          FROM $$operational_schema.batch_load_summary\n          WHERE source_system_code = '$$sourcesystemcode'\n            AND batch_status = 'Inprogress'\n      )\n)\nselect distinct \ncb.batch_id,\nmetal_dr.source_name,\nmetal_dr.load_type,\nmetal_dr.system_id,          \nmetal_dr.parent_id,          \nmetal_dr.cmm_container,      \nmetal_dr.id,     \nmetal_dr.update_count,       \nmetal_dr.update_user,        \nmetal_dr.update_timestamp,   \nmetal_dr.template_id_ref,     \nmetal_dr.type_cd,            \nmetal_dr.source_cd,          \nmetal_dr.status_cd,          \nmetal_dr.result_cd,          \nmetal_dr.request_type_cd,     \nmetal_dr.transmitted_dt,     \nmetal_dr.transmitted_tm,     \nmetal_dr.received_dt,        \nmetal_dr.received_tm,        \nmetal_dr.processed_dt,       \nmetal_dr.processed_tm,       \nmetal_dr.add_dt,             \nmetal_dr.add_tm,             \nmetal_dr.party_id,           \nmetal_dr.row_id,             \nmetal_dr.state_specific_code, \nmetal_dr.inspection_number,  \nmetal_dr.inspection_id,\nbronze_dr.acx_data_report_row_id,\nbronze_dr.acx_data_report_row_md5checksum\nFROM $$raw_schema.acx_data_report metal_dr\nLEFT JOIN $$staging_schema.acx_data_report bronze_dr\n    ON CAST(TRIM(metal_dr.system_id) AS INT) = CAST(bronze_dr.system_id AS INT)\n   AND COALESCE(TRIM(metal_dr.cmm_container), '') = COALESCE(bronze_dr.cmm_container, '')\n   AND bronze_dr.acx_data_report_row_effective_end_datetime = '9999-12-31 00:00:00.000'\n   AND bronze_dr.acx_data_report_row_status = 'Active'\nCROSS JOIN current_batch cb\nORDER BY \n    metal_dr.system_id,\n    metal_dr.cmm_container,\n    metal_dr.id;",
+      "commandType" : 0,
+      "handleSpecialChars" : false,
+      "handleDecimalRoundOff" : false,
+      "frsAsset" : false,
+      "dynamicFileName" : false,
+      "excludeDynamicFileNameField" : false,
+      "currentlyProcessedFileName" : false,
+      "retainFieldMetadata" : false,
+      "objectName" : "DUMMY_src_data_report",
+      "useExactSrcNames" : false,
+      "userUpdated" : true,
+      "fetchMode" : "ORIGINAL",
+      "runtimeParameterData" : {
+        "connectionParameterName" : "DBConnection_SRC",
+        "connectionRuntimeParameter" : false,
+        "objectRuntimeParameter" : false
+      },
+      "restmodernSource" : true,
+      "unspecified" : false,
+      "fileList" : false
+    },
+    {
+      "name" : "$tgt_data_report_insert_new$",
+      "type" : "TARGET",
+      "label" : "DBConnection_TGT",
+      "uiProperties" : {
+        "cnxtype" : "Amazon Redshift v2",
+        "connectionParameterized" : "true",
+        "paramName" : "DBConnection_TGT",
+        "paramType-mapping" : "Connection",
+        "logcnx" : "DBConnection_TGT",
+        "default" : "bronze/acx_data_report",
+        "objectParameterized" : "false",
+        "visible" : "false",
+        "supportApplyDDLChanges" : "false",
+        "originalPath" : "tgt_data_report_insert_new"
+      },
+      "targetConnectionId" : "@aYZ4ekzHgIPeKpiaoqDLKP",
+      "connectionName" : "redshift_nonprod_andover_dw_dev",
+      "targetObject" : "bronze/acx_data_report",
+      "targetObjectLabel" : "bronze/acx_data_report",
+      "newFlatFile" : false,
+      "newObject" : false,
+      "showBusinessNames" : true,
+      "naturalOrder" : true,
+      "truncateTarget" : false,
+      "bulkApiDBTarget" : false,
+      "operationType" : "Insert",
+      "customFuncCfg" : { },
+      "extendedObject" : {
+        "singleMode" : true
+      },
+      "runtimeAttrs" : {
+        "Truncate Target Table Before Data Upload" : "YES"
+      },
+      "oprRuntimeAttrs" : {
+        "TruncateTargetTableBeforeDataUpload" : "YES"
+      },
+      "commandType" : 0,
+      "handleSpecialChars" : false,
+      "handleDecimalRoundOff" : false,
+      "frsAsset" : false,
+      "dynamicFileName" : false,
+      "excludeDynamicFileNameField" : false,
+      "currentlyProcessedFileName" : false,
+      "retainFieldMetadata" : false,
+      "objectName" : "bronze/acx_data_report",
+      "objectLabel" : "bronze/acx_data_report",
+      "useExactSrcNames" : false,
+      "userUpdated" : true,
+      "fetchMode" : "ORIGINAL",
+      "runtimeParameterData" : {
+        "connectionParameterName" : "DBConnection_TGT",
+        "connectionRuntimeParameter" : false,
+        "objectRuntimeParameter" : false
+      },
+      "restmodernSource" : true,
+      "unspecified" : false,
+      "fileList" : false
+    },
+    {
+      "name" : "$tgt_data_report_insert_updated$",
+      "type" : "TARGET",
+      "label" : "DBConnection_TGT",
+      "uiProperties" : {
+        "cnxtype" : "Amazon Redshift v2",
+        "connectionParameterized" : "true",
+        "paramName" : "DBConnection_TGT",
+        "paramType-mapping" : "Connection",
+        "logcnx" : "DBConnection_TGT",
+        "default" : "bronze/acx_data_report",
+        "objectParameterized" : "false",
+        "visible" : "false",
+        "supportApplyDDLChanges" : "false",
+        "originalPath" : "tgt_data_report_insert_updated"
+      },
+      "targetConnectionId" : "@aYZ4ekzHgIPeKpiaoqDLKP",
+      "connectionName" : "redshift_nonprod_andover_dw_dev",
+      "targetObject" : "bronze/acx_data_report",
+      "targetObjectLabel" : "bronze/acx_data_report",
+      "newFlatFile" : false,
+      "newObject" : false,
+      "showBusinessNames" : true,
+      "naturalOrder" : true,
+      "truncateTarget" : false,
+      "bulkApiDBTarget" : false,
+      "operationType" : "Insert",
+      "customFuncCfg" : { },
+      "extendedObject" : {
+        "singleMode" : true
+      },
+      "commandType" : 0,
+      "handleSpecialChars" : false,
+      "handleDecimalRoundOff" : false,
+      "frsAsset" : false,
+      "dynamicFileName" : false,
+      "excludeDynamicFileNameField" : false,
+      "currentlyProcessedFileName" : false,
+      "retainFieldMetadata" : false,
+      "objectName" : "bronze/acx_data_report",
+      "objectLabel" : "bronze/acx_data_report",
+      "useExactSrcNames" : false,
+      "userUpdated" : true,
+      "fetchMode" : "ORIGINAL",
+      "runtimeParameterData" : {
+        "connectionParameterName" : "DBConnection_TGT",
+        "connectionRuntimeParameter" : false,
+        "objectRuntimeParameter" : false
+      },
+      "restmodernSource" : true,
+      "unspecified" : false,
+      "fileList" : false
+    },
+    {
+      "name" : "$tgt_data_report_update_expired$",
+      "type" : "TARGET",
+      "label" : "DBConnection_TGT",
+      "uiProperties" : {
+        "cnxtype" : "Amazon Redshift v2",
+        "connectionParameterized" : "true",
+        "paramName" : "DBConnection_TGT",
+        "paramType-mapping" : "Connection",
+        "logcnx" : "DBConnection_TGT",
+        "default" : "bronze/acx_data_report",
+        "objectParameterized" : "false",
+        "visible" : "false",
+        "defaultTargetUpdateColumns" : "acx_data_report_row_id",
+        "supportApplyDDLChanges" : "false",
+        "originalPath" : "tgt_data_report_update_expired"
+      },
+      "targetConnectionId" : "@aYZ4ekzHgIPeKpiaoqDLKP",
+      "connectionName" : "redshift_nonprod_andover_dw_dev",
+      "targetObject" : "bronze/acx_data_report",
+      "targetObjectLabel" : "bronze/acx_data_report",
+      "newFlatFile" : false,
+      "newObject" : false,
+      "showBusinessNames" : true,
+      "naturalOrder" : true,
+      "truncateTarget" : false,
+      "bulkApiDBTarget" : false,
+      "operationType" : "Update",
+      "customFuncCfg" : { },
+      "targetUpdateColumns" : [
+        "acx_data_report_row_id"
+      ],
+      "extendedObject" : {
+        "singleMode" : true
+      },
+      "commandType" : 0,
+      "handleSpecialChars" : false,
+      "handleDecimalRoundOff" : false,
+      "frsAsset" : false,
+      "dynamicFileName" : false,
+      "excludeDynamicFileNameField" : false,
+      "currentlyProcessedFileName" : false,
+      "retainFieldMetadata" : false,
+      "objectName" : "bronze/acx_data_report",
+      "objectLabel" : "bronze/acx_data_report",
+      "useExactSrcNames" : false,
+      "userUpdated" : true,
+      "fetchMode" : "ORIGINAL",
+      "runtimeParameterData" : {
+        "connectionParameterName" : "DBConnection_TGT",
+        "connectionRuntimeParameter" : false,
+        "objectRuntimeParameter" : false
+      },
+      "restmodernSource" : true,
+      "unspecified" : false,
+      "fileList" : false
+    }
+  ],
+  "verbose" : false,
+  "lastRunTime" : 1768497617000,
+  "mappingId" : "@dv5XAnaA5GrhuXOINAAa2f",
+  "mappingTemplateName" : "cdii_mapp_accx_daata_rprt_brnz_ld_sample",
+  "sessionPropertiesList" : [
+    {
+      "name" : "Pushdown Optimization",
+      "value" : "None"
+    },
+    {
+      "name" : "Pushdown Optimization Context",
+      "value" : "None"
+    },
+    {
+      "name" : "Pushdown Optimization Fallback Option",
+      "value" : "Partial PDO"
+    }
+  ],
+  "inOutParameters" : [
+    {
+      "name" : "sourcesystemcode",
+      "initialValue" : "ACX",
+      "datatype" : "STRING",
+      "precision" : "10",
+      "scale" : "0",
+      "retentionPolicy" : "NEVER",
+      "aggregationType" : "MAX",
+      "currentValue" : "ACX"
+    },
+    {
+      "name" : "staging_schema",
+      "initialValue" : "bronze",
+      "datatype" : "STRING",
+      "precision" : "10",
+      "scale" : "0",
+      "retentionPolicy" : "NEVER",
+      "aggregationType" : "MAX",
+      "currentValue" : "bronze"
+    },
+    {
+      "name" : "raw_schema",
+      "initialValue" : "metal",
+      "datatype" : "STRING",
+      "precision" : "10",
+      "scale" : "0",
+      "retentionPolicy" : "NEVER",
+      "aggregationType" : "MAX",
+      "currentValue" : "metal"
+    },
+    {
+      "name" : "operational_schema",
+      "initialValue" : "operations",
+      "datatype" : "STRING",
+      "precision" : "20",
+      "scale" : "0",
+      "retentionPolicy" : "NEVER",
+      "aggregationType" : "MAX",
+      "currentValue" : "operations"
+    }
+  ],
+  "hidden" : false,
+  "enableCrossSchemaPushdown" : true,
+  "enableParallelRun" : false,
+  "autoTunedApplied" : false,
+  "autoTunedAppliedType" : "NONE",
+  "parameterFileName" : "Andover_Param_ACX.param",
+  "parameterFileDir" : "$PMRootDir/andover/parameters",
+  "paramFileType" : "PARAM_FILE_LOCAL",
+  "schemaMode" : "async",
+  "valid" : true,
+  "optimizationPlan" : "NONE",
+  "allowMaxFieldLength" : false,
+  "specialCharacterSupport" : false,
+  "midstreamPreview" : false,
+  "vcsExportTime" : "2026-01-30 09:18:54 EST"
+}

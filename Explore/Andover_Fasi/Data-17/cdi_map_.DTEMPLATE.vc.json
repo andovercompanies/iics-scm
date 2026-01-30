@@ -1,0 +1,1551 @@
+{
+  "content" : {
+    "allowMaxFieldLength" : "false",
+    "bigIntConvertType" : "ONLY_BIGINT",
+    "documentType" : "MAPPING",
+    "name" : "cdi_map_",
+    "specialCharacterSupport" : "false",
+    "links" : [
+      {
+        "link" : "src_base_tables -> jnr_base_and_data_source",
+        "groupLink" : "DefaultGroup -> Master"
+      },
+      {
+        "link" : "src_data_source_query -> jnr_base_and_data_source",
+        "groupLink" : "DefaultGroup -> Detail"
+      },
+      {
+        "link" : "exp_set_defaults_and_md5 -> mplt_java_GUID_gen",
+        "groupLink" : "DefaultGroup -> mplt_input"
+      },
+      {
+        "link" : "mplt_java_GUID_gen -> tgt_contacts_staging",
+        "groupLink" : "mplt_output -> DefaultGroup"
+      },
+      {
+        "link" : "exp_set_defaults_and_md5 -> tgt_contacts_staging"
+      },
+      {
+        "link" : "jnr_base_and_data_source -> exp_set_defaults_and_md5",
+        "groupLink" : "OutputGroup -> DefaultGroup"
+      }
+    ],
+    "parameters" : [
+      {
+        "input" : "true",
+        "output" : "false",
+        "precision" : 0,
+        "scale" : 0,
+        "allowRuntimeOverride" : "false",
+        "expressionVariable" : "false",
+        "name" : "DBConnection_SRC",
+        "anonymousType" : {
+          "subType" : "TOOLKIT_CCI",
+          "typeSystem" : "TOOLKIT",
+          "connectionType" : "Amazon Redshift v2"
+        }
+      },
+      {
+        "input" : "true",
+        "output" : "false",
+        "precision" : 0,
+        "scale" : 0,
+        "allowRuntimeOverride" : "false",
+        "expressionVariable" : "false",
+        "name" : "DBConnection_TGT",
+        "anonymousType" : {
+          "subType" : "TOOLKIT_CCI",
+          "typeSystem" : "TOOLKIT",
+          "connectionType" : "Amazon Redshift v2"
+        }
+      },
+      {
+        "input" : "true",
+        "output" : "false",
+        "precision" : 0,
+        "scale" : 0,
+        "allowRuntimeOverride" : "false",
+        "expressionVariable" : "false",
+        "name" : "S3_Bucket_Name"
+      },
+      {
+        "input" : "true",
+        "output" : "false",
+        "precision" : 0,
+        "scale" : 0,
+        "allowRuntimeOverride" : "false",
+        "expressionVariable" : "false",
+        "name" : "join_condition",
+        "defaultValue" : {
+          "valueLiteral" : "detail.cmm_container = master.straight_through_processing_data_staging_type\nand detail.system_id = master.policy_source_system_id\nand detail.parent_id = master.policy_parent_id"
+        }
+      },
+      {
+        "input" : "true",
+        "output" : "false",
+        "precision" : 0,
+        "scale" : 0,
+        "allowRuntimeOverride" : "false",
+        "expressionVariable" : "false",
+        "name" : "source_query"
+      }
+    ],
+    "transformations" : [
+      {
+        "createTime" : "2025-09-19T14:00:51.511Z",
+        "name" : "src_base_tables",
+        "advancedProperties" : [
+          {
+            "name" : "Tracing Level",
+            "value" : "Normal"
+          },
+          {
+            "name" : "Output is deterministic",
+            "value" : "false"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "false",
+            "name" : "DefaultGroup",
+            "output" : "true"
+          }
+        ],
+        "generateFilenamePort" : "false",
+        "useLabels" : "false",
+        "useSequenceFields" : "false",
+        "fields" : [
+          {
+            "adapterField" : {
+              "name" : "batch_id"
+            },
+            "name" : "batch_id",
+            "platformType" : {
+              "name" : "bigint"
+            },
+            "precision" : 19,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "source_start_cutoff_datetime"
+            },
+            "name" : "source_start_cutoff_datetime",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "source_end_cutoff_datetime"
+            },
+            "name" : "source_end_cutoff_datetime",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          }
+        ],
+        "dataAdapter" : {
+          "connectionId" : "saas:@aYZ4ekzHgIPeKpiaoqDLKP",
+          "connectionName" : "redshift_nonprod_andover_dw_dev",
+          "excludeDynamicFileNameField" : "false",
+          "objectType" : "QUERY",
+          "typeSystem" : "TOOLKIT",
+          "useDynamicFileName" : "false",
+          "object" : {
+            "customQuery" : "WITH current_batch AS (\n    SELECT \n        bls.batch_id,\n        bls.source_start_cutoff_datetime,\n        bls.source_end_cutoff_datetime\n    FROM $$operational_schema.batch_load_summary bls\n    WHERE bls.source_system_code = '$$sourcesystemcode'\n      AND bls.batch_status = 'Inprogress'\n      AND bls.batch_id = (\n          SELECT MAX(batch_id)\n          FROM $$operational_schema.batch_load_summary\n          WHERE source_system_code = '$$sourcesystemcode'\n            AND batch_status = 'Inprogress'\n      )\n)\nSELECT *\nFROM current_batch;",
+            "retainMetadata" : "false",
+            "fields" : [
+              {
+                "name" : "batch_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "batch_id",
+                "nativeName" : "batch_id",
+                "nativeType" : "int8",
+                "original" : "false",
+                "precision" : 19,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "source_start_cutoff_datetime",
+                "fieldType" : "CONNECTOR",
+                "label" : "source_start_cutoff_datetime",
+                "nativeName" : "source_start_cutoff_datetime",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "source_end_cutoff_datetime",
+                "fieldType" : "CONNECTOR",
+                "label" : "source_end_cutoff_datetime",
+                "nativeName" : "source_end_cutoff_datetime",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              }
+            ]
+          },
+          "readOptions" : {
+            "commandType" : 0,
+            "descending" : "false",
+            "queryAll" : "false",
+            "rowLimit" : 0,
+            "selectDistinct" : "false"
+          },
+          "runtimeAttributes" : {
+            "attributes" : [
+              {
+                "name" : "Read Mode",
+                "value" : "Direct"
+              },
+              {
+                "name" : "Fetch Size",
+                "value" : "10000"
+              },
+              {
+                "name" : "Enable Compression",
+                "value" : "YES"
+              },
+              {
+                "name" : "Temporary Credential Duration",
+                "value" : "43200"
+              },
+              {
+                "name" : "Treat NULL Value as NULL",
+                "value" : "NO"
+              },
+              {
+                "name" : "Encryption Type",
+                "value" : "None"
+              },
+              {
+                "name" : "Download S3 Files In Multiple Parts",
+                "value" : "NO"
+              },
+              {
+                "name" : "Multipart Download Threshold Size",
+                "value" : "5242880"
+              },
+              {
+                "name" : "Select Distinct",
+                "value" : "NO"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "createTime" : "2025-09-19T14:00:51.511Z",
+        "name" : "tgt_contacts_staging",
+        "advancedProperties" : [
+          {
+            "name" : "Forward Rejected Rows",
+            "value" : "true"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "false",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "createTarget" : "false",
+        "fieldMappingMode" : "MANUAL",
+        "inputSorted" : "false",
+        "schemaProviderType" : "SELECTED_OBJECT",
+        "targetFieldsOrdered" : "false",
+        "updateColumns" : null,
+        "useLabels" : "false",
+        "useSequenceFields" : "false",
+        "fields" : [
+          {
+            "adapterField" : {
+              "name" : "contact_id"
+            },
+            "name" : "contact_id",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "contact_source_system"
+            },
+            "name" : "contact_source_system",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "contact_domain"
+            },
+            "name" : "contact_domain",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "contact_type"
+            },
+            "name" : "contact_type",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "contact_sub_type"
+            },
+            "name" : "contact_sub_type",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "contact_description"
+            },
+            "name" : "contact_description",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 255,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "contact_batch_id"
+            },
+            "name" : "contact_batch_id",
+            "platformType" : {
+              "name" : "bigint"
+            },
+            "precision" : 19,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "originating_source_name"
+            },
+            "name" : "originating_source_name",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "originating_load_type"
+            },
+            "name" : "originating_load_type",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "contact_row_effective_start_datetime"
+            },
+            "name" : "contact_row_effective_start_datetime",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "contact_row_effective_end_datetime"
+            },
+            "name" : "contact_row_effective_end_datetime",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "contact_row_status"
+            },
+            "name" : "contact_row_status",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "contact_row_md5checksum"
+            },
+            "name" : "contact_row_md5checksum",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 1023,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "contact_row_created_by"
+            },
+            "name" : "contact_row_created_by",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 31,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "contact_row_modified_by"
+            },
+            "name" : "contact_row_modified_by",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 31,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "contact_row_load_state"
+            },
+            "name" : "contact_row_load_state",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 31,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "contact_row_source_system_key"
+            },
+            "name" : "contact_row_source_system_key",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "contact_name_type"
+            },
+            "name" : "contact_name_type",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 31,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "contact_first_name_or_entity_name"
+            },
+            "name" : "contact_first_name_or_entity_name",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 511,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "contact_middle_name_or_entity_second_name"
+            },
+            "name" : "contact_middle_name_or_entity_second_name",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 511,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "contact_last_name_or_entity_third_name"
+            },
+            "name" : "contact_last_name_or_entity_third_name",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 511,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "contact_suffix"
+            },
+            "name" : "contact_suffix",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 7,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "contact_prefix_or_title"
+            },
+            "name" : "contact_prefix_or_title",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "contact_full_name"
+            },
+            "name" : "contact_full_name",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 2047,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "contact_value"
+            },
+            "name" : "contact_value",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 255,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "address_id"
+            },
+            "name" : "address_id",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "contact_rank"
+            },
+            "name" : "contact_rank",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 15,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "contact_source_system_created_datetime"
+            },
+            "name" : "contact_source_system_created_datetime",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "contact_source_system_modified_datetime"
+            },
+            "name" : "contact_source_system_modified_datetime",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          }
+        ],
+        "dataAdapter" : {
+          "connectionId$" : {
+            "name" : "DBConnection_SRC"
+          },
+          "excludeDynamicFileNameField" : "false",
+          "objectType" : "SINGLE",
+          "typeSystem" : "TOOLKIT",
+          "useDynamicFileName" : "false",
+          "object" : {
+            "name" : "silver/contacts",
+            "label" : "silver/contacts",
+            "objectName" : "contacts",
+            "objectType" : "amazonredshift",
+            "path" : "silver/contacts",
+            "retainMetadata" : "false",
+            "fields" : [
+              {
+                "name" : "contact_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "contact_id",
+                "nativeName" : "contact_id",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "contacts"
+                  }
+                ]
+              },
+              {
+                "name" : "contact_source_system",
+                "fieldType" : "CONNECTOR",
+                "label" : "contact_source_system",
+                "nativeName" : "contact_source_system",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "contacts"
+                  }
+                ]
+              },
+              {
+                "name" : "contact_domain",
+                "fieldType" : "CONNECTOR",
+                "label" : "contact_domain",
+                "nativeName" : "contact_domain",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "contacts"
+                  }
+                ]
+              },
+              {
+                "name" : "contact_type",
+                "fieldType" : "CONNECTOR",
+                "label" : "contact_type",
+                "nativeName" : "contact_type",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "contacts"
+                  }
+                ]
+              },
+              {
+                "name" : "contact_sub_type",
+                "fieldType" : "CONNECTOR",
+                "label" : "contact_sub_type",
+                "nativeName" : "contact_sub_type",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "contacts"
+                  }
+                ]
+              },
+              {
+                "name" : "contact_description",
+                "fieldType" : "CONNECTOR",
+                "label" : "contact_description",
+                "nativeName" : "contact_description",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 255,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "contacts"
+                  }
+                ]
+              },
+              {
+                "name" : "contact_batch_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "contact_batch_id",
+                "nativeName" : "contact_batch_id",
+                "nativeType" : "int8",
+                "original" : "false",
+                "precision" : 19,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "contacts"
+                  }
+                ]
+              },
+              {
+                "name" : "originating_source_name",
+                "fieldType" : "CONNECTOR",
+                "label" : "originating_source_name",
+                "nativeName" : "originating_source_name",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "contacts"
+                  }
+                ]
+              },
+              {
+                "name" : "originating_load_type",
+                "fieldType" : "CONNECTOR",
+                "label" : "originating_load_type",
+                "nativeName" : "originating_load_type",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "contacts"
+                  }
+                ]
+              },
+              {
+                "name" : "contact_row_effective_start_datetime",
+                "fieldType" : "CONNECTOR",
+                "label" : "contact_row_effective_start_datetime",
+                "nativeName" : "contact_row_effective_start_datetime",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "contacts"
+                  }
+                ]
+              },
+              {
+                "name" : "contact_row_effective_end_datetime",
+                "fieldType" : "CONNECTOR",
+                "label" : "contact_row_effective_end_datetime",
+                "nativeName" : "contact_row_effective_end_datetime",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "contacts"
+                  }
+                ]
+              },
+              {
+                "name" : "contact_row_status",
+                "fieldType" : "CONNECTOR",
+                "label" : "contact_row_status",
+                "nativeName" : "contact_row_status",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "contacts"
+                  }
+                ]
+              },
+              {
+                "name" : "contact_row_md5checksum",
+                "fieldType" : "CONNECTOR",
+                "label" : "contact_row_md5checksum",
+                "nativeName" : "contact_row_md5checksum",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 1023,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "contacts"
+                  }
+                ]
+              },
+              {
+                "name" : "contact_row_created_by",
+                "fieldType" : "CONNECTOR",
+                "label" : "contact_row_created_by",
+                "nativeName" : "contact_row_created_by",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 31,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "contacts"
+                  }
+                ]
+              },
+              {
+                "name" : "contact_row_modified_by",
+                "fieldType" : "CONNECTOR",
+                "label" : "contact_row_modified_by",
+                "nativeName" : "contact_row_modified_by",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 31,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "contacts"
+                  }
+                ]
+              },
+              {
+                "name" : "contact_row_load_state",
+                "fieldType" : "CONNECTOR",
+                "label" : "contact_row_load_state",
+                "nativeName" : "contact_row_load_state",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 31,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "contacts"
+                  }
+                ]
+              },
+              {
+                "name" : "contact_row_source_system_key",
+                "fieldType" : "CONNECTOR",
+                "label" : "contact_row_source_system_key",
+                "nativeName" : "contact_row_source_system_key",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "contacts"
+                  }
+                ]
+              },
+              {
+                "name" : "contact_name_type",
+                "fieldType" : "CONNECTOR",
+                "label" : "contact_name_type",
+                "nativeName" : "contact_name_type",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 31,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "contacts"
+                  }
+                ]
+              },
+              {
+                "name" : "contact_first_name_or_entity_name",
+                "fieldType" : "CONNECTOR",
+                "label" : "contact_first_name_or_entity_name",
+                "nativeName" : "contact_first_name_or_entity_name",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 511,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "contacts"
+                  }
+                ]
+              },
+              {
+                "name" : "contact_middle_name_or_entity_second_name",
+                "fieldType" : "CONNECTOR",
+                "label" : "contact_middle_name_or_entity_second_name",
+                "nativeName" : "contact_middle_name_or_entity_second_name",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 511,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "contacts"
+                  }
+                ]
+              },
+              {
+                "name" : "contact_last_name_or_entity_third_name",
+                "fieldType" : "CONNECTOR",
+                "label" : "contact_last_name_or_entity_third_name",
+                "nativeName" : "contact_last_name_or_entity_third_name",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 511,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "contacts"
+                  }
+                ]
+              },
+              {
+                "name" : "contact_suffix",
+                "fieldType" : "CONNECTOR",
+                "label" : "contact_suffix",
+                "nativeName" : "contact_suffix",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 7,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "contacts"
+                  }
+                ]
+              },
+              {
+                "name" : "contact_prefix_or_title",
+                "fieldType" : "CONNECTOR",
+                "label" : "contact_prefix_or_title",
+                "nativeName" : "contact_prefix_or_title",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "contacts"
+                  }
+                ]
+              },
+              {
+                "name" : "contact_full_name",
+                "fieldType" : "CONNECTOR",
+                "label" : "contact_full_name",
+                "nativeName" : "contact_full_name",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 2047,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "contacts"
+                  }
+                ]
+              },
+              {
+                "name" : "contact_value",
+                "fieldType" : "CONNECTOR",
+                "label" : "contact_value",
+                "nativeName" : "contact_value",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 255,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "contacts"
+                  }
+                ]
+              },
+              {
+                "name" : "address_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "address_id",
+                "nativeName" : "address_id",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "contacts"
+                  }
+                ]
+              },
+              {
+                "name" : "contact_rank",
+                "fieldType" : "CONNECTOR",
+                "label" : "contact_rank",
+                "nativeName" : "contact_rank",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 15,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "contacts"
+                  }
+                ]
+              },
+              {
+                "name" : "contact_source_system_created_datetime",
+                "fieldType" : "CONNECTOR",
+                "label" : "contact_source_system_created_datetime",
+                "nativeName" : "contact_source_system_created_datetime",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "contacts"
+                  }
+                ]
+              },
+              {
+                "name" : "contact_source_system_modified_datetime",
+                "fieldType" : "CONNECTOR",
+                "label" : "contact_source_system_modified_datetime",
+                "nativeName" : "contact_source_system_modified_datetime",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "contacts"
+                  }
+                ]
+              }
+            ],
+            "objectAttributes" : [
+              {
+                "name" : "recordType",
+                "value" : "TABLE"
+              }
+            ]
+          },
+          "runtimeAttributes" : {
+            "attributes" : [
+              {
+                "name" : "S3 Bucket Name",
+                "value" : "$$S3_Staging_Bucket"
+              },
+              {
+                "name" : "Enable Compression",
+                "value" : "YES"
+              },
+              {
+                "name" : "Batch Size",
+                "value" : "2000000"
+              },
+              {
+                "name" : "Max Errors Per Batch Upload Insert",
+                "value" : "1"
+              },
+              {
+                "name" : "Truncate Target Table Before Data Upload",
+                "value" : "NO"
+              },
+              {
+                "name" : "WaitTime In Seconds For S3 File Consistency",
+                "value" : "0"
+              },
+              {
+                "name" : "Temporary Credential Duration",
+                "value" : "43200"
+              },
+              {
+                "name" : "S3 Server Side Encryption",
+                "value" : "NO"
+              },
+              {
+                "name" : "S3 Client Side Encryption",
+                "value" : "NO"
+              },
+              {
+                "name" : "Analyze Target Table",
+                "value" : "NO"
+              },
+              {
+                "name" : "Vacuum Target Table",
+                "value" : "None"
+              },
+              {
+                "name" : "Treat Source Rows As",
+                "value" : "INSERT"
+              },
+              {
+                "name" : "Transfer Manager Thread Pool Size",
+                "value" : "10"
+              },
+              {
+                "name" : "Minimum Upload Part Size",
+                "value" : "5242880"
+              },
+              {
+                "name" : "Schema Name",
+                "value" : "$$refined_schema"
+              },
+              {
+                "name" : "Preserve record order on write",
+                "value" : "NO"
+              },
+              {
+                "name" : "Number of files per batch",
+                "value" : "0"
+              }
+            ]
+          },
+          "writeOptions" : {
+            "batchSize" : 0,
+            "bulkApi" : "false",
+            "handleDecimalRoundOff" : "false",
+            "handleSpecialChars" : "false",
+            "operations" : [
+              "Insert"
+            ],
+            "setFieldsToNull" : "false",
+            "truncate" : "false",
+            "useErrorFile" : "false",
+            "useExactSrcNames" : "false",
+            "useSuccessFile" : "false"
+          }
+        },
+        "manualMappings" : {
+          "mappingList" : [
+            {
+              "fromFieldName" : "o_GUID_str",
+              "toField" : {
+                "name" : "contact_id"
+              },
+              "fromFieldNames" : null
+            }
+          ]
+        }
+      },
+      {
+        "createTime" : "2025-09-19T14:20:44.985Z",
+        "name" : "src_data_source_query",
+        "advancedProperties" : [
+          {
+            "name" : "Tracing Level",
+            "value" : "Normal"
+          },
+          {
+            "name" : "Output is deterministic",
+            "value" : "false"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "false",
+            "name" : "DefaultGroup",
+            "output" : "true"
+          }
+        ],
+        "generateFilenamePort" : "false",
+        "useLabels" : "false",
+        "useSequenceFields" : "false",
+        "dataAdapter" : {
+          "connectionId$" : {
+            "name" : "DBConnection_SRC"
+          },
+          "excludeDynamicFileNameField" : "false",
+          "object$" : {
+            "name" : "source_query"
+          },
+          "objectType" : "PARAMETERIZED",
+          "typeSystem" : "TOOLKIT",
+          "useDynamicFileName" : "false",
+          "readOptions" : {
+            "commandType" : 0,
+            "descending" : "false",
+            "queryAll" : "false",
+            "rowLimit" : 0,
+            "selectDistinct" : "false"
+          },
+          "runtimeAttributes" : {
+            "attributes" : [
+              {
+                "name" : "Read Mode",
+                "value" : "Direct"
+              },
+              {
+                "name" : "Fetch Size",
+                "value" : "10000"
+              },
+              {
+                "name" : "Enable Compression",
+                "value" : "YES"
+              },
+              {
+                "name" : "Temporary Credential Duration",
+                "value" : "43200"
+              },
+              {
+                "name" : "Treat NULL Value as NULL",
+                "value" : "NO"
+              },
+              {
+                "name" : "Encryption Type",
+                "value" : "None"
+              },
+              {
+                "name" : "Download S3 Files In Multiple Parts",
+                "value" : "NO"
+              },
+              {
+                "name" : "Multipart Download Threshold Size",
+                "value" : "5242880"
+              },
+              {
+                "name" : "Select Distinct",
+                "value" : "NO"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "createTime" : "2025-09-19T14:21:43.625Z",
+        "name" : "jnr_base_and_data_source",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "Master",
+            "output" : "false",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          },
+          {
+            "input" : "true",
+            "name" : "Detail",
+            "output" : "false",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          },
+          {
+            "input" : "false",
+            "name" : "OutputGroup",
+            "output" : "true"
+          }
+        ],
+        "advancedJoinCondition$" : {
+          "name" : "join_condition"
+        },
+        "joinType" : "Normal Join"
+      },
+      {
+        "createTime" : "2025-09-19T19:03:50.414Z",
+        "name" : "exp_set_defaults_and_md5",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "windowConfigurationEnabled" : "false",
+        "fields" : [
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_row_effective_start_datetime",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9,
+            "expFieldType" : "OUTPUT",
+            "expression" : "SYSDATE"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_row_effective_end_datetime",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9,
+            "expFieldType" : "OUTPUT",
+            "expression" : "TO_DATE('9999-12-31', 'YYYY-MM-DD')"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_row_status",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "'Active'"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_straight_through_processing_data_staging_row_created_by",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 31,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "'sv_informatica'"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_straight_through_processing_data_staging_row_modified_by",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 31,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "'sv_informatica'"
+          }
+        ],
+        "windowSpec" : {
+          "allRowsFollowing" : "false",
+          "allRowsPreceding" : "false",
+          "endOffset" : 0,
+          "startOffset" : 0,
+          "partitionKeys" : null
+        }
+      },
+      {
+        "createTime" : "2025-09-20T04:27:24.059Z",
+        "name" : "mplt_java_GUID_gen",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "mplt_input",
+            "output" : "false",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          },
+          {
+            "input" : "false",
+            "name" : "mplt_output",
+            "output" : "true"
+          }
+        ],
+        "active" : "false",
+        "fieldMappingMode" : "MANUAL",
+        "saasMappletId" : "@eAe8FJ9fmcAd2s1AZZDNWL",
+        "saasMappletName" : "cdi_mplt_java_GUID_gen",
+        "type" : "NATIVE",
+        "inputGroups" : [
+          {
+            "name" : "mplt_input",
+            "fields" : [
+              {
+                "name" : "dummy",
+                "platformType" : {
+                  "name" : "string"
+                },
+                "precision" : 32,
+                "scale" : 0
+              }
+            ]
+          }
+        ],
+        "outputGroups" : [
+          {
+            "name" : "mplt_output",
+            "fields" : [
+              {
+                "name" : "o_GUID_str",
+                "platformType" : {
+                  "name" : "string"
+                },
+                "precision" : 255,
+                "scale" : 0
+              }
+            ]
+          }
+        ],
+        "validForEngines" : [
+          "CDI"
+        ],
+        "dataAdapter" : {
+          "inputFields" : [
+            {
+              "name" : "dummy",
+              "fieldType" : "UNDEFINED",
+              "label" : "dummy",
+              "nativeType" : "string",
+              "original" : "false",
+              "precision" : 32,
+              "scale" : 0
+            }
+          ],
+          "outputFields" : [
+            {
+              "name" : "o_GUID_str",
+              "fieldType" : "UNDEFINED",
+              "label" : "o_GUID_str",
+              "nativeType" : "string",
+              "original" : "false",
+              "precision" : 255,
+              "scale" : 0
+            }
+          ]
+        },
+        "fieldMapping" : {
+          "fields" : [
+            {
+              "adapterField" : {
+                "name" : "dummy"
+              },
+              "name" : "policy_number",
+              "precision" : 0,
+              "scale" : 0
+            }
+          ]
+        }
+      }
+    ],
+    "variables" : [
+      {
+        "aggregationType" : "MAX",
+        "expressionVariable" : "false",
+        "name" : "operational_schema",
+        "platformType" : {
+          "name" : "string"
+        },
+        "precision" : 20,
+        "retentionPolicy" : "NEVER",
+        "scale" : 0,
+        "defaultValue" : "operations"
+      },
+      {
+        "aggregationType" : "MAX",
+        "expressionVariable" : "false",
+        "name" : "refined_schema",
+        "platformType" : {
+          "name" : "string"
+        },
+        "precision" : 20,
+        "retentionPolicy" : "NEVER",
+        "scale" : 0,
+        "defaultValue" : "silver"
+      },
+      {
+        "aggregationType" : "MAX",
+        "expressionVariable" : "false",
+        "name" : "sourcesystemcode",
+        "platformType" : {
+          "name" : "string"
+        },
+        "precision" : 10,
+        "retentionPolicy" : "NEVER",
+        "scale" : 0,
+        "defaultValue" : "ADM"
+      },
+      {
+        "aggregationType" : "MAX",
+        "expressionVariable" : "false",
+        "name" : "staging_schema",
+        "platformType" : {
+          "name" : "string"
+        },
+        "precision" : 20,
+        "retentionPolicy" : "NEVER",
+        "scale" : 0,
+        "defaultValue" : "bronze"
+      }
+    ]
+  },
+  "vcsExportTime" : "2026-01-30 09:18:51 EST"
+}

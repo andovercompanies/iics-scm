@@ -1,0 +1,5067 @@
+{
+  "content" : {
+    "description" : "Loads from Metal staging layer to the Bronze tables. SCD2(maintains history of the records, active records are open ended and old ones have closed date).",
+    "allowMaxFieldLength" : "false",
+    "bigIntConvertType" : "ONLY_BIGINT",
+    "documentType" : "MAPPING",
+    "name" : "cdi_map_acx_ea_assessment_summary_bronze_load_back_up",
+    "specialCharacterSupport" : "false",
+    "links" : [
+      {
+        "link" : "src_tgt_query -> exp_rename"
+      },
+      {
+        "link" : "exp_rename -> jnr_src_tgt",
+        "groupLink" : "DefaultGroup -> Detail"
+      },
+      {
+        "link" : "jnr_src_tgt -> exp_flag_records",
+        "groupLink" : "OutputGroup -> DefaultGroup"
+      },
+      {
+        "link" : "exp_flag_records -> rtr_insert_update_path",
+        "groupLink" : "DefaultGroup -> INPUT"
+      },
+      {
+        "link" : "rtr_insert_update_path -> tgt_insert_records",
+        "groupLink" : "insert_group -> DefaultGroup"
+      },
+      {
+        "link" : "rtr_insert_update_path -> exp_closeout",
+        "groupLink" : "update_group -> DefaultGroup"
+      },
+      {
+        "link" : "rtr_insert_update_path -> tgt_update_records",
+        "groupLink" : "update_group -> DefaultGroup"
+      },
+      {
+        "link" : "exp_closeout -> tgt_update_closeout"
+      },
+      {
+        "link" : "Exp_MD5 -> jnr_src_tgt",
+        "groupLink" : "DefaultGroup -> Master"
+      },
+      {
+        "link" : "Expression -> Exp_MD5"
+      },
+      {
+        "link" : "src_eaassessmentsummary_stg -> Expression"
+      }
+    ],
+    "parameters" : [
+      {
+        "input" : "true",
+        "output" : "false",
+        "precision" : 0,
+        "scale" : 0,
+        "allowRuntimeOverride" : "false",
+        "expressionVariable" : "false",
+        "name" : "S3_Staging_Bucket"
+      },
+      {
+        "input" : "true",
+        "output" : "false",
+        "precision" : 0,
+        "scale" : 0,
+        "allowRuntimeOverride" : "false",
+        "expressionVariable" : "false",
+        "name" : "DBConnection_ACX_SRC",
+        "anonymousType" : {
+          "subType" : "TOOLKIT_CCI",
+          "typeSystem" : "TOOLKIT",
+          "connectionType" : "Amazon Redshift v2"
+        }
+      },
+      {
+        "input" : "true",
+        "output" : "false",
+        "precision" : 0,
+        "scale" : 0,
+        "allowRuntimeOverride" : "false",
+        "expressionVariable" : "false",
+        "name" : "DBConnection_ACX_TGT",
+        "anonymousType" : {
+          "subType" : "TOOLKIT_CCI",
+          "typeSystem" : "TOOLKIT",
+          "connectionType" : "Amazon Redshift v2"
+        }
+      }
+    ],
+    "transformations" : [
+      {
+        "description" : "Loads from Metal staging layer to the Bronze tables. SCD2(maintains history of the records, active records are open ended and old ones have closed date).",
+        "createTime" : "2025-07-21T23:37:37.834Z",
+        "name" : "src_eaassessmentsummary_stg",
+        "advancedProperties" : [
+          {
+            "name" : "Tracing Level",
+            "value" : "Normal"
+          },
+          {
+            "name" : "Output is deterministic",
+            "value" : "false"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "false",
+            "name" : "DefaultGroup",
+            "output" : "true"
+          }
+        ],
+        "generateFilenamePort" : "false",
+        "useLabels" : "false",
+        "useSequenceFields" : "false",
+        "fields" : [
+          {
+            "adapterField" : {
+              "name" : "source_name"
+            },
+            "name" : "source_name",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "load_type"
+            },
+            "name" : "load_type",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "system_id"
+            },
+            "name" : "system_id",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 15,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "parent_id"
+            },
+            "name" : "parent_id",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 511,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "cmm_container"
+            },
+            "name" : "cmm_container",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "id"
+            },
+            "name" : "id",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 511,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "assessment_id"
+            },
+            "name" : "assessment_id",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "solution_id"
+            },
+            "name" : "solution_id",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "solution_name"
+            },
+            "name" : "solution_name",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "business_function"
+            },
+            "name" : "business_function",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "assessed_entity"
+            },
+            "name" : "assessed_entity",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "category"
+            },
+            "name" : "category",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "score"
+            },
+            "name" : "score",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "score_percentile"
+            },
+            "name" : "score_percentile",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "normalized_score"
+            },
+            "name" : "normalized_score",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "recommended_action_description"
+            },
+            "name" : "recommended_action_description",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "recommended_action_code"
+            },
+            "name" : "recommended_action_code",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "conclusion_description"
+            },
+            "name" : "conclusion_description",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "conclusion_code"
+            },
+            "name" : "conclusion_code",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "score_date"
+            },
+            "name" : "score_date",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "assesment_detail"
+            },
+            "name" : "assesment_detail",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 8191,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "error"
+            },
+            "name" : "error",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "row_id"
+            },
+            "name" : "row_id",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 32,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "batch_id"
+            },
+            "name" : "batch_id",
+            "platformType" : {
+              "name" : "bigint"
+            },
+            "precision" : 19,
+            "scale" : 0
+          }
+        ],
+        "dataAdapter" : {
+          "connectionId" : "saas:@aYZ4ekzHgIPeKpiaoqDLKP",
+          "connectionName" : "redshift_nonprod_andover_dw_dev",
+          "excludeDynamicFileNameField" : "false",
+          "objectType" : "QUERY",
+          "typeSystem" : "TOOLKIT",
+          "useDynamicFileName" : "false",
+          "object" : {
+            "customQuery" : "WITH current_batch AS (\n    SELECT \n        bls.batch_id,\n        bls.source_start_cutoff_datetime,\n        bls.source_end_cutoff_datetime\n    FROM operations.batch_load_summary bls\n    WHERE bls.source_system_code = 'ACX'\n      AND bls.batch_status = 'Inprogress'\n      AND bls.batch_id = (\n          SELECT MAX(batch_id)\n          FROM operations.batch_load_summary\n          WHERE source_system_code = 'ACX'\n            AND batch_status = 'Inprogress'\n      )\n)\n\nselect distinct\nmetal_aeas.source_name,\nmetal_aeas.load_type,\nmetal_aeas.system_id,\nmetal_aeas.parent_id,\nmetal_aeas.cmm_container,\nmetal_aeas.id,\nmetal_aeas.assessment_id,\nmetal_aeas.solution_id,\nmetal_aeas.solution_name,\nmetal_aeas.business_function,\nmetal_aeas.assessed_entity,\nmetal_aeas.category,\nmetal_aeas.score,\nmetal_aeas.score_percentile,\nmetal_aeas.normalized_score,\nmetal_aeas.recommended_action_description,\nmetal_aeas.recommended_action_code,\nmetal_aeas.conclusion_description,\nmetal_aeas.conclusion_code,\nmetal_aeas.score_date,\nmetal_aeas.assesment_detail,\nmetal_aeas.error,\nmetal_aeas.row_id,\ncurrent_batch.batch_id\nFROM metal.acx_ea_assessment_summary metal_aeas\nCROSS JOIN current_batch\nWHERE parent_id = 'EmbeddedAnalyticsReport-542492113-1524598694'\nORDER BY \nmetal_aeas.system_id,\nmetal_aeas.parent_id,\nmetal_aeas.cmm_container,\nmetal_aeas.id;",
+            "retainMetadata" : "false",
+            "fields" : [
+              {
+                "name" : "source_name",
+                "fieldType" : "CONNECTOR",
+                "label" : "source_name",
+                "nativeName" : "source_name",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "load_type",
+                "fieldType" : "CONNECTOR",
+                "label" : "load_type",
+                "nativeName" : "load_type",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "system_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "system_id",
+                "nativeName" : "system_id",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 15,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "parent_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "parent_id",
+                "nativeName" : "parent_id",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 511,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "cmm_container",
+                "fieldType" : "CONNECTOR",
+                "label" : "cmm_container",
+                "nativeName" : "cmm_container",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "id",
+                "fieldType" : "CONNECTOR",
+                "label" : "id",
+                "nativeName" : "id",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 511,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "assessment_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "assessment_id",
+                "nativeName" : "assessment_id",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "solution_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "solution_id",
+                "nativeName" : "solution_id",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "solution_name",
+                "fieldType" : "CONNECTOR",
+                "label" : "solution_name",
+                "nativeName" : "solution_name",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "business_function",
+                "fieldType" : "CONNECTOR",
+                "label" : "business_function",
+                "nativeName" : "business_function",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "assessed_entity",
+                "fieldType" : "CONNECTOR",
+                "label" : "assessed_entity",
+                "nativeName" : "assessed_entity",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "category",
+                "fieldType" : "CONNECTOR",
+                "label" : "category",
+                "nativeName" : "category",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "score",
+                "fieldType" : "CONNECTOR",
+                "label" : "score",
+                "nativeName" : "score",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "score_percentile",
+                "fieldType" : "CONNECTOR",
+                "label" : "score_percentile",
+                "nativeName" : "score_percentile",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "normalized_score",
+                "fieldType" : "CONNECTOR",
+                "label" : "normalized_score",
+                "nativeName" : "normalized_score",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "recommended_action_description",
+                "fieldType" : "CONNECTOR",
+                "label" : "recommended_action_description",
+                "nativeName" : "recommended_action_description",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "recommended_action_code",
+                "fieldType" : "CONNECTOR",
+                "label" : "recommended_action_code",
+                "nativeName" : "recommended_action_code",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "conclusion_description",
+                "fieldType" : "CONNECTOR",
+                "label" : "conclusion_description",
+                "nativeName" : "conclusion_description",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "conclusion_code",
+                "fieldType" : "CONNECTOR",
+                "label" : "conclusion_code",
+                "nativeName" : "conclusion_code",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "score_date",
+                "fieldType" : "CONNECTOR",
+                "label" : "score_date",
+                "nativeName" : "score_date",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "assesment_detail",
+                "fieldType" : "CONNECTOR",
+                "label" : "assesment_detail",
+                "nativeName" : "assesment_detail",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 8191,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "error",
+                "fieldType" : "CONNECTOR",
+                "label" : "error",
+                "nativeName" : "error",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "row_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "row_id",
+                "nativeName" : "row_id",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 32,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "batch_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "batch_id",
+                "nativeName" : "batch_id",
+                "nativeType" : "int8",
+                "original" : "false",
+                "precision" : 19,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              }
+            ]
+          },
+          "readOptions" : {
+            "commandType" : 0,
+            "descending" : "false",
+            "queryAll" : "false",
+            "rowLimit" : 0,
+            "selectDistinct" : "false"
+          },
+          "runtimeAttributes" : {
+            "attributes" : [
+              {
+                "name" : "Read Mode",
+                "value" : "Direct"
+              },
+              {
+                "name" : "Fetch Size",
+                "value" : "10000"
+              },
+              {
+                "name" : "Enable Compression",
+                "value" : "YES"
+              },
+              {
+                "name" : "Temporary Credential Duration",
+                "value" : "43200"
+              },
+              {
+                "name" : "Treat NULL Value as NULL",
+                "value" : "NO"
+              },
+              {
+                "name" : "Encryption Type",
+                "value" : "None"
+              },
+              {
+                "name" : "Download S3 Files In Multiple Parts",
+                "value" : "NO"
+              },
+              {
+                "name" : "Multipart Download Threshold Size",
+                "value" : "5242880"
+              },
+              {
+                "name" : "Select Distinct",
+                "value" : "NO"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "createTime" : "2025-07-21T23:59:11.449Z",
+        "name" : "src_tgt_query",
+        "advancedProperties" : [
+          {
+            "name" : "Tracing Level",
+            "value" : "Normal"
+          },
+          {
+            "name" : "Output is deterministic",
+            "value" : "false"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "false",
+            "name" : "DefaultGroup",
+            "output" : "true"
+          }
+        ],
+        "generateFilenamePort" : "false",
+        "useLabels" : "false",
+        "useSequenceFields" : "false",
+        "fields" : [
+          {
+            "adapterField" : {
+              "name" : "acx_ea_assessment_summary_row_id"
+            },
+            "name" : "acx_ea_assessment_summary_row_id",
+            "platformType" : {
+              "name" : "bigint"
+            },
+            "precision" : 19,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "acx_ea_assessment_summary_batch_id"
+            },
+            "name" : "acx_ea_assessment_summary_batch_id",
+            "platformType" : {
+              "name" : "bigint"
+            },
+            "precision" : 19,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "acx_ea_assessment_summary_row_md5checksum"
+            },
+            "name" : "acx_ea_assessment_summary_row_md5checksum",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 255,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "acx_ea_assessment_summary_row_effective_end_datetime"
+            },
+            "name" : "acx_ea_assessment_summary_row_effective_end_datetime",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "system_id"
+            },
+            "name" : "system_id",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "parent_id"
+            },
+            "name" : "parent_id",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 511,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "cmm_container"
+            },
+            "name" : "cmm_container",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "id"
+            },
+            "name" : "id",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 511,
+            "scale" : 0
+          }
+        ],
+        "dataAdapter" : {
+          "connectionId" : "saas:@aYZ4ekzHgIPeKpiaoqDLKP",
+          "connectionName" : "redshift_nonprod_andover_dw_dev",
+          "excludeDynamicFileNameField" : "false",
+          "objectType" : "QUERY",
+          "typeSystem" : "TOOLKIT",
+          "useDynamicFileName" : "false",
+          "object" : {
+            "customQuery" : "SELECT\n    acx_ea_assessment_summary_row_id,\n    acx_ea_assessment_summary_batch_id,\n    acx_ea_assessment_summary_row_md5checksum,\n    acx_ea_assessment_summary_row_effective_end_datetime,\n    system_id,\n    parent_id,\n    cmm_container,\n    id\nFROM bronze.acx_ea_assessment_summary\nWHERE acx_ea_assessment_summary_row_effective_end_datetime = '9999-12-31 00:00:00.000'\n  AND parent_id= 'EmbeddedAnalyticsReport-542492113-1524598694'\nORDER BY system_id, cmm_container;",
+            "retainMetadata" : "false",
+            "fields" : [
+              {
+                "name" : "acx_ea_assessment_summary_row_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "acx_ea_assessment_summary_row_id",
+                "nativeName" : "acx_ea_assessment_summary_row_id",
+                "nativeType" : "int8",
+                "original" : "false",
+                "precision" : 19,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "acx_ea_assessment_summary_batch_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "acx_ea_assessment_summary_batch_id",
+                "nativeName" : "acx_ea_assessment_summary_batch_id",
+                "nativeType" : "int8",
+                "original" : "false",
+                "precision" : 19,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "acx_ea_assessment_summary_row_md5checksum",
+                "fieldType" : "CONNECTOR",
+                "label" : "acx_ea_assessment_summary_row_md5checksum",
+                "nativeName" : "acx_ea_assessment_summary_row_md5checksum",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 255,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "acx_ea_assessment_summary_row_effective_end_datetime",
+                "fieldType" : "CONNECTOR",
+                "label" : "acx_ea_assessment_summary_row_effective_end_datetime",
+                "nativeName" : "acx_ea_assessment_summary_row_effective_end_datetime",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "system_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "system_id",
+                "nativeName" : "system_id",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "parent_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "parent_id",
+                "nativeName" : "parent_id",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 511,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "cmm_container",
+                "fieldType" : "CONNECTOR",
+                "label" : "cmm_container",
+                "nativeName" : "cmm_container",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "id",
+                "fieldType" : "CONNECTOR",
+                "label" : "id",
+                "nativeName" : "id",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 511,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              }
+            ]
+          },
+          "readOptions" : {
+            "commandType" : 0,
+            "descending" : "false",
+            "queryAll" : "false",
+            "rowLimit" : 0,
+            "selectDistinct" : "false"
+          },
+          "runtimeAttributes" : {
+            "attributes" : [
+              {
+                "name" : "Read Mode",
+                "value" : "Direct"
+              },
+              {
+                "name" : "Fetch Size",
+                "value" : "10000"
+              },
+              {
+                "name" : "Enable Compression",
+                "value" : "YES"
+              },
+              {
+                "name" : "Temporary Credential Duration",
+                "value" : "900"
+              },
+              {
+                "name" : "Treat NULL Value as NULL",
+                "value" : "NO"
+              },
+              {
+                "name" : "Encryption Type",
+                "value" : "None"
+              },
+              {
+                "name" : "Download S3 Files In Multiple Parts",
+                "value" : "NO"
+              },
+              {
+                "name" : "Multipart Download Threshold Size",
+                "value" : "5242880"
+              },
+              {
+                "name" : "Select Distinct",
+                "value" : "NO"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "createTime" : "2025-07-22T00:04:13.813Z",
+        "name" : "exp_rename",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "true",
+                "include" : "true",
+                "bulkRenameOption" : {
+                  "literal" : "tgt_",
+                  "suffix" : "false"
+                }
+              }
+            ]
+          }
+        ],
+        "windowConfigurationEnabled" : "false",
+        "fields" : [
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_system_id_tgt",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "TO_INTEGER(ltrim(rtrim(tgt_system_id)))"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_parent_id_tgt",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 10,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "ltrim(rtrim(tgt_parent_id))"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_cmm_container_tgt",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 10,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "ltrim(rtrim(tgt_cmm_container))"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_id_tgt",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 10,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "ltrim(rtrim(tgt_id))"
+          }
+        ],
+        "windowSpec" : {
+          "allRowsFollowing" : "false",
+          "allRowsPreceding" : "false",
+          "endOffset" : 0,
+          "startOffset" : 0,
+          "partitionKeys" : null
+        }
+      },
+      {
+        "createTime" : "2025-07-22T00:04:44.988Z",
+        "name" : "jnr_src_tgt",
+        "advancedProperties" : [
+          {
+            "name" : "Tracing Level",
+            "value" : "Normal"
+          },
+          {
+            "name" : "Cache Directory",
+            "value" : "$PMCacheDir"
+          },
+          {
+            "name" : "Null ordering in master",
+            "value" : "Null is Highest Value"
+          },
+          {
+            "name" : "Null ordering in detail",
+            "value" : "Null is Higest Value"
+          },
+          {
+            "name" : "Joiner Data Cache Size",
+            "value" : "AUTO"
+          },
+          {
+            "name" : "Joiner Index Cache Size",
+            "value" : "AUTO"
+          },
+          {
+            "name" : "Sorted Input",
+            "value" : "false"
+          },
+          {
+            "name" : "Master Sort Order",
+            "value" : "AUTO"
+          },
+          {
+            "name" : "Transformation Scope",
+            "value" : "All Input"
+          },
+          {
+            "name" : "Optional",
+            "value" : "true"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "Master",
+            "output" : "false",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          },
+          {
+            "input" : "true",
+            "name" : "Detail",
+            "output" : "false",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          },
+          {
+            "input" : "false",
+            "name" : "OutputGroup",
+            "output" : "true"
+          }
+        ],
+        "joinType" : "Detail Outer Join",
+        "joinConditions" : [
+          {
+            "leftOperand" : "o_system_id",
+            "operator" : "=",
+            "rightOperand" : "o_system_id_tgt"
+          },
+          {
+            "leftOperand" : "o_parent_id",
+            "operator" : "=",
+            "rightOperand" : "o_parent_id_tgt"
+          },
+          {
+            "leftOperand" : "o_cmm_container",
+            "operator" : "=",
+            "rightOperand" : "o_cmm_container_tgt"
+          },
+          {
+            "leftOperand" : "o_id",
+            "operator" : "=",
+            "rightOperand" : "o_id_tgt"
+          }
+        ]
+      },
+      {
+        "createTime" : "2025-07-22T00:08:32.723Z",
+        "name" : "exp_flag_records",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "windowConfigurationEnabled" : "false",
+        "fields" : [
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_insert_flag",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 20,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "IIF(ISNULL(tgt_acx_ea_assessment_summary_row_id),'I','X')"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_acx_ea_assessment_summary_row_effective_end_datetime",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9,
+            "expFieldType" : "OUTPUT",
+            "expression" : "TO_DATE('9999-12-31', 'YYYY-MM-DD')"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_acx_ea_assessment_summary_row_effective_start_datetime",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9,
+            "expFieldType" : "OUTPUT",
+            "expression" : "SYSDATE"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_update_flag",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 10,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "IIF(NOT ISNULL(tgt_acx_ea_assessment_summary_row_id) AND tgt_acx_ea_assessment_summary_row_md5checksum <> src_md5_hash_value, 'U','X')"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_active",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 50,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "'Active'"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_expired",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 50,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "'Expired'"
+          }
+        ],
+        "windowSpec" : {
+          "allRowsFollowing" : "false",
+          "allRowsPreceding" : "false",
+          "endOffset" : 0,
+          "startOffset" : 0,
+          "partitionKeys" : null
+        }
+      },
+      {
+        "createTime" : "2025-07-22T00:14:30.348Z",
+        "name" : "rtr_insert_update_path",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "INPUT",
+            "output" : "false",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          },
+          {
+            "input" : "false",
+            "name" : "DEFAULT1",
+            "output" : "true"
+          },
+          {
+            "input" : "false",
+            "name" : "insert_group",
+            "output" : "true"
+          },
+          {
+            "input" : "false",
+            "name" : "update_group",
+            "output" : "true"
+          }
+        ],
+        "groupFilterConditions" : [
+          {
+            "name" : "insert_group",
+            "simpleFilterConditions" : [
+              {
+                "fieldName" : "o_insert_flag",
+                "filterValue" : "I",
+                "operator" : "="
+              }
+            ]
+          },
+          {
+            "name" : "update_group",
+            "simpleFilterConditions" : [
+              {
+                "fieldName" : "o_update_flag",
+                "filterValue" : "U",
+                "operator" : "="
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "createTime" : "2025-07-22T00:17:50.250Z",
+        "name" : "tgt_insert_records",
+        "advancedProperties" : [
+          {
+            "name" : "Forward Rejected Rows",
+            "value" : "true"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "false",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "createTarget" : "false",
+        "fieldMappingMode" : "MANUAL",
+        "inputSorted" : "false",
+        "schemaProviderType" : "SELECTED_OBJECT",
+        "targetFieldsOrdered" : "false",
+        "updateColumns" : null,
+        "useLabels" : "false",
+        "useSequenceFields" : "false",
+        "fields" : [
+          {
+            "adapterField" : {
+              "name" : "acx_ea_assessment_summary_row_id"
+            },
+            "name" : "acx_ea_assessment_summary_row_id",
+            "platformType" : {
+              "name" : "bigint"
+            },
+            "precision" : 19,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "acx_ea_assessment_summary_batch_id"
+            },
+            "name" : "acx_ea_assessment_summary_batch_id",
+            "platformType" : {
+              "name" : "bigint"
+            },
+            "precision" : 19,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "originating_source_name"
+            },
+            "name" : "originating_source_name",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "originating_load_type"
+            },
+            "name" : "originating_load_type",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "acx_ea_assessment_summary_row_md5checksum"
+            },
+            "name" : "acx_ea_assessment_summary_row_md5checksum",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 255,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "acx_ea_assessment_summary_row_effective_start_datetime"
+            },
+            "name" : "acx_ea_assessment_summary_row_effective_start_datetime",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "acx_ea_assessment_summary_row_effective_end_datetime"
+            },
+            "name" : "acx_ea_assessment_summary_row_effective_end_datetime",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "acx_ea_assessment_summary_row_status"
+            },
+            "name" : "acx_ea_assessment_summary_row_status",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "system_id"
+            },
+            "name" : "system_id",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "parent_id"
+            },
+            "name" : "parent_id",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 511,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "cmm_container"
+            },
+            "name" : "cmm_container",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "id"
+            },
+            "name" : "id",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 511,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "assessment_id"
+            },
+            "name" : "assessment_id",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "solution_id"
+            },
+            "name" : "solution_id",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "solution_name"
+            },
+            "name" : "solution_name",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "business_function"
+            },
+            "name" : "business_function",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "assessed_entity"
+            },
+            "name" : "assessed_entity",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "category"
+            },
+            "name" : "category",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "score"
+            },
+            "name" : "score",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "score_percentile"
+            },
+            "name" : "score_percentile",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "normalized_score"
+            },
+            "name" : "normalized_score",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "recommended_action_description"
+            },
+            "name" : "recommended_action_description",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "recommended_action_code"
+            },
+            "name" : "recommended_action_code",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "conclusion_description"
+            },
+            "name" : "conclusion_description",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "conclusion_code"
+            },
+            "name" : "conclusion_code",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "score_date"
+            },
+            "name" : "score_date",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "assesment_detail"
+            },
+            "name" : "assesment_detail",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 8191,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "error"
+            },
+            "name" : "error",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "row_id"
+            },
+            "name" : "row_id",
+            "platformType" : {
+              "name" : "bigint"
+            },
+            "precision" : 19,
+            "scale" : 0
+          }
+        ],
+        "dataAdapter" : {
+          "connectionId$" : {
+            "name" : "DBConnection_ACX_TGT"
+          },
+          "excludeDynamicFileNameField" : "false",
+          "objectType" : "SINGLE",
+          "typeSystem" : "TOOLKIT",
+          "useDynamicFileName" : "false",
+          "object" : {
+            "name" : "bronze/acx_ea_assessment_summary",
+            "label" : "bronze/acx_ea_assessment_summary",
+            "objectName" : "acx_ea_assessment_summary",
+            "objectType" : "amazonredshift",
+            "path" : "bronze/acx_ea_assessment_summary",
+            "retainMetadata" : "false",
+            "fields" : [
+              {
+                "name" : "acx_ea_assessment_summary_row_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "acx_ea_assessment_summary_row_id",
+                "nativeName" : "acx_ea_assessment_summary_row_id",
+                "nativeType" : "int8",
+                "original" : "false",
+                "precision" : 19,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "acx_ea_assessment_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "acx_ea_assessment_summary_batch_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "acx_ea_assessment_summary_batch_id",
+                "nativeName" : "acx_ea_assessment_summary_batch_id",
+                "nativeType" : "int8",
+                "original" : "false",
+                "precision" : 19,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "acx_ea_assessment_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "originating_source_name",
+                "fieldType" : "CONNECTOR",
+                "label" : "originating_source_name",
+                "nativeName" : "originating_source_name",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "acx_ea_assessment_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "originating_load_type",
+                "fieldType" : "CONNECTOR",
+                "label" : "originating_load_type",
+                "nativeName" : "originating_load_type",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "acx_ea_assessment_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "acx_ea_assessment_summary_row_md5checksum",
+                "fieldType" : "CONNECTOR",
+                "label" : "acx_ea_assessment_summary_row_md5checksum",
+                "nativeName" : "acx_ea_assessment_summary_row_md5checksum",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 255,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "acx_ea_assessment_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "acx_ea_assessment_summary_row_effective_start_datetime",
+                "fieldType" : "CONNECTOR",
+                "label" : "acx_ea_assessment_summary_row_effective_start_datetime",
+                "nativeName" : "acx_ea_assessment_summary_row_effective_start_datetime",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "acx_ea_assessment_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "acx_ea_assessment_summary_row_effective_end_datetime",
+                "fieldType" : "CONNECTOR",
+                "label" : "acx_ea_assessment_summary_row_effective_end_datetime",
+                "nativeName" : "acx_ea_assessment_summary_row_effective_end_datetime",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "acx_ea_assessment_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "acx_ea_assessment_summary_row_status",
+                "fieldType" : "CONNECTOR",
+                "label" : "acx_ea_assessment_summary_row_status",
+                "nativeName" : "acx_ea_assessment_summary_row_status",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "acx_ea_assessment_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "system_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "system_id",
+                "nativeName" : "system_id",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "acx_ea_assessment_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "parent_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "parent_id",
+                "nativeName" : "parent_id",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 511,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "acx_ea_assessment_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "cmm_container",
+                "fieldType" : "CONNECTOR",
+                "label" : "cmm_container",
+                "nativeName" : "cmm_container",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "acx_ea_assessment_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "id",
+                "fieldType" : "CONNECTOR",
+                "label" : "id",
+                "nativeName" : "id",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 511,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "acx_ea_assessment_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "assessment_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "assessment_id",
+                "nativeName" : "assessment_id",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "acx_ea_assessment_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "solution_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "solution_id",
+                "nativeName" : "solution_id",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "acx_ea_assessment_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "solution_name",
+                "fieldType" : "CONNECTOR",
+                "label" : "solution_name",
+                "nativeName" : "solution_name",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "acx_ea_assessment_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "business_function",
+                "fieldType" : "CONNECTOR",
+                "label" : "business_function",
+                "nativeName" : "business_function",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "acx_ea_assessment_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "assessed_entity",
+                "fieldType" : "CONNECTOR",
+                "label" : "assessed_entity",
+                "nativeName" : "assessed_entity",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "acx_ea_assessment_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "category",
+                "fieldType" : "CONNECTOR",
+                "label" : "category",
+                "nativeName" : "category",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "acx_ea_assessment_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "score",
+                "fieldType" : "CONNECTOR",
+                "label" : "score",
+                "nativeName" : "score",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "acx_ea_assessment_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "score_percentile",
+                "fieldType" : "CONNECTOR",
+                "label" : "score_percentile",
+                "nativeName" : "score_percentile",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "acx_ea_assessment_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "normalized_score",
+                "fieldType" : "CONNECTOR",
+                "label" : "normalized_score",
+                "nativeName" : "normalized_score",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "acx_ea_assessment_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "recommended_action_description",
+                "fieldType" : "CONNECTOR",
+                "label" : "recommended_action_description",
+                "nativeName" : "recommended_action_description",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "acx_ea_assessment_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "recommended_action_code",
+                "fieldType" : "CONNECTOR",
+                "label" : "recommended_action_code",
+                "nativeName" : "recommended_action_code",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "acx_ea_assessment_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "conclusion_description",
+                "fieldType" : "CONNECTOR",
+                "label" : "conclusion_description",
+                "nativeName" : "conclusion_description",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "acx_ea_assessment_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "conclusion_code",
+                "fieldType" : "CONNECTOR",
+                "label" : "conclusion_code",
+                "nativeName" : "conclusion_code",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "acx_ea_assessment_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "score_date",
+                "fieldType" : "CONNECTOR",
+                "label" : "score_date",
+                "nativeName" : "score_date",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "acx_ea_assessment_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "assesment_detail",
+                "fieldType" : "CONNECTOR",
+                "label" : "assesment_detail",
+                "nativeName" : "assesment_detail",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 8191,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "acx_ea_assessment_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "error",
+                "fieldType" : "CONNECTOR",
+                "label" : "error",
+                "nativeName" : "error",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "acx_ea_assessment_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "row_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "row_id",
+                "nativeName" : "row_id",
+                "nativeType" : "int8",
+                "original" : "false",
+                "precision" : 19,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "acx_ea_assessment_summary"
+                  }
+                ]
+              }
+            ],
+            "objectAttributes" : [
+              {
+                "name" : "recordType",
+                "value" : "TABLE"
+              }
+            ]
+          },
+          "runtimeAttributes" : {
+            "attributes" : [
+              {
+                "name" : "S3 Bucket Name",
+                "value" : "$$S3_Staging_Bucket"
+              },
+              {
+                "name" : "Enable Compression",
+                "value" : "YES"
+              },
+              {
+                "name" : "Batch Size",
+                "value" : "2000000"
+              },
+              {
+                "name" : "Max Errors Per Batch Upload Insert",
+                "value" : "1"
+              },
+              {
+                "name" : "Truncate Target Table Before Data Upload",
+                "value" : "NO"
+              },
+              {
+                "name" : "WaitTime In Seconds For S3 File Consistency",
+                "value" : "0"
+              },
+              {
+                "name" : "Temporary Credential Duration",
+                "value" : "43200"
+              },
+              {
+                "name" : "S3 Server Side Encryption",
+                "value" : "NO"
+              },
+              {
+                "name" : "S3 Client Side Encryption",
+                "value" : "NO"
+              },
+              {
+                "name" : "Analyze Target Table",
+                "value" : "NO"
+              },
+              {
+                "name" : "Vacuum Target Table",
+                "value" : "None"
+              },
+              {
+                "name" : "Treat Source Rows As",
+                "value" : "INSERT"
+              },
+              {
+                "name" : "Transfer Manager Thread Pool Size",
+                "value" : "10"
+              },
+              {
+                "name" : "Minimum Upload Part Size",
+                "value" : "5242880"
+              },
+              {
+                "name" : "Schema Name",
+                "value" : "$$staging_schema"
+              },
+              {
+                "name" : "Preserve record order on write",
+                "value" : "NO"
+              },
+              {
+                "name" : "Number of files per batch",
+                "value" : "0"
+              }
+            ]
+          },
+          "writeOptions" : {
+            "batchSize" : 0,
+            "bulkApi" : "false",
+            "handleDecimalRoundOff" : "false",
+            "handleSpecialChars" : "false",
+            "operations" : [
+              "Insert"
+            ],
+            "setFieldsToNull" : "false",
+            "truncate" : "false",
+            "useErrorFile" : "false",
+            "useExactSrcNames" : "false",
+            "useSuccessFile" : "false"
+          }
+        },
+        "manualMappings" : {
+          "mappingList" : [
+            {
+              "fromFieldName" : "error",
+              "toField" : {
+                "name" : "error"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "assesment_detail",
+              "toField" : {
+                "name" : "assesment_detail"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "row_id",
+              "toField" : {
+                "name" : "row_id"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_system_id",
+              "toField" : {
+                "name" : "system_id"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "source_name",
+              "toField" : {
+                "name" : "originating_source_name"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "load_type",
+              "toField" : {
+                "name" : "originating_load_type"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "parent_id",
+              "toField" : {
+                "name" : "parent_id"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "cmm_container",
+              "toField" : {
+                "name" : "cmm_container"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "id",
+              "toField" : {
+                "name" : "id"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "assessment_id",
+              "toField" : {
+                "name" : "assessment_id"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "solution_id",
+              "toField" : {
+                "name" : "solution_id"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "solution_name",
+              "toField" : {
+                "name" : "solution_name"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "business_function",
+              "toField" : {
+                "name" : "business_function"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "assessed_entity",
+              "toField" : {
+                "name" : "assessed_entity"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "category",
+              "toField" : {
+                "name" : "category"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "score",
+              "toField" : {
+                "name" : "score"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "score_percentile",
+              "toField" : {
+                "name" : "score_percentile"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "normalized_score",
+              "toField" : {
+                "name" : "normalized_score"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "recommended_action_description",
+              "toField" : {
+                "name" : "recommended_action_description"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "recommended_action_code",
+              "toField" : {
+                "name" : "recommended_action_code"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "conclusion_description",
+              "toField" : {
+                "name" : "conclusion_description"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "conclusion_code",
+              "toField" : {
+                "name" : "conclusion_code"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "score_date",
+              "toField" : {
+                "name" : "score_date"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "src_md5_hash_value",
+              "toField" : {
+                "name" : "acx_ea_assessment_summary_row_md5checksum"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_active",
+              "toField" : {
+                "name" : "acx_ea_assessment_summary_row_status"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_acx_ea_assessment_summary_row_effective_start_datetime",
+              "toField" : {
+                "name" : "acx_ea_assessment_summary_row_effective_start_datetime"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_acx_ea_assessment_summary_row_effective_end_datetime",
+              "toField" : {
+                "name" : "acx_ea_assessment_summary_row_effective_end_datetime"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "batch_id",
+              "toField" : {
+                "name" : "acx_ea_assessment_summary_batch_id"
+              },
+              "fromFieldNames" : null
+            }
+          ]
+        }
+      },
+      {
+        "createTime" : "2025-07-22T00:18:00.111Z",
+        "name" : "tgt_update_records",
+        "advancedProperties" : [
+          {
+            "name" : "Forward Rejected Rows",
+            "value" : "true"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "false",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "createTarget" : "false",
+        "fieldMappingMode" : "MANUAL",
+        "inputSorted" : "false",
+        "schemaProviderType" : "SELECTED_OBJECT",
+        "targetFieldsOrdered" : "false",
+        "updateColumns" : null,
+        "useLabels" : "false",
+        "useSequenceFields" : "false",
+        "fields" : [
+          {
+            "adapterField" : {
+              "name" : "acx_ea_assessment_summary_row_id"
+            },
+            "name" : "acx_ea_assessment_summary_row_id",
+            "platformType" : {
+              "name" : "bigint"
+            },
+            "precision" : 19,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "acx_ea_assessment_summary_batch_id"
+            },
+            "name" : "acx_ea_assessment_summary_batch_id",
+            "platformType" : {
+              "name" : "bigint"
+            },
+            "precision" : 19,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "originating_source_name"
+            },
+            "name" : "originating_source_name",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "originating_load_type"
+            },
+            "name" : "originating_load_type",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "acx_ea_assessment_summary_row_md5checksum"
+            },
+            "name" : "acx_ea_assessment_summary_row_md5checksum",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 255,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "acx_ea_assessment_summary_row_effective_start_datetime"
+            },
+            "name" : "acx_ea_assessment_summary_row_effective_start_datetime",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "acx_ea_assessment_summary_row_effective_end_datetime"
+            },
+            "name" : "acx_ea_assessment_summary_row_effective_end_datetime",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "acx_ea_assessment_summary_row_status"
+            },
+            "name" : "acx_ea_assessment_summary_row_status",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "system_id"
+            },
+            "name" : "system_id",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "parent_id"
+            },
+            "name" : "parent_id",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 511,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "cmm_container"
+            },
+            "name" : "cmm_container",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "id"
+            },
+            "name" : "id",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 511,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "assessment_id"
+            },
+            "name" : "assessment_id",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "solution_id"
+            },
+            "name" : "solution_id",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "solution_name"
+            },
+            "name" : "solution_name",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "business_function"
+            },
+            "name" : "business_function",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "assessed_entity"
+            },
+            "name" : "assessed_entity",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "category"
+            },
+            "name" : "category",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "score"
+            },
+            "name" : "score",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "score_percentile"
+            },
+            "name" : "score_percentile",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "normalized_score"
+            },
+            "name" : "normalized_score",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "recommended_action_description"
+            },
+            "name" : "recommended_action_description",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "recommended_action_code"
+            },
+            "name" : "recommended_action_code",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "conclusion_description"
+            },
+            "name" : "conclusion_description",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "conclusion_code"
+            },
+            "name" : "conclusion_code",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "score_date"
+            },
+            "name" : "score_date",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "assesment_detail"
+            },
+            "name" : "assesment_detail",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 8191,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "error"
+            },
+            "name" : "error",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "row_id"
+            },
+            "name" : "row_id",
+            "platformType" : {
+              "name" : "bigint"
+            },
+            "precision" : 19,
+            "scale" : 0
+          }
+        ],
+        "dataAdapter" : {
+          "connectionId$" : {
+            "name" : "DBConnection_ACX_TGT"
+          },
+          "excludeDynamicFileNameField" : "false",
+          "objectType" : "SINGLE",
+          "typeSystem" : "TOOLKIT",
+          "useDynamicFileName" : "false",
+          "bulkOptions" : {
+            "hardDelete" : "false",
+            "maxRowsPerRequest" : 0,
+            "monitorBulk" : "false",
+            "monitorBulkV2" : "false",
+            "pkChunkingEnabled" : "false",
+            "pkChunkingSize" : 0,
+            "serialMode" : "false",
+            "useBulkApi" : "false",
+            "useBulkApiV2" : "false"
+          },
+          "object" : {
+            "name" : "bronze/acx_ea_assessment_summary",
+            "label" : "bronze/acx_ea_assessment_summary",
+            "objectName" : "acx_ea_assessment_summary",
+            "objectType" : "amazonredshift",
+            "path" : "bronze/acx_ea_assessment_summary",
+            "retainMetadata" : "false",
+            "fields" : [
+              {
+                "name" : "acx_ea_assessment_summary_row_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "acx_ea_assessment_summary_row_id",
+                "nativeName" : "acx_ea_assessment_summary_row_id",
+                "nativeType" : "int8",
+                "original" : "false",
+                "precision" : 19,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "acx_ea_assessment_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "acx_ea_assessment_summary_batch_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "acx_ea_assessment_summary_batch_id",
+                "nativeName" : "acx_ea_assessment_summary_batch_id",
+                "nativeType" : "int8",
+                "original" : "false",
+                "precision" : 19,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "acx_ea_assessment_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "originating_source_name",
+                "fieldType" : "CONNECTOR",
+                "label" : "originating_source_name",
+                "nativeName" : "originating_source_name",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "acx_ea_assessment_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "originating_load_type",
+                "fieldType" : "CONNECTOR",
+                "label" : "originating_load_type",
+                "nativeName" : "originating_load_type",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "acx_ea_assessment_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "acx_ea_assessment_summary_row_md5checksum",
+                "fieldType" : "CONNECTOR",
+                "label" : "acx_ea_assessment_summary_row_md5checksum",
+                "nativeName" : "acx_ea_assessment_summary_row_md5checksum",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 255,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "acx_ea_assessment_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "acx_ea_assessment_summary_row_effective_start_datetime",
+                "fieldType" : "CONNECTOR",
+                "label" : "acx_ea_assessment_summary_row_effective_start_datetime",
+                "nativeName" : "acx_ea_assessment_summary_row_effective_start_datetime",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "acx_ea_assessment_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "acx_ea_assessment_summary_row_effective_end_datetime",
+                "fieldType" : "CONNECTOR",
+                "label" : "acx_ea_assessment_summary_row_effective_end_datetime",
+                "nativeName" : "acx_ea_assessment_summary_row_effective_end_datetime",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "acx_ea_assessment_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "acx_ea_assessment_summary_row_status",
+                "fieldType" : "CONNECTOR",
+                "label" : "acx_ea_assessment_summary_row_status",
+                "nativeName" : "acx_ea_assessment_summary_row_status",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "acx_ea_assessment_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "system_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "system_id",
+                "nativeName" : "system_id",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "acx_ea_assessment_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "parent_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "parent_id",
+                "nativeName" : "parent_id",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 511,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "acx_ea_assessment_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "cmm_container",
+                "fieldType" : "CONNECTOR",
+                "label" : "cmm_container",
+                "nativeName" : "cmm_container",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "acx_ea_assessment_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "id",
+                "fieldType" : "CONNECTOR",
+                "label" : "id",
+                "nativeName" : "id",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 511,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "acx_ea_assessment_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "assessment_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "assessment_id",
+                "nativeName" : "assessment_id",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "acx_ea_assessment_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "solution_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "solution_id",
+                "nativeName" : "solution_id",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "acx_ea_assessment_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "solution_name",
+                "fieldType" : "CONNECTOR",
+                "label" : "solution_name",
+                "nativeName" : "solution_name",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "acx_ea_assessment_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "business_function",
+                "fieldType" : "CONNECTOR",
+                "label" : "business_function",
+                "nativeName" : "business_function",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "acx_ea_assessment_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "assessed_entity",
+                "fieldType" : "CONNECTOR",
+                "label" : "assessed_entity",
+                "nativeName" : "assessed_entity",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "acx_ea_assessment_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "category",
+                "fieldType" : "CONNECTOR",
+                "label" : "category",
+                "nativeName" : "category",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "acx_ea_assessment_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "score",
+                "fieldType" : "CONNECTOR",
+                "label" : "score",
+                "nativeName" : "score",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "acx_ea_assessment_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "score_percentile",
+                "fieldType" : "CONNECTOR",
+                "label" : "score_percentile",
+                "nativeName" : "score_percentile",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "acx_ea_assessment_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "normalized_score",
+                "fieldType" : "CONNECTOR",
+                "label" : "normalized_score",
+                "nativeName" : "normalized_score",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "acx_ea_assessment_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "recommended_action_description",
+                "fieldType" : "CONNECTOR",
+                "label" : "recommended_action_description",
+                "nativeName" : "recommended_action_description",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "acx_ea_assessment_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "recommended_action_code",
+                "fieldType" : "CONNECTOR",
+                "label" : "recommended_action_code",
+                "nativeName" : "recommended_action_code",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "acx_ea_assessment_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "conclusion_description",
+                "fieldType" : "CONNECTOR",
+                "label" : "conclusion_description",
+                "nativeName" : "conclusion_description",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "acx_ea_assessment_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "conclusion_code",
+                "fieldType" : "CONNECTOR",
+                "label" : "conclusion_code",
+                "nativeName" : "conclusion_code",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "acx_ea_assessment_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "score_date",
+                "fieldType" : "CONNECTOR",
+                "label" : "score_date",
+                "nativeName" : "score_date",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "acx_ea_assessment_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "assesment_detail",
+                "fieldType" : "CONNECTOR",
+                "label" : "assesment_detail",
+                "nativeName" : "assesment_detail",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 8191,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "acx_ea_assessment_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "error",
+                "fieldType" : "CONNECTOR",
+                "label" : "error",
+                "nativeName" : "error",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "acx_ea_assessment_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "row_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "row_id",
+                "nativeName" : "row_id",
+                "nativeType" : "int8",
+                "original" : "false",
+                "precision" : 19,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "acx_ea_assessment_summary"
+                  }
+                ]
+              }
+            ],
+            "objectAttributes" : [
+              {
+                "name" : "recordType",
+                "value" : "TABLE"
+              }
+            ]
+          },
+          "runtimeAttributes" : {
+            "attributes" : [
+              {
+                "name" : "S3 Bucket Name",
+                "value" : "$$S3_Staging_Bucket"
+              },
+              {
+                "name" : "Enable Compression",
+                "value" : "YES"
+              },
+              {
+                "name" : "Batch Size",
+                "value" : "2000000"
+              },
+              {
+                "name" : "Max Errors Per Batch Upload Insert",
+                "value" : "1"
+              },
+              {
+                "name" : "Truncate Target Table Before Data Upload",
+                "value" : "NO"
+              },
+              {
+                "name" : "WaitTime In Seconds For S3 File Consistency",
+                "value" : "0"
+              },
+              {
+                "name" : "Temporary Credential Duration",
+                "value" : "43200"
+              },
+              {
+                "name" : "S3 Server Side Encryption",
+                "value" : "NO"
+              },
+              {
+                "name" : "S3 Client Side Encryption",
+                "value" : "NO"
+              },
+              {
+                "name" : "Analyze Target Table",
+                "value" : "NO"
+              },
+              {
+                "name" : "Vacuum Target Table",
+                "value" : "None"
+              },
+              {
+                "name" : "Treat Source Rows As",
+                "value" : "INSERT"
+              },
+              {
+                "name" : "Transfer Manager Thread Pool Size",
+                "value" : "10"
+              },
+              {
+                "name" : "Minimum Upload Part Size",
+                "value" : "5242880"
+              },
+              {
+                "name" : "Schema Name",
+                "value" : "$$staging_schema"
+              },
+              {
+                "name" : "Preserve record order on write",
+                "value" : "NO"
+              },
+              {
+                "name" : "Number of files per batch",
+                "value" : "0"
+              }
+            ]
+          },
+          "writeOptions" : {
+            "batchSize" : 0,
+            "bulkApi" : "false",
+            "handleDecimalRoundOff" : "false",
+            "handleSpecialChars" : "false",
+            "operations" : [
+              "Insert"
+            ],
+            "setFieldsToNull" : "false",
+            "truncate" : "false",
+            "useErrorFile" : "false",
+            "useExactSrcNames" : "false",
+            "useSuccessFile" : "false"
+          }
+        },
+        "manualMappings" : {
+          "mappingList" : [
+            {
+              "fromFieldName" : "source_name",
+              "toField" : {
+                "name" : "originating_source_name"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "load_type",
+              "toField" : {
+                "name" : "originating_load_type"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "tgt_acx_ea_assessment_summary_row_md5checksum",
+              "toField" : {
+                "name" : "acx_ea_assessment_summary_row_md5checksum"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "parent_id",
+              "toField" : {
+                "name" : "parent_id"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "cmm_container",
+              "toField" : {
+                "name" : "cmm_container"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "id",
+              "toField" : {
+                "name" : "id"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "assessment_id",
+              "toField" : {
+                "name" : "assessment_id"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "solution_id",
+              "toField" : {
+                "name" : "solution_id"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "solution_name",
+              "toField" : {
+                "name" : "solution_name"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "business_function",
+              "toField" : {
+                "name" : "business_function"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "assessed_entity",
+              "toField" : {
+                "name" : "assessed_entity"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "category",
+              "toField" : {
+                "name" : "category"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "score",
+              "toField" : {
+                "name" : "score"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "score_percentile",
+              "toField" : {
+                "name" : "score_percentile"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "normalized_score",
+              "toField" : {
+                "name" : "normalized_score"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "recommended_action_description",
+              "toField" : {
+                "name" : "recommended_action_description"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "recommended_action_code",
+              "toField" : {
+                "name" : "recommended_action_code"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "conclusion_description",
+              "toField" : {
+                "name" : "conclusion_description"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "conclusion_code",
+              "toField" : {
+                "name" : "conclusion_code"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "score_date",
+              "toField" : {
+                "name" : "score_date"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "assesment_detail",
+              "toField" : {
+                "name" : "assesment_detail"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "error",
+              "toField" : {
+                "name" : "error"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "row_id",
+              "toField" : {
+                "name" : "row_id"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_acx_ea_assessment_summary_row_effective_start_datetime",
+              "toField" : {
+                "name" : "acx_ea_assessment_summary_row_effective_start_datetime"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_acx_ea_assessment_summary_row_effective_end_datetime",
+              "toField" : {
+                "name" : "acx_ea_assessment_summary_row_effective_end_datetime"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_system_id",
+              "toField" : {
+                "name" : "system_id"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_active",
+              "toField" : {
+                "name" : "acx_ea_assessment_summary_row_status"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "batch_id",
+              "toField" : {
+                "name" : "acx_ea_assessment_summary_batch_id"
+              },
+              "fromFieldNames" : null
+            }
+          ]
+        }
+      },
+      {
+        "createTime" : "2025-07-22T00:18:06.823Z",
+        "name" : "tgt_update_closeout",
+        "advancedProperties" : [
+          {
+            "name" : "Forward Rejected Rows",
+            "value" : "true"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "false",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "createTarget" : "false",
+        "fieldMappingMode" : "MANUAL",
+        "inputSorted" : "false",
+        "schemaProviderType" : "SELECTED_OBJECT",
+        "targetFieldsOrdered" : "false",
+        "updateColumns" : [
+          "acx_ea_assessment_summary_row_id"
+        ],
+        "useLabels" : "false",
+        "useSequenceFields" : "false",
+        "fields" : [
+          {
+            "adapterField" : {
+              "name" : "acx_ea_assessment_summary_row_id"
+            },
+            "name" : "acx_ea_assessment_summary_row_id",
+            "platformType" : {
+              "name" : "bigint"
+            },
+            "precision" : 19,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "acx_ea_assessment_summary_batch_id"
+            },
+            "name" : "acx_ea_assessment_summary_batch_id",
+            "platformType" : {
+              "name" : "bigint"
+            },
+            "precision" : 19,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "originating_source_name"
+            },
+            "name" : "originating_source_name",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "originating_load_type"
+            },
+            "name" : "originating_load_type",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "acx_ea_assessment_summary_row_md5checksum"
+            },
+            "name" : "acx_ea_assessment_summary_row_md5checksum",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 255,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "acx_ea_assessment_summary_row_effective_start_datetime"
+            },
+            "name" : "acx_ea_assessment_summary_row_effective_start_datetime",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "acx_ea_assessment_summary_row_effective_end_datetime"
+            },
+            "name" : "acx_ea_assessment_summary_row_effective_end_datetime",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "acx_ea_assessment_summary_row_status"
+            },
+            "name" : "acx_ea_assessment_summary_row_status",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "system_id"
+            },
+            "name" : "system_id",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "parent_id"
+            },
+            "name" : "parent_id",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 511,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "cmm_container"
+            },
+            "name" : "cmm_container",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "id"
+            },
+            "name" : "id",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 511,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "assessment_id"
+            },
+            "name" : "assessment_id",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "solution_id"
+            },
+            "name" : "solution_id",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "solution_name"
+            },
+            "name" : "solution_name",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "business_function"
+            },
+            "name" : "business_function",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "assessed_entity"
+            },
+            "name" : "assessed_entity",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "category"
+            },
+            "name" : "category",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "score"
+            },
+            "name" : "score",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "score_percentile"
+            },
+            "name" : "score_percentile",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "normalized_score"
+            },
+            "name" : "normalized_score",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "recommended_action_description"
+            },
+            "name" : "recommended_action_description",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "recommended_action_code"
+            },
+            "name" : "recommended_action_code",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "conclusion_description"
+            },
+            "name" : "conclusion_description",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "conclusion_code"
+            },
+            "name" : "conclusion_code",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "score_date"
+            },
+            "name" : "score_date",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "assesment_detail"
+            },
+            "name" : "assesment_detail",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 8191,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "error"
+            },
+            "name" : "error",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "row_id"
+            },
+            "name" : "row_id",
+            "platformType" : {
+              "name" : "bigint"
+            },
+            "precision" : 19,
+            "scale" : 0
+          }
+        ],
+        "dataAdapter" : {
+          "connectionId$" : {
+            "name" : "DBConnection_ACX_TGT"
+          },
+          "excludeDynamicFileNameField" : "false",
+          "objectType" : "SINGLE",
+          "typeSystem" : "TOOLKIT",
+          "useDynamicFileName" : "false",
+          "bulkOptions" : {
+            "hardDelete" : "false",
+            "maxRowsPerRequest" : 0,
+            "monitorBulk" : "false",
+            "monitorBulkV2" : "false",
+            "pkChunkingEnabled" : "false",
+            "pkChunkingSize" : 0,
+            "serialMode" : "false",
+            "useBulkApi" : "false",
+            "useBulkApiV2" : "false"
+          },
+          "object" : {
+            "name" : "bronze/acx_ea_assessment_summary",
+            "label" : "bronze/acx_ea_assessment_summary",
+            "objectName" : "acx_ea_assessment_summary",
+            "objectType" : "amazonredshift",
+            "path" : "bronze/acx_ea_assessment_summary",
+            "retainMetadata" : "false",
+            "fields" : [
+              {
+                "name" : "acx_ea_assessment_summary_row_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "acx_ea_assessment_summary_row_id",
+                "nativeName" : "acx_ea_assessment_summary_row_id",
+                "nativeType" : "int8",
+                "original" : "false",
+                "precision" : 19,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "acx_ea_assessment_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "acx_ea_assessment_summary_batch_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "acx_ea_assessment_summary_batch_id",
+                "nativeName" : "acx_ea_assessment_summary_batch_id",
+                "nativeType" : "int8",
+                "original" : "false",
+                "precision" : 19,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "acx_ea_assessment_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "originating_source_name",
+                "fieldType" : "CONNECTOR",
+                "label" : "originating_source_name",
+                "nativeName" : "originating_source_name",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "acx_ea_assessment_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "originating_load_type",
+                "fieldType" : "CONNECTOR",
+                "label" : "originating_load_type",
+                "nativeName" : "originating_load_type",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "acx_ea_assessment_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "acx_ea_assessment_summary_row_md5checksum",
+                "fieldType" : "CONNECTOR",
+                "label" : "acx_ea_assessment_summary_row_md5checksum",
+                "nativeName" : "acx_ea_assessment_summary_row_md5checksum",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 255,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "acx_ea_assessment_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "acx_ea_assessment_summary_row_effective_start_datetime",
+                "fieldType" : "CONNECTOR",
+                "label" : "acx_ea_assessment_summary_row_effective_start_datetime",
+                "nativeName" : "acx_ea_assessment_summary_row_effective_start_datetime",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "acx_ea_assessment_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "acx_ea_assessment_summary_row_effective_end_datetime",
+                "fieldType" : "CONNECTOR",
+                "label" : "acx_ea_assessment_summary_row_effective_end_datetime",
+                "nativeName" : "acx_ea_assessment_summary_row_effective_end_datetime",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "acx_ea_assessment_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "acx_ea_assessment_summary_row_status",
+                "fieldType" : "CONNECTOR",
+                "label" : "acx_ea_assessment_summary_row_status",
+                "nativeName" : "acx_ea_assessment_summary_row_status",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "acx_ea_assessment_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "system_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "system_id",
+                "nativeName" : "system_id",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "acx_ea_assessment_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "parent_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "parent_id",
+                "nativeName" : "parent_id",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 511,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "acx_ea_assessment_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "cmm_container",
+                "fieldType" : "CONNECTOR",
+                "label" : "cmm_container",
+                "nativeName" : "cmm_container",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "acx_ea_assessment_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "id",
+                "fieldType" : "CONNECTOR",
+                "label" : "id",
+                "nativeName" : "id",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 511,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "acx_ea_assessment_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "assessment_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "assessment_id",
+                "nativeName" : "assessment_id",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "acx_ea_assessment_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "solution_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "solution_id",
+                "nativeName" : "solution_id",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "acx_ea_assessment_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "solution_name",
+                "fieldType" : "CONNECTOR",
+                "label" : "solution_name",
+                "nativeName" : "solution_name",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "acx_ea_assessment_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "business_function",
+                "fieldType" : "CONNECTOR",
+                "label" : "business_function",
+                "nativeName" : "business_function",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "acx_ea_assessment_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "assessed_entity",
+                "fieldType" : "CONNECTOR",
+                "label" : "assessed_entity",
+                "nativeName" : "assessed_entity",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "acx_ea_assessment_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "category",
+                "fieldType" : "CONNECTOR",
+                "label" : "category",
+                "nativeName" : "category",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "acx_ea_assessment_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "score",
+                "fieldType" : "CONNECTOR",
+                "label" : "score",
+                "nativeName" : "score",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "acx_ea_assessment_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "score_percentile",
+                "fieldType" : "CONNECTOR",
+                "label" : "score_percentile",
+                "nativeName" : "score_percentile",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "acx_ea_assessment_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "normalized_score",
+                "fieldType" : "CONNECTOR",
+                "label" : "normalized_score",
+                "nativeName" : "normalized_score",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "acx_ea_assessment_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "recommended_action_description",
+                "fieldType" : "CONNECTOR",
+                "label" : "recommended_action_description",
+                "nativeName" : "recommended_action_description",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "acx_ea_assessment_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "recommended_action_code",
+                "fieldType" : "CONNECTOR",
+                "label" : "recommended_action_code",
+                "nativeName" : "recommended_action_code",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "acx_ea_assessment_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "conclusion_description",
+                "fieldType" : "CONNECTOR",
+                "label" : "conclusion_description",
+                "nativeName" : "conclusion_description",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "acx_ea_assessment_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "conclusion_code",
+                "fieldType" : "CONNECTOR",
+                "label" : "conclusion_code",
+                "nativeName" : "conclusion_code",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "acx_ea_assessment_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "score_date",
+                "fieldType" : "CONNECTOR",
+                "label" : "score_date",
+                "nativeName" : "score_date",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "acx_ea_assessment_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "assesment_detail",
+                "fieldType" : "CONNECTOR",
+                "label" : "assesment_detail",
+                "nativeName" : "assesment_detail",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 8191,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "acx_ea_assessment_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "error",
+                "fieldType" : "CONNECTOR",
+                "label" : "error",
+                "nativeName" : "error",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "acx_ea_assessment_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "row_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "row_id",
+                "nativeName" : "row_id",
+                "nativeType" : "int8",
+                "original" : "false",
+                "precision" : 19,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "acx_ea_assessment_summary"
+                  }
+                ]
+              }
+            ],
+            "objectAttributes" : [
+              {
+                "name" : "recordType",
+                "value" : "TABLE"
+              }
+            ]
+          },
+          "runtimeAttributes" : {
+            "attributes" : [
+              {
+                "name" : "S3 Bucket Name",
+                "value" : "$$S3_Staging_Bucket"
+              },
+              {
+                "name" : "Enable Compression",
+                "value" : "YES"
+              },
+              {
+                "name" : "Batch Size",
+                "value" : "2000000"
+              },
+              {
+                "name" : "Max Errors Per Batch Upload Insert",
+                "value" : "1"
+              },
+              {
+                "name" : "Truncate Target Table Before Data Upload",
+                "value" : "NO"
+              },
+              {
+                "name" : "WaitTime In Seconds For S3 File Consistency",
+                "value" : "0"
+              },
+              {
+                "name" : "Temporary Credential Duration",
+                "value" : "43200"
+              },
+              {
+                "name" : "S3 Server Side Encryption",
+                "value" : "NO"
+              },
+              {
+                "name" : "S3 Client Side Encryption",
+                "value" : "NO"
+              },
+              {
+                "name" : "Analyze Target Table",
+                "value" : "NO"
+              },
+              {
+                "name" : "Vacuum Target Table",
+                "value" : "None"
+              },
+              {
+                "name" : "Treat Source Rows As",
+                "value" : "UPDATE"
+              },
+              {
+                "name" : "Transfer Manager Thread Pool Size",
+                "value" : "10"
+              },
+              {
+                "name" : "Minimum Upload Part Size",
+                "value" : "5242880"
+              },
+              {
+                "name" : "Schema Name",
+                "value" : "$$staging_schema"
+              },
+              {
+                "name" : "Preserve record order on write",
+                "value" : "NO"
+              },
+              {
+                "name" : "Number of files per batch",
+                "value" : "0"
+              }
+            ]
+          },
+          "writeOptions" : {
+            "batchSize" : 0,
+            "bulkApi" : "false",
+            "handleDecimalRoundOff" : "false",
+            "handleSpecialChars" : "false",
+            "operations" : [
+              "Update"
+            ],
+            "setFieldsToNull" : "false",
+            "truncate" : "false",
+            "useErrorFile" : "false",
+            "useExactSrcNames" : "false",
+            "useSuccessFile" : "false"
+          }
+        },
+        "manualMappings" : {
+          "mappingList" : [
+            {
+              "fromFieldName" : "tgt_acx_ea_assessment_summary_row_id",
+              "toField" : {
+                "name" : "acx_ea_assessment_summary_row_id"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_retire_old_record",
+              "toField" : {
+                "name" : "acx_ea_assessment_summary_row_effective_end_datetime"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_expired",
+              "toField" : {
+                "name" : "acx_ea_assessment_summary_row_status"
+              },
+              "fromFieldNames" : null
+            }
+          ]
+        }
+      },
+      {
+        "createTime" : "2025-07-22T00:18:38.721Z",
+        "name" : "exp_closeout",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "windowConfigurationEnabled" : "false",
+        "fields" : [
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_retire_old_record",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9,
+            "expFieldType" : "OUTPUT",
+            "expression" : "SYSDATE"
+          }
+        ],
+        "windowSpec" : {
+          "allRowsFollowing" : "false",
+          "allRowsPreceding" : "false",
+          "endOffset" : 0,
+          "startOffset" : 0,
+          "partitionKeys" : null
+        }
+      },
+      {
+        "createTime" : "2025-08-25T18:51:13.033Z",
+        "name" : "Exp_MD5",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "windowConfigurationEnabled" : "false",
+        "fields" : [
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_source_name",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 50,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "'ea_assessment_summary'"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_load_type",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 50,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "'Daily incremental load'"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "src_md5_hash_value",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 1023,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "MD5('solution_name'||o_solution_name||\n'business_function'||o_business_function||\n'assessed_entity'||o_assessed_entity||\n'category'||o_category||\n'score'||to_char(o_score)||\n'score_percentile'||to_char(o_score_percentile)||\n'normalized_score'||to_char(o_normalized_score)||\n'recommended_action_description'||o_recommended_action_description||\n'recommended_action_code'||o_recommended_action_code||\n'conclusion_description'||o_conclusion_description||\n'conclusion_code'||o_conclusion_code||\n'score_date'||o_score_date||\n'assesment_detail'||o_assessment_detail||\n'error'||o_error||\n'row_id'||to_char(o_row_id))"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_system_id",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "TO_INTEGER(ltrim(rtrim(system_id)))"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_parent_id",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 10,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "ltrim(rtrim(parent_id))"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_cmm_container",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 10,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "ltrim(rtrim(cmm_container))"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_id",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 10,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "ltrim(rtrim(id))"
+          }
+        ],
+        "windowSpec" : {
+          "allRowsFollowing" : "false",
+          "allRowsPreceding" : "false",
+          "endOffset" : 0,
+          "startOffset" : 0,
+          "partitionKeys" : null
+        }
+      },
+      {
+        "createTime" : "2025-09-10T19:03:01.002Z",
+        "name" : "Expression",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "windowConfigurationEnabled" : "false",
+        "fields" : [
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_solution_name",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "(ltrim(rtrim(solution_name)))"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_business_function",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "(ltrim(rtrim(business_function)))"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_assessed_entity",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "(ltrim(rtrim(assessed_entity)))"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_category",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "(ltrim(rtrim(category)))"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_score",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "TO_INTEGER(ltrim(rtrim(score)))"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_score_percentile",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "TO_INTEGER(ltrim(rtrim(score_percentile)))"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_normalized_score",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "TO_INTEGER(ltrim(rtrim(normalized_score)))"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_recommended_action_description",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "(ltrim(rtrim(recommended_action_description)))"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_recommended_action_code",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "(ltrim(rtrim(recommended_action_code)))"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_conclusion_description",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "(ltrim(rtrim(conclusion_description)))"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_conclusion_code",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "(ltrim(rtrim(conclusion_code)))"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_score_date",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "IIF(\n  NOT ISNULL(score_date) AND score_date != '',\n  TO_CHAR(\n    TO_DATE(SUBSTR(score_date, 1, 19), 'YYYY-MM-DD\"T\"HH24:MI:SS'),\n    'YYYY-MM-DD'\n  ),\n  ''\n)"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_assessment_detail",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "(ltrim(rtrim(assesment_detail)))"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_error",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "(ltrim(rtrim(error)))"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_row_id",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "TO_INTEGER(ltrim(rtrim(row_id)))"
+          }
+        ],
+        "windowSpec" : {
+          "allRowsFollowing" : "false",
+          "allRowsPreceding" : "false",
+          "endOffset" : 0,
+          "startOffset" : 0,
+          "partitionKeys" : null
+        }
+      }
+    ],
+    "variables" : [
+      {
+        "aggregationType" : "MAX",
+        "expressionVariable" : "false",
+        "name" : "raw_schema",
+        "platformType" : {
+          "name" : "string"
+        },
+        "precision" : 10,
+        "retentionPolicy" : "NEVER",
+        "scale" : 0,
+        "defaultValue" : "metal"
+      },
+      {
+        "aggregationType" : "MAX",
+        "expressionVariable" : "false",
+        "name" : "staging_schema",
+        "platformType" : {
+          "name" : "string"
+        },
+        "precision" : 10,
+        "retentionPolicy" : "NEVER",
+        "scale" : 0,
+        "defaultValue" : "bronze"
+      },
+      {
+        "aggregationType" : "MAX",
+        "expressionVariable" : "false",
+        "name" : "operational_schema",
+        "platformType" : {
+          "name" : "string"
+        },
+        "precision" : 100,
+        "retentionPolicy" : "NEVER",
+        "scale" : 0,
+        "defaultValue" : "operations"
+      },
+      {
+        "aggregationType" : "MAX",
+        "expressionVariable" : "false",
+        "name" : "sourcesystemcode",
+        "platformType" : {
+          "name" : "string"
+        },
+        "precision" : 10,
+        "retentionPolicy" : "NEVER",
+        "scale" : 0,
+        "defaultValue" : "ACX"
+      }
+    ]
+  },
+  "vcsExportTime" : "2026-01-30 09:18:51 EST"
+}

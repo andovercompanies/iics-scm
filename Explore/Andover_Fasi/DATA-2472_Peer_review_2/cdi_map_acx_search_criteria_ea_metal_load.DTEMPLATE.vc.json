@@ -1,0 +1,937 @@
+{
+  "content" : {
+    "description" : "This job reads data from ACX Guidewire DB and loads it into the Metal staging tables. It follows a one-to-one mapping with no transformations.",
+    "allowMaxFieldLength" : "false",
+    "bigIntConvertType" : "ONLY_BIGINT",
+    "documentType" : "MAPPING",
+    "name" : "cdi_map_acx_search_criteria_ea_metal_load",
+    "specialCharacterSupport" : "false",
+    "links" : [
+      {
+        "link" : "exp_read_all_fields -> tgt_acx_search_criteria"
+      },
+      {
+        "link" : "src_searchcriteriaea -> exp_read_all_fields"
+      }
+    ],
+    "parameters" : [
+      {
+        "input" : "true",
+        "output" : "false",
+        "precision" : 0,
+        "scale" : 0,
+        "allowRuntimeOverride" : "false",
+        "expressionVariable" : "false",
+        "name" : "S3_Staging_Bucket"
+      },
+      {
+        "input" : "true",
+        "output" : "false",
+        "precision" : 0,
+        "scale" : 0,
+        "allowRuntimeOverride" : "false",
+        "expressionVariable" : "false",
+        "name" : "DBConnection_ACX_TGT",
+        "anonymousType" : {
+          "subType" : "TOOLKIT_CCI",
+          "typeSystem" : "TOOLKIT",
+          "connectionType" : "Amazon Redshift v2"
+        }
+      },
+      {
+        "input" : "true",
+        "output" : "false",
+        "precision" : 0,
+        "scale" : 0,
+        "allowRuntimeOverride" : "false",
+        "expressionVariable" : "false",
+        "name" : "DBConnection_ACX_SRCM",
+        "anonymousType" : {
+          "typeSystem" : "MySQL",
+          "connectionType" : "MySQL"
+        }
+      }
+    ],
+    "transformations" : [
+      {
+        "createTime" : "2025-07-16T21:35:38.241Z",
+        "name" : "src_searchcriteriaea",
+        "advancedProperties" : [
+          {
+            "name" : "Tracing Level",
+            "value" : "Normal"
+          },
+          {
+            "name" : "Output is deterministic",
+            "value" : "false"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "false",
+            "name" : "DefaultGroup",
+            "output" : "true"
+          }
+        ],
+        "generateFilenamePort" : "false",
+        "useLabels" : "false",
+        "useSequenceFields" : "false",
+        "fields" : [
+          {
+            "adapterField" : {
+              "name" : "SystemId"
+            },
+            "name" : "SystemId",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "ParentId"
+            },
+            "name" : "ParentId",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 255,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "CMMContainer"
+            },
+            "name" : "CMMContainer",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 100,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "Id"
+            },
+            "name" : "Id",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 255,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "SearchCriteriaName"
+            },
+            "name" : "SearchCriteriaName",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 100,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "SearchCriteriaValue"
+            },
+            "name" : "SearchCriteriaValue",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 100,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "Type"
+            },
+            "name" : "Type",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 100,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "KeyParentBeanRefId"
+            },
+            "name" : "KeyParentBeanRefId",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 100,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "RowId"
+            },
+            "name" : "RowId",
+            "platformType" : {
+              "name" : "bigint"
+            },
+            "precision" : 19,
+            "scale" : 0
+          }
+        ],
+        "dataAdapter" : {
+          "connectionId$" : {
+            "name" : "DBConnection_ACX_SRCM"
+          },
+          "excludeDynamicFileNameField" : "false",
+          "objectType" : "QUERY",
+          "typeSystem" : "MySQL",
+          "useDynamicFileName" : "false",
+          "object" : {
+            "customQuery" : "select distinct\n\ta.SystemId,\n\ta.ParentId,\n\ta.CMMContainer,\n\ta.Id,\n\ta.SearchCriteriaName,\n\ta.SearchCriteriaValue,\n\ta.`Type`,\n\ta.KeyParentBeanRefId,\n\ta.RowId\nfrom\n\tsearchcriteriaea a\ninner join advrxxchangedbeans b\non a.Systemid = b.Systemid\nand a.CmmContainer = b.CmmContainer\nand b.CmmContainer in ('Policy','DataReport','Application')\nwhere CONCAT(b.adddt, ' ', substr(b.addtm, 1, 8))",
+            "retainMetadata" : "false",
+            "fields" : [
+              {
+                "name" : "SystemId",
+                "fieldType" : "CONNECTOR",
+                "label" : "SystemId",
+                "nativeName" : "SystemId",
+                "nativeType" : "integer",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "searchcriteriaea"
+                  }
+                ]
+              },
+              {
+                "name" : "ParentId",
+                "fieldType" : "CONNECTOR",
+                "label" : "ParentId",
+                "nativeName" : "ParentId",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 255,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "searchcriteriaea"
+                  }
+                ]
+              },
+              {
+                "name" : "CMMContainer",
+                "fieldType" : "CONNECTOR",
+                "label" : "CMMContainer",
+                "nativeName" : "CMMContainer",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 100,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "searchcriteriaea"
+                  }
+                ]
+              },
+              {
+                "name" : "Id",
+                "fieldType" : "CONNECTOR",
+                "label" : "Id",
+                "nativeName" : "Id",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 255,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "searchcriteriaea"
+                  }
+                ]
+              },
+              {
+                "name" : "SearchCriteriaName",
+                "fieldType" : "CONNECTOR",
+                "label" : "SearchCriteriaName",
+                "nativeName" : "SearchCriteriaName",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 100,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "searchcriteriaea"
+                  }
+                ]
+              },
+              {
+                "name" : "SearchCriteriaValue",
+                "fieldType" : "CONNECTOR",
+                "label" : "SearchCriteriaValue",
+                "nativeName" : "SearchCriteriaValue",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 100,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "searchcriteriaea"
+                  }
+                ]
+              },
+              {
+                "name" : "Type",
+                "fieldType" : "CONNECTOR",
+                "label" : "Type",
+                "nativeName" : "Type",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 100,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "searchcriteriaea"
+                  }
+                ]
+              },
+              {
+                "name" : "KeyParentBeanRefId",
+                "fieldType" : "CONNECTOR",
+                "label" : "KeyParentBeanRefId",
+                "nativeName" : "KeyParentBeanRefId",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 100,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "searchcriteriaea"
+                  }
+                ]
+              },
+              {
+                "name" : "RowId",
+                "fieldType" : "CONNECTOR",
+                "label" : "RowId",
+                "nativeName" : "RowId",
+                "nativeType" : "bigint",
+                "original" : "false",
+                "precision" : 19,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "searchcriteriaea"
+                  }
+                ]
+              }
+            ]
+          },
+          "readOptions" : {
+            "commandType" : 0,
+            "descending" : "false",
+            "queryAll" : "false",
+            "rowLimit" : 0,
+            "selectDistinct" : "false"
+          }
+        }
+      },
+      {
+        "description" : "this is redshift UDM staging table.",
+        "createTime" : "2025-07-16T21:35:38.241Z",
+        "name" : "tgt_acx_search_criteria",
+        "advancedProperties" : [
+          {
+            "name" : "Forward Rejected Rows",
+            "value" : "true"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "false",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "createTarget" : "false",
+        "fieldMappingMode" : "MANUAL",
+        "inputSorted" : "false",
+        "schemaProviderType" : "SELECTED_OBJECT",
+        "targetFieldsOrdered" : "false",
+        "updateColumns" : null,
+        "useLabels" : "false",
+        "useSequenceFields" : "false",
+        "fields" : [
+          {
+            "adapterField" : {
+              "name" : "source_name"
+            },
+            "name" : "source_name",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "load_type"
+            },
+            "name" : "load_type",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "system_id"
+            },
+            "name" : "system_id",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 15,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "parent_id"
+            },
+            "name" : "parent_id",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 511,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "cmm_container"
+            },
+            "name" : "cmm_container",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "id"
+            },
+            "name" : "id",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 511,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "search_criteria_name"
+            },
+            "name" : "search_criteria_name",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "search_criteria_value"
+            },
+            "name" : "search_criteria_value",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "type"
+            },
+            "name" : "type",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "key_parent_bean_ref_id"
+            },
+            "name" : "key_parent_bean_ref_id",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "row_id"
+            },
+            "name" : "row_id",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 31,
+            "scale" : 0
+          }
+        ],
+        "dataAdapter" : {
+          "connectionId$" : {
+            "name" : "DBConnection_ACX_TGT"
+          },
+          "excludeDynamicFileNameField" : "false",
+          "objectType" : "SINGLE",
+          "typeSystem" : "TOOLKIT",
+          "useDynamicFileName" : "false",
+          "object" : {
+            "name" : "metal/acx_search_criteria_ea",
+            "label" : "metal/acx_search_criteria_ea",
+            "objectName" : "acx_search_criteria_ea",
+            "objectType" : "amazonredshift",
+            "path" : "metal/acx_search_criteria_ea",
+            "retainMetadata" : "false",
+            "fields" : [
+              {
+                "name" : "source_name",
+                "fieldType" : "CONNECTOR",
+                "label" : "source_name",
+                "nativeName" : "source_name",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "acx_search_criteria_ea"
+                  }
+                ]
+              },
+              {
+                "name" : "load_type",
+                "fieldType" : "CONNECTOR",
+                "label" : "load_type",
+                "nativeName" : "load_type",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "acx_search_criteria_ea"
+                  }
+                ]
+              },
+              {
+                "name" : "system_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "system_id",
+                "nativeName" : "system_id",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 15,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "acx_search_criteria_ea"
+                  }
+                ]
+              },
+              {
+                "name" : "parent_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "parent_id",
+                "nativeName" : "parent_id",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 511,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "acx_search_criteria_ea"
+                  }
+                ]
+              },
+              {
+                "name" : "cmm_container",
+                "fieldType" : "CONNECTOR",
+                "label" : "cmm_container",
+                "nativeName" : "cmm_container",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "acx_search_criteria_ea"
+                  }
+                ]
+              },
+              {
+                "name" : "id",
+                "fieldType" : "CONNECTOR",
+                "label" : "id",
+                "nativeName" : "id",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 511,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "acx_search_criteria_ea"
+                  }
+                ]
+              },
+              {
+                "name" : "search_criteria_name",
+                "fieldType" : "CONNECTOR",
+                "label" : "search_criteria_name",
+                "nativeName" : "search_criteria_name",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "acx_search_criteria_ea"
+                  }
+                ]
+              },
+              {
+                "name" : "search_criteria_value",
+                "fieldType" : "CONNECTOR",
+                "label" : "search_criteria_value",
+                "nativeName" : "search_criteria_value",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "acx_search_criteria_ea"
+                  }
+                ]
+              },
+              {
+                "name" : "type",
+                "fieldType" : "CONNECTOR",
+                "label" : "type",
+                "nativeName" : "type",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "acx_search_criteria_ea"
+                  }
+                ]
+              },
+              {
+                "name" : "key_parent_bean_ref_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "key_parent_bean_ref_id",
+                "nativeName" : "key_parent_bean_ref_id",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "acx_search_criteria_ea"
+                  }
+                ]
+              },
+              {
+                "name" : "row_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "row_id",
+                "nativeName" : "row_id",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 31,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "acx_search_criteria_ea"
+                  }
+                ]
+              }
+            ],
+            "objectAttributes" : [
+              {
+                "name" : "recordType",
+                "value" : "TABLE"
+              }
+            ]
+          },
+          "runtimeAttributes" : {
+            "attributes" : [
+              {
+                "name" : "S3 Bucket Name",
+                "value" : "$$S3_Staging_Bucket"
+              },
+              {
+                "name" : "Enable Compression",
+                "value" : "YES"
+              },
+              {
+                "name" : "Batch Size",
+                "value" : "2000000"
+              },
+              {
+                "name" : "Max Errors Per Batch Upload Insert",
+                "value" : "1"
+              },
+              {
+                "name" : "Truncate Target Table Before Data Upload",
+                "value" : "YES"
+              },
+              {
+                "name" : "WaitTime In Seconds For S3 File Consistency",
+                "value" : "0"
+              },
+              {
+                "name" : "Temporary Credential Duration",
+                "value" : "43200"
+              },
+              {
+                "name" : "S3 Server Side Encryption",
+                "value" : "NO"
+              },
+              {
+                "name" : "S3 Client Side Encryption",
+                "value" : "NO"
+              },
+              {
+                "name" : "Analyze Target Table",
+                "value" : "NO"
+              },
+              {
+                "name" : "Vacuum Target Table",
+                "value" : "None"
+              },
+              {
+                "name" : "Treat Source Rows As",
+                "value" : "INSERT"
+              },
+              {
+                "name" : "Transfer Manager Thread Pool Size",
+                "value" : "10"
+              },
+              {
+                "name" : "Minimum Upload Part Size",
+                "value" : "5242880"
+              },
+              {
+                "name" : "Schema Name",
+                "value" : "$$raw_schema"
+              },
+              {
+                "name" : "Preserve record order on write",
+                "value" : "NO"
+              },
+              {
+                "name" : "Number of files per batch",
+                "value" : "0"
+              }
+            ]
+          },
+          "writeOptions" : {
+            "batchSize" : 0,
+            "bulkApi" : "false",
+            "handleDecimalRoundOff" : "false",
+            "handleSpecialChars" : "false",
+            "operations" : [
+              "Insert"
+            ],
+            "setFieldsToNull" : "false",
+            "truncate" : "false",
+            "useErrorFile" : "false",
+            "useExactSrcNames" : "false",
+            "useSuccessFile" : "false"
+          }
+        },
+        "manualMappings" : {
+          "mappingList" : [
+            {
+              "fromFieldName" : "o_source_name",
+              "toField" : {
+                "name" : "source_name"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_load_type",
+              "toField" : {
+                "name" : "load_type"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "SystemId",
+              "toField" : {
+                "name" : "system_id"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "ParentId",
+              "toField" : {
+                "name" : "parent_id"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "CMMContainer",
+              "toField" : {
+                "name" : "cmm_container"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "Id",
+              "toField" : {
+                "name" : "id"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "SearchCriteriaName",
+              "toField" : {
+                "name" : "search_criteria_name"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "SearchCriteriaValue",
+              "toField" : {
+                "name" : "search_criteria_value"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "Type",
+              "toField" : {
+                "name" : "type"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "KeyParentBeanRefId",
+              "toField" : {
+                "name" : "key_parent_bean_ref_id"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "RowId",
+              "toField" : {
+                "name" : "row_id"
+              },
+              "fromFieldNames" : null
+            }
+          ]
+        }
+      },
+      {
+        "description" : "straight pass through, no transformation required",
+        "createTime" : "2025-07-16T21:35:48.463Z",
+        "name" : "exp_read_all_fields",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "windowConfigurationEnabled" : "false",
+        "fields" : [
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_source_name",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 20,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "'searchcriteriaea'"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_load_type",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 100,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "'Daily incremental load'"
+          }
+        ],
+        "windowSpec" : {
+          "allRowsFollowing" : "false",
+          "allRowsPreceding" : "false",
+          "endOffset" : 0,
+          "startOffset" : 0,
+          "partitionKeys" : null
+        }
+      }
+    ],
+    "variables" : [
+      {
+        "aggregationType" : "MAX",
+        "expressionVariable" : "false",
+        "name" : "raw_schema",
+        "platformType" : {
+          "name" : "string"
+        },
+        "precision" : 20,
+        "retentionPolicy" : "NEVER",
+        "scale" : 0,
+        "defaultValue" : "metal"
+      }
+    ]
+  },
+  "vcsExportTime" : "2026-01-30 09:18:53 EST"
+}

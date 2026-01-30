@@ -1,0 +1,283 @@
+{
+  "name" : "cdi_tsk_map_acx_ea_assessment_summary_bronze_load",
+  "description" : "This job is responsible for reading data from the Metal staging layer and loading it into the Bronze SCD Type 2 tables. It ensures historical tracking of changes by identifying new, changed, and unchanged records, applying the appropriate logic to insert new versions or retire old ones with end dates as part of the SCD2 process.",
+  "runtimeEnvironmentId" : "@3pADNCV9u0PcgrXjM7rx0t",
+  "runtimeEnvironmentName" : "sag_aws_linux",
+  "maxLogs" : 10,
+  "parameters" : [
+    {
+      "name" : "$src_eaassessmentsummary_stg$",
+      "type" : "SOURCE",
+      "label" : "DBConnection_ACX_SRC",
+      "uiProperties" : {
+        "cnxtype" : "Amazon Redshift v2",
+        "connectionParameterized" : "true",
+        "paramName" : "DBConnection_ACX_SRC",
+        "paramType-mapping" : "Connection",
+        "logcnx" : "DBConnection_ACX_SRC",
+        "isSelectDistinct" : "false",
+        "objectParameterized" : "false",
+        "visible" : "false",
+        "originalPath" : "src_eaassessmentsummary_stg"
+      },
+      "sourceConnectionId" : "@aYZ4ekzHgIPeKpiaoqDLKP",
+      "connectionName" : "redshift_nonprod_andover_dw_dev",
+      "sourceObject" : "DUMMY_src_eaassessmentsummary_stg",
+      "newFlatFile" : false,
+      "newObject" : false,
+      "showBusinessNames" : true,
+      "naturalOrder" : true,
+      "truncateTarget" : false,
+      "bulkApiDBTarget" : false,
+      "customFuncCfg" : { },
+      "customQuery" : "WITH current_batch AS (\n    SELECT \n        bls.batch_id,\n        bls.source_start_cutoff_datetime,\n        bls.source_end_cutoff_datetime\n    FROM $$operational_schema.batch_load_summary bls\n    WHERE bls.source_system_code = '$$sourcesystemcode'\n      AND bls.batch_status = 'Inprogress'\n      AND bls.batch_id = (\n          SELECT MAX(batch_id)\n          FROM $$operational_schema.batch_load_summary\n          WHERE source_system_code = '$$sourcesystemcode'\n            AND batch_status = 'Inprogress'\n      )\n)\nSELECT DISTINCT\n    TRIM(metal_aeas.source_name) AS source_name,\n    TRIM(metal_aeas.load_type) AS load_type,\n    CAST(TRIM(metal_aeas.system_id) AS INT) AS system_id,\n    TRIM(metal_aeas.parent_id) AS parent_id,\n    TRIM(metal_aeas.cmm_container) AS cmm_container,\n    TRIM(metal_aeas.id) AS id,\n    TRIM(metal_aeas.assessment_id) AS assessment_id,\n    TRIM(metal_aeas.solution_id) AS solution_id,\n    TRIM(metal_aeas.solution_name) AS solution_name,\n    TRIM(metal_aeas.business_function) AS business_function,\n    TRIM(metal_aeas.assessed_entity) AS assessed_entity,\n    TRIM(metal_aeas.category) AS category,\n    TRIM(metal_aeas.score) AS score,\n    TRIM(metal_aeas.score_percentile) AS score_percentile,\n    TRIM(metal_aeas.normalized_score) AS normalized_score,\n    TRIM(metal_aeas.recommended_action_description) AS recommended_action_description,\n    TRIM(metal_aeas.recommended_action_code) AS recommended_action_code,\n    TRIM(metal_aeas.conclusion_description) AS conclusion_description,\n    TRIM(metal_aeas.conclusion_code) AS conclusion_code,\n    TRIM(metal_aeas.score_date) AS score_date,\n    TRIM(metal_aeas.assesment_detail) AS assesment_detail,\n    TRIM(metal_aeas.error) AS error,\n    CAST(TRIM(metal_aeas.row_id) AS BIGINT) AS row_id,\n    cb.batch_id AS batch_id,\n    bronze_aeas.acx_ea_assessment_summary_row_id,\n    bronze_aeas.acx_ea_assessment_summary_row_md5checksum\nFROM $$raw_schema.acx_ea_assessment_summary metal_aeas\nLEFT JOIN $$staging_schema.acx_ea_assessment_summary bronze_aeas\n    ON COALESCE(TRIM(metal_aeas.id), '') = COALESCE(CAST(bronze_aeas.id AS VARCHAR), '')\n   AND CAST(TRIM(metal_aeas.system_id) AS INT) = CAST(bronze_aeas.system_id AS INT)\n   AND COALESCE(TRIM(metal_aeas.parent_id), '') = COALESCE(bronze_aeas.parent_id, '')\n   AND COALESCE(TRIM(metal_aeas.cmm_container), '') = COALESCE(bronze_aeas.cmm_container, '')\n   AND bronze_aeas.acx_ea_assessment_summary_row_effective_end_datetime = '9999-12-31 00:00:00.000'\n   AND bronze_aeas.acx_ea_assessment_summary_row_status = 'Active'\nCROSS JOIN current_batch cb\nORDER BY \n    metal_aeas.system_id,\n    metal_aeas.parent_id,\n    metal_aeas.cmm_container,\n    metal_aeas.id;",
+      "commandType" : 0,
+      "handleSpecialChars" : false,
+      "handleDecimalRoundOff" : false,
+      "frsAsset" : false,
+      "dynamicFileName" : false,
+      "excludeDynamicFileNameField" : false,
+      "currentlyProcessedFileName" : false,
+      "retainFieldMetadata" : false,
+      "objectName" : "DUMMY_src_eaassessmentsummary_stg",
+      "useExactSrcNames" : false,
+      "userUpdated" : true,
+      "runtimeParameterData" : {
+        "connectionParameterName" : "DBConnection_ACX_SRC",
+        "connectionRuntimeParameter" : false,
+        "objectRuntimeParameter" : false
+      },
+      "restmodernSource" : true,
+      "unspecified" : false,
+      "fileList" : false
+    },
+    {
+      "name" : "$tgt_insert_records$",
+      "type" : "TARGET",
+      "label" : "tgt_insert_records",
+      "uiProperties" : {
+        "connectionParameterized" : "false",
+        "objectParameterized" : "false",
+        "visible" : "false",
+        "supportApplyDDLChanges" : "false",
+        "originalPath" : "tgt_insert_records"
+      },
+      "targetConnectionId" : "@aYZ4ekzHgIPeKpiaoqDLKP",
+      "connectionName" : "redshift_nonprod_andover_dw_dev",
+      "targetObject" : "bronze/acx_ea_assessment_summary",
+      "targetObjectLabel" : "bronze/acx_ea_assessment_summary",
+      "newFlatFile" : false,
+      "newObject" : false,
+      "showBusinessNames" : false,
+      "naturalOrder" : true,
+      "truncateTarget" : false,
+      "bulkApiDBTarget" : false,
+      "operationType" : "Insert",
+      "customFuncCfg" : { },
+      "extendedObject" : {
+        "singleMode" : true
+      },
+      "commandType" : 0,
+      "handleSpecialChars" : false,
+      "handleDecimalRoundOff" : false,
+      "frsAsset" : false,
+      "dynamicFileName" : false,
+      "excludeDynamicFileNameField" : false,
+      "currentlyProcessedFileName" : false,
+      "retainFieldMetadata" : false,
+      "objectName" : "bronze/acx_ea_assessment_summary",
+      "objectLabel" : "bronze/acx_ea_assessment_summary",
+      "useExactSrcNames" : false,
+      "userUpdated" : true,
+      "runtimeParameterData" : {
+        "connectionRuntimeParameter" : false,
+        "objectRuntimeParameter" : false
+      },
+      "restmodernSource" : true,
+      "unspecified" : false,
+      "fileList" : false
+    },
+    {
+      "name" : "$tgt_update_closeout$",
+      "type" : "TARGET",
+      "label" : "DBConnection_ACX_TGT",
+      "uiProperties" : {
+        "cnxtype" : "Amazon Redshift v2",
+        "connectionParameterized" : "true",
+        "paramName" : "DBConnection_ACX_TGT",
+        "paramType-mapping" : "Connection",
+        "logcnx" : "DBConnection_ACX_TGT",
+        "default" : "bronze/acx_ea_assessment_summary",
+        "objectParameterized" : "false",
+        "visible" : "false",
+        "defaultTargetUpdateColumns" : "acx_ea_assessment_summary_row_id",
+        "supportApplyDDLChanges" : "false",
+        "originalPath" : "tgt_update_closeout"
+      },
+      "targetConnectionId" : "@aYZ4ekzHgIPeKpiaoqDLKP",
+      "connectionName" : "redshift_nonprod_andover_dw_dev",
+      "targetObject" : "bronze/acx_ea_assessment_summary",
+      "targetObjectLabel" : "bronze/acx_ea_assessment_summary",
+      "newFlatFile" : false,
+      "newObject" : false,
+      "showBusinessNames" : true,
+      "naturalOrder" : true,
+      "truncateTarget" : false,
+      "bulkApiDBTarget" : false,
+      "operationType" : "Update",
+      "customFuncCfg" : { },
+      "targetUpdateColumns" : [
+        "acx_ea_assessment_summary_row_id"
+      ],
+      "extendedObject" : {
+        "singleMode" : true
+      },
+      "commandType" : 0,
+      "handleSpecialChars" : false,
+      "handleDecimalRoundOff" : false,
+      "frsAsset" : false,
+      "dynamicFileName" : false,
+      "excludeDynamicFileNameField" : false,
+      "currentlyProcessedFileName" : false,
+      "retainFieldMetadata" : false,
+      "objectName" : "bronze/acx_ea_assessment_summary",
+      "objectLabel" : "bronze/acx_ea_assessment_summary",
+      "useExactSrcNames" : false,
+      "userUpdated" : true,
+      "runtimeParameterData" : {
+        "connectionParameterName" : "DBConnection_ACX_TGT",
+        "connectionRuntimeParameter" : false,
+        "objectRuntimeParameter" : false
+      },
+      "restmodernSource" : true,
+      "unspecified" : false,
+      "fileList" : false
+    },
+    {
+      "name" : "$tgt_update_records$",
+      "type" : "TARGET",
+      "label" : "DBConnection_ACX_TGT",
+      "uiProperties" : {
+        "cnxtype" : "Amazon Redshift v2",
+        "connectionParameterized" : "true",
+        "paramName" : "DBConnection_ACX_TGT",
+        "paramType-mapping" : "Connection",
+        "logcnx" : "DBConnection_ACX_TGT",
+        "default" : "bronze/acx_ea_assessment_summary",
+        "objectParameterized" : "false",
+        "visible" : "false",
+        "supportApplyDDLChanges" : "false",
+        "originalPath" : "tgt_update_records"
+      },
+      "targetConnectionId" : "@aYZ4ekzHgIPeKpiaoqDLKP",
+      "connectionName" : "redshift_nonprod_andover_dw_dev",
+      "targetObject" : "bronze/acx_ea_assessment_summary",
+      "targetObjectLabel" : "bronze/acx_ea_assessment_summary",
+      "newFlatFile" : false,
+      "newObject" : false,
+      "showBusinessNames" : true,
+      "naturalOrder" : true,
+      "truncateTarget" : false,
+      "bulkApiDBTarget" : false,
+      "operationType" : "Insert",
+      "customFuncCfg" : { },
+      "extendedObject" : {
+        "singleMode" : true
+      },
+      "commandType" : 0,
+      "handleSpecialChars" : false,
+      "handleDecimalRoundOff" : false,
+      "frsAsset" : false,
+      "dynamicFileName" : false,
+      "excludeDynamicFileNameField" : false,
+      "currentlyProcessedFileName" : false,
+      "retainFieldMetadata" : false,
+      "objectName" : "bronze/acx_ea_assessment_summary",
+      "objectLabel" : "bronze/acx_ea_assessment_summary",
+      "useExactSrcNames" : false,
+      "userUpdated" : true,
+      "runtimeParameterData" : {
+        "connectionParameterName" : "DBConnection_ACX_TGT",
+        "connectionRuntimeParameter" : false,
+        "objectRuntimeParameter" : false
+      },
+      "restmodernSource" : true,
+      "unspecified" : false,
+      "fileList" : false
+    }
+  ],
+  "verbose" : false,
+  "mappingId" : "@aWv45cjd0UNdziafrxOC6m",
+  "mappingTemplateName" : "cdi_map_acx_ea_assessment_summary_bronze_load",
+  "sessionPropertiesList" : [
+    {
+      "name" : "Pushdown Optimization",
+      "value" : "None"
+    },
+    {
+      "name" : "Pushdown Optimization Context",
+      "value" : "None"
+    },
+    {
+      "name" : "Pushdown Optimization Fallback Option",
+      "value" : "Partial PDO"
+    }
+  ],
+  "inOutParameters" : [
+    {
+      "name" : "raw_schema",
+      "initialValue" : "metal",
+      "datatype" : "STRING",
+      "precision" : "10",
+      "scale" : "0",
+      "retentionPolicy" : "NEVER",
+      "aggregationType" : "MAX",
+      "currentValue" : "metal"
+    },
+    {
+      "name" : "staging_schema",
+      "initialValue" : "bronze",
+      "datatype" : "STRING",
+      "precision" : "10",
+      "scale" : "0",
+      "retentionPolicy" : "NEVER",
+      "aggregationType" : "MAX",
+      "currentValue" : "bronze"
+    },
+    {
+      "name" : "operational_schema",
+      "initialValue" : "operations",
+      "datatype" : "STRING",
+      "precision" : "100",
+      "scale" : "0",
+      "retentionPolicy" : "NEVER",
+      "aggregationType" : "MAX",
+      "currentValue" : "operations"
+    },
+    {
+      "name" : "sourcesystemcode",
+      "initialValue" : "ACX",
+      "datatype" : "STRING",
+      "precision" : "10",
+      "scale" : "0",
+      "retentionPolicy" : "NEVER",
+      "aggregationType" : "MAX",
+      "currentValue" : "ACX"
+    }
+  ],
+  "hidden" : false,
+  "enableCrossSchemaPushdown" : true,
+  "enableParallelRun" : false,
+  "autoTunedApplied" : false,
+  "autoTunedAppliedType" : "NONE",
+  "parameterFileName" : "Andover_Param_ACX.param",
+  "parameterFileDir" : "$PMRootDir/andover/parameters",
+  "paramFileType" : "PARAM_FILE_LOCAL",
+  "schemaMode" : "async",
+  "valid" : false,
+  "optimizationPlan" : "NONE",
+  "allowMaxFieldLength" : false,
+  "specialCharacterSupport" : false,
+  "midstreamPreview" : false,
+  "vcsExportTime" : "2026-01-30 09:18:56 EST"
+}
