@@ -71,7 +71,7 @@
         "output" : "false",
         "precision" : 0,
         "scale" : 0,
-        "allowRuntimeOverride" : "false",
+        "allowRuntimeOverride" : "true",
         "expressionVariable" : "false",
         "name" : "DBConnection_UDM_SRC",
         "anonymousType" : {
@@ -85,7 +85,7 @@
         "output" : "false",
         "precision" : 0,
         "scale" : 0,
-        "allowRuntimeOverride" : "false",
+        "allowRuntimeOverride" : "true",
         "expressionVariable" : "false",
         "name" : "DBConnection_UDM_TGT",
         "anonymousType" : {
@@ -425,7 +425,7 @@
           "typeSystem" : "TOOLKIT",
           "useDynamicFileName" : "false",
           "object" : {
-            "customQuery" : "WITH current_batch AS (\n\tSELECT MAX(batch_id) as batch_id\n    FROM $$operational_schema.batch_load_summary\n    WHERE source_system_code = '$$sourcesystemcode'\n    and target_schema_name = 'silver'\n    AND batch_status = 'Inprogress'\n)\nselect\ndistinct 'ADM' as contact_source_system,\n'Agency' as contact_domain,\n'Email' as contact_type,\ncase when age.email_type = 'T' then 'Reporting' ELSE null end as contact_sub_type,\n'Agency Reporting Email Address' as contact_description,\nISNULL(age.originating_source_name,'NULL') as originating_source_name,\nISNULL(age.originating_load_type,'NULL') as originating_load_type,\nage.adm_agency_email_row_status as contact_row_status,\n'Loaded' as contact_row_load_state,\nISNULL(age.id,NULL) as contact_row_source_system_key,\n'NULL' as contact_name_type,\n'NULL' as contact_first_name_or_entity_name,\n'NULL' as contact_middle_name_or_entity_second_name,\n'NULL' as contact_last_name_or_entity_third_name,\n'NULL' as contact_suffix,\n'NULL' as contact_prefix_or_title,\nREPLACE(REPLACE((contact_first_name_or_entity_name || ' ' || contact_middle_name_or_entity_second_name || ' ' || contact_last_name_or_entity_third_name || ', ' || contact_suffix),'NULL ',''),'NULL','') as contact_full_name,\nISNULL(age.email_address,'NULL') as contact_value,\n'NULL' as address_id,\n'NULL' as contact_rank,\nISNULL(age.create_date,'1900-01-01 00:00:00') as contact_source_system_created_datetime,\nISNULL(age.modified_date,'1900-01-01 00:00:00') as contact_source_system_modified_datetime,\ncb.batch_id as batch_id,\ntgt.contact_id as tgt_contact_id,\ntgt.contact_row_source_system_key as tgt_contact_row_source_system_key,\ntgt.contact_row_md5checksum as tgt_contact_row_md5checksum\nFROM $$staging_schema.adm_agency_email age\nleft join \n(select \n\tcontact_id,\n\tcontact_row_source_system_key,\n\tcontact_row_md5checksum\nfrom $$refined_schema.contacts) tgt \non tgt.contact_row_source_system_key = age.id \ncross join current_batch cb\nWHERE adm_agency_email_row_effective_end_datetime = '9999-12-31 00:00:00.000000'",
+            "customQuery" : "WITH current_batch AS (\n\tSELECT MAX(batch_id) as batch_id\n    FROM $$operational_schema.batch_load_summary\n    WHERE source_system_code = '$$sourcesystemcode'\n    and target_schema_name = '$$refined_schema'\n    AND batch_status = 'Inprogress'\n)\nselect\ndistinct '$$sourcesystemcode' as contact_source_system,\n'Agency' as contact_domain,\n'Email' as contact_type,\ncase when age.email_type = 'T' then 'Reporting' ELSE null end as contact_sub_type,\n'Agency Reporting Email Address' as contact_description,\nISNULL(age.originating_source_name,'NULL') as originating_source_name,\nISNULL(age.originating_load_type,'NULL') as originating_load_type,\nage.adm_agency_email_row_status as contact_row_status,\n'Loaded' as contact_row_load_state,\nISNULL(age.id,NULL) as contact_row_source_system_key,\n'NULL' as contact_name_type,\n'NULL' as contact_first_name_or_entity_name,\n'NULL' as contact_middle_name_or_entity_second_name,\n'NULL' as contact_last_name_or_entity_third_name,\n'NULL' as contact_suffix,\n'NULL' as contact_prefix_or_title,\nREPLACE(REPLACE((contact_first_name_or_entity_name || ' ' || contact_middle_name_or_entity_second_name || ' ' || contact_last_name_or_entity_third_name || ', ' || contact_suffix),'NULL ',''),'NULL','') as contact_full_name,\nISNULL(age.email_address,'NULL') as contact_value,\n'NULL' as address_id,\n'NULL' as contact_rank,\nISNULL(age.create_date,'1900-01-01 00:00:00') as contact_source_system_created_datetime,\nISNULL(age.modified_date,'1900-01-01 00:00:00') as contact_source_system_modified_datetime,\ncb.batch_id as batch_id,\ntgt.contact_id as tgt_contact_id,\ntgt.contact_row_source_system_key as tgt_contact_row_source_system_key,\ntgt.contact_row_md5checksum as tgt_contact_row_md5checksum\nFROM $$staging_schema.adm_agency_email age\nleft join \n(select \n\tcontact_id,\n\tcontact_row_source_system_key,\n\tcontact_row_md5checksum\nfrom $$refined_schema.contacts\nwhere contact_row_effective_end_datetime = '9999-12-31 00:00:00') tgt \non tgt.contact_row_source_system_key = age.id \ncross join current_batch cb\nWHERE adm_agency_email_row_effective_end_datetime = '9999-12-31 00:00:00.000000'",
             "retainMetadata" : "false",
             "fields" : [
               {
@@ -1793,6 +1793,10 @@
                 "value" : "5242880"
               },
               {
+                "name" : "Schema Name",
+                "value" : "$$refined_schema"
+              },
+              {
                 "name" : "Preserve record order on write",
                 "value" : "NO"
               },
@@ -3130,6 +3134,10 @@
                 "value" : "5242880"
               },
               {
+                "name" : "Schema Name",
+                "value" : "$$refined_schema"
+              },
+              {
                 "name" : "Preserve record order on write",
                 "value" : "NO"
               },
@@ -4273,6 +4281,10 @@
                 "value" : "5242880"
               },
               {
+                "name" : "Schema Name",
+                "value" : "$$refined_schema"
+              },
+              {
                 "name" : "Preserve record order on write",
                 "value" : "NO"
               },
@@ -4590,5 +4602,5 @@
       }
     ]
   },
-  "vcsExportTime" : "2026-01-29 11:18:37 PST"
+  "vcsExportTime" : "2026-01-30 08:12:50 PST"
 }
