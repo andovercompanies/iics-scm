@@ -1,0 +1,639 @@
+{
+  "content" : {
+    "allowMaxFieldLength" : "false",
+    "bigIntConvertType" : "ONLY_BIGINT",
+    "documentType" : "MAPPING",
+    "name" : "m_batch_poc",
+    "specialCharacterSupport" : "false",
+    "links" : [
+      {
+        "link" : "src_batch_baseline_count -> jnr_counts",
+        "groupLink" : "DefaultGroup -> Master"
+      },
+      {
+        "link" : "src_batch_latest -> jnr_counts",
+        "groupLink" : "DefaultGroup -> Detail"
+      },
+      {
+        "link" : "jnr_counts -> Expression",
+        "groupLink" : "OutputGroup -> DefaultGroup"
+      },
+      {
+        "link" : "Expression -> Lookup"
+      },
+      {
+        "link" : "Expression1 -> Target"
+      },
+      {
+        "link" : "Lookup -> Expression1"
+      }
+    ],
+    "transformations" : [
+      {
+        "createTime" : "2025-05-29T18:04:38.126Z",
+        "name" : "src_batch_baseline_count",
+        "advancedProperties" : [
+          {
+            "name" : "Tracing Level",
+            "value" : "Normal"
+          },
+          {
+            "name" : "Output is deterministic",
+            "value" : "false"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "false",
+            "name" : "DefaultGroup",
+            "output" : "true"
+          }
+        ],
+        "generateFilenamePort" : "false",
+        "useLabels" : "false",
+        "useSequenceFields" : "false",
+        "fields" : [
+          {
+            "adapterField" : {
+              "name" : "pilot_batch_count"
+            },
+            "name" : "pilot_batch_count",
+            "platformType" : {
+              "name" : "bigint"
+            },
+            "precision" : 19,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "source_system_code"
+            },
+            "name" : "source_system_code",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          }
+        ],
+        "dataAdapter" : {
+          "connectionId" : "saas:@aYZ4ekzHgIPeKpiaoqDLKP",
+          "connectionName" : "redshift_nonprod_andover_dw_dev",
+          "excludeDynamicFileNameField" : "false",
+          "objectType" : "QUERY",
+          "typeSystem" : "TOOLKIT",
+          "useDynamicFileName" : "false",
+          "object" : {
+            "customQuery" : "select count(*) as pilot_batch_count, source_system_code  from metal.batch_load_summary_poc\nwhere source_system_code = 'ADM'  and batch_id =0\ngroup by source_system_code",
+            "retainMetadata" : "false",
+            "fields" : [
+              {
+                "name" : "pilot_batch_count",
+                "fieldType" : "CONNECTOR",
+                "label" : "pilot_batch_count",
+                "nativeName" : "pilot_batch_count",
+                "nativeType" : "int8",
+                "original" : "false",
+                "precision" : 19,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "source_system_code",
+                "fieldType" : "CONNECTOR",
+                "label" : "source_system_code",
+                "nativeName" : "source_system_code",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              }
+            ]
+          },
+          "readOptions" : {
+            "commandType" : 0,
+            "descending" : "false",
+            "queryAll" : "false",
+            "rowLimit" : 0,
+            "selectDistinct" : "false"
+          }
+        }
+      },
+      {
+        "createTime" : "2025-05-29T18:04:38.126Z",
+        "name" : "Target",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "false",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "createTarget" : "false",
+        "fieldMappingMode" : "MANUAL",
+        "inputSorted" : "false",
+        "schemaProviderType" : "SELECTED_OBJECT",
+        "targetFieldsOrdered" : "false",
+        "updateColumns" : null,
+        "useLabels" : "false",
+        "useSequenceFields" : "false",
+        "dataAdapter" : {
+          "excludeDynamicFileNameField" : "false",
+          "objectType" : "SINGLE",
+          "useDynamicFileName" : "false",
+          "writeOptions" : {
+            "batchSize" : 0,
+            "bulkApi" : "false",
+            "handleDecimalRoundOff" : "false",
+            "handleSpecialChars" : "false",
+            "operations" : [
+              "Insert"
+            ],
+            "setFieldsToNull" : "false",
+            "truncate" : "false",
+            "useErrorFile" : "false",
+            "useExactSrcNames" : "false",
+            "useSuccessFile" : "false"
+          }
+        }
+      },
+      {
+        "createTime" : "2025-05-29T18:04:38.126Z",
+        "name" : "src_batch_latest",
+        "advancedProperties" : [
+          {
+            "name" : "Tracing Level",
+            "value" : "Normal"
+          },
+          {
+            "name" : "Output is deterministic",
+            "value" : "false"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "false",
+            "name" : "DefaultGroup",
+            "output" : "true"
+          }
+        ],
+        "generateFilenamePort" : "false",
+        "useLabels" : "false",
+        "useSequenceFields" : "false",
+        "fields" : [
+          {
+            "adapterField" : {
+              "name" : "recent_batch_count"
+            },
+            "name" : "recent_batch_count",
+            "platformType" : {
+              "name" : "bigint"
+            },
+            "precision" : 19,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "source_system_id"
+            },
+            "name" : "source_system_id",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 3,
+            "scale" : 0
+          }
+        ],
+        "dataAdapter" : {
+          "connectionId" : "saas:@aYZ4ekzHgIPeKpiaoqDLKP",
+          "connectionName" : "redshift_nonprod_andover_dw_dev",
+          "excludeDynamicFileNameField" : "false",
+          "objectType" : "QUERY",
+          "typeSystem" : "TOOLKIT",
+          "useDynamicFileName" : "false",
+          "object" : {
+            "customQuery" : "select  count(*) as recent_batch_count, 'ADM' as source_system_id from (\nselect  source_system_code, MAX(recent_b_query.batch_id) as latest_batch, recent_b_query.target_table_name, recent_b_query.recent_b_status \nfrom (\nselect batch_id, target_table_name, batch_status,source_system_code, last_value(batch_status) over(partition by batch_id, target_table_name order by batch_status asc rows between unbounded preceding and unbounded following) as recent_b_status\nfrom (select * from metal.batch_load_summary_poc\nwhere source_system_code = 'ADM' and batch_status in ('SUCCESS', 'FAILED', 'In Progress') and  batch_id !=0)\norder by batch_id) recent_b_query \ngroup by batch_id,target_table_name, recent_b_status, source_system_code\norder by batch_id desc ,target_table_name, recent_b_status\n)\nwhere latest_batch = (SELECT COALESCE(MAX(batch_id), 1) AS batch_id\n  FROM metal.batch_load_summary_poc)",
+            "retainMetadata" : "false",
+            "fields" : [
+              {
+                "name" : "recent_batch_count",
+                "fieldType" : "CONNECTOR",
+                "label" : "recent_batch_count",
+                "nativeName" : "recent_batch_count",
+                "nativeType" : "int8",
+                "original" : "false",
+                "precision" : 19,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "source_system_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "source_system_id",
+                "nativeName" : "source_system_id",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 3,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              }
+            ]
+          },
+          "readOptions" : {
+            "commandType" : 0,
+            "descending" : "false",
+            "queryAll" : "false",
+            "rowLimit" : 0,
+            "selectDistinct" : "false"
+          }
+        }
+      },
+      {
+        "createTime" : "2025-05-29T19:59:41.689Z",
+        "name" : "jnr_counts",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "Master",
+            "output" : "false",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          },
+          {
+            "input" : "true",
+            "name" : "Detail",
+            "output" : "false",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          },
+          {
+            "input" : "false",
+            "name" : "OutputGroup",
+            "output" : "true"
+          }
+        ],
+        "joinType" : "Normal Join",
+        "joinConditions" : [
+          {
+            "leftOperand" : "source_system_code",
+            "operator" : "=",
+            "rightOperand" : "source_system_id"
+          }
+        ]
+      },
+      {
+        "createTime" : "2025-05-29T20:00:30.653Z",
+        "name" : "Expression",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "windowConfigurationEnabled" : "false",
+        "fields" : [
+          {
+            "name" : "exp_target_table_name",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 60,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "--'adm_t_agency'\n\n'adm_agencylicense'"
+          }
+        ],
+        "windowSpec" : {
+          "allRowsFollowing" : "false",
+          "allRowsPreceding" : "false",
+          "endOffset" : 0,
+          "startOffset" : 0,
+          "partitionKeys" : null
+        }
+      },
+      {
+        "createTime" : "2025-05-29T20:01:39.250Z",
+        "name" : "Lookup",
+        "advancedProperties" : [
+          {
+            "name" : "Tracing Level",
+            "value" : "Normal"
+          },
+          {
+            "name" : "Lookup caching enabled",
+            "value" : "true"
+          },
+          {
+            "name" : "Lookup cache directory name",
+            "value" : "$PMCacheDir"
+          },
+          {
+            "name" : "Lookup cache persistent",
+            "value" : "false"
+          },
+          {
+            "name" : "Re-cache from lookup source",
+            "value" : "false"
+          },
+          {
+            "name" : "Lookup Data Cache Size",
+            "value" : "AUTO"
+          },
+          {
+            "name" : "Lookup Index Cache Size",
+            "value" : "AUTO"
+          },
+          {
+            "name" : "Dynamic Lookup Cache",
+            "value" : "false"
+          },
+          {
+            "name" : "Update Dynamic Cache Condition",
+            "value" : "TRUE"
+          },
+          {
+            "name" : "Output Old Value On Update",
+            "value" : "false"
+          },
+          {
+            "name" : "Insert Else Update",
+            "value" : "false"
+          },
+          {
+            "name" : "Case Sensitive String Comparison",
+            "value" : "false"
+          },
+          {
+            "name" : "Sorted Input",
+            "value" : "false"
+          },
+          {
+            "name" : "Include Only Required Fields",
+            "value" : "false"
+          },
+          {
+            "name" : "Lookup source is static",
+            "value" : "false"
+          },
+          {
+            "name" : "Pre-build lookup cache",
+            "value" : "AUTO"
+          },
+          {
+            "name" : "Optional",
+            "value" : "true"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "conflictResolutions" : [
+              {
+                "precedingGroupName" : "DefaultGroup",
+                "precedingTxName" : "Expression",
+                "rule" : {
+                  "bulkRename" : "true",
+                  "include" : "true",
+                  "bulkRenameOption" : {
+                    "literal" : "param_",
+                    "suffix" : "false"
+                  }
+                }
+              }
+            ],
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "multipleMatchPolicy" : "Use Any Value",
+        "unconnected" : "false",
+        "useLabels" : "false",
+        "fields" : [
+          {
+            "adapterField" : {
+              "name" : "source_system_code"
+            },
+            "name" : "source_system_code",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "latest_batch"
+            },
+            "name" : "latest_batch",
+            "platformType" : {
+              "name" : "bigint"
+            },
+            "precision" : 19,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "target_table_name"
+            },
+            "name" : "target_table_name",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "recent_b_status"
+            },
+            "name" : "recent_b_status",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 31,
+            "scale" : 0
+          }
+        ],
+        "inputPortNames" : null,
+        "lookupConditions" : [
+          {
+            "leftOperand" : "target_table_name",
+            "operator" : "=",
+            "rightOperand" : "param_exp_target_table_name"
+          }
+        ],
+        "dataAdapter" : {
+          "connectionId" : "saas:@aYZ4ekzHgIPeKpiaoqDLKP",
+          "connectionName" : "redshift_nonprod_andover_dw_dev",
+          "excludeDynamicFileNameField" : "false",
+          "objectType" : "QUERY",
+          "typeSystem" : "TOOLKIT",
+          "useDynamicFileName" : "false",
+          "object" : {
+            "customQuery" : "select * from (\nselect  source_system_code, MAX(recent_b_query.batch_id) as latest_batch, recent_b_query.target_table_name, recent_b_query.recent_b_status\nfrom (\nselect batch_id, target_table_name, batch_status,source_system_code, last_value(batch_status) over(partition by batch_id, target_table_name order by batch_status asc rows between unbounded preceding and unbounded following) as recent_b_status\nfrom (select * from metal.batch_load_summary_poc\nwhere source_system_code = 'ADM' and batch_status in ('SUCCESS', 'FAILED', 'In Progress') and  batch_id !=0)\norder by batch_id) recent_b_query\ngroup by batch_id,target_table_name, recent_b_status, source_system_code\norder by batch_id desc ,target_table_name, recent_b_status\n)\nwhere latest_batch = (SELECT COALESCE(MAX(batch_id), 1) AS batch_id\n  FROM metal.batch_load_summary_poc)",
+            "retainMetadata" : "false",
+            "fields" : [
+              {
+                "name" : "source_system_code",
+                "fieldType" : "CONNECTOR",
+                "label" : "source_system_code",
+                "nativeName" : "source_system_code",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "latest_batch",
+                "fieldType" : "CONNECTOR",
+                "label" : "latest_batch",
+                "nativeName" : "latest_batch",
+                "nativeType" : "int8",
+                "original" : "false",
+                "precision" : 19,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "target_table_name",
+                "fieldType" : "CONNECTOR",
+                "label" : "target_table_name",
+                "nativeName" : "target_table_name",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "recent_b_status",
+                "fieldType" : "CONNECTOR",
+                "label" : "recent_b_status",
+                "nativeName" : "recent_b_status",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 31,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              }
+            ]
+          },
+          "readOptions" : {
+            "commandType" : 0,
+            "descending" : "false",
+            "queryAll" : "false",
+            "rowLimit" : 0,
+            "selectDistinct" : "false"
+          }
+        }
+      },
+      {
+        "createTime" : "2025-05-29T20:04:27.822Z",
+        "name" : "Expression1",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "windowConfigurationEnabled" : "false",
+        "fields" : [
+          {
+            "name" : "o_BATCH_ID",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "decode(true,\n\nparam_pilot_batch_count = param_recent_batch_count and recent_b_status != 'FAILED', latest_batch + 1,\n\nparam_pilot_batch_count = param_recent_batch_count and recent_b_status = 'FAILED', latest_batch,\n\nparam_pilot_batch_count > param_recent_batch_count and \nisnull(target_table_name) , latest_batch,\n\nparam_pilot_batch_count > param_recent_batch_count and \nrecent_b_status != 'FAILED', latest_batch + 1,\n\nparam_pilot_batch_count > param_recent_batch_count and \nrecent_b_status = 'FAILED', latest_batch \n\n\n\n)"
+          }
+        ],
+        "windowSpec" : {
+          "allRowsFollowing" : "false",
+          "allRowsPreceding" : "false",
+          "endOffset" : 0,
+          "startOffset" : 0,
+          "partitionKeys" : null
+        }
+      }
+    ]
+  },
+  "vcsExportTime" : "2026-01-30 14:02:16 PST"
+}
