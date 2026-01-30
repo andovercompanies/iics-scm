@@ -7,9 +7,13 @@
     {
       "name" : "$src_data_report$",
       "type" : "SOURCE",
-      "label" : "src_data_report",
+      "label" : "DBConnection_UDM_SRC",
       "uiProperties" : {
-        "connectionParameterized" : "false",
+        "cnxtype" : "Amazon Redshift v2",
+        "connectionParameterized" : "true",
+        "paramName" : "DBConnection_UDM_SRC",
+        "paramType-mapping" : "Connection",
+        "logcnx" : "DBConnection_UDM_SRC",
         "isSelectDistinct" : "false",
         "objectParameterized" : "false",
         "visible" : "false",
@@ -20,22 +24,11 @@
       "sourceObject" : "DUMMY_src_data_report",
       "newFlatFile" : false,
       "newObject" : false,
-      "showBusinessNames" : false,
+      "showBusinessNames" : true,
       "naturalOrder" : true,
       "truncateTarget" : false,
       "bulkApiDBTarget" : false,
       "customFuncCfg" : { },
-      "oprRuntimeAttrs" : {
-        "selectDistinct" : "NO",
-        "EncryptionType" : "None",
-        "EnableCompression" : "YES",
-        "fetchSize" : "10000",
-        "multipartDownloadThreshold" : "5242880",
-        "temporaryCredentialDuration" : "900",
-        "TreatNullValueAsNull" : "NO",
-        "DownloadS3FilesInMultipleParts" : "NO",
-        "readMode" : "Direct"
-      },
       "customQuery" : "WITH current_batch AS (\n    SELECT \n        bls.batch_id,\n        bls.source_start_cutoff_datetime,\n        bls.source_end_cutoff_datetime\n    FROM $$operational_schema.batch_load_summary bls\n    WHERE bls.source_system_code = '$$sourcesystemcode'\n      AND bls.batch_status = 'Inprogress'\n      AND bls.target_schema_name = '$$refined_schema'\n      AND bls.batch_id = (\n          SELECT MAX(batch_id)\n          FROM $$operational_schema.batch_load_summary\n          WHERE source_system_code = '$$sourcesystemcode'\n            AND batch_status = 'Inprogress'\n            AND target_schema_name = '$$refined_schema'\n      )\n),\naddress_data AS (\nSELECT DISTINCT \n    NULL AS address_id,\n    'ADM' AS address_source_system,\n    'Agency' AS address_domain,\n    CASE\n        WHEN ag.type = 'C' THEN 'Commissions Address'\n        WHEN ag.type = 'M' THEN 'Mailing Address'\n        ELSE NULL\n    END AS address_type,\n    NULL AS address_batch_id,\n    ISNULL(ag.originating_source_name, NULL) AS originating_source_name,\n    ISNULL(ag.originating_load_type, NULL) AS originating_load_type,\n    GETDATE() AS address_row_effective_start_datetime,\n    '9999-12-31 00:00:00.000000'::timestamp AS address_row_effective_end_datetime,\n    ag.adm_address_guidewire_row_status AS address_row_status,\n    NULL AS address_row_md5checksum,\n    'prd_informatica' AS address_row_created_by, --**Note:Review \n    'prd_informatica' AS address_row_modified_by, --**Note:Review \n    'Loaded' AS address_row_load_state,\n    ISNULL(ag.id, NULL) AS address_row_source_system_key,\n    '1 - Primary' AS address_rank,\n    ISNULL(UPPER(ag.address1), NULL) AS address_line1,\n    ISNULL(UPPER(ag.address2), NULL) AS address_line2,\n    NULL AS address_line3,\n    NULL AS address_line4,\n    CASE\n        WHEN ag.address1 IS NULL AND ag.address2 IS NULL THEN NULL\n        WHEN ag.address1 IS NOT NULL AND ag.address2 IS NOT NULL\n            THEN UPPER(ag.address1) || ', ' || UPPER(ag.address2)\n        WHEN ag.address1 IS NOT NULL\n            THEN UPPER(ag.address1)\n        WHEN ag.address2 IS NOT NULL\n            THEN UPPER(ag.address2)\n        ELSE NULL\n    END AS address_lines_consolidated,\n    ISNULL(UPPER(ag.city), NULL) AS address_city_name,\n    CASE\n        WHEN TRIM(ag.state) IS NULL OR TRIM(ag.state) = '' THEN NULL\n        WHEN us.usa_state_and_territory_alpha_2_code IS NOT NULL\n            THEN us.usa_state_and_territory_alpha_2_code\n        ELSE NULL\n    END AS address_usa_state_and_territory_alpha_2_code,\n    ISNULL(ag.zip, NULL) AS address_postal_code,\n    CASE\n        WHEN TRIM(ag.country) IS NULL OR TRIM(ag.country) = '' THEN NULL\n        WHEN LENGTH(TRIM(ag.country)) = 2\n             AND wc.country_iso_alpha_2_code IS NOT NULL\n            THEN wc.country_iso_alpha_3_code\n        WHEN LENGTH(TRIM(ag.country)) = 3\n             AND wc.country_iso_alpha_3_code IS NOT NULL\n            THEN wc.country_iso_alpha_3_code\n        ELSE NULL\n    END AS address_country_iso_alpha_3_code,\n    ISNULL(ag.created, '1900-01-01 00:00:00') AS address_row_source_system_created_datetime,\n    ISNULL(ag.modified, '1900-01-01 00:00:00') AS address_row_source_system_modified_datetime\nFROM $$staging_schema.adm_address_guidewire ag\nLEFT JOIN $$reference_schema.usa_states_and_territories us\n    ON UPPER(TRIM(ag.state)) = us.usa_state_and_territory_alpha_2_code\nLEFT JOIN $$reference_schema.world_countries wc\n    ON UPPER(TRIM(ag.country)) IN (\n        wc.country_iso_alpha_2_code,\n        wc.country_iso_alpha_3_code\n    )\nWHERE ag.adm_address_guidewire_row_effective_end_datetime = '9999-12-31 00:00:00.000000'\n\tAND us.usa_state_and_territory_row_effective_end_datetime = '9999-12-31 00:00:00.000000'\n\tAND wc.world_country_row_effective_end_datetime = '9999-12-31 00:00:00.000000'\n\nUNION\n\nSELECT DISTINCT NULL AS address_id,\n       'ADM' AS address_source_system,\n       'Agency' AS address_domain,\n       'Physical Location' AS address_type, -- ETL Generated\n NULL AS address_batch_id,\n ISNULL(atg.originating_source_name, NULL) AS originating_source_name,\n ISNULL(atg.originating_load_type, NULL) AS originating_load_type,\n GETDATE() AS address_row_effective_start_datetime,\n '9999-12-31 00:00:00.000000'::timestamp AS address_row_effective_end_datetime,\n atg.adm_t_agency_row_status AS address_row_status, -- ETL Generated\n NULL AS address_row_md5checksum,\n 'prd_informatica' AS address_row_created_by, --**Note:Review\n 'prd_informatica' AS address_row_modified_by, --**Note:Review\n 'Loaded' AS address_row_load_state,\n ISNULL(atg.agency_nup, NULL) AS address_row_source_system_key,\n CASE\n     WHEN atg.location_num IS NOT NULL THEN atg.location_num || ' - Primary'\n     ELSE NULL\n END AS address_rank,\n ISNULL(UPPER(atg.agency_str_1), NULL) AS address_line1,\n ISNULL(UPPER(atg.agency_str_2), NULL) AS address_line2,\n ISNULL(UPPER(atg.agency_str_3), NULL) AS address_line3,\n NULL AS address_line4, -- Consolidated address lines\n NULLIF(TRIM(BOTH ', '\n             FROM COALESCE(NULLIF(UPPER(atg.agency_str_1), NULL) || ', ', '') || COALESCE(NULLIF(UPPER(atg.agency_str_2), NULL) || ', ', '') || COALESCE(NULLIF(UPPER(atg.agency_str_3), NULL), '')), '') AS address_lines_consolidated,\n ISNULL(UPPER(atg.agency_city), NULL) AS address_city_name,\n CASE\n     WHEN TRIM(atg.agency_st) IS NULL\n          OR TRIM(atg.agency_st) = '' THEN NULL\n     WHEN us.usa_state_and_territory_alpha_2_code IS NOT NULL THEN us.usa_state_and_territory_alpha_2_code\n     ELSE NULL\n END AS address_usa_state_and_territory_alpha_2_code,\n ISNULL(atg.agency_zip, NULL) AS address_postal_code,\n NULL AS address_country_iso_alpha_3_code,\n ISNULL(atg.create_date, '1900-01-01 00:00:00') AS address_row_source_system_created_datetime,\n ISNULL(atg.last_modified, '1900-01-01 00:00:00') AS address_row_source_system_modified_datetime\n FROM bronze.adm_t_agency atg\nLEFT join reference.usa_states_and_territories us\n    ON UPPER(TRIM(atg.agency_st)) = us.usa_state_and_territory_alpha_2_code\nwhere atg.adm_t_agency_row_effective_end_datetime = '9999-12-31 00:00:00.000000'\nAND us.usa_state_and_territory_row_effective_end_datetime = '9999-12-31 00:00:00.000000'\n\n)\nSELECT DISTINCT \nad.address_id,\nad.address_source_system,\nad.address_domain,\nad.address_type,\ncb.batch_id as address_batch_id,\nad.originating_source_name,\nad.originating_load_type,\nad.address_row_effective_start_datetime,\nad.address_row_effective_end_datetime,\nad.address_row_status,\nMD5(\n    COALESCE(ad.address_row_status, '') || '|' ||\n    COALESCE(ad.address_lines_consolidated, '') || '|' ||\n    COALESCE(ad.address_city_name, '') || '|' ||\n    COALESCE(ad.address_usa_state_and_territory_alpha_2_code, '') || '|' ||\n    COALESCE(ad.address_postal_code, '') || '|' ||\n    COALESCE(ad.address_country_iso_alpha_3_code, '') || '|' ||\n\tCOALESCE(ad.address_type, '')\n) AS address_row_md5checksum,\n\nad.address_row_created_by,\nad.address_row_modified_by,\nad.address_row_load_state,\nad.address_row_source_system_key,\nad.address_rank,\nad.address_line1,\nad.address_line2,\nad.address_line3,\nad.address_line4,\nad.address_lines_consolidated,\nad.address_city_name,\nad.address_usa_state_and_territory_alpha_2_code,\nad.address_postal_code,\nad.address_country_iso_alpha_3_code,\nad.address_row_source_system_created_datetime,\nad.address_row_source_system_modified_datetime,\ntgt.originating_source_name as tgt_originating_source_name,\ntgt.address_type as tgt_address_type,\ntgt.address_row_source_system_key as tgt_address_row_source_system_key,\ntgt.address_row_md5checksum as tgt_address_row_md5checksum,\ntgt.address_id as tgt_address_id\n\nFROM address_data ad\nleft join \n\t(select originating_source_name,\n\taddress_type,\n\taddress_row_source_system_key,\n\taddress_row_md5checksum,\n\taddress_id\n\tfrom silver.addresses\n\twhere address_row_effective_end_datetime= '9999-12-31 00:00:00.000000' \n\t) tgt\non ad.originating_source_name = tgt.originating_source_name\nand ad.address_type = tgt.address_type\nand ad.address_row_source_system_key = tgt.address_row_source_system_key\nleft join current_batch cb on true\n--where ad.address_row_source_system_key = 2009",
       "commandType" : 0,
       "handleSpecialChars" : false,
@@ -48,8 +41,10 @@
       "objectName" : "DUMMY_src_data_report",
       "useExactSrcNames" : false,
       "userUpdated" : true,
+      "fetchMode" : "ORIGINAL",
       "runtimeParameterData" : {
-        "connectionRuntimeParameter" : false,
+        "connectionParameterName" : "DBConnection_UDM_SRC",
+        "connectionRuntimeParameter" : true,
         "objectRuntimeParameter" : false
       },
       "restmodernSource" : true,
@@ -59,9 +54,14 @@
     {
       "name" : "$tgt_insert_records$",
       "type" : "TARGET",
-      "label" : "tgt_insert_records",
+      "label" : "DBConnection_UDM_TGT",
       "uiProperties" : {
-        "connectionParameterized" : "false",
+        "cnxtype" : "Amazon Redshift v2",
+        "connectionParameterized" : "true",
+        "paramName" : "DBConnection_UDM_TGT",
+        "paramType-mapping" : "Connection",
+        "logcnx" : "DBConnection_UDM_TGT",
+        "default" : "silver/addresses",
         "objectParameterized" : "false",
         "visible" : "false",
         "supportApplyDDLChanges" : "false",
@@ -73,7 +73,7 @@
       "targetObjectLabel" : "silver/addresses",
       "newFlatFile" : false,
       "newObject" : false,
-      "showBusinessNames" : false,
+      "showBusinessNames" : true,
       "naturalOrder" : true,
       "truncateTarget" : false,
       "bulkApiDBTarget" : false,
@@ -94,8 +94,10 @@
       "objectLabel" : "silver/addresses",
       "useExactSrcNames" : false,
       "userUpdated" : true,
+      "fetchMode" : "ORIGINAL",
       "runtimeParameterData" : {
-        "connectionRuntimeParameter" : false,
+        "connectionParameterName" : "DBConnection_UDM_TGT",
+        "connectionRuntimeParameter" : true,
         "objectRuntimeParameter" : false
       },
       "restmodernSource" : true,
@@ -105,9 +107,14 @@
     {
       "name" : "$tgt_update_closeout$",
       "type" : "TARGET",
-      "label" : "tgt_update_closeout",
+      "label" : "DBConnection_UDM_TGT",
       "uiProperties" : {
-        "connectionParameterized" : "false",
+        "cnxtype" : "Amazon Redshift v2",
+        "connectionParameterized" : "true",
+        "paramName" : "DBConnection_UDM_TGT",
+        "paramType-mapping" : "Connection",
+        "logcnx" : "DBConnection_UDM_TGT",
+        "default" : "silver/addresses",
         "objectParameterized" : "false",
         "visible" : "false",
         "defaultTargetUpdateColumns" : "address_id",
@@ -120,7 +127,7 @@
       "targetObjectLabel" : "silver/addresses",
       "newFlatFile" : false,
       "newObject" : false,
-      "showBusinessNames" : false,
+      "showBusinessNames" : true,
       "naturalOrder" : true,
       "truncateTarget" : false,
       "bulkApiDBTarget" : false,
@@ -144,8 +151,10 @@
       "objectLabel" : "silver/addresses",
       "useExactSrcNames" : false,
       "userUpdated" : true,
+      "fetchMode" : "ORIGINAL",
       "runtimeParameterData" : {
-        "connectionRuntimeParameter" : false,
+        "connectionParameterName" : "DBConnection_UDM_TGT",
+        "connectionRuntimeParameter" : true,
         "objectRuntimeParameter" : false
       },
       "restmodernSource" : true,
@@ -155,9 +164,14 @@
     {
       "name" : "$tgt_update_records$",
       "type" : "TARGET",
-      "label" : "tgt_update_records",
+      "label" : "DBConnection_UDM_TGT",
       "uiProperties" : {
-        "connectionParameterized" : "false",
+        "cnxtype" : "Amazon Redshift v2",
+        "connectionParameterized" : "true",
+        "paramName" : "DBConnection_UDM_TGT",
+        "paramType-mapping" : "Connection",
+        "logcnx" : "DBConnection_UDM_TGT",
+        "default" : "silver/addresses",
         "objectParameterized" : "false",
         "visible" : "false",
         "supportApplyDDLChanges" : "false",
@@ -169,7 +183,7 @@
       "targetObjectLabel" : "silver/addresses",
       "newFlatFile" : false,
       "newObject" : false,
-      "showBusinessNames" : false,
+      "showBusinessNames" : true,
       "naturalOrder" : true,
       "truncateTarget" : false,
       "bulkApiDBTarget" : false,
@@ -190,8 +204,10 @@
       "objectLabel" : "silver/addresses",
       "useExactSrcNames" : false,
       "userUpdated" : true,
+      "fetchMode" : "ORIGINAL",
       "runtimeParameterData" : {
-        "connectionRuntimeParameter" : false,
+        "connectionParameterName" : "DBConnection_UDM_TGT",
+        "connectionRuntimeParameter" : true,
         "objectRuntimeParameter" : false
       },
       "restmodernSource" : true,
@@ -200,7 +216,7 @@
     }
   ],
   "verbose" : true,
-  "lastRunTime" : 1769100485000,
+  "lastRunTime" : 1769446295000,
   "mappingId" : "@5I7wcwucdICiPprqpdOoYh",
   "mappingTemplateName" : "cdi_map_agency_addresses_silver_load",
   "sessionPropertiesList" : [
@@ -293,5 +309,5 @@
   "allowMaxFieldLength" : false,
   "specialCharacterSupport" : false,
   "midstreamPreview" : false,
-  "vcsExportTime" : "2026-01-22 11:00:18 PST"
+  "vcsExportTime" : "2026-01-30 12:37:44 PST"
 }
