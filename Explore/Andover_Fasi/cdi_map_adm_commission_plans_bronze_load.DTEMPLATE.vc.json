@@ -1,0 +1,3911 @@
+{
+  "content" : {
+    "allowMaxFieldLength" : "false",
+    "bigIntConvertType" : "ONLY_BIGINT",
+    "documentType" : "MAPPING",
+    "name" : "cdi_map_adm_commission_plans_bronze_load",
+    "specialCharacterSupport" : "false",
+    "flowOrderEntries" : [
+      {
+        "sourceTypes" : [
+          "Source",
+          "Source"
+        ],
+        "sources" : [
+          "src_delta_changes_commission_plans",
+          "src_tgt_bronze_adm_commission_plans_query"
+        ],
+        "targetTypes" : [
+          "Target",
+          "Target",
+          "Target"
+        ],
+        "targets" : [
+          "tgt_bronze_adm_commision_plans_upd",
+          "tgt_bronze_adm_commision_plans_upd_enddate",
+          "tgt_bronze_adm_commission_plans_ins"
+        ]
+      }
+    ],
+    "links" : [
+      {
+        "link" : "src_tgt_bronze_adm_commission_plans_query -> exp_passthrough"
+      },
+      {
+        "link" : "src_delta_changes_commission_plans -> exp_datatype_conversion"
+      },
+      {
+        "link" : "exp_passthrough -> jnr_src_tgt",
+        "groupLink" : "DefaultGroup -> Detail"
+      },
+      {
+        "link" : "exp_datatype_conversion -> exp_MD5_Calc"
+      },
+      {
+        "link" : "exp_MD5_Calc -> jnr_src_tgt",
+        "groupLink" : "DefaultGroup -> Master"
+      },
+      {
+        "link" : "jnr_src_tgt -> exp_ins_upd_flags",
+        "groupLink" : "OutputGroup -> DefaultGroup"
+      },
+      {
+        "link" : "exp_ins_upd_flags -> rtr_insert_update",
+        "groupLink" : "DefaultGroup -> INPUT"
+      },
+      {
+        "link" : "exp_upd_date -> tgt_bronze_adm_commision_plans_upd_enddate"
+      },
+      {
+        "link" : "rtr_insert_update -> exp_upd_date",
+        "groupLink" : "update -> DefaultGroup"
+      },
+      {
+        "link" : "exp_insert_records -> tgt_bronze_adm_commission_plans_ins"
+      },
+      {
+        "link" : "rtr_insert_update -> exp_insert_records",
+        "groupLink" : "insert -> DefaultGroup"
+      },
+      {
+        "link" : "exp_upd_insert -> tgt_bronze_adm_commision_plans_upd"
+      },
+      {
+        "link" : "rtr_insert_update -> exp_upd_insert",
+        "groupLink" : "update -> DefaultGroup"
+      }
+    ],
+    "parameters" : [
+      {
+        "input" : "true",
+        "output" : "false",
+        "precision" : 0,
+        "scale" : 0,
+        "allowRuntimeOverride" : "false",
+        "expressionVariable" : "false",
+        "name" : "DBConnection_UDM_SRC",
+        "anonymousType" : {
+          "subType" : "TOOLKIT_CCI",
+          "typeSystem" : "TOOLKIT",
+          "connectionType" : "Amazon Redshift v2"
+        }
+      },
+      {
+        "input" : "true",
+        "output" : "false",
+        "precision" : 0,
+        "scale" : 0,
+        "allowRuntimeOverride" : "false",
+        "expressionVariable" : "false",
+        "name" : "DBConnection_UDM_TGT",
+        "anonymousType" : {
+          "subType" : "TOOLKIT_CCI",
+          "typeSystem" : "TOOLKIT",
+          "connectionType" : "Amazon Redshift v2"
+        }
+      },
+      {
+        "input" : "true",
+        "output" : "false",
+        "precision" : 0,
+        "scale" : 0,
+        "allowRuntimeOverride" : "false",
+        "expressionVariable" : "false",
+        "name" : "S3_Staging_Bucket"
+      },
+      {
+        "input" : "true",
+        "output" : "false",
+        "precision" : 0,
+        "scale" : 0,
+        "allowRuntimeOverride" : "false",
+        "expressionVariable" : "false",
+        "name" : "sourcesystemcode",
+        "defaultValue" : {
+          "valueLiteral" : "ADM"
+        }
+      }
+    ],
+    "transformations" : [
+      {
+        "createTime" : "2025-06-16T14:48:01.871Z",
+        "name" : "src_delta_changes_commission_plans",
+        "advancedProperties" : [
+          {
+            "name" : "Tracing Level",
+            "value" : "Normal"
+          },
+          {
+            "name" : "Output is deterministic",
+            "value" : "false"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "false",
+            "name" : "DefaultGroup",
+            "output" : "true"
+          }
+        ],
+        "generateFilenamePort" : "false",
+        "useLabels" : "false",
+        "useSequenceFields" : "false",
+        "fields" : [
+          {
+            "adapterField" : {
+              "name" : "source_name"
+            },
+            "name" : "source_name",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "load_type"
+            },
+            "name" : "load_type",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "agency_nup"
+            },
+            "name" : "agency_nup",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 15,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "bs_appoint_dt"
+            },
+            "name" : "bs_appoint_dt",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 15,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "bs_cancel_dt"
+            },
+            "name" : "bs_cancel_dt",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 15,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "ca_appoint_dt"
+            },
+            "name" : "ca_appoint_dt",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 15,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "ca_cancel_dt"
+            },
+            "name" : "ca_cancel_dt",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 15,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "create_user_nup"
+            },
+            "name" : "create_user_nup",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 15,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "created"
+            },
+            "name" : "created",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 31,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "id"
+            },
+            "name" : "id",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 15,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "mk_appoint_dt"
+            },
+            "name" : "mk_appoint_dt",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 15,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "mk_cancel_dt"
+            },
+            "name" : "mk_cancel_dt",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 15,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "modified"
+            },
+            "name" : "modified",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 31,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "modify_user_nup"
+            },
+            "name" : "modify_user_nup",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 15,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "state"
+            },
+            "name" : "state",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 7,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "batch_id"
+            },
+            "name" : "batch_id",
+            "platformType" : {
+              "name" : "bigint"
+            },
+            "precision" : 19,
+            "scale" : 0
+          }
+        ],
+        "dataAdapter" : {
+          "connectionId$" : {
+            "name" : "DBConnection_UDM_SRC"
+          },
+          "excludeDynamicFileNameField" : "false",
+          "objectType" : "QUERY",
+          "typeSystem" : "TOOLKIT",
+          "useDynamicFileName" : "false",
+          "object" : {
+            "customQuery" : "with current_batch as (\nselect\n\tbls.batch_id,\n\tbls.source_start_cutoff_datetime,\n\tbls.source_end_cutoff_datetime\nfrom\n\t$$operational_schema.batch_load_summary bls\nwhere\n\tbls.source_system_code ='$$sourcesystemcode'\n\tand bls.batch_status = 'Inprogress'\n\tand bls.batch_id = (\n\tselect\n\t\tMAX(batch_id)\n\tfrom\n\t\t$$operational_schema.batch_load_summary\n\twhere\n\t\tsource_system_code ='$$sourcesystemcode'\n\t\tand batch_status = 'Inprogress' ) )\nSELECT \n    DISTINCT \n    acp.source_name, \n    acp.load_type, \n    acp.agency_nup, \n    acp.bs_appoint_dt, \n    acp.bs_cancel_dt, \n    acp.ca_appoint_dt, \n    acp.ca_cancel_dt, \n    acp.create_user_nup, \n    acp.created, \n    acp.id, \n    acp.mk_appoint_dt, \n    acp.mk_cancel_dt, \n    acp.modified, \n    acp.modify_user_nup, \n    acp.state,\n    cb.batch_id\nFROM \n    $$raw_schema.adm_commission_plans acp\nCROSS JOIN current_batch cb\nORDER BY \n    acp.id,\n    acp.created,\n    acp.modified;",
+            "retainMetadata" : "false",
+            "fields" : [
+              {
+                "name" : "source_name",
+                "fieldType" : "CONNECTOR",
+                "label" : "source_name",
+                "nativeName" : "source_name",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "load_type",
+                "fieldType" : "CONNECTOR",
+                "label" : "load_type",
+                "nativeName" : "load_type",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "agency_nup",
+                "fieldType" : "CONNECTOR",
+                "label" : "agency_nup",
+                "nativeName" : "agency_nup",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 15,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "bs_appoint_dt",
+                "fieldType" : "CONNECTOR",
+                "label" : "bs_appoint_dt",
+                "nativeName" : "bs_appoint_dt",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 15,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "bs_cancel_dt",
+                "fieldType" : "CONNECTOR",
+                "label" : "bs_cancel_dt",
+                "nativeName" : "bs_cancel_dt",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 15,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "ca_appoint_dt",
+                "fieldType" : "CONNECTOR",
+                "label" : "ca_appoint_dt",
+                "nativeName" : "ca_appoint_dt",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 15,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "ca_cancel_dt",
+                "fieldType" : "CONNECTOR",
+                "label" : "ca_cancel_dt",
+                "nativeName" : "ca_cancel_dt",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 15,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "create_user_nup",
+                "fieldType" : "CONNECTOR",
+                "label" : "create_user_nup",
+                "nativeName" : "create_user_nup",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 15,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "created",
+                "fieldType" : "CONNECTOR",
+                "label" : "created",
+                "nativeName" : "created",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 31,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "id",
+                "fieldType" : "CONNECTOR",
+                "label" : "id",
+                "nativeName" : "id",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 15,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "mk_appoint_dt",
+                "fieldType" : "CONNECTOR",
+                "label" : "mk_appoint_dt",
+                "nativeName" : "mk_appoint_dt",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 15,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "mk_cancel_dt",
+                "fieldType" : "CONNECTOR",
+                "label" : "mk_cancel_dt",
+                "nativeName" : "mk_cancel_dt",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 15,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "modified",
+                "fieldType" : "CONNECTOR",
+                "label" : "modified",
+                "nativeName" : "modified",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 31,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "modify_user_nup",
+                "fieldType" : "CONNECTOR",
+                "label" : "modify_user_nup",
+                "nativeName" : "modify_user_nup",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 15,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "state",
+                "fieldType" : "CONNECTOR",
+                "label" : "state",
+                "nativeName" : "state",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 7,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "batch_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "batch_id",
+                "nativeName" : "batch_id",
+                "nativeType" : "int8",
+                "original" : "false",
+                "precision" : 19,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              }
+            ]
+          },
+          "readOptions" : {
+            "commandType" : 0,
+            "descending" : "false",
+            "queryAll" : "false",
+            "rowLimit" : 0,
+            "selectDistinct" : "false"
+          },
+          "runtimeAttributes" : {
+            "attributes" : [
+              {
+                "name" : "Read Mode",
+                "value" : "Direct"
+              },
+              {
+                "name" : "Fetch Size",
+                "value" : "10000"
+              },
+              {
+                "name" : "S3 Bucket Name",
+                "value" : "$$S3_Staging_Bucket"
+              },
+              {
+                "name" : "Enable Compression",
+                "value" : "YES"
+              },
+              {
+                "name" : "Temporary Credential Duration",
+                "value" : "43200"
+              },
+              {
+                "name" : "Treat NULL Value as NULL",
+                "value" : "NO"
+              },
+              {
+                "name" : "Encryption Type",
+                "value" : "None"
+              },
+              {
+                "name" : "Download S3 Files In Multiple Parts",
+                "value" : "NO"
+              },
+              {
+                "name" : "Multipart Download Threshold Size",
+                "value" : "5242880"
+              },
+              {
+                "name" : "Select Distinct",
+                "value" : "NO"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "createTime" : "2025-06-16T14:48:01.871Z",
+        "name" : "tgt_bronze_adm_commission_plans_ins",
+        "advancedProperties" : [
+          {
+            "name" : "Forward Rejected Rows",
+            "value" : "true"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "false",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "createTarget" : "false",
+        "fieldMappingMode" : "MANUAL",
+        "inputSorted" : "false",
+        "schemaProviderType" : "SELECTED_OBJECT",
+        "targetFieldsOrdered" : "false",
+        "updateColumns" : null,
+        "useLabels" : "false",
+        "useSequenceFields" : "false",
+        "fields" : [
+          {
+            "adapterField" : {
+              "name" : "adm_commission_plans_row_id"
+            },
+            "name" : "adm_commission_plans_row_id",
+            "platformType" : {
+              "name" : "bigint"
+            },
+            "precision" : 19,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "adm_commission_plans_batch_id"
+            },
+            "name" : "adm_commission_plans_batch_id",
+            "platformType" : {
+              "name" : "bigint"
+            },
+            "precision" : 19,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "originating_source_name"
+            },
+            "name" : "originating_source_name",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "originating_load_type"
+            },
+            "name" : "originating_load_type",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "adm_commission_plans_md5checksum"
+            },
+            "name" : "adm_commission_plans_md5checksum",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 255,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "adm_commission_plans_row_effective_start_datetime"
+            },
+            "name" : "adm_commission_plans_row_effective_start_datetime",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "adm_commission_plans_row_effective_end_datetime"
+            },
+            "name" : "adm_commission_plans_row_effective_end_datetime",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "adm_commission_plans_row_status"
+            },
+            "name" : "adm_commission_plans_row_status",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "agency_nup"
+            },
+            "name" : "agency_nup",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "bs_appoint_dt"
+            },
+            "name" : "bs_appoint_dt",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "bs_cancel_dt"
+            },
+            "name" : "bs_cancel_dt",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "ca_appoint_dt"
+            },
+            "name" : "ca_appoint_dt",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "ca_cancel_dt"
+            },
+            "name" : "ca_cancel_dt",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "created"
+            },
+            "name" : "created",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "create_user_nup"
+            },
+            "name" : "create_user_nup",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "id"
+            },
+            "name" : "id",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "mk_appoint_dt"
+            },
+            "name" : "mk_appoint_dt",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "mk_cancel_dt"
+            },
+            "name" : "mk_cancel_dt",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "modified"
+            },
+            "name" : "modified",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "modify_user_nup"
+            },
+            "name" : "modify_user_nup",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "state"
+            },
+            "name" : "state",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 7,
+            "scale" : 0
+          }
+        ],
+        "dataAdapter" : {
+          "connectionId$" : {
+            "name" : "DBConnection_UDM_TGT"
+          },
+          "excludeDynamicFileNameField" : "false",
+          "objectType" : "SINGLE",
+          "typeSystem" : "TOOLKIT",
+          "useDynamicFileName" : "false",
+          "object" : {
+            "name" : "bronze/adm_commission_plans",
+            "label" : "bronze/adm_commission_plans",
+            "objectName" : "adm_commission_plans",
+            "objectType" : "amazonredshift",
+            "path" : "bronze/adm_commission_plans",
+            "retainMetadata" : "false",
+            "fields" : [
+              {
+                "name" : "adm_commission_plans_row_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "adm_commission_plans_row_id",
+                "nativeName" : "adm_commission_plans_row_id",
+                "nativeType" : "int8",
+                "original" : "false",
+                "precision" : 19,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_commission_plans"
+                  }
+                ]
+              },
+              {
+                "name" : "adm_commission_plans_batch_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "adm_commission_plans_batch_id",
+                "nativeName" : "adm_commission_plans_batch_id",
+                "nativeType" : "int8",
+                "original" : "false",
+                "precision" : 19,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_commission_plans"
+                  }
+                ]
+              },
+              {
+                "name" : "originating_source_name",
+                "fieldType" : "CONNECTOR",
+                "label" : "originating_source_name",
+                "nativeName" : "originating_source_name",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_commission_plans"
+                  }
+                ]
+              },
+              {
+                "name" : "originating_load_type",
+                "fieldType" : "CONNECTOR",
+                "label" : "originating_load_type",
+                "nativeName" : "originating_load_type",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_commission_plans"
+                  }
+                ]
+              },
+              {
+                "name" : "adm_commission_plans_md5checksum",
+                "fieldType" : "CONNECTOR",
+                "label" : "adm_commission_plans_md5checksum",
+                "nativeName" : "adm_commission_plans_md5checksum",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 255,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_commission_plans"
+                  }
+                ]
+              },
+              {
+                "name" : "adm_commission_plans_row_effective_start_datetime",
+                "fieldType" : "CONNECTOR",
+                "label" : "adm_commission_plans_row_effective_start_datetime",
+                "nativeName" : "adm_commission_plans_row_effective_start_datetime",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_commission_plans"
+                  }
+                ]
+              },
+              {
+                "name" : "adm_commission_plans_row_effective_end_datetime",
+                "fieldType" : "CONNECTOR",
+                "label" : "adm_commission_plans_row_effective_end_datetime",
+                "nativeName" : "adm_commission_plans_row_effective_end_datetime",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_commission_plans"
+                  }
+                ]
+              },
+              {
+                "name" : "adm_commission_plans_row_status",
+                "fieldType" : "CONNECTOR",
+                "label" : "adm_commission_plans_row_status",
+                "nativeName" : "adm_commission_plans_row_status",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_commission_plans"
+                  }
+                ]
+              },
+              {
+                "name" : "agency_nup",
+                "fieldType" : "CONNECTOR",
+                "label" : "agency_nup",
+                "nativeName" : "agency_nup",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_commission_plans"
+                  }
+                ]
+              },
+              {
+                "name" : "bs_appoint_dt",
+                "fieldType" : "CONNECTOR",
+                "label" : "bs_appoint_dt",
+                "nativeName" : "bs_appoint_dt",
+                "nativeType" : "date",
+                "original" : "false",
+                "precision" : 13,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_commission_plans"
+                  }
+                ]
+              },
+              {
+                "name" : "bs_cancel_dt",
+                "fieldType" : "CONNECTOR",
+                "label" : "bs_cancel_dt",
+                "nativeName" : "bs_cancel_dt",
+                "nativeType" : "date",
+                "original" : "false",
+                "precision" : 13,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_commission_plans"
+                  }
+                ]
+              },
+              {
+                "name" : "ca_appoint_dt",
+                "fieldType" : "CONNECTOR",
+                "label" : "ca_appoint_dt",
+                "nativeName" : "ca_appoint_dt",
+                "nativeType" : "date",
+                "original" : "false",
+                "precision" : 13,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_commission_plans"
+                  }
+                ]
+              },
+              {
+                "name" : "ca_cancel_dt",
+                "fieldType" : "CONNECTOR",
+                "label" : "ca_cancel_dt",
+                "nativeName" : "ca_cancel_dt",
+                "nativeType" : "date",
+                "original" : "false",
+                "precision" : 13,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_commission_plans"
+                  }
+                ]
+              },
+              {
+                "name" : "created",
+                "fieldType" : "CONNECTOR",
+                "label" : "created",
+                "nativeName" : "created",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_commission_plans"
+                  }
+                ]
+              },
+              {
+                "name" : "create_user_nup",
+                "fieldType" : "CONNECTOR",
+                "label" : "create_user_nup",
+                "nativeName" : "create_user_nup",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_commission_plans"
+                  }
+                ]
+              },
+              {
+                "name" : "id",
+                "fieldType" : "CONNECTOR",
+                "label" : "id",
+                "nativeName" : "id",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_commission_plans"
+                  }
+                ]
+              },
+              {
+                "name" : "mk_appoint_dt",
+                "fieldType" : "CONNECTOR",
+                "label" : "mk_appoint_dt",
+                "nativeName" : "mk_appoint_dt",
+                "nativeType" : "date",
+                "original" : "false",
+                "precision" : 13,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_commission_plans"
+                  }
+                ]
+              },
+              {
+                "name" : "mk_cancel_dt",
+                "fieldType" : "CONNECTOR",
+                "label" : "mk_cancel_dt",
+                "nativeName" : "mk_cancel_dt",
+                "nativeType" : "date",
+                "original" : "false",
+                "precision" : 13,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_commission_plans"
+                  }
+                ]
+              },
+              {
+                "name" : "modified",
+                "fieldType" : "CONNECTOR",
+                "label" : "modified",
+                "nativeName" : "modified",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_commission_plans"
+                  }
+                ]
+              },
+              {
+                "name" : "modify_user_nup",
+                "fieldType" : "CONNECTOR",
+                "label" : "modify_user_nup",
+                "nativeName" : "modify_user_nup",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_commission_plans"
+                  }
+                ]
+              },
+              {
+                "name" : "state",
+                "fieldType" : "CONNECTOR",
+                "label" : "state",
+                "nativeName" : "state",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 7,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_commission_plans"
+                  }
+                ]
+              }
+            ],
+            "objectAttributes" : [
+              {
+                "name" : "recordType",
+                "value" : "TABLE"
+              }
+            ]
+          },
+          "runtimeAttributes" : {
+            "attributes" : [
+              {
+                "name" : "S3 Bucket Name",
+                "value" : "$$S3_Staging_Bucket"
+              },
+              {
+                "name" : "Enable Compression",
+                "value" : "YES"
+              },
+              {
+                "name" : "Batch Size",
+                "value" : "2000000"
+              },
+              {
+                "name" : "Max Errors Per Batch Upload Insert",
+                "value" : "1"
+              },
+              {
+                "name" : "Truncate Target Table Before Data Upload",
+                "value" : "NO"
+              },
+              {
+                "name" : "WaitTime In Seconds For S3 File Consistency",
+                "value" : "0"
+              },
+              {
+                "name" : "Temporary Credential Duration",
+                "value" : "43200"
+              },
+              {
+                "name" : "S3 Server Side Encryption",
+                "value" : "NO"
+              },
+              {
+                "name" : "S3 Client Side Encryption",
+                "value" : "NO"
+              },
+              {
+                "name" : "Analyze Target Table",
+                "value" : "NO"
+              },
+              {
+                "name" : "Vacuum Target Table",
+                "value" : "None"
+              },
+              {
+                "name" : "Treat Source Rows As",
+                "value" : "INSERT"
+              },
+              {
+                "name" : "Transfer Manager Thread Pool Size",
+                "value" : "10"
+              },
+              {
+                "name" : "Minimum Upload Part Size",
+                "value" : "5242880"
+              },
+              {
+                "name" : "Schema Name",
+                "value" : "$$staging_schema"
+              },
+              {
+                "name" : "Preserve record order on write",
+                "value" : "NO"
+              },
+              {
+                "name" : "Number of files per batch",
+                "value" : "0"
+              }
+            ]
+          },
+          "writeOptions" : {
+            "batchSize" : 0,
+            "bulkApi" : "false",
+            "handleDecimalRoundOff" : "false",
+            "handleSpecialChars" : "false",
+            "operations" : [
+              "Insert"
+            ],
+            "setFieldsToNull" : "false",
+            "truncate" : "false",
+            "useErrorFile" : "false",
+            "useExactSrcNames" : "false",
+            "useSuccessFile" : "false"
+          }
+        },
+        "manualMappings" : {
+          "mappingList" : [
+            {
+              "fromFieldName" : "source_name",
+              "toField" : {
+                "name" : "originating_source_name"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "load_type",
+              "toField" : {
+                "name" : "originating_load_type"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_agency_nup",
+              "toField" : {
+                "name" : "agency_nup"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_bs_appoint_dt",
+              "toField" : {
+                "name" : "bs_appoint_dt"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_bs_cancel_dt",
+              "toField" : {
+                "name" : "bs_cancel_dt"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_ca_appoint_dt",
+              "toField" : {
+                "name" : "ca_appoint_dt"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_ca_cancel_dt",
+              "toField" : {
+                "name" : "ca_cancel_dt"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_created",
+              "toField" : {
+                "name" : "created"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "create_user_nup",
+              "toField" : {
+                "name" : "create_user_nup"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "id",
+              "toField" : {
+                "name" : "id"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_mk_appoint_dt",
+              "toField" : {
+                "name" : "mk_appoint_dt"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_mk_cancel_dt",
+              "toField" : {
+                "name" : "mk_cancel_dt"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_modified",
+              "toField" : {
+                "name" : "modified"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "modify_user_nup",
+              "toField" : {
+                "name" : "modify_user_nup"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "state",
+              "toField" : {
+                "name" : "state"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_row_status_active",
+              "toField" : {
+                "name" : "adm_commission_plans_row_status"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "batch_id",
+              "toField" : {
+                "name" : "adm_commission_plans_batch_id"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "src_MD5_Hash_Value",
+              "toField" : {
+                "name" : "adm_commission_plans_md5checksum"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_commission_plans_row_effective_start_datetime",
+              "toField" : {
+                "name" : "adm_commission_plans_row_effective_start_datetime"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_commission_plans_row_effective_end_datetime",
+              "toField" : {
+                "name" : "adm_commission_plans_row_effective_end_datetime"
+              },
+              "fromFieldNames" : null
+            }
+          ]
+        }
+      },
+      {
+        "createTime" : "2025-06-16T14:48:01.871Z",
+        "name" : "src_tgt_bronze_adm_commission_plans_query",
+        "advancedProperties" : [
+          {
+            "name" : "Tracing Level",
+            "value" : "Normal"
+          },
+          {
+            "name" : "Output is deterministic",
+            "value" : "false"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "false",
+            "name" : "DefaultGroup",
+            "output" : "true"
+          }
+        ],
+        "generateFilenamePort" : "false",
+        "useLabels" : "false",
+        "useSequenceFields" : "false",
+        "fields" : [
+          {
+            "adapterField" : {
+              "name" : "adm_commission_plans_row_id"
+            },
+            "name" : "adm_commission_plans_row_id",
+            "platformType" : {
+              "name" : "bigint"
+            },
+            "precision" : 19,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "agency_nup"
+            },
+            "name" : "agency_nup",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "id"
+            },
+            "name" : "id",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "adm_commission_plans_md5checksum"
+            },
+            "name" : "adm_commission_plans_md5checksum",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 255,
+            "scale" : 0
+          }
+        ],
+        "dataAdapter" : {
+          "connectionId$" : {
+            "name" : "DBConnection_UDM_TGT"
+          },
+          "excludeDynamicFileNameField" : "false",
+          "objectType" : "QUERY",
+          "typeSystem" : "TOOLKIT",
+          "useDynamicFileName" : "false",
+          "object" : {
+            "customQuery" : "SELECT \n\tadm_commission_plans_row_id, \n\tagency_nup,\n\tid,\n        adm_commission_plans_md5checksum\nFROM $$staging_schema.adm_commission_plans\nWHERE adm_commission_plans_row_effective_end_datetime = '9999-12-31 00:00:00.000'",
+            "retainMetadata" : "false",
+            "fields" : [
+              {
+                "name" : "adm_commission_plans_row_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "adm_commission_plans_row_id",
+                "nativeName" : "adm_commission_plans_row_id",
+                "nativeType" : "int8",
+                "original" : "false",
+                "precision" : 19,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "agency_nup",
+                "fieldType" : "CONNECTOR",
+                "label" : "agency_nup",
+                "nativeName" : "agency_nup",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "id",
+                "fieldType" : "CONNECTOR",
+                "label" : "id",
+                "nativeName" : "id",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "adm_commission_plans_md5checksum",
+                "fieldType" : "CONNECTOR",
+                "label" : "adm_commission_plans_md5checksum",
+                "nativeName" : "adm_commission_plans_md5checksum",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 255,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              }
+            ]
+          },
+          "readOptions" : {
+            "commandType" : 0,
+            "descending" : "false",
+            "queryAll" : "false",
+            "rowLimit" : 0,
+            "selectDistinct" : "false"
+          },
+          "runtimeAttributes" : {
+            "attributes" : [
+              {
+                "name" : "Read Mode",
+                "value" : "Direct"
+              },
+              {
+                "name" : "Fetch Size",
+                "value" : "10000"
+              },
+              {
+                "name" : "S3 Bucket Name",
+                "value" : "$$S3_Staging_Bucket"
+              },
+              {
+                "name" : "Enable Compression",
+                "value" : "YES"
+              },
+              {
+                "name" : "Temporary Credential Duration",
+                "value" : "43200"
+              },
+              {
+                "name" : "Treat NULL Value as NULL",
+                "value" : "NO"
+              },
+              {
+                "name" : "Encryption Type",
+                "value" : "None"
+              },
+              {
+                "name" : "Download S3 Files In Multiple Parts",
+                "value" : "NO"
+              },
+              {
+                "name" : "Multipart Download Threshold Size",
+                "value" : "5242880"
+              },
+              {
+                "name" : "Select Distinct",
+                "value" : "NO"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "createTime" : "2025-06-16T15:20:25.112Z",
+        "name" : "exp_passthrough",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "windowConfigurationEnabled" : "false",
+        "windowSpec" : {
+          "allRowsFollowing" : "false",
+          "allRowsPreceding" : "false",
+          "endOffset" : 0,
+          "startOffset" : 0,
+          "partitionKeys" : null
+        }
+      },
+      {
+        "createTime" : "2025-06-16T15:21:13.961Z",
+        "name" : "exp_datatype_conversion",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "windowConfigurationEnabled" : "false",
+        "fields" : [
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_created",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9,
+            "expFieldType" : "OUTPUT",
+            "expression" : "IIF(IS_DATE(created, 'YYYY-MM-DD HH24:MI:SS'), TO_DATE(created, 'YYYY-MM-DD HH24:MI:SS'), NULL)"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_modified",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9,
+            "expFieldType" : "OUTPUT",
+            "expression" : "IIF(IS_DATE(modified, 'YYYY-MM-DD HH24:MI:SS'), TO_DATE(modified, 'YYYY-MM-DD HH24:MI:SS'), NULL)"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_agency_nup",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "IIF(ISNULL(agency_nup),NULL,to_integer(rtrim(ltrim(agency_nup))))"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_id",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "IIF(ISNULL(id), NULL, to_integer(rtrim(ltrim(id))))"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_bs_appoint_dt",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9,
+            "expFieldType" : "OUTPUT",
+            "expression" : "IIF(IS_DATE(bs_appoint_dt, 'YYYY-MM-DD'), TO_DATE(bs_appoint_dt, 'YYYY-MM-DD'), NULL)"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_bs_cancel_dt",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9,
+            "expFieldType" : "OUTPUT",
+            "expression" : "IIF(IS_DATE(bs_cancel_dt, 'YYYY-MM-DD'), TO_DATE(bs_cancel_dt, 'YYYY-MM-DD'), NULL)"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_ca_appoint_dt",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9,
+            "expFieldType" : "OUTPUT",
+            "expression" : "IIF(IS_DATE(ca_appoint_dt, 'YYYY-MM-DD'), TO_DATE(ca_appoint_dt, 'YYYY-MM-DD'), NULL)"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_ca_cancel_dt",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9,
+            "expFieldType" : "OUTPUT",
+            "expression" : "IIF(IS_DATE(ca_cancel_dt, 'YYYY-MM-DD'), TO_DATE(ca_cancel_dt, 'YYYY-MM-DD'), NULL)"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_mk_appoint_dt",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9,
+            "expFieldType" : "OUTPUT",
+            "expression" : "IIF(IS_DATE(mk_appoint_dt, 'YYYY-MM-DD'), TO_DATE(mk_appoint_dt, 'YYYY-MM-DD'), NULL)"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_mk_cancel_dt",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9,
+            "expFieldType" : "OUTPUT",
+            "expression" : "IIF(IS_DATE(mk_cancel_dt, 'YYYY-MM-DD'), TO_DATE(mk_cancel_dt, 'YYYY-MM-DD'), NULL)"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_create_user_nop",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "IIF(ISNULL(create_user_nup), NULL,To_Integer(Rtrim(Ltrim(create_user_nup))))"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_modified_user_nup",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "IIF(ISNULL(modify_user_nup), NULL,To_Integer(Rtrim(Ltrim(modify_user_nup))))"
+          }
+        ],
+        "windowSpec" : {
+          "allRowsFollowing" : "false",
+          "allRowsPreceding" : "false",
+          "endOffset" : 0,
+          "startOffset" : 0,
+          "partitionKeys" : null
+        }
+      },
+      {
+        "createTime" : "2025-06-16T15:53:02.605Z",
+        "name" : "jnr_src_tgt",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "Master",
+            "output" : "false",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          },
+          {
+            "input" : "true",
+            "name" : "Detail",
+            "output" : "false",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              },
+              {
+                "bulkRename" : "false",
+                "include" : "true",
+                "names" : [
+                  {
+                    "inputName" : "adm_commission_plans_md5checksum",
+                    "outputName" : "tgt_adm_commission_plans_md5checksum"
+                  },
+                  {
+                    "inputName" : "adm_commission_plans_row_id",
+                    "outputName" : "tgt_adm_commission_plans_row_id"
+                  },
+                  {
+                    "inputName" : "agency_nup",
+                    "outputName" : "tgt_agency_nup"
+                  },
+                  {
+                    "inputName" : "id",
+                    "outputName" : "tgt_id"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "input" : "false",
+            "name" : "OutputGroup",
+            "output" : "true"
+          }
+        ],
+        "joinType" : "Detail Outer Join",
+        "joinConditions" : [
+          {
+            "leftOperand" : "o_agency_nup",
+            "operator" : "=",
+            "rightOperand" : "tgt_agency_nup"
+          },
+          {
+            "leftOperand" : "o_id",
+            "operator" : "=",
+            "rightOperand" : "tgt_id"
+          }
+        ]
+      },
+      {
+        "createTime" : "2025-06-16T15:55:14.561Z",
+        "name" : "exp_MD5_Calc",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "windowConfigurationEnabled" : "false",
+        "fields" : [
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "src_MD5_Hash_Value",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 1024,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "MD5('id' || id ||\n    'source_name' || source_name ||\n\t'load_type' || load_type ||\n    'agency_nup' || agency_nup ||\n\t'created' || created ||\n\t'modified' || modified ||\n\t'bs_appoint_dt' || bs_appoint_dt ||\n\t'bs_cancel_dt' || bs_cancel_dt ||\n\t'ca_appoint_dt' || ca_appoint_dt ||\n\t'ca_cancel_dt' || ca_cancel_dt ||\n\t'state' || state ||\n\t'mk_appoint_dt' || mk_appoint_dt ||\n\t'mk_cancel_dt' || mk_cancel_dt ||\n\t'create_user_nup' || create_user_nup ||\n\t'modify_user_nup' || modify_user_nup)"
+          }
+        ],
+        "windowSpec" : {
+          "allRowsFollowing" : "false",
+          "allRowsPreceding" : "false",
+          "endOffset" : 0,
+          "startOffset" : 0,
+          "partitionKeys" : null
+        }
+      },
+      {
+        "createTime" : "2025-06-16T15:59:04.000Z",
+        "name" : "exp_ins_upd_flags",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "windowConfigurationEnabled" : "false",
+        "fields" : [
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_insert_flag_record",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 5,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "iif (isnull(tgt_adm_commission_plans_row_id),'I','X')"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_update_flag",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 5,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "iif (not IsNull(tgt_adm_commission_plans_row_id)and src_MD5_Hash_Value != tgt_adm_commission_plans_md5checksum, 'U','X')"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_commission_plans_row_effective_start_datetime",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9,
+            "expFieldType" : "OUTPUT",
+            "expression" : "SYSDATE"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_commission_plans_row_effective_end_datetime",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9,
+            "expFieldType" : "OUTPUT",
+            "expression" : "to_date('9999-12-31','YYYY-MM-DD')"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_row_status_expired",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 100,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "'Expired'"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_row_status_active",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 100,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "'Active'"
+          }
+        ],
+        "windowSpec" : {
+          "allRowsFollowing" : "false",
+          "allRowsPreceding" : "false",
+          "endOffset" : 0,
+          "startOffset" : 0,
+          "partitionKeys" : null
+        }
+      },
+      {
+        "createTime" : "2025-06-16T16:48:41.814Z",
+        "name" : "rtr_insert_update",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "INPUT",
+            "output" : "false",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              },
+              {
+                "bulkRename" : "false",
+                "include" : "false",
+                "names" : [
+                  {
+                    "inputName" : "agency_nup"
+                  },
+                  {
+                    "inputName" : "bs_appoint_dt"
+                  },
+                  {
+                    "inputName" : "bs_cancel_dt"
+                  },
+                  {
+                    "inputName" : "ca_appoint_dt"
+                  },
+                  {
+                    "inputName" : "ca_cancel_dt"
+                  },
+                  {
+                    "inputName" : "created"
+                  },
+                  {
+                    "inputName" : "mk_appoint_dt"
+                  },
+                  {
+                    "inputName" : "mk_cancel_dt"
+                  },
+                  {
+                    "inputName" : "modified"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "input" : "false",
+            "name" : "DEFAULT1",
+            "output" : "true"
+          },
+          {
+            "input" : "false",
+            "name" : "insert",
+            "output" : "true"
+          },
+          {
+            "input" : "false",
+            "name" : "update",
+            "output" : "true"
+          }
+        ],
+        "groupFilterConditions" : [
+          {
+            "advancedFilterCondition" : "o_insert_flag_record='I'",
+            "name" : "insert"
+          },
+          {
+            "advancedFilterCondition" : "o_update_flag='U'",
+            "name" : "update"
+          }
+        ]
+      },
+      {
+        "createTime" : "2025-06-16T14:48:01.871Z",
+        "name" : "tgt_bronze_adm_commision_plans_upd",
+        "advancedProperties" : [
+          {
+            "name" : "Forward Rejected Rows",
+            "value" : "true"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "false",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "createTarget" : "false",
+        "fieldMappingMode" : "MANUAL",
+        "inputSorted" : "false",
+        "schemaProviderType" : "SELECTED_OBJECT",
+        "targetFieldsOrdered" : "false",
+        "updateColumns" : null,
+        "useLabels" : "false",
+        "useSequenceFields" : "false",
+        "fields" : [
+          {
+            "adapterField" : {
+              "name" : "adm_commission_plans_row_id"
+            },
+            "name" : "adm_commission_plans_row_id",
+            "platformType" : {
+              "name" : "bigint"
+            },
+            "precision" : 19,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "adm_commission_plans_batch_id"
+            },
+            "name" : "adm_commission_plans_batch_id",
+            "platformType" : {
+              "name" : "bigint"
+            },
+            "precision" : 19,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "originating_source_name"
+            },
+            "name" : "originating_source_name",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "originating_load_type"
+            },
+            "name" : "originating_load_type",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "adm_commission_plans_md5checksum"
+            },
+            "name" : "adm_commission_plans_md5checksum",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 255,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "adm_commission_plans_row_effective_start_datetime"
+            },
+            "name" : "adm_commission_plans_row_effective_start_datetime",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "adm_commission_plans_row_effective_end_datetime"
+            },
+            "name" : "adm_commission_plans_row_effective_end_datetime",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "adm_commission_plans_row_status"
+            },
+            "name" : "adm_commission_plans_row_status",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "agency_nup"
+            },
+            "name" : "agency_nup",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "bs_appoint_dt"
+            },
+            "name" : "bs_appoint_dt",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "bs_cancel_dt"
+            },
+            "name" : "bs_cancel_dt",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "ca_appoint_dt"
+            },
+            "name" : "ca_appoint_dt",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "ca_cancel_dt"
+            },
+            "name" : "ca_cancel_dt",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "created"
+            },
+            "name" : "created",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "create_user_nup"
+            },
+            "name" : "create_user_nup",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "id"
+            },
+            "name" : "id",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "mk_appoint_dt"
+            },
+            "name" : "mk_appoint_dt",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "mk_cancel_dt"
+            },
+            "name" : "mk_cancel_dt",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "modified"
+            },
+            "name" : "modified",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "modify_user_nup"
+            },
+            "name" : "modify_user_nup",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "state"
+            },
+            "name" : "state",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 7,
+            "scale" : 0
+          }
+        ],
+        "dataAdapter" : {
+          "connectionId$" : {
+            "name" : "DBConnection_UDM_TGT"
+          },
+          "excludeDynamicFileNameField" : "false",
+          "objectType" : "SINGLE",
+          "typeSystem" : "TOOLKIT",
+          "useDynamicFileName" : "false",
+          "bulkOptions" : {
+            "hardDelete" : "false",
+            "maxRowsPerRequest" : 0,
+            "monitorBulk" : "false",
+            "monitorBulkV2" : "false",
+            "pkChunkingEnabled" : "false",
+            "pkChunkingSize" : 0,
+            "serialMode" : "false",
+            "useBulkApi" : "false",
+            "useBulkApiV2" : "false"
+          },
+          "object" : {
+            "name" : "bronze/adm_commission_plans",
+            "label" : "bronze/adm_commission_plans",
+            "objectName" : "adm_commission_plans",
+            "objectType" : "amazonredshift",
+            "path" : "bronze/adm_commission_plans",
+            "retainMetadata" : "false",
+            "fields" : [
+              {
+                "name" : "adm_commission_plans_row_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "adm_commission_plans_row_id",
+                "nativeName" : "adm_commission_plans_row_id",
+                "nativeType" : "int8",
+                "original" : "false",
+                "precision" : 19,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_commission_plans"
+                  }
+                ]
+              },
+              {
+                "name" : "adm_commission_plans_batch_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "adm_commission_plans_batch_id",
+                "nativeName" : "adm_commission_plans_batch_id",
+                "nativeType" : "int8",
+                "original" : "false",
+                "precision" : 19,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_commission_plans"
+                  }
+                ]
+              },
+              {
+                "name" : "originating_source_name",
+                "fieldType" : "CONNECTOR",
+                "label" : "originating_source_name",
+                "nativeName" : "originating_source_name",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_commission_plans"
+                  }
+                ]
+              },
+              {
+                "name" : "originating_load_type",
+                "fieldType" : "CONNECTOR",
+                "label" : "originating_load_type",
+                "nativeName" : "originating_load_type",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_commission_plans"
+                  }
+                ]
+              },
+              {
+                "name" : "adm_commission_plans_md5checksum",
+                "fieldType" : "CONNECTOR",
+                "label" : "adm_commission_plans_md5checksum",
+                "nativeName" : "adm_commission_plans_md5checksum",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 255,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_commission_plans"
+                  }
+                ]
+              },
+              {
+                "name" : "adm_commission_plans_row_effective_start_datetime",
+                "fieldType" : "CONNECTOR",
+                "label" : "adm_commission_plans_row_effective_start_datetime",
+                "nativeName" : "adm_commission_plans_row_effective_start_datetime",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_commission_plans"
+                  }
+                ]
+              },
+              {
+                "name" : "adm_commission_plans_row_effective_end_datetime",
+                "fieldType" : "CONNECTOR",
+                "label" : "adm_commission_plans_row_effective_end_datetime",
+                "nativeName" : "adm_commission_plans_row_effective_end_datetime",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_commission_plans"
+                  }
+                ]
+              },
+              {
+                "name" : "adm_commission_plans_row_status",
+                "fieldType" : "CONNECTOR",
+                "label" : "adm_commission_plans_row_status",
+                "nativeName" : "adm_commission_plans_row_status",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_commission_plans"
+                  }
+                ]
+              },
+              {
+                "name" : "agency_nup",
+                "fieldType" : "CONNECTOR",
+                "label" : "agency_nup",
+                "nativeName" : "agency_nup",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_commission_plans"
+                  }
+                ]
+              },
+              {
+                "name" : "bs_appoint_dt",
+                "fieldType" : "CONNECTOR",
+                "label" : "bs_appoint_dt",
+                "nativeName" : "bs_appoint_dt",
+                "nativeType" : "date",
+                "original" : "false",
+                "precision" : 13,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_commission_plans"
+                  }
+                ]
+              },
+              {
+                "name" : "bs_cancel_dt",
+                "fieldType" : "CONNECTOR",
+                "label" : "bs_cancel_dt",
+                "nativeName" : "bs_cancel_dt",
+                "nativeType" : "date",
+                "original" : "false",
+                "precision" : 13,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_commission_plans"
+                  }
+                ]
+              },
+              {
+                "name" : "ca_appoint_dt",
+                "fieldType" : "CONNECTOR",
+                "label" : "ca_appoint_dt",
+                "nativeName" : "ca_appoint_dt",
+                "nativeType" : "date",
+                "original" : "false",
+                "precision" : 13,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_commission_plans"
+                  }
+                ]
+              },
+              {
+                "name" : "ca_cancel_dt",
+                "fieldType" : "CONNECTOR",
+                "label" : "ca_cancel_dt",
+                "nativeName" : "ca_cancel_dt",
+                "nativeType" : "date",
+                "original" : "false",
+                "precision" : 13,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_commission_plans"
+                  }
+                ]
+              },
+              {
+                "name" : "created",
+                "fieldType" : "CONNECTOR",
+                "label" : "created",
+                "nativeName" : "created",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_commission_plans"
+                  }
+                ]
+              },
+              {
+                "name" : "create_user_nup",
+                "fieldType" : "CONNECTOR",
+                "label" : "create_user_nup",
+                "nativeName" : "create_user_nup",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_commission_plans"
+                  }
+                ]
+              },
+              {
+                "name" : "id",
+                "fieldType" : "CONNECTOR",
+                "label" : "id",
+                "nativeName" : "id",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_commission_plans"
+                  }
+                ]
+              },
+              {
+                "name" : "mk_appoint_dt",
+                "fieldType" : "CONNECTOR",
+                "label" : "mk_appoint_dt",
+                "nativeName" : "mk_appoint_dt",
+                "nativeType" : "date",
+                "original" : "false",
+                "precision" : 13,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_commission_plans"
+                  }
+                ]
+              },
+              {
+                "name" : "mk_cancel_dt",
+                "fieldType" : "CONNECTOR",
+                "label" : "mk_cancel_dt",
+                "nativeName" : "mk_cancel_dt",
+                "nativeType" : "date",
+                "original" : "false",
+                "precision" : 13,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_commission_plans"
+                  }
+                ]
+              },
+              {
+                "name" : "modified",
+                "fieldType" : "CONNECTOR",
+                "label" : "modified",
+                "nativeName" : "modified",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_commission_plans"
+                  }
+                ]
+              },
+              {
+                "name" : "modify_user_nup",
+                "fieldType" : "CONNECTOR",
+                "label" : "modify_user_nup",
+                "nativeName" : "modify_user_nup",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_commission_plans"
+                  }
+                ]
+              },
+              {
+                "name" : "state",
+                "fieldType" : "CONNECTOR",
+                "label" : "state",
+                "nativeName" : "state",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 7,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_commission_plans"
+                  }
+                ]
+              }
+            ],
+            "objectAttributes" : [
+              {
+                "name" : "recordType",
+                "value" : "TABLE"
+              }
+            ]
+          },
+          "runtimeAttributes" : {
+            "attributes" : [
+              {
+                "name" : "S3 Bucket Name",
+                "value" : "$$S3_Staging_Bucket"
+              },
+              {
+                "name" : "Enable Compression",
+                "value" : "YES"
+              },
+              {
+                "name" : "Batch Size",
+                "value" : "2000000"
+              },
+              {
+                "name" : "Max Errors Per Batch Upload Insert",
+                "value" : "1"
+              },
+              {
+                "name" : "Truncate Target Table Before Data Upload",
+                "value" : "NO"
+              },
+              {
+                "name" : "WaitTime In Seconds For S3 File Consistency",
+                "value" : "0"
+              },
+              {
+                "name" : "Temporary Credential Duration",
+                "value" : "43200"
+              },
+              {
+                "name" : "S3 Server Side Encryption",
+                "value" : "NO"
+              },
+              {
+                "name" : "S3 Client Side Encryption",
+                "value" : "NO"
+              },
+              {
+                "name" : "Analyze Target Table",
+                "value" : "NO"
+              },
+              {
+                "name" : "Vacuum Target Table",
+                "value" : "None"
+              },
+              {
+                "name" : "Treat Source Rows As",
+                "value" : "INSERT"
+              },
+              {
+                "name" : "Transfer Manager Thread Pool Size",
+                "value" : "10"
+              },
+              {
+                "name" : "Minimum Upload Part Size",
+                "value" : "5242880"
+              },
+              {
+                "name" : "Schema Name",
+                "value" : "$$staging_schema"
+              },
+              {
+                "name" : "Preserve record order on write",
+                "value" : "NO"
+              },
+              {
+                "name" : "Number of files per batch",
+                "value" : "0"
+              }
+            ]
+          },
+          "writeOptions" : {
+            "batchSize" : 0,
+            "bulkApi" : "false",
+            "handleDecimalRoundOff" : "false",
+            "handleSpecialChars" : "false",
+            "operations" : [
+              "Insert"
+            ],
+            "setFieldsToNull" : "false",
+            "truncate" : "false",
+            "useErrorFile" : "false",
+            "useExactSrcNames" : "false",
+            "useSuccessFile" : "false"
+          }
+        },
+        "manualMappings" : {
+          "mappingList" : [
+            {
+              "fromFieldName" : "batch_id",
+              "toField" : {
+                "name" : "adm_commission_plans_batch_id"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "source_name",
+              "toField" : {
+                "name" : "originating_source_name"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "load_type",
+              "toField" : {
+                "name" : "originating_load_type"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_agency_nup",
+              "toField" : {
+                "name" : "agency_nup"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_bs_appoint_dt",
+              "toField" : {
+                "name" : "bs_appoint_dt"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_bs_cancel_dt",
+              "toField" : {
+                "name" : "bs_cancel_dt"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_ca_appoint_dt",
+              "toField" : {
+                "name" : "ca_appoint_dt"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_ca_cancel_dt",
+              "toField" : {
+                "name" : "ca_cancel_dt"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_created",
+              "toField" : {
+                "name" : "created"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "create_user_nup",
+              "toField" : {
+                "name" : "create_user_nup"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "id",
+              "toField" : {
+                "name" : "id"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_mk_appoint_dt",
+              "toField" : {
+                "name" : "mk_appoint_dt"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_mk_cancel_dt",
+              "toField" : {
+                "name" : "mk_cancel_dt"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_modified",
+              "toField" : {
+                "name" : "modified"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "modify_user_nup",
+              "toField" : {
+                "name" : "modify_user_nup"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "state",
+              "toField" : {
+                "name" : "state"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "src_MD5_Hash_Value",
+              "toField" : {
+                "name" : "adm_commission_plans_md5checksum"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_commission_plans_row_effective_start_datetime",
+              "toField" : {
+                "name" : "adm_commission_plans_row_effective_start_datetime"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_commission_plans_row_effective_end_datetime",
+              "toField" : {
+                "name" : "adm_commission_plans_row_effective_end_datetime"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_row_status_active",
+              "toField" : {
+                "name" : "adm_commission_plans_row_status"
+              },
+              "fromFieldNames" : null
+            }
+          ]
+        }
+      },
+      {
+        "createTime" : "2025-06-16T14:48:01.871Z",
+        "name" : "tgt_bronze_adm_commision_plans_upd_enddate",
+        "advancedProperties" : [
+          {
+            "name" : "Forward Rejected Rows",
+            "value" : "true"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "false",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "createTarget" : "false",
+        "fieldMappingMode" : "MANUAL",
+        "inputSorted" : "false",
+        "schemaProviderType" : "SELECTED_OBJECT",
+        "targetFieldsOrdered" : "false",
+        "updateColumns" : [
+          "adm_commission_plans_row_id"
+        ],
+        "useLabels" : "false",
+        "useSequenceFields" : "false",
+        "fields" : [
+          {
+            "adapterField" : {
+              "name" : "adm_commission_plans_row_id"
+            },
+            "name" : "adm_commission_plans_row_id",
+            "platformType" : {
+              "name" : "bigint"
+            },
+            "precision" : 19,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "adm_commission_plans_batch_id"
+            },
+            "name" : "adm_commission_plans_batch_id",
+            "platformType" : {
+              "name" : "bigint"
+            },
+            "precision" : 19,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "originating_source_name"
+            },
+            "name" : "originating_source_name",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "originating_load_type"
+            },
+            "name" : "originating_load_type",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "adm_commission_plans_md5checksum"
+            },
+            "name" : "adm_commission_plans_md5checksum",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 255,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "adm_commission_plans_row_effective_start_datetime"
+            },
+            "name" : "adm_commission_plans_row_effective_start_datetime",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "adm_commission_plans_row_effective_end_datetime"
+            },
+            "name" : "adm_commission_plans_row_effective_end_datetime",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "adm_commission_plans_row_status"
+            },
+            "name" : "adm_commission_plans_row_status",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "agency_nup"
+            },
+            "name" : "agency_nup",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "bs_appoint_dt"
+            },
+            "name" : "bs_appoint_dt",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "bs_cancel_dt"
+            },
+            "name" : "bs_cancel_dt",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "ca_appoint_dt"
+            },
+            "name" : "ca_appoint_dt",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "ca_cancel_dt"
+            },
+            "name" : "ca_cancel_dt",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "created"
+            },
+            "name" : "created",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "create_user_nup"
+            },
+            "name" : "create_user_nup",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "id"
+            },
+            "name" : "id",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "mk_appoint_dt"
+            },
+            "name" : "mk_appoint_dt",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "mk_cancel_dt"
+            },
+            "name" : "mk_cancel_dt",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "modified"
+            },
+            "name" : "modified",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "modify_user_nup"
+            },
+            "name" : "modify_user_nup",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "state"
+            },
+            "name" : "state",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 7,
+            "scale" : 0
+          }
+        ],
+        "dataAdapter" : {
+          "connectionId$" : {
+            "name" : "DBConnection_UDM_TGT"
+          },
+          "excludeDynamicFileNameField" : "false",
+          "objectType" : "SINGLE",
+          "typeSystem" : "TOOLKIT",
+          "useDynamicFileName" : "false",
+          "bulkOptions" : {
+            "hardDelete" : "false",
+            "maxRowsPerRequest" : 0,
+            "monitorBulk" : "false",
+            "monitorBulkV2" : "false",
+            "pkChunkingEnabled" : "false",
+            "pkChunkingSize" : 0,
+            "serialMode" : "false",
+            "useBulkApi" : "false",
+            "useBulkApiV2" : "false"
+          },
+          "object" : {
+            "name" : "bronze/adm_commission_plans",
+            "label" : "bronze/adm_commission_plans",
+            "objectName" : "adm_commission_plans",
+            "objectType" : "amazonredshift",
+            "path" : "bronze/adm_commission_plans",
+            "retainMetadata" : "false",
+            "fields" : [
+              {
+                "name" : "adm_commission_plans_row_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "adm_commission_plans_row_id",
+                "nativeName" : "adm_commission_plans_row_id",
+                "nativeType" : "int8",
+                "original" : "false",
+                "precision" : 19,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_commission_plans"
+                  }
+                ]
+              },
+              {
+                "name" : "adm_commission_plans_batch_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "adm_commission_plans_batch_id",
+                "nativeName" : "adm_commission_plans_batch_id",
+                "nativeType" : "int8",
+                "original" : "false",
+                "precision" : 19,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_commission_plans"
+                  }
+                ]
+              },
+              {
+                "name" : "originating_source_name",
+                "fieldType" : "CONNECTOR",
+                "label" : "originating_source_name",
+                "nativeName" : "originating_source_name",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_commission_plans"
+                  }
+                ]
+              },
+              {
+                "name" : "originating_load_type",
+                "fieldType" : "CONNECTOR",
+                "label" : "originating_load_type",
+                "nativeName" : "originating_load_type",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_commission_plans"
+                  }
+                ]
+              },
+              {
+                "name" : "adm_commission_plans_md5checksum",
+                "fieldType" : "CONNECTOR",
+                "label" : "adm_commission_plans_md5checksum",
+                "nativeName" : "adm_commission_plans_md5checksum",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 255,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_commission_plans"
+                  }
+                ]
+              },
+              {
+                "name" : "adm_commission_plans_row_effective_start_datetime",
+                "fieldType" : "CONNECTOR",
+                "label" : "adm_commission_plans_row_effective_start_datetime",
+                "nativeName" : "adm_commission_plans_row_effective_start_datetime",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_commission_plans"
+                  }
+                ]
+              },
+              {
+                "name" : "adm_commission_plans_row_effective_end_datetime",
+                "fieldType" : "CONNECTOR",
+                "label" : "adm_commission_plans_row_effective_end_datetime",
+                "nativeName" : "adm_commission_plans_row_effective_end_datetime",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_commission_plans"
+                  }
+                ]
+              },
+              {
+                "name" : "adm_commission_plans_row_status",
+                "fieldType" : "CONNECTOR",
+                "label" : "adm_commission_plans_row_status",
+                "nativeName" : "adm_commission_plans_row_status",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_commission_plans"
+                  }
+                ]
+              },
+              {
+                "name" : "agency_nup",
+                "fieldType" : "CONNECTOR",
+                "label" : "agency_nup",
+                "nativeName" : "agency_nup",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_commission_plans"
+                  }
+                ]
+              },
+              {
+                "name" : "bs_appoint_dt",
+                "fieldType" : "CONNECTOR",
+                "label" : "bs_appoint_dt",
+                "nativeName" : "bs_appoint_dt",
+                "nativeType" : "date",
+                "original" : "false",
+                "precision" : 13,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_commission_plans"
+                  }
+                ]
+              },
+              {
+                "name" : "bs_cancel_dt",
+                "fieldType" : "CONNECTOR",
+                "label" : "bs_cancel_dt",
+                "nativeName" : "bs_cancel_dt",
+                "nativeType" : "date",
+                "original" : "false",
+                "precision" : 13,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_commission_plans"
+                  }
+                ]
+              },
+              {
+                "name" : "ca_appoint_dt",
+                "fieldType" : "CONNECTOR",
+                "label" : "ca_appoint_dt",
+                "nativeName" : "ca_appoint_dt",
+                "nativeType" : "date",
+                "original" : "false",
+                "precision" : 13,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_commission_plans"
+                  }
+                ]
+              },
+              {
+                "name" : "ca_cancel_dt",
+                "fieldType" : "CONNECTOR",
+                "label" : "ca_cancel_dt",
+                "nativeName" : "ca_cancel_dt",
+                "nativeType" : "date",
+                "original" : "false",
+                "precision" : 13,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_commission_plans"
+                  }
+                ]
+              },
+              {
+                "name" : "created",
+                "fieldType" : "CONNECTOR",
+                "label" : "created",
+                "nativeName" : "created",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_commission_plans"
+                  }
+                ]
+              },
+              {
+                "name" : "create_user_nup",
+                "fieldType" : "CONNECTOR",
+                "label" : "create_user_nup",
+                "nativeName" : "create_user_nup",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_commission_plans"
+                  }
+                ]
+              },
+              {
+                "name" : "id",
+                "fieldType" : "CONNECTOR",
+                "label" : "id",
+                "nativeName" : "id",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_commission_plans"
+                  }
+                ]
+              },
+              {
+                "name" : "mk_appoint_dt",
+                "fieldType" : "CONNECTOR",
+                "label" : "mk_appoint_dt",
+                "nativeName" : "mk_appoint_dt",
+                "nativeType" : "date",
+                "original" : "false",
+                "precision" : 13,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_commission_plans"
+                  }
+                ]
+              },
+              {
+                "name" : "mk_cancel_dt",
+                "fieldType" : "CONNECTOR",
+                "label" : "mk_cancel_dt",
+                "nativeName" : "mk_cancel_dt",
+                "nativeType" : "date",
+                "original" : "false",
+                "precision" : 13,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_commission_plans"
+                  }
+                ]
+              },
+              {
+                "name" : "modified",
+                "fieldType" : "CONNECTOR",
+                "label" : "modified",
+                "nativeName" : "modified",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_commission_plans"
+                  }
+                ]
+              },
+              {
+                "name" : "modify_user_nup",
+                "fieldType" : "CONNECTOR",
+                "label" : "modify_user_nup",
+                "nativeName" : "modify_user_nup",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_commission_plans"
+                  }
+                ]
+              },
+              {
+                "name" : "state",
+                "fieldType" : "CONNECTOR",
+                "label" : "state",
+                "nativeName" : "state",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 7,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_commission_plans"
+                  }
+                ]
+              }
+            ],
+            "objectAttributes" : [
+              {
+                "name" : "recordType",
+                "value" : "TABLE"
+              }
+            ]
+          },
+          "runtimeAttributes" : {
+            "attributes" : [
+              {
+                "name" : "S3 Bucket Name",
+                "value" : "$$S3_Staging_Bucket"
+              },
+              {
+                "name" : "Enable Compression",
+                "value" : "YES"
+              },
+              {
+                "name" : "Batch Size",
+                "value" : "2000000"
+              },
+              {
+                "name" : "Max Errors Per Batch Upload Insert",
+                "value" : "1"
+              },
+              {
+                "name" : "Truncate Target Table Before Data Upload",
+                "value" : "NO"
+              },
+              {
+                "name" : "WaitTime In Seconds For S3 File Consistency",
+                "value" : "0"
+              },
+              {
+                "name" : "Temporary Credential Duration",
+                "value" : "43200"
+              },
+              {
+                "name" : "S3 Server Side Encryption",
+                "value" : "NO"
+              },
+              {
+                "name" : "S3 Client Side Encryption",
+                "value" : "NO"
+              },
+              {
+                "name" : "Analyze Target Table",
+                "value" : "NO"
+              },
+              {
+                "name" : "Vacuum Target Table",
+                "value" : "None"
+              },
+              {
+                "name" : "Treat Source Rows As",
+                "value" : "UPDATE"
+              },
+              {
+                "name" : "Transfer Manager Thread Pool Size",
+                "value" : "10"
+              },
+              {
+                "name" : "Minimum Upload Part Size",
+                "value" : "5242880"
+              },
+              {
+                "name" : "Schema Name",
+                "value" : "$$staging_schema"
+              },
+              {
+                "name" : "Preserve record order on write",
+                "value" : "NO"
+              },
+              {
+                "name" : "Number of files per batch",
+                "value" : "0"
+              }
+            ]
+          },
+          "writeOptions" : {
+            "batchSize" : 0,
+            "bulkApi" : "false",
+            "handleDecimalRoundOff" : "false",
+            "handleSpecialChars" : "false",
+            "operations" : [
+              "Update"
+            ],
+            "setFieldsToNull" : "false",
+            "truncate" : "false",
+            "useErrorFile" : "false",
+            "useExactSrcNames" : "false",
+            "useSuccessFile" : "false"
+          }
+        },
+        "manualMappings" : {
+          "mappingList" : [
+            {
+              "fromFieldName" : "o_end_date",
+              "toField" : {
+                "name" : "adm_commission_plans_row_effective_end_datetime"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_row_status_expired",
+              "toField" : {
+                "name" : "adm_commission_plans_row_status"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "tgt_adm_commission_plans_row_id",
+              "toField" : {
+                "name" : "adm_commission_plans_row_id"
+              },
+              "fromFieldNames" : null
+            }
+          ]
+        }
+      },
+      {
+        "createTime" : "2025-06-16T18:13:14.110Z",
+        "name" : "exp_upd_date",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "windowConfigurationEnabled" : "false",
+        "fields" : [
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_end_date",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9,
+            "expFieldType" : "OUTPUT",
+            "expression" : "SYSDATE"
+          }
+        ],
+        "windowSpec" : {
+          "allRowsFollowing" : "false",
+          "allRowsPreceding" : "false",
+          "endOffset" : 0,
+          "startOffset" : 0,
+          "partitionKeys" : null
+        }
+      },
+      {
+        "createTime" : "2025-06-17T18:37:34.098Z",
+        "name" : "exp_insert_records",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "windowConfigurationEnabled" : "false",
+        "windowSpec" : {
+          "allRowsFollowing" : "false",
+          "allRowsPreceding" : "false",
+          "endOffset" : 0,
+          "startOffset" : 0,
+          "partitionKeys" : null
+        }
+      },
+      {
+        "createTime" : "2025-06-17T18:37:51.012Z",
+        "name" : "exp_upd_insert",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "windowConfigurationEnabled" : "false",
+        "windowSpec" : {
+          "allRowsFollowing" : "false",
+          "allRowsPreceding" : "false",
+          "endOffset" : 0,
+          "startOffset" : 0,
+          "partitionKeys" : null
+        }
+      }
+    ],
+    "variables" : [
+      {
+        "aggregationType" : "MAX",
+        "expressionVariable" : "false",
+        "name" : "raw_schema",
+        "platformType" : {
+          "name" : "string"
+        },
+        "precision" : 100,
+        "retentionPolicy" : "NEVER",
+        "scale" : 0,
+        "defaultValue" : "metal"
+      },
+      {
+        "aggregationType" : "MAX",
+        "expressionVariable" : "false",
+        "name" : "staging_schema",
+        "platformType" : {
+          "name" : "string"
+        },
+        "precision" : 100,
+        "retentionPolicy" : "NEVER",
+        "scale" : 0,
+        "defaultValue" : "bronze"
+      },
+      {
+        "aggregationType" : "MAX",
+        "expressionVariable" : "false",
+        "name" : "operational_schema",
+        "platformType" : {
+          "name" : "string"
+        },
+        "precision" : 100,
+        "retentionPolicy" : "NEVER",
+        "scale" : 0,
+        "defaultValue" : "operations"
+      }
+    ]
+  },
+  "vcsExportTime" : "2026-01-30 09:22:55 EST"
+}
