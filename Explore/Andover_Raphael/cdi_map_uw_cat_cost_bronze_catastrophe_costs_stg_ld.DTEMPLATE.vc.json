@@ -1,0 +1,2913 @@
+{
+  "content" : {
+    "allowMaxFieldLength" : "false",
+    "name" : "cdi_map_uw_cat_cost_bronze_catastrophe_costs_stg_ld",
+    "specialCharacterSupport" : "false",
+    "links" : [
+      {
+        "link" : "cnn_cdl_CAT_Costs_metal -> srt_by_Risk_Id"
+      },
+      {
+        "link" : "srt_by_Risk_Id -> agg_by_Risk_Id"
+      },
+      {
+        "link" : "rtr_for_duplicate_Risk_Id -> exp_format",
+        "groupLink" : "Non_Duplicate_Risk_ID -> DefaultGroup"
+      },
+      {
+        "link" : "cnn_cdl_CAT_Costs_metal -> tgt_archive"
+      },
+      {
+        "link" : "exp_format -> catastrophe_costs_cnn_uw_cat_cost_bronze_ins"
+      },
+      {
+        "link" : "agg_by_Risk_Id -> duplicates_joiner",
+        "groupLink" : "DefaultGroup -> Detail"
+      },
+      {
+        "link" : "srt_by_Risk_Id -> duplicates_joiner",
+        "groupLink" : "DefaultGroup -> Master"
+      },
+      {
+        "link" : "duplicates_joiner -> rtr_for_duplicate_Risk_Id",
+        "groupLink" : "OutputGroup -> INPUT"
+      },
+      {
+        "link" : "rtr_for_duplicate_Risk_Id -> exp_duplicates",
+        "groupLink" : "DEFAULT1 -> DefaultGroup"
+      },
+      {
+        "link" : "exp_duplicates -> tgt_duplicates"
+      }
+    ],
+    "parameters" : [
+      {
+        "input" : "true",
+        "output" : "false",
+        "precision" : 0,
+        "scale" : 0,
+        "allowRuntimeOverride" : "true",
+        "expressionVariable" : "false",
+        "name" : "DBConnection_Tgt",
+        "anonymousType" : {
+          "subType" : "TOOLKIT_CCI",
+          "typeSystem" : "TOOLKIT",
+          "connectionType" : "Amazon Redshift v2"
+        }
+      },
+      {
+        "input" : "true",
+        "output" : "false",
+        "precision" : 0,
+        "scale" : 0,
+        "allowRuntimeOverride" : "false",
+        "expressionVariable" : "false",
+        "name" : "FF_Conn",
+        "anonymousType" : {
+          "subType" : "TOOLKIT_CCI",
+          "typeSystem" : "TOOLKIT",
+          "connectionType" : "Amazon S3 v2"
+        }
+      },
+      {
+        "input" : "true",
+        "output" : "false",
+        "precision" : 0,
+        "scale" : 0,
+        "allowRuntimeOverride" : "false",
+        "expressionVariable" : "false",
+        "name" : "SrcFile"
+      },
+      {
+        "input" : "true",
+        "output" : "false",
+        "precision" : 0,
+        "scale" : 0,
+        "allowRuntimeOverride" : "false",
+        "expressionVariable" : "false",
+        "name" : "S3_Staging_Bucket"
+      },
+      {
+        "input" : "true",
+        "output" : "false",
+        "precision" : 0,
+        "scale" : 0,
+        "allowRuntimeOverride" : "false",
+        "expressionVariable" : "false",
+        "name" : "ArcFile"
+      },
+      {
+        "input" : "true",
+        "output" : "false",
+        "precision" : 0,
+        "scale" : 0,
+        "allowRuntimeOverride" : "false",
+        "expressionVariable" : "false",
+        "name" : "DupFile"
+      }
+    ],
+    "transformations" : [
+      {
+        "createTime" : "2025-02-12T16:24:29.293Z",
+        "name" : "exp_format",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "conflictResolutions" : [
+              {
+                "precedingGroupName" : "DefaultGroup",
+                "precedingTxName" : "lkp_target",
+                "rule" : {
+                  "bulkRename" : "true",
+                  "include" : "true",
+                  "bulkRenameOption" : {
+                    "literal" : "lkp_",
+                    "suffix" : "false"
+                  }
+                }
+              }
+            ],
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              },
+              {
+                "bulkRename" : "false",
+                "include" : "true",
+                "names" : [
+                  {
+                    "inputName" : "FileName"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "windowConfigurationEnabled" : "false",
+        "fields" : [
+          {
+            "name" : "v_FileName",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 100,
+            "scale" : 0,
+            "expFieldType" : "VARIABLE",
+            "expression" : "$$FileName"
+          },
+          {
+            "name" : "v_FileName_year",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 10,
+            "scale" : 0,
+            "expFieldType" : "VARIABLE",
+            "expression" : "SUBSTR(v_FileName,11,4)"
+          },
+          {
+            "name" : "v_FileName_month",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 10,
+            "scale" : 0,
+            "expFieldType" : "VARIABLE",
+            "expression" : "SUBSTR(v_FileName,15,2)"
+          },
+          {
+            "name" : "v_FileName_yyyymm",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 10,
+            "scale" : 0,
+            "expFieldType" : "VARIABLE",
+            "expression" : "SUBSTR(v_FileName,11,6)"
+          },
+          {
+            "name" : "v_FileName_year_int",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0,
+            "expFieldType" : "VARIABLE",
+            "expression" : "To_Integer(v_FileName_year)"
+          },
+          {
+            "name" : "v_FileName_month_int",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0,
+            "expFieldType" : "VARIABLE",
+            "expression" : "To_Integer(v_FileName_month)"
+          },
+          {
+            "name" : "v_FileName_yyyymm_int",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0,
+            "expFieldType" : "VARIABLE",
+            "expression" : "To_Integer(v_FileName_yyyymm)"
+          },
+          {
+            "name" : "v_cat_program_start_year_int",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0,
+            "expFieldType" : "VARIABLE",
+            "expression" : "DECODE( TRUE,\n  v_FileName_yyyymm_int < 202004, v_FileName_year_int, \n  v_FileName_yyyymm_int > 202003 AND v_FileName_yyyymm_int < 202104, 2020, \n  v_FileName_yyyymm_int > 202103 AND v_FileName_yyyymm_int < 202204, 2021, \n  v_FileName_yyyymm_int > 202203 AND v_FileName_yyyymm_int < 202304, 2022, \n  v_FileName_yyyymm_int > 202303 AND v_FileName_yyyymm_int < 202404, 2023,\n  v_FileName_yyyymm_int > 202403 AND v_FileName_yyyymm_int < 202504, 2024,\n  v_FileName_yyyymm_int > 202503 AND v_FileName_yyyymm_int < 202604, 2025,\n  v_FileName_yyyymm_int > 202603 AND v_FileName_yyyymm_int < 202704, 2026,\n  v_FileName_yyyymm_int > 202703 AND v_FileName_yyyymm_int < 202804, 2027,\n  v_FileName_yyyymm_int > 202803 AND v_FileName_yyyymm_int < 202904, 2028,\n  v_FileName_yyyymm_int > 202903 AND v_FileName_yyyymm_int < 203004, 2029,\n  v_FileName_yyyymm_int > 203003, v_FileName_year_int )"
+          },
+          {
+            "name" : "v_cat_program_end_year_int",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0,
+            "expFieldType" : "VARIABLE",
+            "expression" : "v_cat_program_start_year_int + 1"
+          },
+          {
+            "description" : "comes from filename",
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_cat_program_start_year",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 10,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "To_Char(v_cat_program_start_year_int)"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_cat_program_end_year",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 10,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "To_Char(v_cat_program_end_year_int)"
+          },
+          {
+            "description" : "month as string ex. August",
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_month",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 50,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "DECODE(v_FileName_month,\n'01', 'January',\n'02', 'February',\n'03', 'March',\n'04', 'April',\n'05', 'May',\n'06', 'June',\n'07', 'July',\n'08', 'August',\n'09', 'September',\n'10', 'October',\n'11', 'November',\n'12', 'December')"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_SYSDATE",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9,
+            "expFieldType" : "OUTPUT",
+            "expression" : "SYSDATE"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_ProgramStartDt",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9,
+            "expFieldType" : "OUTPUT",
+            "expression" : "IIF (SUBSTR(ProgramStartDt,3,1)='/' AND SUBSTR(ProgramStartDt,6,1)='/', TO_DATE(ProgramStartDt, 'MM/DD/YYYY'),\n IIF (SUBSTR(ProgramStartDt,2,1)='/' AND SUBSTR(ProgramStartDt,5,1)='/', TO_DATE('0' || ProgramStartDt, 'MM/DD/YYYY'),\n  IIF (SUBSTR(ProgramStartDt,3,1)='/' AND SUBSTR(ProgramStartDt,5,1)='/', TO_DATE(SUBSTR(ProgramStartDt,1,3) || '0' || SUBSTR(ProgramStartDt,4,6), 'MM/DD/YYYY'),\n   IIF (SUBSTR(ProgramStartDt,2,1)='/' AND SUBSTR(ProgramStartDt,4,1)='/', TO_DATE('0' || SUBSTR(ProgramStartDt,1,2) || '0' || SUBSTR(ProgramStartDt,3,6), 'MM/DD/YYYY'),NULL))))"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_ProgramEndDt",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9,
+            "expFieldType" : "OUTPUT",
+            "expression" : "IIF (SUBSTR(ProgramEndDt,3,1)='/' AND SUBSTR(ProgramEndDt,6,1)='/', TO_DATE(ProgramEndDt, 'MM/DD/YYYY'),\n IIF (SUBSTR(ProgramEndDt,2,1)='/' AND SUBSTR(ProgramEndDt,5,1)='/', TO_DATE('0' || ProgramEndDt, 'MM/DD/YYYY'),\n  IIF (SUBSTR(ProgramEndDt,3,1)='/' AND SUBSTR(ProgramEndDt,5,1)='/', TO_DATE(SUBSTR(ProgramEndDt,1,3) || '0' || SUBSTR(ProgramEndDt,4,6), 'MM/DD/YYYY'),\n   IIF (SUBSTR(ProgramEndDt,2,1)='/' AND SUBSTR(ProgramEndDt,4,1)='/', TO_DATE('0' || SUBSTR(ProgramEndDt,1,2) || '0' || SUBSTR(ProgramEndDt,3,6), 'MM/DD/YYYY'),NULL))))"
+          }
+        ],
+        "windowSpec" : {
+          "allRowsFollowing" : "false",
+          "allRowsPreceding" : "false",
+          "endOffset" : 0,
+          "startOffset" : 0,
+          "partitionKeys" : null
+        }
+      },
+      {
+        "createTime" : "2025-03-18T18:28:42.617Z",
+        "name" : "cnn_cdl_CAT_Costs_metal",
+        "advancedProperties" : [
+          {
+            "name" : "Tracing Level",
+            "value" : "Normal"
+          },
+          {
+            "name" : "Output is deterministic",
+            "value" : "false"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "false",
+            "name" : "DefaultGroup",
+            "output" : "true"
+          }
+        ],
+        "generateFilenamePort" : "false",
+        "useLabels" : "false",
+        "useSequenceFields" : "false",
+        "dataAdapter" : {
+          "connectionId$" : {
+            "name" : "FF_Conn"
+          },
+          "excludeDynamicFileNameField" : "false",
+          "object$" : {
+            "name" : "SrcFile"
+          },
+          "objectType" : "PARAMETERIZED",
+          "typeSystem" : "TOOLKIT",
+          "useDynamicFileName" : "false",
+          "dataFormat" : {
+            "formatId" : "Flat",
+            "validateHSchema" : "false",
+            "attributes" : [
+              {
+                "name" : "delimiter",
+                "value" : ","
+              },
+              {
+                "name" : "escapeChar",
+                "value" : "\\"
+              },
+              {
+                "name" : "qualifier",
+                "value" : "\""
+              },
+              {
+                "name" : "qualifierMode",
+                "value" : "MINIMAL"
+              },
+              {
+                "name" : "disableEscapeChar",
+                "value" : "true"
+              },
+              {
+                "name" : "codePage",
+                "value" : "UTF-8"
+              },
+              {
+                "name" : "headerLineNumber",
+                "value" : "1"
+              },
+              {
+                "name" : "firstDataRow",
+                "value" : "2"
+              },
+              {
+                "name" : "targetHeader",
+                "value" : "With Header"
+              },
+              {
+                "name" : "importColumnFromFirstLine",
+                "value" : "true"
+              },
+              {
+                "name" : "generateHeader",
+                "value" : "true"
+              },
+              {
+                "name" : "fixedWidthMode",
+                "value" : "false"
+              },
+              {
+                "name" : "maxRowsToPreview",
+                "value" : "0"
+              }
+            ]
+          },
+          "readOptions" : {
+            "commandType" : 0,
+            "descending" : "false",
+            "queryAll" : "false",
+            "rowLimit" : 0,
+            "selectDistinct" : "false"
+          },
+          "runtimeAttributes" : {
+            "attributes" : [
+              {
+                "name" : "Source Type",
+                "value" : "File"
+              },
+              {
+                "name" : "Folder Path",
+                "value" : "/internal/claims/catastrophe"
+              },
+              {
+                "name" : "Allow Wildcard Characters",
+                "value" : "NO"
+              },
+              {
+                "name" : "Enable Recursive Read",
+                "value" : "NO"
+              },
+              {
+                "name" : "Incremental File Load",
+                "value" : "NO"
+              },
+              {
+                "name" : "Encryption Type",
+                "value" : "None"
+              },
+              {
+                "name" : "Compression Format",
+                "value" : "None"
+              },
+              {
+                "name" : "Download Part Size",
+                "value" : "5242880"
+              },
+              {
+                "name" : "Multipart Download Threshold",
+                "value" : "10485760"
+              },
+              {
+                "name" : "Temporary Credential Duration",
+                "value" : "43200"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "createTime" : "2025-03-20T14:26:33.829Z",
+        "name" : "agg_by_Risk_Id",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "fields" : [
+          {
+            "name" : "o_counter",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "COUNT(Risk_ID)"
+          }
+        ],
+        "groupByFieldsList" : {
+          "fields" : [
+            {
+              "fieldName" : "Risk_ID"
+            }
+          ]
+        }
+      },
+      {
+        "createTime" : "2025-03-20T15:31:28.349Z",
+        "name" : "srt_by_Risk_Id",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "sorterMode" : "SIMPLE",
+        "sortEntries" : [
+          {
+            "ascending" : "true",
+            "fieldName" : "Risk_ID"
+          }
+        ]
+      },
+      {
+        "createTime" : "2025-03-20T15:34:13.585Z",
+        "name" : "rtr_for_duplicate_Risk_Id",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "INPUT",
+            "output" : "false",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          },
+          {
+            "input" : "false",
+            "name" : "DEFAULT1",
+            "output" : "true"
+          },
+          {
+            "input" : "false",
+            "name" : "Non_Duplicate_Risk_ID",
+            "output" : "true"
+          }
+        ],
+        "groupFilterConditions" : [
+          {
+            "advancedFilterCondition" : "agg_o_counter=1",
+            "name" : "Non_Duplicate_Risk_ID"
+          }
+        ]
+      },
+      {
+        "createTime" : "2025-03-22T23:00:39.093Z",
+        "name" : "catastrophe_costs_cnn_uw_cat_cost_bronze_ins",
+        "advancedProperties" : [
+          {
+            "name" : "Forward Rejected Rows",
+            "value" : "true"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "false",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "createTarget" : "false",
+        "fieldMappingMode" : "MANUAL",
+        "inputSorted" : "false",
+        "schemaProviderType" : "SELECTED_OBJECT",
+        "targetFieldsOrdered" : "false",
+        "updateColumns" : [
+          "risk_id",
+          "catastrophe_costs_program_end_date",
+          "catastrophe_costs_program_start_date"
+        ],
+        "useLabels" : "false",
+        "useSequenceFields" : "false",
+        "fields" : [
+          {
+            "adapterField" : {
+              "name" : "catastrophe_costs_row_id"
+            },
+            "name" : "catastrophe_costs_row_id",
+            "platformType" : {
+              "name" : "bigint"
+            },
+            "precision" : 19,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "catastrophe_costs_last_update_date"
+            },
+            "name" : "catastrophe_costs_last_update_date",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "risk_id"
+            },
+            "name" : "risk_id",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "policy_number"
+            },
+            "name" : "policy_number",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "line_of_business"
+            },
+            "name" : "line_of_business",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "occupancy_description"
+            },
+            "name" : "occupancy_description",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "construction_description"
+            },
+            "name" : "construction_description",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "tree_exposure"
+            },
+            "name" : "tree_exposure",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 7,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "roof_cover"
+            },
+            "name" : "roof_cover",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 7,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "roof_geometry"
+            },
+            "name" : "roof_geometry",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 7,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "roof_deck_attach"
+            },
+            "name" : "roof_deck_attach",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 7,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "roof_anchorage"
+            },
+            "name" : "roof_anchorage",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 7,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "window_protection"
+            },
+            "name" : "window_protection",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 7,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "roof_attached_structures"
+            },
+            "name" : "roof_attached_structures",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "effective_distance_to_coast"
+            },
+            "name" : "effective_distance_to_coast",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "lth_uw_dsxss_ground_up_average_annual_loss"
+            },
+            "name" : "lth_uw_dsxss_ground_up_average_annual_loss",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 15,
+            "scale" : 8
+          },
+          {
+            "adapterField" : {
+              "name" : "lth_uw_dsxss_gross_average_annual_loss"
+            },
+            "name" : "lth_uw_dsxss_gross_average_annual_loss",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 15,
+            "scale" : 8
+          },
+          {
+            "adapterField" : {
+              "name" : "lth_uw_dsxss_net_average_annual_loss"
+            },
+            "name" : "lth_uw_dsxss_net_average_annual_loss",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 15,
+            "scale" : 8
+          },
+          {
+            "adapterField" : {
+              "name" : "earthquake_ground_up_average_annual_loss"
+            },
+            "name" : "earthquake_ground_up_average_annual_loss",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 15,
+            "scale" : 8
+          },
+          {
+            "adapterField" : {
+              "name" : "earthquake_gross_average_annual_loss"
+            },
+            "name" : "earthquake_gross_average_annual_loss",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 15,
+            "scale" : 8
+          },
+          {
+            "adapterField" : {
+              "name" : "earthquake_net_average_annual_loss"
+            },
+            "name" : "earthquake_net_average_annual_loss",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 15,
+            "scale" : 8
+          },
+          {
+            "adapterField" : {
+              "name" : "severe_convective_storm_ground_up_average_annual_loss"
+            },
+            "name" : "severe_convective_storm_ground_up_average_annual_loss",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 15,
+            "scale" : 8
+          },
+          {
+            "adapterField" : {
+              "name" : "severe_convective_storm_gross_average_annual_loss"
+            },
+            "name" : "severe_convective_storm_gross_average_annual_loss",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 15,
+            "scale" : 8
+          },
+          {
+            "adapterField" : {
+              "name" : "severe_convective_storm_net_average_annual_loss"
+            },
+            "name" : "severe_convective_storm_net_average_annual_loss",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 15,
+            "scale" : 8
+          },
+          {
+            "adapterField" : {
+              "name" : "winter_storm_ground_up_average_annual_loss"
+            },
+            "name" : "winter_storm_ground_up_average_annual_loss",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 15,
+            "scale" : 8
+          },
+          {
+            "adapterField" : {
+              "name" : "winter_storm_gross_average_annual_loss"
+            },
+            "name" : "winter_storm_gross_average_annual_loss",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 15,
+            "scale" : 8
+          },
+          {
+            "adapterField" : {
+              "name" : "winter_storm_net_average_annual_loss"
+            },
+            "name" : "winter_storm_net_average_annual_loss",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 15,
+            "scale" : 8
+          },
+          {
+            "adapterField" : {
+              "name" : "ceded_average_annual_loss_layer1"
+            },
+            "name" : "ceded_average_annual_loss_layer1",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 15,
+            "scale" : 8
+          },
+          {
+            "adapterField" : {
+              "name" : "ceded_average_annual_loss_layer2"
+            },
+            "name" : "ceded_average_annual_loss_layer2",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 15,
+            "scale" : 8
+          },
+          {
+            "adapterField" : {
+              "name" : "ceded_average_annual_loss_layer3"
+            },
+            "name" : "ceded_average_annual_loss_layer3",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 15,
+            "scale" : 8
+          },
+          {
+            "adapterField" : {
+              "name" : "ceded_average_annual_loss_layer4"
+            },
+            "name" : "ceded_average_annual_loss_layer4",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 15,
+            "scale" : 8
+          },
+          {
+            "adapterField" : {
+              "name" : "ceded_average_annual_loss_layer5"
+            },
+            "name" : "ceded_average_annual_loss_layer5",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 15,
+            "scale" : 8
+          },
+          {
+            "adapterField" : {
+              "name" : "ceded_average_annual_loss_layer6"
+            },
+            "name" : "ceded_average_annual_loss_layer6",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 15,
+            "scale" : 8
+          },
+          {
+            "adapterField" : {
+              "name" : "ceded_average_annual_loss_layer7"
+            },
+            "name" : "ceded_average_annual_loss_layer7",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 15,
+            "scale" : 8
+          },
+          {
+            "adapterField" : {
+              "name" : "reinsurance_premium_layer1"
+            },
+            "name" : "reinsurance_premium_layer1",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 15,
+            "scale" : 8
+          },
+          {
+            "adapterField" : {
+              "name" : "reinsurance_premium_layer2"
+            },
+            "name" : "reinsurance_premium_layer2",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 15,
+            "scale" : 8
+          },
+          {
+            "adapterField" : {
+              "name" : "reinsurance_premium_layer3"
+            },
+            "name" : "reinsurance_premium_layer3",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 15,
+            "scale" : 8
+          },
+          {
+            "adapterField" : {
+              "name" : "reinsurance_premium_layer4"
+            },
+            "name" : "reinsurance_premium_layer4",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 15,
+            "scale" : 8
+          },
+          {
+            "adapterField" : {
+              "name" : "reinsurance_premium_layer5"
+            },
+            "name" : "reinsurance_premium_layer5",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 15,
+            "scale" : 8
+          },
+          {
+            "adapterField" : {
+              "name" : "reinsurance_premium_layer6"
+            },
+            "name" : "reinsurance_premium_layer6",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 15,
+            "scale" : 8
+          },
+          {
+            "adapterField" : {
+              "name" : "reinsurance_premium_layer7"
+            },
+            "name" : "reinsurance_premium_layer7",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 15,
+            "scale" : 8
+          },
+          {
+            "adapterField" : {
+              "name" : "catastrophe_spend"
+            },
+            "name" : "catastrophe_spend",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 15,
+            "scale" : 8
+          },
+          {
+            "adapterField" : {
+              "name" : "modeled_location_inforce_premium"
+            },
+            "name" : "modeled_location_inforce_premium",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 15,
+            "scale" : 8
+          },
+          {
+            "adapterField" : {
+              "name" : "catastrophe_costs_program_start_date"
+            },
+            "name" : "catastrophe_costs_program_start_date",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "catastrophe_costs_program_end_date"
+            },
+            "name" : "catastrophe_costs_program_end_date",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          }
+        ],
+        "dataAdapter" : {
+          "connectionId$" : {
+            "name" : "DBConnection_Tgt"
+          },
+          "excludeDynamicFileNameField" : "false",
+          "objectType" : "SINGLE",
+          "typeSystem" : "TOOLKIT",
+          "useDynamicFileName" : "false",
+          "bulkOptions" : {
+            "hardDelete" : "false",
+            "maxRowsPerRequest" : 0,
+            "monitorBulk" : "false",
+            "monitorBulkV2" : "false",
+            "pkChunkingEnabled" : "false",
+            "pkChunkingSize" : 0,
+            "serialMode" : "false",
+            "useBulkApi" : "false",
+            "useBulkApiV2" : "false"
+          },
+          "object" : {
+            "name" : "dbo/catastrophe_costs",
+            "label" : "dbo/catastrophe_costs",
+            "objectName" : "catastrophe_costs",
+            "objectType" : "amazonredshift",
+            "path" : "dbo/catastrophe_costs",
+            "retainMetadata" : "false",
+            "fields" : [
+              {
+                "name" : "catastrophe_costs_row_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "catastrophe_costs_row_id",
+                "nativeName" : "catastrophe_costs_row_id",
+                "nativeType" : "int8",
+                "original" : "false",
+                "precision" : 19,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "catastrophe_costs"
+                  }
+                ]
+              },
+              {
+                "name" : "catastrophe_costs_last_update_date",
+                "fieldType" : "CONNECTOR",
+                "label" : "catastrophe_costs_last_update_date",
+                "nativeName" : "catastrophe_costs_last_update_date",
+                "nativeType" : "date",
+                "original" : "false",
+                "precision" : 13,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "catastrophe_costs"
+                  }
+                ]
+              },
+              {
+                "name" : "risk_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "risk_id",
+                "nativeName" : "risk_id",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "catastrophe_costs"
+                  }
+                ]
+              },
+              {
+                "name" : "policy_number",
+                "fieldType" : "CONNECTOR",
+                "label" : "policy_number",
+                "nativeName" : "policy_number",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "catastrophe_costs"
+                  }
+                ]
+              },
+              {
+                "name" : "line_of_business",
+                "fieldType" : "CONNECTOR",
+                "label" : "line_of_business",
+                "nativeName" : "line_of_business",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "catastrophe_costs"
+                  }
+                ]
+              },
+              {
+                "name" : "occupancy_description",
+                "fieldType" : "CONNECTOR",
+                "label" : "occupancy_description",
+                "nativeName" : "occupancy_description",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "catastrophe_costs"
+                  }
+                ]
+              },
+              {
+                "name" : "construction_description",
+                "fieldType" : "CONNECTOR",
+                "label" : "construction_description",
+                "nativeName" : "construction_description",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "catastrophe_costs"
+                  }
+                ]
+              },
+              {
+                "name" : "tree_exposure",
+                "fieldType" : "CONNECTOR",
+                "label" : "tree_exposure",
+                "nativeName" : "tree_exposure",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 7,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "catastrophe_costs"
+                  }
+                ]
+              },
+              {
+                "name" : "roof_cover",
+                "fieldType" : "CONNECTOR",
+                "label" : "roof_cover",
+                "nativeName" : "roof_cover",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 7,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "catastrophe_costs"
+                  }
+                ]
+              },
+              {
+                "name" : "roof_geometry",
+                "fieldType" : "CONNECTOR",
+                "label" : "roof_geometry",
+                "nativeName" : "roof_geometry",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 7,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "catastrophe_costs"
+                  }
+                ]
+              },
+              {
+                "name" : "roof_deck_attach",
+                "fieldType" : "CONNECTOR",
+                "label" : "roof_deck_attach",
+                "nativeName" : "roof_deck_attach",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 7,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "catastrophe_costs"
+                  }
+                ]
+              },
+              {
+                "name" : "roof_anchorage",
+                "fieldType" : "CONNECTOR",
+                "label" : "roof_anchorage",
+                "nativeName" : "roof_anchorage",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 7,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "catastrophe_costs"
+                  }
+                ]
+              },
+              {
+                "name" : "window_protection",
+                "fieldType" : "CONNECTOR",
+                "label" : "window_protection",
+                "nativeName" : "window_protection",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 7,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "catastrophe_costs"
+                  }
+                ]
+              },
+              {
+                "name" : "roof_attached_structures",
+                "fieldType" : "CONNECTOR",
+                "label" : "roof_attached_structures",
+                "nativeName" : "roof_attached_structures",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "catastrophe_costs"
+                  }
+                ]
+              },
+              {
+                "name" : "effective_distance_to_coast",
+                "fieldType" : "CONNECTOR",
+                "label" : "effective_distance_to_coast",
+                "nativeName" : "effective_distance_to_coast",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "catastrophe_costs"
+                  }
+                ]
+              },
+              {
+                "name" : "lth_uw_dsxss_ground_up_average_annual_loss",
+                "fieldType" : "CONNECTOR",
+                "label" : "lth_uw_dsxss_ground_up_average_annual_loss",
+                "nativeName" : "lth_uw_dsxss_ground_up_average_annual_loss",
+                "nativeType" : "numeric",
+                "original" : "false",
+                "precision" : 15,
+                "scale" : 8,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "catastrophe_costs"
+                  }
+                ]
+              },
+              {
+                "name" : "lth_uw_dsxss_gross_average_annual_loss",
+                "fieldType" : "CONNECTOR",
+                "label" : "lth_uw_dsxss_gross_average_annual_loss",
+                "nativeName" : "lth_uw_dsxss_gross_average_annual_loss",
+                "nativeType" : "numeric",
+                "original" : "false",
+                "precision" : 15,
+                "scale" : 8,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "catastrophe_costs"
+                  }
+                ]
+              },
+              {
+                "name" : "lth_uw_dsxss_net_average_annual_loss",
+                "fieldType" : "CONNECTOR",
+                "label" : "lth_uw_dsxss_net_average_annual_loss",
+                "nativeName" : "lth_uw_dsxss_net_average_annual_loss",
+                "nativeType" : "numeric",
+                "original" : "false",
+                "precision" : 15,
+                "scale" : 8,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "catastrophe_costs"
+                  }
+                ]
+              },
+              {
+                "name" : "earthquake_ground_up_average_annual_loss",
+                "fieldType" : "CONNECTOR",
+                "label" : "earthquake_ground_up_average_annual_loss",
+                "nativeName" : "earthquake_ground_up_average_annual_loss",
+                "nativeType" : "numeric",
+                "original" : "false",
+                "precision" : 15,
+                "scale" : 8,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "catastrophe_costs"
+                  }
+                ]
+              },
+              {
+                "name" : "earthquake_gross_average_annual_loss",
+                "fieldType" : "CONNECTOR",
+                "label" : "earthquake_gross_average_annual_loss",
+                "nativeName" : "earthquake_gross_average_annual_loss",
+                "nativeType" : "numeric",
+                "original" : "false",
+                "precision" : 15,
+                "scale" : 8,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "catastrophe_costs"
+                  }
+                ]
+              },
+              {
+                "name" : "earthquake_net_average_annual_loss",
+                "fieldType" : "CONNECTOR",
+                "label" : "earthquake_net_average_annual_loss",
+                "nativeName" : "earthquake_net_average_annual_loss",
+                "nativeType" : "numeric",
+                "original" : "false",
+                "precision" : 15,
+                "scale" : 8,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "catastrophe_costs"
+                  }
+                ]
+              },
+              {
+                "name" : "severe_convective_storm_ground_up_average_annual_loss",
+                "fieldType" : "CONNECTOR",
+                "label" : "severe_convective_storm_ground_up_average_annual_loss",
+                "nativeName" : "severe_convective_storm_ground_up_average_annual_loss",
+                "nativeType" : "numeric",
+                "original" : "false",
+                "precision" : 15,
+                "scale" : 8,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "catastrophe_costs"
+                  }
+                ]
+              },
+              {
+                "name" : "severe_convective_storm_gross_average_annual_loss",
+                "fieldType" : "CONNECTOR",
+                "label" : "severe_convective_storm_gross_average_annual_loss",
+                "nativeName" : "severe_convective_storm_gross_average_annual_loss",
+                "nativeType" : "numeric",
+                "original" : "false",
+                "precision" : 15,
+                "scale" : 8,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "catastrophe_costs"
+                  }
+                ]
+              },
+              {
+                "name" : "severe_convective_storm_net_average_annual_loss",
+                "fieldType" : "CONNECTOR",
+                "label" : "severe_convective_storm_net_average_annual_loss",
+                "nativeName" : "severe_convective_storm_net_average_annual_loss",
+                "nativeType" : "numeric",
+                "original" : "false",
+                "precision" : 15,
+                "scale" : 8,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "catastrophe_costs"
+                  }
+                ]
+              },
+              {
+                "name" : "winter_storm_ground_up_average_annual_loss",
+                "fieldType" : "CONNECTOR",
+                "label" : "winter_storm_ground_up_average_annual_loss",
+                "nativeName" : "winter_storm_ground_up_average_annual_loss",
+                "nativeType" : "numeric",
+                "original" : "false",
+                "precision" : 15,
+                "scale" : 8,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "catastrophe_costs"
+                  }
+                ]
+              },
+              {
+                "name" : "winter_storm_gross_average_annual_loss",
+                "fieldType" : "CONNECTOR",
+                "label" : "winter_storm_gross_average_annual_loss",
+                "nativeName" : "winter_storm_gross_average_annual_loss",
+                "nativeType" : "numeric",
+                "original" : "false",
+                "precision" : 15,
+                "scale" : 8,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "catastrophe_costs"
+                  }
+                ]
+              },
+              {
+                "name" : "winter_storm_net_average_annual_loss",
+                "fieldType" : "CONNECTOR",
+                "label" : "winter_storm_net_average_annual_loss",
+                "nativeName" : "winter_storm_net_average_annual_loss",
+                "nativeType" : "numeric",
+                "original" : "false",
+                "precision" : 15,
+                "scale" : 8,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "catastrophe_costs"
+                  }
+                ]
+              },
+              {
+                "name" : "ceded_average_annual_loss_layer1",
+                "fieldType" : "CONNECTOR",
+                "label" : "ceded_average_annual_loss_layer1",
+                "nativeName" : "ceded_average_annual_loss_layer1",
+                "nativeType" : "numeric",
+                "original" : "false",
+                "precision" : 15,
+                "scale" : 8,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "catastrophe_costs"
+                  }
+                ]
+              },
+              {
+                "name" : "ceded_average_annual_loss_layer2",
+                "fieldType" : "CONNECTOR",
+                "label" : "ceded_average_annual_loss_layer2",
+                "nativeName" : "ceded_average_annual_loss_layer2",
+                "nativeType" : "numeric",
+                "original" : "false",
+                "precision" : 15,
+                "scale" : 8,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "catastrophe_costs"
+                  }
+                ]
+              },
+              {
+                "name" : "ceded_average_annual_loss_layer3",
+                "fieldType" : "CONNECTOR",
+                "label" : "ceded_average_annual_loss_layer3",
+                "nativeName" : "ceded_average_annual_loss_layer3",
+                "nativeType" : "numeric",
+                "original" : "false",
+                "precision" : 15,
+                "scale" : 8,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "catastrophe_costs"
+                  }
+                ]
+              },
+              {
+                "name" : "ceded_average_annual_loss_layer4",
+                "fieldType" : "CONNECTOR",
+                "label" : "ceded_average_annual_loss_layer4",
+                "nativeName" : "ceded_average_annual_loss_layer4",
+                "nativeType" : "numeric",
+                "original" : "false",
+                "precision" : 15,
+                "scale" : 8,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "catastrophe_costs"
+                  }
+                ]
+              },
+              {
+                "name" : "ceded_average_annual_loss_layer5",
+                "fieldType" : "CONNECTOR",
+                "label" : "ceded_average_annual_loss_layer5",
+                "nativeName" : "ceded_average_annual_loss_layer5",
+                "nativeType" : "numeric",
+                "original" : "false",
+                "precision" : 15,
+                "scale" : 8,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "catastrophe_costs"
+                  }
+                ]
+              },
+              {
+                "name" : "ceded_average_annual_loss_layer6",
+                "fieldType" : "CONNECTOR",
+                "label" : "ceded_average_annual_loss_layer6",
+                "nativeName" : "ceded_average_annual_loss_layer6",
+                "nativeType" : "numeric",
+                "original" : "false",
+                "precision" : 15,
+                "scale" : 8,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "catastrophe_costs"
+                  }
+                ]
+              },
+              {
+                "name" : "ceded_average_annual_loss_layer7",
+                "fieldType" : "CONNECTOR",
+                "label" : "ceded_average_annual_loss_layer7",
+                "nativeName" : "ceded_average_annual_loss_layer7",
+                "nativeType" : "numeric",
+                "original" : "false",
+                "precision" : 15,
+                "scale" : 8,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "catastrophe_costs"
+                  }
+                ]
+              },
+              {
+                "name" : "reinsurance_premium_layer1",
+                "fieldType" : "CONNECTOR",
+                "label" : "reinsurance_premium_layer1",
+                "nativeName" : "reinsurance_premium_layer1",
+                "nativeType" : "numeric",
+                "original" : "false",
+                "precision" : 15,
+                "scale" : 8,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "catastrophe_costs"
+                  }
+                ]
+              },
+              {
+                "name" : "reinsurance_premium_layer2",
+                "fieldType" : "CONNECTOR",
+                "label" : "reinsurance_premium_layer2",
+                "nativeName" : "reinsurance_premium_layer2",
+                "nativeType" : "numeric",
+                "original" : "false",
+                "precision" : 15,
+                "scale" : 8,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "catastrophe_costs"
+                  }
+                ]
+              },
+              {
+                "name" : "reinsurance_premium_layer3",
+                "fieldType" : "CONNECTOR",
+                "label" : "reinsurance_premium_layer3",
+                "nativeName" : "reinsurance_premium_layer3",
+                "nativeType" : "numeric",
+                "original" : "false",
+                "precision" : 15,
+                "scale" : 8,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "catastrophe_costs"
+                  }
+                ]
+              },
+              {
+                "name" : "reinsurance_premium_layer4",
+                "fieldType" : "CONNECTOR",
+                "label" : "reinsurance_premium_layer4",
+                "nativeName" : "reinsurance_premium_layer4",
+                "nativeType" : "numeric",
+                "original" : "false",
+                "precision" : 15,
+                "scale" : 8,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "catastrophe_costs"
+                  }
+                ]
+              },
+              {
+                "name" : "reinsurance_premium_layer5",
+                "fieldType" : "CONNECTOR",
+                "label" : "reinsurance_premium_layer5",
+                "nativeName" : "reinsurance_premium_layer5",
+                "nativeType" : "numeric",
+                "original" : "false",
+                "precision" : 15,
+                "scale" : 8,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "catastrophe_costs"
+                  }
+                ]
+              },
+              {
+                "name" : "reinsurance_premium_layer6",
+                "fieldType" : "CONNECTOR",
+                "label" : "reinsurance_premium_layer6",
+                "nativeName" : "reinsurance_premium_layer6",
+                "nativeType" : "numeric",
+                "original" : "false",
+                "precision" : 15,
+                "scale" : 8,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "catastrophe_costs"
+                  }
+                ]
+              },
+              {
+                "name" : "reinsurance_premium_layer7",
+                "fieldType" : "CONNECTOR",
+                "label" : "reinsurance_premium_layer7",
+                "nativeName" : "reinsurance_premium_layer7",
+                "nativeType" : "numeric",
+                "original" : "false",
+                "precision" : 15,
+                "scale" : 8,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "catastrophe_costs"
+                  }
+                ]
+              },
+              {
+                "name" : "catastrophe_spend",
+                "fieldType" : "CONNECTOR",
+                "label" : "catastrophe_spend",
+                "nativeName" : "catastrophe_spend",
+                "nativeType" : "numeric",
+                "original" : "false",
+                "precision" : 15,
+                "scale" : 8,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "catastrophe_costs"
+                  }
+                ]
+              },
+              {
+                "name" : "modeled_location_inforce_premium",
+                "fieldType" : "CONNECTOR",
+                "label" : "modeled_location_inforce_premium",
+                "nativeName" : "modeled_location_inforce_premium",
+                "nativeType" : "numeric",
+                "original" : "false",
+                "precision" : 15,
+                "scale" : 8,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "catastrophe_costs"
+                  }
+                ]
+              },
+              {
+                "name" : "catastrophe_costs_program_start_date",
+                "fieldType" : "CONNECTOR",
+                "label" : "catastrophe_costs_program_start_date",
+                "nativeName" : "catastrophe_costs_program_start_date",
+                "nativeType" : "date",
+                "original" : "false",
+                "precision" : 13,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "catastrophe_costs"
+                  }
+                ]
+              },
+              {
+                "name" : "catastrophe_costs_program_end_date",
+                "fieldType" : "CONNECTOR",
+                "label" : "catastrophe_costs_program_end_date",
+                "nativeName" : "catastrophe_costs_program_end_date",
+                "nativeType" : "date",
+                "original" : "false",
+                "precision" : 13,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "catastrophe_costs"
+                  }
+                ]
+              }
+            ],
+            "objectAttributes" : [
+              {
+                "name" : "recordType",
+                "value" : "TABLE"
+              }
+            ]
+          },
+          "runtimeAttributes" : {
+            "attributes" : [
+              {
+                "name" : "S3 Bucket Name",
+                "value" : "$$S3_Staging_Bucket"
+              },
+              {
+                "name" : "Enable Compression",
+                "value" : "YES"
+              },
+              {
+                "name" : "Batch Size",
+                "value" : "2000000"
+              },
+              {
+                "name" : "Max Errors Per Batch Upload Insert",
+                "value" : "1"
+              },
+              {
+                "name" : "Truncate Target Table Before Data Upload",
+                "value" : "NO"
+              },
+              {
+                "name" : "WaitTime In Seconds For S3 File Consistency",
+                "value" : "0"
+              },
+              {
+                "name" : "Temporary Credential Duration",
+                "value" : "43200"
+              },
+              {
+                "name" : "S3 Server Side Encryption",
+                "value" : "NO"
+              },
+              {
+                "name" : "S3 Client Side Encryption",
+                "value" : "NO"
+              },
+              {
+                "name" : "Analyze Target Table",
+                "value" : "NO"
+              },
+              {
+                "name" : "Vacuum Target Table",
+                "value" : "None"
+              },
+              {
+                "name" : "Treat Source Rows As",
+                "value" : "UPSERT"
+              },
+              {
+                "name" : "Transfer Manager Thread Pool Size",
+                "value" : "10"
+              },
+              {
+                "name" : "Minimum Upload Part Size",
+                "value" : "5242880"
+              },
+              {
+                "name" : "Preserve record order on write",
+                "value" : "NO"
+              },
+              {
+                "name" : "Number of files per batch",
+                "value" : "0"
+              }
+            ]
+          },
+          "writeOptions" : {
+            "batchSize" : 0,
+            "bulkApi" : "false",
+            "handleDecimalRoundOff" : "false",
+            "handleSpecialChars" : "false",
+            "operations" : [
+              "Upsert"
+            ],
+            "setFieldsToNull" : "false",
+            "truncate" : "false",
+            "useErrorFile" : "false",
+            "useExactSrcNames" : "false",
+            "useSuccessFile" : "false"
+          }
+        },
+        "manualMappings" : {
+          "mappingList" : [
+            {
+              "fromFieldName" : "Risk_ID",
+              "toField" : {
+                "name" : "risk_id"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "Policy_Number",
+              "toField" : {
+                "name" : "policy_number"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "LOB",
+              "toField" : {
+                "name" : "line_of_business"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "Occ_Description",
+              "toField" : {
+                "name" : "occupancy_description"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "Con_Descrption",
+              "toField" : {
+                "name" : "construction_description"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "Tree_Exposure",
+              "toField" : {
+                "name" : "tree_exposure"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "Roof_Cover",
+              "toField" : {
+                "name" : "roof_cover"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "Roof_Geometry",
+              "toField" : {
+                "name" : "roof_geometry"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "Roof_Deck_Attach",
+              "toField" : {
+                "name" : "roof_deck_attach"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "Roof_Anchorage",
+              "toField" : {
+                "name" : "roof_anchorage"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "Window_Prot",
+              "toField" : {
+                "name" : "window_protection"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "Roof_Attached_Structures",
+              "toField" : {
+                "name" : "roof_attached_structures"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "EffectiveDistanceToCoast",
+              "toField" : {
+                "name" : "effective_distance_to_coast"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "SCS_GU_AAL",
+              "toField" : {
+                "name" : "severe_convective_storm_ground_up_average_annual_loss"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "Ceded_Aal_Layer1",
+              "toField" : {
+                "name" : "ceded_average_annual_loss_layer1"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "Ceded_Aal_Layer2",
+              "toField" : {
+                "name" : "ceded_average_annual_loss_layer2"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "Ceded_Aal_Layer3",
+              "toField" : {
+                "name" : "ceded_average_annual_loss_layer3"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "Ceded_Aal_Layer4",
+              "toField" : {
+                "name" : "ceded_average_annual_loss_layer4"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "Ceded_Aal_Layer5",
+              "toField" : {
+                "name" : "ceded_average_annual_loss_layer5"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "Ceded_Aal_Layer6",
+              "toField" : {
+                "name" : "ceded_average_annual_loss_layer6"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "Ceded_Aal_Layer7",
+              "toField" : {
+                "name" : "ceded_average_annual_loss_layer7"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "Reins_Prem_Layer1",
+              "toField" : {
+                "name" : "reinsurance_premium_layer1"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "Reins_Prem_Layer2",
+              "toField" : {
+                "name" : "reinsurance_premium_layer2"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "Reins_Prem_Layer3",
+              "toField" : {
+                "name" : "reinsurance_premium_layer3"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "Reins_Prem_Layer4",
+              "toField" : {
+                "name" : "reinsurance_premium_layer4"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "Reins_Prem_Layer5",
+              "toField" : {
+                "name" : "reinsurance_premium_layer5"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "Reins_Prem_Layer6",
+              "toField" : {
+                "name" : "reinsurance_premium_layer6"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "Reins_Prem_Layer7",
+              "toField" : {
+                "name" : "reinsurance_premium_layer7"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "CAT_Spend",
+              "toField" : {
+                "name" : "catastrophe_spend"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "Modeled_Loc_Inforce_Premium",
+              "toField" : {
+                "name" : "modeled_location_inforce_premium"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_SYSDATE",
+              "toField" : {
+                "name" : "catastrophe_costs_last_update_date"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_ProgramStartDt",
+              "toField" : {
+                "name" : "catastrophe_costs_program_start_date"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_ProgramEndDt",
+              "toField" : {
+                "name" : "catastrophe_costs_program_end_date"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "LTHUwDSxSS_GU_AAL",
+              "toField" : {
+                "name" : "lth_uw_dsxss_ground_up_average_annual_loss"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "LTHUwDSxSS_GR_AAL",
+              "toField" : {
+                "name" : "lth_uw_dsxss_gross_average_annual_loss"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "LTHUwDSxSS_NT_AAL",
+              "toField" : {
+                "name" : "lth_uw_dsxss_net_average_annual_loss"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "EQ_GU_AAL",
+              "toField" : {
+                "name" : "earthquake_ground_up_average_annual_loss"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "EQ_GR_AAL",
+              "toField" : {
+                "name" : "earthquake_gross_average_annual_loss"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "EQ_NT_AAL",
+              "toField" : {
+                "name" : "earthquake_net_average_annual_loss"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "SCS_GR_AAL",
+              "toField" : {
+                "name" : "severe_convective_storm_gross_average_annual_loss"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "SCS_NT_AAL",
+              "toField" : {
+                "name" : "severe_convective_storm_net_average_annual_loss"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "WintStm_GU_AAL",
+              "toField" : {
+                "name" : "winter_storm_ground_up_average_annual_loss"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "WintStm_GR_AAL",
+              "toField" : {
+                "name" : "winter_storm_gross_average_annual_loss"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "WintStm_NT_AAL",
+              "toField" : {
+                "name" : "winter_storm_net_average_annual_loss"
+              },
+              "fromFieldNames" : null
+            }
+          ]
+        }
+      },
+      {
+        "createTime" : "2025-03-24T18:31:03.119Z",
+        "name" : "tgt_archive",
+        "advancedProperties" : [
+          {
+            "name" : "Forward Rejected Rows",
+            "value" : "true"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "false",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "createTarget" : "false",
+        "fieldMappingMode" : "BY_NAME",
+        "inputSorted" : "false",
+        "schemaProviderType" : "SELECTED_OBJECT",
+        "targetFieldsOrdered" : "false",
+        "updateColumns" : null,
+        "useLabels" : "false",
+        "useSequenceFields" : "false",
+        "dataAdapter" : {
+          "connectionId$" : {
+            "name" : "FF_Conn"
+          },
+          "excludeDynamicFileNameField" : "false",
+          "object$" : {
+            "name" : "ArcFile"
+          },
+          "objectType" : "PARAMETERIZED",
+          "typeSystem" : "TOOLKIT",
+          "useDynamicFileName" : "false",
+          "dataFormat" : {
+            "formatId" : "Flat",
+            "validateHSchema" : "false",
+            "attributes" : [
+              {
+                "name" : "delimiter",
+                "value" : ","
+              },
+              {
+                "name" : "escapeChar",
+                "value" : "\\"
+              },
+              {
+                "name" : "qualifier",
+                "value" : "\""
+              },
+              {
+                "name" : "qualifierMode",
+                "value" : "MINIMAL"
+              },
+              {
+                "name" : "disableEscapeChar",
+                "value" : "true"
+              },
+              {
+                "name" : "codePage",
+                "value" : "UTF-8"
+              },
+              {
+                "name" : "headerLineNumber",
+                "value" : "1"
+              },
+              {
+                "name" : "firstDataRow",
+                "value" : "2"
+              },
+              {
+                "name" : "targetHeader",
+                "value" : "With Header"
+              },
+              {
+                "name" : "importColumnFromFirstLine",
+                "value" : "true"
+              },
+              {
+                "name" : "generateHeader",
+                "value" : "true"
+              },
+              {
+                "name" : "fixedWidthMode",
+                "value" : "false"
+              },
+              {
+                "name" : "maxRowsToPreview",
+                "value" : "0"
+              }
+            ]
+          },
+          "runtimeAttributes" : {
+            "attributes" : [
+              {
+                "name" : "Overwrite File If Exists",
+                "value" : "YES"
+              },
+              {
+                "name" : "Folder Path",
+                "value" : "/processed/cdi_tkf_flow_uw_catastrophe_cost"
+              },
+              {
+                "name" : "Encryption Type",
+                "value" : "None"
+              },
+              {
+                "name" : "File Merge",
+                "value" : "YES"
+              },
+              {
+                "name" : "Compression Format",
+                "value" : "None"
+              },
+              {
+                "name" : "TransferManager Thread Pool Size",
+                "value" : "10"
+              },
+              {
+                "name" : "Part Size",
+                "value" : "5242880"
+              },
+              {
+                "name" : "Merge Partition Files",
+                "value" : "NO"
+              },
+              {
+                "name" : "Temporary Credential Duration",
+                "value" : "43200"
+              }
+            ]
+          },
+          "writeOptions" : {
+            "batchSize" : 0,
+            "bulkApi" : "false",
+            "handleDecimalRoundOff" : "false",
+            "handleSpecialChars" : "false",
+            "operations" : [
+              "Insert"
+            ],
+            "setFieldsToNull" : "false",
+            "truncate" : "false",
+            "useErrorFile" : "false",
+            "useExactSrcNames" : "false",
+            "useSuccessFile" : "false"
+          }
+        }
+      },
+      {
+        "createTime" : "2025-03-24T18:43:41.701Z",
+        "name" : "tgt_duplicates",
+        "advancedProperties" : [
+          {
+            "name" : "Forward Rejected Rows",
+            "value" : "true"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "false",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "createTarget" : "false",
+        "fieldMappingMode" : "BY_NAME",
+        "inputSorted" : "false",
+        "schemaProviderType" : "SELECTED_OBJECT",
+        "targetFieldsOrdered" : "false",
+        "updateColumns" : null,
+        "useLabels" : "false",
+        "useSequenceFields" : "false",
+        "dataAdapter" : {
+          "connectionId$" : {
+            "name" : "FF_Conn"
+          },
+          "excludeDynamicFileNameField" : "false",
+          "object$" : {
+            "name" : "DupFile"
+          },
+          "objectType" : "PARAMETERIZED",
+          "typeSystem" : "TOOLKIT",
+          "useDynamicFileName" : "false",
+          "dataFormat" : {
+            "formatId" : "Flat",
+            "validateHSchema" : "false",
+            "attributes" : [
+              {
+                "name" : "delimiter",
+                "value" : ","
+              },
+              {
+                "name" : "escapeChar",
+                "value" : "\\"
+              },
+              {
+                "name" : "qualifier",
+                "value" : "\""
+              },
+              {
+                "name" : "qualifierMode",
+                "value" : "MINIMAL"
+              },
+              {
+                "name" : "disableEscapeChar",
+                "value" : "true"
+              },
+              {
+                "name" : "codePage",
+                "value" : "UTF-8"
+              },
+              {
+                "name" : "headerLineNumber",
+                "value" : "1"
+              },
+              {
+                "name" : "firstDataRow",
+                "value" : "2"
+              },
+              {
+                "name" : "targetHeader",
+                "value" : "With Header"
+              },
+              {
+                "name" : "importColumnFromFirstLine",
+                "value" : "true"
+              },
+              {
+                "name" : "generateHeader",
+                "value" : "true"
+              },
+              {
+                "name" : "fixedWidthMode",
+                "value" : "false"
+              },
+              {
+                "name" : "maxRowsToPreview",
+                "value" : "0"
+              }
+            ]
+          },
+          "runtimeAttributes" : {
+            "attributes" : [
+              {
+                "name" : "Overwrite File If Exists",
+                "value" : "YES"
+              },
+              {
+                "name" : "Folder Path",
+                "value" : "/duplicates/cdi_tkf_flow_uw_catastrophe_cost"
+              },
+              {
+                "name" : "Encryption Type",
+                "value" : "None"
+              },
+              {
+                "name" : "File Merge",
+                "value" : "YES"
+              },
+              {
+                "name" : "Compression Format",
+                "value" : "None"
+              },
+              {
+                "name" : "TransferManager Thread Pool Size",
+                "value" : "10"
+              },
+              {
+                "name" : "Part Size",
+                "value" : "5242880"
+              },
+              {
+                "name" : "Merge Partition Files",
+                "value" : "NO"
+              },
+              {
+                "name" : "Temporary Credential Duration",
+                "value" : "43200"
+              }
+            ]
+          },
+          "writeOptions" : {
+            "batchSize" : 0,
+            "bulkApi" : "false",
+            "handleDecimalRoundOff" : "false",
+            "handleSpecialChars" : "false",
+            "operations" : [
+              "Insert"
+            ],
+            "setFieldsToNull" : "false",
+            "truncate" : "false",
+            "useErrorFile" : "false",
+            "useExactSrcNames" : "false",
+            "useSuccessFile" : "false"
+          }
+        }
+      },
+      {
+        "createTime" : "2025-04-17T14:44:53.801Z",
+        "name" : "duplicates_joiner",
+        "advancedProperties" : [
+          {
+            "name" : "Tracing Level",
+            "value" : "Normal"
+          },
+          {
+            "name" : "Cache Directory",
+            "value" : "$PMCacheDir"
+          },
+          {
+            "name" : "Null ordering in master",
+            "value" : "Null is Highest Value"
+          },
+          {
+            "name" : "Null ordering in detail",
+            "value" : "Null is Higest Value"
+          },
+          {
+            "name" : "Joiner Data Cache Size",
+            "value" : "AUTO"
+          },
+          {
+            "name" : "Joiner Index Cache Size",
+            "value" : "AUTO"
+          },
+          {
+            "name" : "Sorted Input",
+            "value" : "true"
+          },
+          {
+            "name" : "Master Sort Order",
+            "value" : "AUTO"
+          },
+          {
+            "name" : "Transformation Scope",
+            "value" : "All Input"
+          },
+          {
+            "name" : "Optional",
+            "value" : "true"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "Master",
+            "output" : "false",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          },
+          {
+            "input" : "true",
+            "name" : "Detail",
+            "output" : "false",
+            "conflictResolutions" : [
+              {
+                "precedingGroupName" : "DefaultGroup",
+                "precedingTxName" : "agg_by_Risk_Id",
+                "rule" : {
+                  "bulkRename" : "true",
+                  "include" : "true",
+                  "bulkRenameOption" : {
+                    "literal" : "agg_",
+                    "suffix" : "false"
+                  }
+                }
+              }
+            ],
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          },
+          {
+            "input" : "false",
+            "name" : "OutputGroup",
+            "output" : "true"
+          }
+        ],
+        "joinType" : "Detail Outer Join",
+        "joinConditions" : [
+          {
+            "leftOperand" : "Risk_ID",
+            "operator" : "=",
+            "rightOperand" : "agg_Risk_ID"
+          }
+        ]
+      },
+      {
+        "createTime" : "2025-04-17T14:50:18.814Z",
+        "name" : "exp_duplicates",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true",
+                "names" : [
+                  {
+                    "inputName" : "_Modeled_Cov_A"
+                  },
+                  {
+                    "inputName" : "_Modeled_Cov_B"
+                  },
+                  {
+                    "inputName" : "_Modeled_Cov_C"
+                  },
+                  {
+                    "inputName" : "_Modeled_Cov_D"
+                  },
+                  {
+                    "inputName" : "AIR_Con_Code"
+                  },
+                  {
+                    "inputName" : "AIR_Occ_Code"
+                  },
+                  {
+                    "inputName" : "AllPerils_GR_AAL"
+                  },
+                  {
+                    "inputName" : "AllPerils_GU_AAL"
+                  },
+                  {
+                    "inputName" : "AllPerils_NT_AAL"
+                  },
+                  {
+                    "inputName" : "Appurtenant_Structures"
+                  },
+                  {
+                    "inputName" : "Attached_Structures"
+                  },
+                  {
+                    "inputName" : "Bldg_Num"
+                  },
+                  {
+                    "inputName" : "CAT_Spend"
+                  },
+                  {
+                    "inputName" : "Ceded_Aal_Layer1"
+                  },
+                  {
+                    "inputName" : "Ceded_Aal_Layer2"
+                  },
+                  {
+                    "inputName" : "Ceded_Aal_Layer3"
+                  },
+                  {
+                    "inputName" : "Ceded_Aal_Layer4"
+                  },
+                  {
+                    "inputName" : "Ceded_Aal_Layer5"
+                  },
+                  {
+                    "inputName" : "Ceded_Aal_Layer6"
+                  },
+                  {
+                    "inputName" : "Ceded_Aal_Layer7"
+                  },
+                  {
+                    "inputName" : "Con_Descrption"
+                  },
+                  {
+                    "inputName" : "Data_Source"
+                  },
+                  {
+                    "inputName" : "DTC_f_Andover"
+                  },
+                  {
+                    "inputName" : "EffectiveDistanceToCoast"
+                  },
+                  {
+                    "inputName" : "EQ_GR_AAL"
+                  },
+                  {
+                    "inputName" : "EQ_GU_AAL"
+                  },
+                  {
+                    "inputName" : "EQ_NT_AAL"
+                  },
+                  {
+                    "inputName" : "Glass_Type"
+                  },
+                  {
+                    "inputName" : "LOB"
+                  },
+                  {
+                    "inputName" : "LTHUwDSxSS_GR_AAL"
+                  },
+                  {
+                    "inputName" : "LTHUwDSxSS_GU_AAL"
+                  },
+                  {
+                    "inputName" : "LTHUwDSxSS_NT_AAL"
+                  },
+                  {
+                    "inputName" : "Marginal_RML"
+                  },
+                  {
+                    "inputName" : "Modeled_Base_Deductible"
+                  },
+                  {
+                    "inputName" : "Modeled_Loc_Inforce_Premium"
+                  },
+                  {
+                    "inputName" : "Modeled_TIV"
+                  },
+                  {
+                    "inputName" : "Modeled_Wind_Hurricane_Deductible"
+                  },
+                  {
+                    "inputName" : "Net_Retained_GRAAL__HU_"
+                  },
+                  {
+                    "inputName" : "Occ_Description"
+                  },
+                  {
+                    "inputName" : "Percentile_LC"
+                  },
+                  {
+                    "inputName" : "Policy_Effective_Date"
+                  },
+                  {
+                    "inputName" : "Policy_Expiration_Date"
+                  },
+                  {
+                    "inputName" : "Policy_Form"
+                  },
+                  {
+                    "inputName" : "Policy_Number"
+                  },
+                  {
+                    "inputName" : "Population"
+                  },
+                  {
+                    "inputName" : "ProgramEndDt"
+                  },
+                  {
+                    "inputName" : "ProgramStartDt"
+                  },
+                  {
+                    "inputName" : "Rank_LC"
+                  },
+                  {
+                    "inputName" : "Reins_Prem_Layer1"
+                  },
+                  {
+                    "inputName" : "Reins_Prem_Layer2"
+                  },
+                  {
+                    "inputName" : "Reins_Prem_Layer3"
+                  },
+                  {
+                    "inputName" : "Reins_Prem_Layer4"
+                  },
+                  {
+                    "inputName" : "Reins_Prem_Layer5"
+                  },
+                  {
+                    "inputName" : "Reins_Prem_Layer6"
+                  },
+                  {
+                    "inputName" : "Reins_Prem_Layer7"
+                  },
+                  {
+                    "inputName" : "Risk_ID"
+                  },
+                  {
+                    "inputName" : "RML_150_200"
+                  },
+                  {
+                    "inputName" : "RML_LC"
+                  },
+                  {
+                    "inputName" : "Roof_Anchorage"
+                  },
+                  {
+                    "inputName" : "Roof_Attached_Structures"
+                  },
+                  {
+                    "inputName" : "Roof_Cover"
+                  },
+                  {
+                    "inputName" : "Roof_Deck_Attach"
+                  },
+                  {
+                    "inputName" : "Roof_Geometry"
+                  },
+                  {
+                    "inputName" : "Roof_Year_Built"
+                  },
+                  {
+                    "inputName" : "SCS_GR_AAL"
+                  },
+                  {
+                    "inputName" : "SCS_GU_AAL"
+                  },
+                  {
+                    "inputName" : "SCS_NT_AAL"
+                  },
+                  {
+                    "inputName" : "SIR_CoastBand_f_Andover"
+                  },
+                  {
+                    "inputName" : "TCActualDistanceToCoast"
+                  },
+                  {
+                    "inputName" : "Total_Ceded_AAL"
+                  },
+                  {
+                    "inputName" : "Tree_Exposure"
+                  },
+                  {
+                    "inputName" : "Window_Prot"
+                  },
+                  {
+                    "inputName" : "WintStm_GR_AAL"
+                  },
+                  {
+                    "inputName" : "WintStm_GU_AAL"
+                  },
+                  {
+                    "inputName" : "WintStm_NT_AAL"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "windowConfigurationEnabled" : "false",
+        "windowSpec" : {
+          "allRowsFollowing" : "false",
+          "allRowsPreceding" : "false",
+          "endOffset" : 0,
+          "startOffset" : 0,
+          "partitionKeys" : null
+        }
+      }
+    ],
+    "variables" : [
+      {
+        "aggregationType" : "MAX",
+        "expressionVariable" : "false",
+        "name" : "FileName",
+        "platformType" : {
+          "name" : "string"
+        },
+        "precision" : 100,
+        "retentionPolicy" : "ON_SUCCESS_OR_WARNING",
+        "scale" : 0
+      }
+    ]
+  },
+  "vcsExportTime" : "2026-01-31 07:38:09 PST"
+}
