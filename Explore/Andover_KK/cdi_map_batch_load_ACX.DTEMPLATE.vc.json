@@ -1,0 +1,3308 @@
+{
+  "content" : {
+    "allowMaxFieldLength" : "false",
+    "bigIntConvertType" : "ONLY_BIGINT",
+    "documentType" : "MAPPING",
+    "name" : "cdi_map_batch_load_ACX",
+    "specialCharacterSupport" : "false",
+    "links" : [
+      {
+        "link" : "src_batch_baseline_count -> jnr_sourcesystemcd",
+        "groupLink" : "DefaultGroup -> Master"
+      },
+      {
+        "link" : "src_batch_latest -> jnr_sourcesystemcd",
+        "groupLink" : "DefaultGroup -> Detail"
+      },
+      {
+        "link" : "jnr_sourcesystemcd -> exp_assign_target_table_name",
+        "groupLink" : "OutputGroup -> DefaultGroup"
+      },
+      {
+        "link" : "exp_assign_target_table_name -> Lkp_max_batchid"
+      },
+      {
+        "link" : "Exp_config_setups -> tgt_batch_summary_insert_new_batchid"
+      },
+      {
+        "link" : "Rtr_insert_new_same_batch -> Exp_config_setups1",
+        "groupLink" : "INSERT_same -> DefaultGroup"
+      },
+      {
+        "link" : "Exp_config_setups1 -> tgt_batch_summary_insert_same_batchid"
+      },
+      {
+        "link" : "Rtr_insert_new_same_batch -> Exp_config_setups",
+        "groupLink" : "INSERT_new -> DefaultGroup"
+      },
+      {
+        "link" : "Exp_null_handling -> Exp_decision_node"
+      },
+      {
+        "link" : "Lkp_max_batchid -> Exp_null_handling"
+      },
+      {
+        "link" : "Exp_config_setups2 -> tgt_batch_summary_insert_isnull_batchid"
+      },
+      {
+        "link" : "Rtr_insert_new_same_batch -> Exp_config_setups2",
+        "groupLink" : "INSERT_isnull -> DefaultGroup"
+      },
+      {
+        "link" : "Expression -> Rtr_insert_new_same_batch",
+        "groupLink" : "DefaultGroup -> INPUT"
+      },
+      {
+        "link" : "Exp_decision_node -> Expression"
+      }
+    ],
+    "parameters" : [
+      {
+        "input" : "true",
+        "output" : "false",
+        "precision" : 0,
+        "scale" : 0,
+        "allowRuntimeOverride" : "false",
+        "expressionVariable" : "false",
+        "name" : "S3_Staging_Bucket"
+      },
+      {
+        "input" : "true",
+        "output" : "false",
+        "precision" : 0,
+        "scale" : 0,
+        "allowRuntimeOverride" : "false",
+        "expressionVariable" : "false",
+        "name" : "DBConnection_UDM_SRC",
+        "anonymousType" : {
+          "subType" : "TOOLKIT_CCI",
+          "typeSystem" : "TOOLKIT",
+          "connectionType" : "Amazon Redshift v2"
+        }
+      },
+      {
+        "input" : "true",
+        "output" : "false",
+        "precision" : 0,
+        "scale" : 0,
+        "allowRuntimeOverride" : "false",
+        "expressionVariable" : "false",
+        "name" : "DBConnection_UDM_TGT",
+        "anonymousType" : {
+          "subType" : "TOOLKIT_CCI",
+          "typeSystem" : "TOOLKIT",
+          "connectionType" : "Amazon Redshift v2"
+        }
+      }
+    ],
+    "transformations" : [
+      {
+        "createTime" : "2025-05-29T18:04:38.126Z",
+        "name" : "src_batch_baseline_count",
+        "advancedProperties" : [
+          {
+            "name" : "Tracing Level",
+            "value" : "Normal"
+          },
+          {
+            "name" : "Output is deterministic",
+            "value" : "false"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "false",
+            "name" : "DefaultGroup",
+            "output" : "true"
+          }
+        ],
+        "generateFilenamePort" : "false",
+        "useLabels" : "false",
+        "useSequenceFields" : "false",
+        "fields" : [
+          {
+            "adapterField" : {
+              "name" : "pilot_batch_count"
+            },
+            "name" : "pilot_batch_count",
+            "platformType" : {
+              "name" : "bigint"
+            },
+            "precision" : 19,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "source_system_code"
+            },
+            "name" : "source_system_code",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          }
+        ],
+        "dataAdapter" : {
+          "connectionId" : "saas:@aYZ4ekzHgIPeKpiaoqDLKP",
+          "connectionName" : "redshift_nonprod_andover_dw_dev",
+          "excludeDynamicFileNameField" : "false",
+          "objectType" : "QUERY",
+          "typeSystem" : "TOOLKIT",
+          "useDynamicFileName" : "false",
+          "object" : {
+            "customQuery" : "select count(*) as pilot_batch_count, source_system_code from metal.batch_load_summary\nwhere source_system_code = 'ACX'  and batch_id =0\ngroup by source_system_code",
+            "retainMetadata" : "false",
+            "fields" : [
+              {
+                "name" : "pilot_batch_count",
+                "fieldType" : "CONNECTOR",
+                "label" : "pilot_batch_count",
+                "nativeName" : "pilot_batch_count",
+                "nativeType" : "int8",
+                "original" : "false",
+                "precision" : 19,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "source_system_code",
+                "fieldType" : "CONNECTOR",
+                "label" : "source_system_code",
+                "nativeName" : "source_system_code",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              }
+            ]
+          },
+          "readOptions" : {
+            "commandType" : 0,
+            "descending" : "false",
+            "queryAll" : "false",
+            "rowLimit" : 0,
+            "selectDistinct" : "false"
+          },
+          "runtimeAttributes" : {
+            "attributes" : [
+              {
+                "name" : "Read Mode",
+                "value" : "Staging"
+              },
+              {
+                "name" : "Fetch Size",
+                "value" : "10000"
+              },
+              {
+                "name" : "S3 Bucket Name",
+                "value" : "$$S3_Staging_Bucket"
+              },
+              {
+                "name" : "Enable Compression",
+                "value" : "YES"
+              },
+              {
+                "name" : "Temporary Credential Duration",
+                "value" : "900"
+              },
+              {
+                "name" : "Treat NULL Value as NULL",
+                "value" : "NO"
+              },
+              {
+                "name" : "Encryption Type",
+                "value" : "None"
+              },
+              {
+                "name" : "Download S3 Files In Multiple Parts",
+                "value" : "NO"
+              },
+              {
+                "name" : "Multipart Download Threshold Size",
+                "value" : "5242880"
+              },
+              {
+                "name" : "Select Distinct",
+                "value" : "NO"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "createTime" : "2025-05-29T19:59:41.689Z",
+        "name" : "jnr_sourcesystemcd",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "Master",
+            "output" : "false",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          },
+          {
+            "input" : "true",
+            "name" : "Detail",
+            "output" : "false",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          },
+          {
+            "input" : "false",
+            "name" : "OutputGroup",
+            "output" : "true"
+          }
+        ],
+        "joinType" : "Normal Join",
+        "joinConditions" : [
+          {
+            "leftOperand" : "source_system_code",
+            "operator" : "=",
+            "rightOperand" : "source_system_id"
+          }
+        ]
+      },
+      {
+        "createTime" : "2025-05-29T20:00:30.653Z",
+        "name" : "exp_assign_target_table_name",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "windowConfigurationEnabled" : "false",
+        "fields" : [
+          {
+            "name" : "exp_target_table_name",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 60,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "$$target_table_name"
+          }
+        ],
+        "windowSpec" : {
+          "allRowsFollowing" : "false",
+          "allRowsPreceding" : "false",
+          "endOffset" : 0,
+          "startOffset" : 0,
+          "partitionKeys" : null
+        }
+      },
+      {
+        "createTime" : "2025-05-29T20:01:39.250Z",
+        "name" : "Lkp_max_batchid",
+        "advancedProperties" : [
+          {
+            "name" : "Tracing Level",
+            "value" : "Normal"
+          },
+          {
+            "name" : "Lookup caching enabled",
+            "value" : "true"
+          },
+          {
+            "name" : "Lookup cache directory name",
+            "value" : "$PMCacheDir"
+          },
+          {
+            "name" : "Lookup cache persistent",
+            "value" : "false"
+          },
+          {
+            "name" : "Re-cache from lookup source",
+            "value" : "false"
+          },
+          {
+            "name" : "Lookup Data Cache Size",
+            "value" : "AUTO"
+          },
+          {
+            "name" : "Lookup Index Cache Size",
+            "value" : "AUTO"
+          },
+          {
+            "name" : "Dynamic Lookup Cache",
+            "value" : "false"
+          },
+          {
+            "name" : "Update Dynamic Cache Condition",
+            "value" : "TRUE"
+          },
+          {
+            "name" : "Output Old Value On Update",
+            "value" : "false"
+          },
+          {
+            "name" : "Insert Else Update",
+            "value" : "false"
+          },
+          {
+            "name" : "Case Sensitive String Comparison",
+            "value" : "false"
+          },
+          {
+            "name" : "Sorted Input",
+            "value" : "false"
+          },
+          {
+            "name" : "Include Only Required Fields",
+            "value" : "false"
+          },
+          {
+            "name" : "Lookup source is static",
+            "value" : "false"
+          },
+          {
+            "name" : "Pre-build lookup cache",
+            "value" : "AUTO"
+          },
+          {
+            "name" : "Optional",
+            "value" : "true"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "conflictResolutions" : [
+              {
+                "precedingGroupName" : "DefaultGroup",
+                "precedingTxName" : "exp_assign_target_table_name",
+                "rule" : {
+                  "bulkRename" : "true",
+                  "include" : "true",
+                  "bulkRenameOption" : {
+                    "literal" : "param_",
+                    "suffix" : "false"
+                  }
+                }
+              }
+            ],
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "multipleMatchPolicy" : "Use Any Value",
+        "unconnected" : "false",
+        "useLabels" : "false",
+        "fields" : [
+          {
+            "adapterField" : {
+              "name" : "source_system_code"
+            },
+            "name" : "source_system_code",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "latest_batch"
+            },
+            "name" : "latest_batch",
+            "platformType" : {
+              "name" : "bigint"
+            },
+            "precision" : 19,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "target_table_name"
+            },
+            "name" : "target_table_name",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "recent_b_status"
+            },
+            "name" : "recent_b_status",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 31,
+            "scale" : 0
+          }
+        ],
+        "inputPortNames" : null,
+        "lookupConditions" : [
+          {
+            "leftOperand" : "target_table_name",
+            "operator" : "=",
+            "rightOperand" : "param_exp_target_table_name"
+          }
+        ],
+        "dataAdapter" : {
+          "connectionId" : "saas:@aYZ4ekzHgIPeKpiaoqDLKP",
+          "connectionName" : "redshift_nonprod_andover_dw_dev",
+          "excludeDynamicFileNameField" : "false",
+          "objectType" : "QUERY",
+          "typeSystem" : "TOOLKIT",
+          "useDynamicFileName" : "false",
+          "object" : {
+            "customQuery" : "select * from (\nselect  source_system_code, MAX(recent_b_query.batch_id) as latest_batch,\nrecent_b_query.target_table_name, recent_b_query.recent_b_status\nfrom (\nselect batch_id, target_table_name, batch_status,source_system_code, \nlast_value(batch_status) over(partition by batch_id, target_table_name \norder by batch_status asc rows between unbounded preceding and unbounded following) as recent_b_status\nfrom (select * from metal.batch_load_summary\nwhere source_system_code = 'ACX' and batch_status in ('Success', 'Failure', 'Inprogress') \nand  batch_id !=0\n)\norder by batch_id) recent_b_query\ngroup by batch_id,target_table_name, recent_b_status, source_system_code\norder by batch_id desc ,target_table_name, recent_b_status\n)\nwhere latest_batch = (SELECT COALESCE(MAX(batch_id), 0) AS batch_id\n  FROM metal.batch_load_summary)",
+            "retainMetadata" : "false",
+            "fields" : [
+              {
+                "name" : "source_system_code",
+                "fieldType" : "CONNECTOR",
+                "label" : "source_system_code",
+                "nativeName" : "source_system_code",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "latest_batch",
+                "fieldType" : "CONNECTOR",
+                "label" : "latest_batch",
+                "nativeName" : "latest_batch",
+                "nativeType" : "int8",
+                "original" : "false",
+                "precision" : 19,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "target_table_name",
+                "fieldType" : "CONNECTOR",
+                "label" : "target_table_name",
+                "nativeName" : "target_table_name",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "recent_b_status",
+                "fieldType" : "CONNECTOR",
+                "label" : "recent_b_status",
+                "nativeName" : "recent_b_status",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 31,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              }
+            ]
+          },
+          "readOptions" : {
+            "commandType" : 0,
+            "descending" : "false",
+            "queryAll" : "false",
+            "rowLimit" : 0,
+            "selectDistinct" : "false"
+          },
+          "runtimeAttributes" : {
+            "attributes" : [
+              {
+                "name" : "Read Mode",
+                "value" : "Staging"
+              },
+              {
+                "name" : "Fetch Size",
+                "value" : "10000"
+              },
+              {
+                "name" : "S3 Bucket Name",
+                "value" : "$$S3_Staging_Bucket"
+              },
+              {
+                "name" : "Enable Compression",
+                "value" : "YES"
+              },
+              {
+                "name" : "Temporary Credential Duration",
+                "value" : "900"
+              },
+              {
+                "name" : "Treat NULL Value as NULL",
+                "value" : "NO"
+              },
+              {
+                "name" : "Encryption Type",
+                "value" : "None"
+              },
+              {
+                "name" : "Download S3 Files In Multiple Parts",
+                "value" : "NO"
+              },
+              {
+                "name" : "Multipart Download Threshold Size",
+                "value" : "5242880"
+              },
+              {
+                "name" : "Select Distinct",
+                "value" : "NO"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "createTime" : "2025-05-29T20:04:27.822Z",
+        "name" : "Exp_decision_node",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "windowConfigurationEnabled" : "false",
+        "fields" : [
+          {
+            "name" : "v_unlkp_max_batchid",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0,
+            "expFieldType" : "VARIABLE",
+            "expression" : ":LKP.Unlkp_max_batchid('ACX')"
+          },
+          {
+            "name" : "v_batch_id",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0,
+            "expFieldType" : "VARIABLE",
+            "expression" : "decode(true,\nparam_pilot_batch_count = param_recent_batch_count and recent_b_status != 'Failure', latest_batch+1 ,\nparam_pilot_batch_count = param_recent_batch_count and recent_b_status = 'Failure', latest_batch,\nparam_pilot_batch_count > param_recent_batch_count and isnull(o_target_table_name) and param_recent_batch_count=0, v_unlkp_max_batchid + 1,\nparam_pilot_batch_count > param_recent_batch_count and isnull(o_target_table_name) and param_recent_batch_count != 0, v_unlkp_max_batchid,\nparam_pilot_batch_count > param_recent_batch_count and (ltrim(rtrim(recent_b_status)) = 'Success' or ltrim(rtrim(recent_b_status)) = 'Inprogress'), latest_batch + 1,\nparam_pilot_batch_count > param_recent_batch_count and recent_b_status = 'Failure', latest_batch,\nNULL\n)"
+          },
+          {
+            "name" : "o_BATCH_ID",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "v_batch_id"
+          },
+          {
+            "name" : "o_batch_start_datetime_new",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9,
+            "expFieldType" : "OUTPUT",
+            "expression" : "SESSSTARTTIME"
+          },
+          {
+            "name" : "o_record_flag",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 100,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "v_unlkp_max_batchid"
+          }
+        ],
+        "windowSpec" : {
+          "allRowsFollowing" : "false",
+          "allRowsPreceding" : "false",
+          "endOffset" : 0,
+          "startOffset" : 0,
+          "partitionKeys" : null
+        }
+      },
+      {
+        "createTime" : "2025-05-29T18:04:38.126Z",
+        "name" : "tgt_batch_summary_insert_new_batchid",
+        "advancedProperties" : [
+          {
+            "name" : "Forward Rejected Rows",
+            "value" : "true"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "false",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "createTarget" : "false",
+        "fieldMappingMode" : "MANUAL",
+        "inputSorted" : "false",
+        "schemaProviderType" : "SELECTED_OBJECT",
+        "targetFieldsOrdered" : "false",
+        "updateColumns" : null,
+        "useLabels" : "false",
+        "useSequenceFields" : "false",
+        "fields" : [
+          {
+            "adapterField" : {
+              "name" : "batch_load_summary_row_id"
+            },
+            "name" : "batch_load_summary_row_id",
+            "platformType" : {
+              "name" : "bigint"
+            },
+            "precision" : 19,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "batch_id"
+            },
+            "name" : "batch_id",
+            "platformType" : {
+              "name" : "bigint"
+            },
+            "precision" : 19,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "target_table_name"
+            },
+            "name" : "target_table_name",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "source_system_code"
+            },
+            "name" : "source_system_code",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "batch_status"
+            },
+            "name" : "batch_status",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 31,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "batch_run_type"
+            },
+            "name" : "batch_run_type",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 31,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "batch_start_datetime"
+            },
+            "name" : "batch_start_datetime",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "batch_end_datetime"
+            },
+            "name" : "batch_end_datetime",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "source_start_cutoff_datetime"
+            },
+            "name" : "source_start_cutoff_datetime",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "source_end_cutoff_datetime"
+            },
+            "name" : "source_end_cutoff_datetime",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "row_created_by"
+            },
+            "name" : "row_created_by",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 31,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "row_created_datetime"
+            },
+            "name" : "row_created_datetime",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          }
+        ],
+        "dataAdapter" : {
+          "connectionId$" : {
+            "name" : "DBConnection_UDM_TGT"
+          },
+          "excludeDynamicFileNameField" : "false",
+          "objectType" : "SINGLE",
+          "typeSystem" : "TOOLKIT",
+          "useDynamicFileName" : "false",
+          "object" : {
+            "name" : "metal/batch_load_summary",
+            "label" : "metal/batch_load_summary",
+            "objectName" : "batch_load_summary",
+            "objectType" : "amazonredshift",
+            "path" : "metal/batch_load_summary",
+            "retainMetadata" : "false",
+            "fields" : [
+              {
+                "name" : "batch_load_summary_row_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "batch_load_summary_row_id",
+                "nativeName" : "batch_load_summary_row_id",
+                "nativeType" : "int8",
+                "original" : "false",
+                "precision" : 19,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "batch_load_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "batch_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "batch_id",
+                "nativeName" : "batch_id",
+                "nativeType" : "int8",
+                "original" : "false",
+                "precision" : 19,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "batch_load_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "target_table_name",
+                "fieldType" : "CONNECTOR",
+                "label" : "target_table_name",
+                "nativeName" : "target_table_name",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "batch_load_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "source_system_code",
+                "fieldType" : "CONNECTOR",
+                "label" : "source_system_code",
+                "nativeName" : "source_system_code",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "batch_load_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "batch_status",
+                "fieldType" : "CONNECTOR",
+                "label" : "batch_status",
+                "nativeName" : "batch_status",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 31,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "batch_load_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "batch_run_type",
+                "fieldType" : "CONNECTOR",
+                "label" : "batch_run_type",
+                "nativeName" : "batch_run_type",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 31,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "batch_load_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "batch_start_datetime",
+                "fieldType" : "CONNECTOR",
+                "label" : "batch_start_datetime",
+                "nativeName" : "batch_start_datetime",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "batch_load_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "batch_end_datetime",
+                "fieldType" : "CONNECTOR",
+                "label" : "batch_end_datetime",
+                "nativeName" : "batch_end_datetime",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "batch_load_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "source_start_cutoff_datetime",
+                "fieldType" : "CONNECTOR",
+                "label" : "source_start_cutoff_datetime",
+                "nativeName" : "source_start_cutoff_datetime",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "batch_load_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "source_end_cutoff_datetime",
+                "fieldType" : "CONNECTOR",
+                "label" : "source_end_cutoff_datetime",
+                "nativeName" : "source_end_cutoff_datetime",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "batch_load_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "row_created_by",
+                "fieldType" : "CONNECTOR",
+                "label" : "row_created_by",
+                "nativeName" : "row_created_by",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 31,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "batch_load_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "row_created_datetime",
+                "fieldType" : "CONNECTOR",
+                "label" : "row_created_datetime",
+                "nativeName" : "row_created_datetime",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "batch_load_summary"
+                  }
+                ]
+              }
+            ],
+            "objectAttributes" : [
+              {
+                "name" : "recordType",
+                "value" : "TABLE"
+              }
+            ]
+          },
+          "runtimeAttributes" : {
+            "attributes" : [
+              {
+                "name" : "S3 Bucket Name",
+                "value" : "$$S3_Staging_Bucket"
+              },
+              {
+                "name" : "Enable Compression",
+                "value" : "YES"
+              },
+              {
+                "name" : "Batch Size",
+                "value" : "2000000"
+              },
+              {
+                "name" : "Max Errors Per Batch Upload Insert",
+                "value" : "1"
+              },
+              {
+                "name" : "Truncate Target Table Before Data Upload",
+                "value" : "NO"
+              },
+              {
+                "name" : "WaitTime In Seconds For S3 File Consistency",
+                "value" : "0"
+              },
+              {
+                "name" : "Temporary Credential Duration",
+                "value" : "900"
+              },
+              {
+                "name" : "S3 Server Side Encryption",
+                "value" : "NO"
+              },
+              {
+                "name" : "S3 Client Side Encryption",
+                "value" : "NO"
+              },
+              {
+                "name" : "Analyze Target Table",
+                "value" : "NO"
+              },
+              {
+                "name" : "Vacuum Target Table",
+                "value" : "None"
+              },
+              {
+                "name" : "Treat Source Rows As",
+                "value" : "INSERT"
+              },
+              {
+                "name" : "Transfer Manager Thread Pool Size",
+                "value" : "10"
+              },
+              {
+                "name" : "Minimum Upload Part Size",
+                "value" : "5242880"
+              },
+              {
+                "name" : "Preserve record order on write",
+                "value" : "NO"
+              },
+              {
+                "name" : "Number of files per batch",
+                "value" : "0"
+              }
+            ]
+          },
+          "writeOptions" : {
+            "batchSize" : 0,
+            "bulkApi" : "false",
+            "handleDecimalRoundOff" : "false",
+            "handleSpecialChars" : "false",
+            "operations" : [
+              "Insert"
+            ],
+            "setFieldsToNull" : "false",
+            "truncate" : "false",
+            "useErrorFile" : "false",
+            "useExactSrcNames" : "false",
+            "useSuccessFile" : "false"
+          }
+        },
+        "manualMappings" : {
+          "mappingList" : [
+            {
+              "fromFieldName" : "o_BATCH_ID",
+              "toField" : {
+                "name" : "batch_id"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_target",
+              "toField" : {
+                "name" : "target_table_name"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "param_source_system_code",
+              "toField" : {
+                "name" : "source_system_code"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "O_BATCH_STATUS",
+              "toField" : {
+                "name" : "batch_status"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "O_batch_run_type",
+              "toField" : {
+                "name" : "batch_run_type"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_batch_start_datetime_new",
+              "toField" : {
+                "name" : "batch_start_datetime"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "O_row_created_by",
+              "toField" : {
+                "name" : "row_created_by"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "O_row_created",
+              "toField" : {
+                "name" : "row_created_datetime"
+              },
+              "fromFieldNames" : null
+            }
+          ]
+        }
+      },
+      {
+        "createTime" : "2025-05-29T18:04:38.126Z",
+        "name" : "src_batch_latest",
+        "advancedProperties" : [
+          {
+            "name" : "Tracing Level",
+            "value" : "Normal"
+          },
+          {
+            "name" : "Output is deterministic",
+            "value" : "false"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "false",
+            "name" : "DefaultGroup",
+            "output" : "true"
+          }
+        ],
+        "generateFilenamePort" : "false",
+        "useLabels" : "false",
+        "useSequenceFields" : "false",
+        "fields" : [
+          {
+            "adapterField" : {
+              "name" : "recent_batch_count"
+            },
+            "name" : "recent_batch_count",
+            "platformType" : {
+              "name" : "bigint"
+            },
+            "precision" : 19,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "source_system_id"
+            },
+            "name" : "source_system_id",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 3,
+            "scale" : 0
+          }
+        ],
+        "dataAdapter" : {
+          "connectionId" : "saas:@aYZ4ekzHgIPeKpiaoqDLKP",
+          "connectionName" : "redshift_nonprod_andover_dw_dev",
+          "excludeDynamicFileNameField" : "false",
+          "objectType" : "QUERY",
+          "typeSystem" : "TOOLKIT",
+          "useDynamicFileName" : "false",
+          "object" : {
+            "customQuery" : "select  count(*) as recent_batch_count, 'ACX' as source_system_id from (\nselect  source_system_code, MAX(recent_b_query.batch_id) as latest_batch, recent_b_query.target_table_name, recent_b_query.recent_b_status\nfrom (\nselect batch_id, target_table_name, batch_status,source_system_code, last_value(batch_status) over(partition by batch_id, target_table_name \norder by batch_status asc rows between unbounded preceding and unbounded following) as recent_b_status\nfrom (select * from metal.batch_load_summary\nwhere source_system_code = 'ACX' and batch_status in ('Success', 'Failure', 'Inprogress') \nand  batch_id !=0)\norder by batch_id) recent_b_query\ngroup by batch_id,target_table_name, recent_b_status, source_system_code\norder by batch_id desc ,target_table_name, recent_b_status\n)\nwhere latest_batch = (SELECT COALESCE(MAX(batch_id), 1) AS batch_id\n  FROM metal.batch_load_summary)",
+            "retainMetadata" : "false",
+            "fields" : [
+              {
+                "name" : "recent_batch_count",
+                "fieldType" : "CONNECTOR",
+                "label" : "recent_batch_count",
+                "nativeName" : "recent_batch_count",
+                "nativeType" : "int8",
+                "original" : "false",
+                "precision" : 19,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "source_system_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "source_system_id",
+                "nativeName" : "source_system_id",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 3,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              }
+            ]
+          },
+          "readOptions" : {
+            "commandType" : 0,
+            "descending" : "false",
+            "queryAll" : "false",
+            "rowLimit" : 0,
+            "selectDistinct" : "false"
+          },
+          "runtimeAttributes" : {
+            "attributes" : [
+              {
+                "name" : "Read Mode",
+                "value" : "Staging"
+              },
+              {
+                "name" : "Fetch Size",
+                "value" : "10000"
+              },
+              {
+                "name" : "S3 Bucket Name",
+                "value" : "$$S3_Staging_Bucket"
+              },
+              {
+                "name" : "Enable Compression",
+                "value" : "YES"
+              },
+              {
+                "name" : "Temporary Credential Duration",
+                "value" : "900"
+              },
+              {
+                "name" : "Treat NULL Value as NULL",
+                "value" : "NO"
+              },
+              {
+                "name" : "Encryption Type",
+                "value" : "None"
+              },
+              {
+                "name" : "Download S3 Files In Multiple Parts",
+                "value" : "NO"
+              },
+              {
+                "name" : "Multipart Download Threshold Size",
+                "value" : "5242880"
+              },
+              {
+                "name" : "Select Distinct",
+                "value" : "NO"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "createTime" : "2025-05-29T20:56:23.113Z",
+        "name" : "Rtr_insert_new_same_batch",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "INPUT",
+            "output" : "false",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          },
+          {
+            "input" : "false",
+            "name" : "DEFAULT1",
+            "output" : "true"
+          },
+          {
+            "input" : "false",
+            "name" : "INSERT_new",
+            "output" : "true"
+          },
+          {
+            "input" : "false",
+            "name" : "INSERT_same",
+            "output" : "true"
+          },
+          {
+            "input" : "false",
+            "name" : "INSERT_isnull",
+            "output" : "true"
+          }
+        ],
+        "groupFilterConditions" : [
+          {
+            "advancedFilterCondition" : "(o_latest_batch+1 = o_BATCH_ID) \n",
+            "name" : "INSERT_new"
+          },
+          {
+            "advancedFilterCondition" : "(o_latest_batch=o_BATCH_ID)",
+            "name" : "INSERT_same"
+          },
+          {
+            "advancedFilterCondition" : "ISNULL(o_latest_batch)",
+            "name" : "INSERT_isnull"
+          }
+        ]
+      },
+      {
+        "description" : "....",
+        "createTime" : "2025-05-29T20:59:04.554Z",
+        "name" : "Exp_config_setups",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "windowConfigurationEnabled" : "false",
+        "fields" : [
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "O_BATCH_STATUS",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 20,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "$$batch_status_inprogress"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "O_batch_run_type",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 10,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "$$batch_run_type"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "O_row_created_by",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 100,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "$$row_created_by"
+          },
+          {
+            "name" : "O_row_created",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 100,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "sysdate"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_target",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 100,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "IIF((isnull(o_target_table_name)),param_exp_target_table_name,target_table_name)"
+          }
+        ],
+        "windowSpec" : {
+          "allRowsFollowing" : "false",
+          "allRowsPreceding" : "false",
+          "endOffset" : 0,
+          "startOffset" : 0,
+          "partitionKeys" : null
+        }
+      },
+      {
+        "createTime" : "2025-05-29T18:04:38.126Z",
+        "name" : "tgt_batch_summary_insert_same_batchid",
+        "advancedProperties" : [
+          {
+            "name" : "Forward Rejected Rows",
+            "value" : "true"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "false",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "createTarget" : "false",
+        "fieldMappingMode" : "MANUAL",
+        "inputSorted" : "false",
+        "schemaProviderType" : "SELECTED_OBJECT",
+        "targetFieldsOrdered" : "false",
+        "updateColumns" : null,
+        "useLabels" : "false",
+        "useSequenceFields" : "false",
+        "fields" : [
+          {
+            "adapterField" : {
+              "name" : "batch_load_summary_row_id"
+            },
+            "name" : "batch_load_summary_row_id",
+            "platformType" : {
+              "name" : "bigint"
+            },
+            "precision" : 19,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "batch_id"
+            },
+            "name" : "batch_id",
+            "platformType" : {
+              "name" : "bigint"
+            },
+            "precision" : 19,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "target_table_name"
+            },
+            "name" : "target_table_name",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "source_system_code"
+            },
+            "name" : "source_system_code",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "batch_status"
+            },
+            "name" : "batch_status",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 31,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "batch_run_type"
+            },
+            "name" : "batch_run_type",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 31,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "batch_start_datetime"
+            },
+            "name" : "batch_start_datetime",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "batch_end_datetime"
+            },
+            "name" : "batch_end_datetime",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "source_start_cutoff_datetime"
+            },
+            "name" : "source_start_cutoff_datetime",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "source_end_cutoff_datetime"
+            },
+            "name" : "source_end_cutoff_datetime",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "row_created_by"
+            },
+            "name" : "row_created_by",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 31,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "row_created_datetime"
+            },
+            "name" : "row_created_datetime",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          }
+        ],
+        "dataAdapter" : {
+          "connectionId$" : {
+            "name" : "DBConnection_UDM_TGT"
+          },
+          "excludeDynamicFileNameField" : "false",
+          "objectType" : "SINGLE",
+          "typeSystem" : "TOOLKIT",
+          "useDynamicFileName" : "false",
+          "bulkOptions" : {
+            "hardDelete" : "false",
+            "maxRowsPerRequest" : 0,
+            "monitorBulk" : "false",
+            "monitorBulkV2" : "false",
+            "pkChunkingEnabled" : "false",
+            "pkChunkingSize" : 0,
+            "serialMode" : "false",
+            "useBulkApi" : "false",
+            "useBulkApiV2" : "false"
+          },
+          "object" : {
+            "name" : "metal/batch_load_summary",
+            "label" : "metal/batch_load_summary",
+            "objectName" : "batch_load_summary",
+            "objectType" : "amazonredshift",
+            "path" : "metal/batch_load_summary",
+            "retainMetadata" : "false",
+            "fields" : [
+              {
+                "name" : "batch_load_summary_row_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "batch_load_summary_row_id",
+                "nativeName" : "batch_load_summary_row_id",
+                "nativeType" : "int8",
+                "original" : "false",
+                "precision" : 19,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "batch_load_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "batch_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "batch_id",
+                "nativeName" : "batch_id",
+                "nativeType" : "int8",
+                "original" : "false",
+                "precision" : 19,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "batch_load_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "target_table_name",
+                "fieldType" : "CONNECTOR",
+                "label" : "target_table_name",
+                "nativeName" : "target_table_name",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "batch_load_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "source_system_code",
+                "fieldType" : "CONNECTOR",
+                "label" : "source_system_code",
+                "nativeName" : "source_system_code",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "batch_load_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "batch_status",
+                "fieldType" : "CONNECTOR",
+                "label" : "batch_status",
+                "nativeName" : "batch_status",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 31,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "batch_load_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "batch_run_type",
+                "fieldType" : "CONNECTOR",
+                "label" : "batch_run_type",
+                "nativeName" : "batch_run_type",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 31,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "batch_load_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "batch_start_datetime",
+                "fieldType" : "CONNECTOR",
+                "label" : "batch_start_datetime",
+                "nativeName" : "batch_start_datetime",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "batch_load_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "batch_end_datetime",
+                "fieldType" : "CONNECTOR",
+                "label" : "batch_end_datetime",
+                "nativeName" : "batch_end_datetime",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "batch_load_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "source_start_cutoff_datetime",
+                "fieldType" : "CONNECTOR",
+                "label" : "source_start_cutoff_datetime",
+                "nativeName" : "source_start_cutoff_datetime",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "batch_load_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "source_end_cutoff_datetime",
+                "fieldType" : "CONNECTOR",
+                "label" : "source_end_cutoff_datetime",
+                "nativeName" : "source_end_cutoff_datetime",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "batch_load_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "row_created_by",
+                "fieldType" : "CONNECTOR",
+                "label" : "row_created_by",
+                "nativeName" : "row_created_by",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 31,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "batch_load_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "row_created_datetime",
+                "fieldType" : "CONNECTOR",
+                "label" : "row_created_datetime",
+                "nativeName" : "row_created_datetime",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "batch_load_summary"
+                  }
+                ]
+              }
+            ],
+            "objectAttributes" : [
+              {
+                "name" : "recordType",
+                "value" : "TABLE"
+              }
+            ]
+          },
+          "runtimeAttributes" : {
+            "attributes" : [
+              {
+                "name" : "S3 Bucket Name",
+                "value" : "$$S3_Staging_Bucket"
+              },
+              {
+                "name" : "Enable Compression",
+                "value" : "YES"
+              },
+              {
+                "name" : "Batch Size",
+                "value" : "2000000"
+              },
+              {
+                "name" : "Max Errors Per Batch Upload Insert",
+                "value" : "1"
+              },
+              {
+                "name" : "Truncate Target Table Before Data Upload",
+                "value" : "NO"
+              },
+              {
+                "name" : "WaitTime In Seconds For S3 File Consistency",
+                "value" : "0"
+              },
+              {
+                "name" : "Temporary Credential Duration",
+                "value" : "900"
+              },
+              {
+                "name" : "S3 Server Side Encryption",
+                "value" : "NO"
+              },
+              {
+                "name" : "S3 Client Side Encryption",
+                "value" : "NO"
+              },
+              {
+                "name" : "Analyze Target Table",
+                "value" : "NO"
+              },
+              {
+                "name" : "Vacuum Target Table",
+                "value" : "None"
+              },
+              {
+                "name" : "Treat Source Rows As",
+                "value" : "INSERT"
+              },
+              {
+                "name" : "Transfer Manager Thread Pool Size",
+                "value" : "10"
+              },
+              {
+                "name" : "Minimum Upload Part Size",
+                "value" : "5242880"
+              },
+              {
+                "name" : "Preserve record order on write",
+                "value" : "NO"
+              },
+              {
+                "name" : "Number of files per batch",
+                "value" : "0"
+              }
+            ]
+          },
+          "writeOptions" : {
+            "batchSize" : 0,
+            "bulkApi" : "false",
+            "handleDecimalRoundOff" : "false",
+            "handleSpecialChars" : "false",
+            "operations" : [
+              "Insert"
+            ],
+            "setFieldsToNull" : "false",
+            "truncate" : "false",
+            "useErrorFile" : "false",
+            "useExactSrcNames" : "false",
+            "useSuccessFile" : "false"
+          }
+        },
+        "manualMappings" : {
+          "mappingList" : [
+            {
+              "fromFieldName" : "o_BATCH_ID",
+              "toField" : {
+                "name" : "batch_id"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "target_table_name",
+              "toField" : {
+                "name" : "target_table_name"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "source_system_code",
+              "toField" : {
+                "name" : "source_system_code"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "O_BATCH_STATUS",
+              "toField" : {
+                "name" : "batch_status"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "O_batch_run_type",
+              "toField" : {
+                "name" : "batch_run_type"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_batch_start_datetime_existing",
+              "toField" : {
+                "name" : "batch_start_datetime"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "O_row_created_by",
+              "toField" : {
+                "name" : "row_created_by"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "O_row_created",
+              "toField" : {
+                "name" : "row_created_datetime"
+              },
+              "fromFieldNames" : null
+            }
+          ]
+        }
+      },
+      {
+        "createTime" : "2025-05-29T20:59:04.554Z",
+        "name" : "Exp_config_setups1",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "windowConfigurationEnabled" : "false",
+        "fields" : [
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "O_BATCH_STATUS",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 20,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "$$batch_status_inprogress"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "O_batch_run_type",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 10,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "$$batch_run_type"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "O_row_created_by",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 20,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "$$row_created_by"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "O_row_created",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 100,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "sysdate"
+          }
+        ],
+        "windowSpec" : {
+          "allRowsFollowing" : "false",
+          "allRowsPreceding" : "false",
+          "endOffset" : 0,
+          "startOffset" : 0,
+          "partitionKeys" : null
+        }
+      },
+      {
+        "createTime" : "2025-05-30T13:46:36.964Z",
+        "name" : "Exp_null_handling",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "windowConfigurationEnabled" : "false",
+        "fields" : [
+          {
+            "defaultValue" : "NULL",
+            "name" : "o_target_table_name",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 100,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "IIF(not isnull(target_table_name),target_table_name,NULL)"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_latest_batch",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "iif(isnull(latest_batch),NULL,latest_batch)"
+          }
+        ],
+        "windowSpec" : {
+          "allRowsFollowing" : "false",
+          "allRowsPreceding" : "false",
+          "endOffset" : 0,
+          "startOffset" : 0,
+          "partitionKeys" : null
+        }
+      },
+      {
+        "description" : "get the max of batchid on the sourcesystemcode as ADM",
+        "createTime" : "2025-06-03T14:41:30.714Z",
+        "name" : "Unlkp_max_batchid",
+        "advancedProperties" : [
+          {
+            "name" : "Tracing Level",
+            "value" : "Normal"
+          },
+          {
+            "name" : "Lookup caching enabled",
+            "value" : "true"
+          },
+          {
+            "name" : "Lookup cache directory name",
+            "value" : "$PMCacheDir"
+          },
+          {
+            "name" : "Lookup cache persistent",
+            "value" : "false"
+          },
+          {
+            "name" : "Re-cache from lookup source",
+            "value" : "false"
+          },
+          {
+            "name" : "Lookup Data Cache Size",
+            "value" : "AUTO"
+          },
+          {
+            "name" : "Lookup Index Cache Size",
+            "value" : "AUTO"
+          },
+          {
+            "name" : "Dynamic Lookup Cache",
+            "value" : "false"
+          },
+          {
+            "name" : "Update Dynamic Cache Condition",
+            "value" : "TRUE"
+          },
+          {
+            "name" : "Output Old Value On Update",
+            "value" : "false"
+          },
+          {
+            "name" : "Insert Else Update",
+            "value" : "false"
+          },
+          {
+            "name" : "Case Sensitive String Comparison",
+            "value" : "false"
+          },
+          {
+            "name" : "Sorted Input",
+            "value" : "false"
+          },
+          {
+            "name" : "Include Only Required Fields",
+            "value" : "false"
+          },
+          {
+            "name" : "Lookup source is static",
+            "value" : "false"
+          },
+          {
+            "name" : "Pre-build lookup cache",
+            "value" : "AUTO"
+          },
+          {
+            "name" : "Optional",
+            "value" : "true"
+          }
+        ],
+        "multipleMatchPolicy" : "Use Any Value",
+        "returnPortName" : "batch_id",
+        "unconnected" : "true",
+        "useLabels" : "false",
+        "fields" : [
+          {
+            "adapterField" : {
+              "name" : "batch_id"
+            },
+            "name" : "batch_id",
+            "platformType" : {
+              "name" : "bigint"
+            },
+            "precision" : 19,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "source_system_code"
+            },
+            "name" : "source_system_code",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          }
+        ],
+        "inputPortNames" : [
+          "in_source_system_code"
+        ],
+        "lookupConditions" : [
+          {
+            "leftOperand" : "source_system_code",
+            "operator" : "=",
+            "rightOperand" : "in_source_system_code"
+          }
+        ],
+        "dataAdapter" : {
+          "connectionId" : "saas:@aYZ4ekzHgIPeKpiaoqDLKP",
+          "connectionName" : "redshift_nonprod_andover_dw_dev",
+          "excludeDynamicFileNameField" : "false",
+          "objectType" : "QUERY",
+          "typeSystem" : "TOOLKIT",
+          "useDynamicFileName" : "false",
+          "object" : {
+            "customQuery" : "SELECT MAX(batch_id) AS batch_id, source_system_code\nfrom\nmetal.batch_load_summary\nWHERE\nsource_system_code = 'ACX'\ngroup by source_system_code",
+            "retainMetadata" : "false",
+            "fields" : [
+              {
+                "name" : "batch_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "batch_id",
+                "nativeName" : "batch_id",
+                "nativeType" : "int8",
+                "original" : "false",
+                "precision" : 19,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "source_system_code",
+                "fieldType" : "CONNECTOR",
+                "label" : "source_system_code",
+                "nativeName" : "source_system_code",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              }
+            ]
+          },
+          "readOptions" : {
+            "commandType" : 0,
+            "descending" : "false",
+            "queryAll" : "false",
+            "rowLimit" : 0,
+            "selectDistinct" : "false"
+          },
+          "runtimeAttributes" : {
+            "attributes" : [
+              {
+                "name" : "Read Mode",
+                "value" : "Staging"
+              },
+              {
+                "name" : "Fetch Size",
+                "value" : "10000"
+              },
+              {
+                "name" : "S3 Bucket Name",
+                "value" : "$$S3_Staging_Bucket"
+              },
+              {
+                "name" : "Enable Compression",
+                "value" : "YES"
+              },
+              {
+                "name" : "Temporary Credential Duration",
+                "value" : "900"
+              },
+              {
+                "name" : "Treat NULL Value as NULL",
+                "value" : "NO"
+              },
+              {
+                "name" : "Encryption Type",
+                "value" : "None"
+              },
+              {
+                "name" : "Download S3 Files In Multiple Parts",
+                "value" : "NO"
+              },
+              {
+                "name" : "Multipart Download Threshold Size",
+                "value" : "5242880"
+              },
+              {
+                "name" : "Select Distinct",
+                "value" : "NO"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "createTime" : "2025-05-29T20:59:04.554Z",
+        "name" : "Exp_config_setups2",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "windowConfigurationEnabled" : "false",
+        "fields" : [
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "O_BATCH_STATUS",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 20,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "$$batch_status_inprogress"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "O_batch_run_type",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 10,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "$$batch_run_type"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "O_row_created_by",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 20,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "$$row_created_by"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "O_row_created",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 100,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "sysdate"
+          }
+        ],
+        "windowSpec" : {
+          "allRowsFollowing" : "false",
+          "allRowsPreceding" : "false",
+          "endOffset" : 0,
+          "startOffset" : 0,
+          "partitionKeys" : null
+        }
+      },
+      {
+        "createTime" : "2025-05-29T18:04:38.126Z",
+        "name" : "tgt_batch_summary_insert_isnull_batchid",
+        "advancedProperties" : [
+          {
+            "name" : "Forward Rejected Rows",
+            "value" : "true"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "false",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "createTarget" : "false",
+        "fieldMappingMode" : "MANUAL",
+        "inputSorted" : "false",
+        "schemaProviderType" : "SELECTED_OBJECT",
+        "targetFieldsOrdered" : "false",
+        "updateColumns" : null,
+        "useLabels" : "false",
+        "useSequenceFields" : "false",
+        "fields" : [
+          {
+            "adapterField" : {
+              "name" : "batch_load_summary_row_id"
+            },
+            "name" : "batch_load_summary_row_id",
+            "platformType" : {
+              "name" : "bigint"
+            },
+            "precision" : 19,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "batch_id"
+            },
+            "name" : "batch_id",
+            "platformType" : {
+              "name" : "bigint"
+            },
+            "precision" : 19,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "target_table_name"
+            },
+            "name" : "target_table_name",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "source_system_code"
+            },
+            "name" : "source_system_code",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "batch_status"
+            },
+            "name" : "batch_status",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 31,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "batch_run_type"
+            },
+            "name" : "batch_run_type",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 31,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "batch_start_datetime"
+            },
+            "name" : "batch_start_datetime",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "batch_end_datetime"
+            },
+            "name" : "batch_end_datetime",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "source_start_cutoff_datetime"
+            },
+            "name" : "source_start_cutoff_datetime",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "source_end_cutoff_datetime"
+            },
+            "name" : "source_end_cutoff_datetime",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "row_created_by"
+            },
+            "name" : "row_created_by",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 31,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "row_created_datetime"
+            },
+            "name" : "row_created_datetime",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          }
+        ],
+        "dataAdapter" : {
+          "connectionId$" : {
+            "name" : "DBConnection_UDM_TGT"
+          },
+          "excludeDynamicFileNameField" : "false",
+          "objectType" : "SINGLE",
+          "typeSystem" : "TOOLKIT",
+          "useDynamicFileName" : "false",
+          "bulkOptions" : {
+            "hardDelete" : "false",
+            "maxRowsPerRequest" : 0,
+            "monitorBulk" : "false",
+            "monitorBulkV2" : "false",
+            "pkChunkingEnabled" : "false",
+            "pkChunkingSize" : 0,
+            "serialMode" : "false",
+            "useBulkApi" : "false",
+            "useBulkApiV2" : "false"
+          },
+          "object" : {
+            "name" : "metal/batch_load_summary",
+            "label" : "metal/batch_load_summary",
+            "objectName" : "batch_load_summary",
+            "objectType" : "amazonredshift",
+            "path" : "metal/batch_load_summary",
+            "retainMetadata" : "false",
+            "fields" : [
+              {
+                "name" : "batch_load_summary_row_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "batch_load_summary_row_id",
+                "nativeName" : "batch_load_summary_row_id",
+                "nativeType" : "int8",
+                "original" : "false",
+                "precision" : 19,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "batch_load_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "batch_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "batch_id",
+                "nativeName" : "batch_id",
+                "nativeType" : "int8",
+                "original" : "false",
+                "precision" : 19,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "batch_load_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "target_table_name",
+                "fieldType" : "CONNECTOR",
+                "label" : "target_table_name",
+                "nativeName" : "target_table_name",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "batch_load_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "source_system_code",
+                "fieldType" : "CONNECTOR",
+                "label" : "source_system_code",
+                "nativeName" : "source_system_code",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "batch_load_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "batch_status",
+                "fieldType" : "CONNECTOR",
+                "label" : "batch_status",
+                "nativeName" : "batch_status",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 31,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "batch_load_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "batch_run_type",
+                "fieldType" : "CONNECTOR",
+                "label" : "batch_run_type",
+                "nativeName" : "batch_run_type",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 31,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "batch_load_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "batch_start_datetime",
+                "fieldType" : "CONNECTOR",
+                "label" : "batch_start_datetime",
+                "nativeName" : "batch_start_datetime",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "batch_load_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "batch_end_datetime",
+                "fieldType" : "CONNECTOR",
+                "label" : "batch_end_datetime",
+                "nativeName" : "batch_end_datetime",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "batch_load_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "source_start_cutoff_datetime",
+                "fieldType" : "CONNECTOR",
+                "label" : "source_start_cutoff_datetime",
+                "nativeName" : "source_start_cutoff_datetime",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "batch_load_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "source_end_cutoff_datetime",
+                "fieldType" : "CONNECTOR",
+                "label" : "source_end_cutoff_datetime",
+                "nativeName" : "source_end_cutoff_datetime",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "batch_load_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "row_created_by",
+                "fieldType" : "CONNECTOR",
+                "label" : "row_created_by",
+                "nativeName" : "row_created_by",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 31,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "batch_load_summary"
+                  }
+                ]
+              },
+              {
+                "name" : "row_created_datetime",
+                "fieldType" : "CONNECTOR",
+                "label" : "row_created_datetime",
+                "nativeName" : "row_created_datetime",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "batch_load_summary"
+                  }
+                ]
+              }
+            ],
+            "objectAttributes" : [
+              {
+                "name" : "recordType",
+                "value" : "TABLE"
+              }
+            ]
+          },
+          "runtimeAttributes" : {
+            "attributes" : [
+              {
+                "name" : "S3 Bucket Name",
+                "value" : "$$S3_Staging_Bucket"
+              },
+              {
+                "name" : "Enable Compression",
+                "value" : "YES"
+              },
+              {
+                "name" : "Batch Size",
+                "value" : "2000000"
+              },
+              {
+                "name" : "Max Errors Per Batch Upload Insert",
+                "value" : "1"
+              },
+              {
+                "name" : "Truncate Target Table Before Data Upload",
+                "value" : "NO"
+              },
+              {
+                "name" : "WaitTime In Seconds For S3 File Consistency",
+                "value" : "0"
+              },
+              {
+                "name" : "Temporary Credential Duration",
+                "value" : "900"
+              },
+              {
+                "name" : "S3 Server Side Encryption",
+                "value" : "NO"
+              },
+              {
+                "name" : "S3 Client Side Encryption",
+                "value" : "NO"
+              },
+              {
+                "name" : "Analyze Target Table",
+                "value" : "NO"
+              },
+              {
+                "name" : "Vacuum Target Table",
+                "value" : "None"
+              },
+              {
+                "name" : "Treat Source Rows As",
+                "value" : "INSERT"
+              },
+              {
+                "name" : "Transfer Manager Thread Pool Size",
+                "value" : "10"
+              },
+              {
+                "name" : "Minimum Upload Part Size",
+                "value" : "5242880"
+              },
+              {
+                "name" : "Preserve record order on write",
+                "value" : "NO"
+              },
+              {
+                "name" : "Number of files per batch",
+                "value" : "0"
+              }
+            ]
+          },
+          "writeOptions" : {
+            "batchSize" : 0,
+            "bulkApi" : "false",
+            "handleDecimalRoundOff" : "false",
+            "handleSpecialChars" : "false",
+            "operations" : [
+              "Insert"
+            ],
+            "setFieldsToNull" : "false",
+            "truncate" : "false",
+            "useErrorFile" : "false",
+            "useExactSrcNames" : "false",
+            "useSuccessFile" : "false"
+          }
+        },
+        "manualMappings" : {
+          "mappingList" : [
+            {
+              "fromFieldName" : "o_BATCH_ID",
+              "toField" : {
+                "name" : "batch_id"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "param_exp_target_table_name",
+              "toField" : {
+                "name" : "target_table_name"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "param_source_system_code",
+              "toField" : {
+                "name" : "source_system_code"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "O_BATCH_STATUS",
+              "toField" : {
+                "name" : "batch_status"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "O_batch_run_type",
+              "toField" : {
+                "name" : "batch_run_type"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "O_row_created_by",
+              "toField" : {
+                "name" : "row_created_by"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "O_row_created",
+              "toField" : {
+                "name" : "row_created_datetime"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_batch_start_datetime_new",
+              "toField" : {
+                "name" : "batch_start_datetime"
+              },
+              "fromFieldNames" : null
+            }
+          ]
+        }
+      },
+      {
+        "createTime" : "2025-06-03T19:08:35.667Z",
+        "name" : "unlkp_existing_batch_start_datetime",
+        "advancedProperties" : [
+          {
+            "name" : "Tracing Level",
+            "value" : "Normal"
+          },
+          {
+            "name" : "Lookup caching enabled",
+            "value" : "true"
+          },
+          {
+            "name" : "Lookup cache directory name",
+            "value" : "$PMCacheDir"
+          },
+          {
+            "name" : "Lookup cache persistent",
+            "value" : "false"
+          },
+          {
+            "name" : "Re-cache from lookup source",
+            "value" : "false"
+          },
+          {
+            "name" : "Lookup Data Cache Size",
+            "value" : "AUTO"
+          },
+          {
+            "name" : "Lookup Index Cache Size",
+            "value" : "AUTO"
+          },
+          {
+            "name" : "Dynamic Lookup Cache",
+            "value" : "false"
+          },
+          {
+            "name" : "Update Dynamic Cache Condition",
+            "value" : "TRUE"
+          },
+          {
+            "name" : "Output Old Value On Update",
+            "value" : "false"
+          },
+          {
+            "name" : "Insert Else Update",
+            "value" : "false"
+          },
+          {
+            "name" : "Case Sensitive String Comparison",
+            "value" : "false"
+          },
+          {
+            "name" : "Sorted Input",
+            "value" : "false"
+          },
+          {
+            "name" : "Include Only Required Fields",
+            "value" : "false"
+          },
+          {
+            "name" : "Lookup source is static",
+            "value" : "false"
+          },
+          {
+            "name" : "Pre-build lookup cache",
+            "value" : "AUTO"
+          },
+          {
+            "name" : "Optional",
+            "value" : "true"
+          }
+        ],
+        "multipleMatchPolicy" : "Use Any Value",
+        "returnPortName" : "prev_batch_start_datetime",
+        "unconnected" : "true",
+        "useLabels" : "false",
+        "fields" : [
+          {
+            "adapterField" : {
+              "name" : "source_system_code"
+            },
+            "name" : "source_system_code",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "batch_id"
+            },
+            "name" : "batch_id",
+            "platformType" : {
+              "name" : "bigint"
+            },
+            "precision" : 19,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "prev_batch_start_datetime"
+            },
+            "name" : "prev_batch_start_datetime",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          }
+        ],
+        "inputPortNames" : [
+          "in_source_system_code",
+          "in_batch_id"
+        ],
+        "lookupConditions" : [
+          {
+            "leftOperand" : "source_system_code",
+            "operator" : "=",
+            "rightOperand" : "in_source_system_code"
+          },
+          {
+            "leftOperand" : "batch_id",
+            "operator" : "=",
+            "rightOperand" : "in_batch_id"
+          }
+        ],
+        "dataAdapter" : {
+          "connectionId" : "saas:@aYZ4ekzHgIPeKpiaoqDLKP",
+          "connectionName" : "redshift_nonprod_andover_dw_dev",
+          "excludeDynamicFileNameField" : "false",
+          "objectType" : "QUERY",
+          "typeSystem" : "TOOLKIT",
+          "useDynamicFileName" : "false",
+          "object" : {
+            "customQuery" : "select source_system_code, batch_id, max(batch_start_datetime) as prev_batch_start_datetime from metal.batch_load_summary\nwhere source_system_code = 'ACX'\ngroup by source_system_code, batch_id \norder by source_system_code, batch_id  desc",
+            "retainMetadata" : "false",
+            "fields" : [
+              {
+                "name" : "source_system_code",
+                "fieldType" : "CONNECTOR",
+                "label" : "source_system_code",
+                "nativeName" : "source_system_code",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "batch_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "batch_id",
+                "nativeName" : "batch_id",
+                "nativeType" : "int8",
+                "original" : "false",
+                "precision" : 19,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "prev_batch_start_datetime",
+                "fieldType" : "CONNECTOR",
+                "label" : "prev_batch_start_datetime",
+                "nativeName" : "prev_batch_start_datetime",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              }
+            ]
+          },
+          "readOptions" : {
+            "commandType" : 0,
+            "descending" : "false",
+            "queryAll" : "false",
+            "rowLimit" : 0,
+            "selectDistinct" : "false"
+          },
+          "runtimeAttributes" : {
+            "attributes" : [
+              {
+                "name" : "Read Mode",
+                "value" : "Staging"
+              },
+              {
+                "name" : "Fetch Size",
+                "value" : "10000"
+              },
+              {
+                "name" : "S3 Bucket Name",
+                "value" : "$$S3_Staging_Bucket"
+              },
+              {
+                "name" : "Enable Compression",
+                "value" : "YES"
+              },
+              {
+                "name" : "Temporary Credential Duration",
+                "value" : "900"
+              },
+              {
+                "name" : "Treat NULL Value as NULL",
+                "value" : "NO"
+              },
+              {
+                "name" : "Encryption Type",
+                "value" : "None"
+              },
+              {
+                "name" : "Download S3 Files In Multiple Parts",
+                "value" : "NO"
+              },
+              {
+                "name" : "Multipart Download Threshold Size",
+                "value" : "5242880"
+              },
+              {
+                "name" : "Select Distinct",
+                "value" : "NO"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "createTime" : "2025-06-03T19:40:15.785Z",
+        "name" : "Expression",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "windowConfigurationEnabled" : "false",
+        "fields" : [
+          {
+            "name" : "v_existing_batch_start_datetime",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9,
+            "expFieldType" : "VARIABLE",
+            "expression" : ":LKP.unlkp_existing_batch_start_datetime($$sourcesystemcode, o_BATCH_ID)"
+          },
+          {
+            "name" : "o_batch_start_datetime_existing",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9,
+            "expFieldType" : "OUTPUT",
+            "expression" : "v_existing_batch_start_datetime"
+          }
+        ],
+        "windowSpec" : {
+          "allRowsFollowing" : "false",
+          "allRowsPreceding" : "false",
+          "endOffset" : 0,
+          "startOffset" : 0,
+          "partitionKeys" : null
+        }
+      }
+    ],
+    "variables" : [
+      {
+        "aggregationType" : "MAX",
+        "expressionVariable" : "false",
+        "name" : "batch_run_type",
+        "platformType" : {
+          "name" : "string"
+        },
+        "precision" : 20,
+        "retentionPolicy" : "ON_SUCCESS_OR_WARNING",
+        "scale" : 0
+      },
+      {
+        "aggregationType" : "MAX",
+        "expressionVariable" : "false",
+        "name" : "row_created_by",
+        "platformType" : {
+          "name" : "string"
+        },
+        "precision" : 20,
+        "retentionPolicy" : "ON_SUCCESS_OR_WARNING",
+        "scale" : 0
+      },
+      {
+        "aggregationType" : "MAX",
+        "expressionVariable" : "false",
+        "name" : "target_table_name",
+        "platformType" : {
+          "name" : "string"
+        },
+        "precision" : 100,
+        "retentionPolicy" : "ON_SUCCESS_OR_WARNING",
+        "scale" : 0
+      },
+      {
+        "aggregationType" : "MAX",
+        "expressionVariable" : "false",
+        "name" : "batch_status_inprogress",
+        "platformType" : {
+          "name" : "string"
+        },
+        "precision" : 100,
+        "retentionPolicy" : "ON_SUCCESS_OR_WARNING",
+        "scale" : 0
+      },
+      {
+        "aggregationType" : "MAX",
+        "expressionVariable" : "false",
+        "name" : "sourcesystemcode",
+        "platformType" : {
+          "name" : "string"
+        },
+        "precision" : 100,
+        "retentionPolicy" : "ON_SUCCESS_OR_WARNING",
+        "scale" : 0
+      }
+    ]
+  },
+  "vcsExportTime" : "2026-01-31 07:04:18 PST"
+}
