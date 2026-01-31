@@ -1,0 +1,2347 @@
+{
+  "content" : {
+    "allowMaxFieldLength" : "false",
+    "name" : "m_load_msgr_facts_pms_new_vw1",
+    "specialCharacterSupport" : "false",
+    "links" : [
+      {
+        "link" : "SQ_PMS_Fact_Premiums_Earned -> EXPTRANS"
+      },
+      {
+        "link" : "EXPTRANS -> AGGTRANS"
+      },
+      {
+        "link" : "Exp_Final_Decider -> Router",
+        "groupLink" : "DefaultGroup -> INPUT"
+      },
+      {
+        "link" : "AGGTRANS -> Exp_Md5_Hash"
+      },
+      {
+        "link" : "Exp_Update -> msgr_facts_pms_new_vw2"
+      },
+      {
+        "link" : "Router -> Exp_Update",
+        "groupLink" : "Update -> DefaultGroup"
+      },
+      {
+        "link" : "Exp_Insert -> msgr_facts_pms_new_vw1"
+      },
+      {
+        "link" : "Router -> Exp_Insert",
+        "groupLink" : "Insert -> DefaultGroup"
+      },
+      {
+        "link" : "Exp_Md5_Hash -> Exp_Final_Decider"
+      }
+    ],
+    "parameters" : [
+      {
+        "input" : "true",
+        "output" : "false",
+        "precision" : 0,
+        "scale" : 0,
+        "allowRuntimeOverride" : "true",
+        "expressionVariable" : "false",
+        "name" : "DBConnection_TGT",
+        "anonymousType" : {
+          "subType" : "TOOLKIT_CCI",
+          "typeSystem" : "TOOLKIT",
+          "connectionType" : "Amazon Redshift v2"
+        }
+      },
+      {
+        "input" : "true",
+        "output" : "false",
+        "precision" : 0,
+        "scale" : 0,
+        "allowRuntimeOverride" : "true",
+        "expressionVariable" : "false",
+        "name" : "DBConnection_SRC",
+        "anonymousType" : {
+          "subType" : "TOOLKIT_CCI",
+          "typeSystem" : "TOOLKIT",
+          "connectionType" : "Amazon Redshift v2"
+        }
+      },
+      {
+        "input" : "true",
+        "output" : "false",
+        "precision" : 0,
+        "scale" : 0,
+        "allowRuntimeOverride" : "false",
+        "expressionVariable" : "false",
+        "name" : "S3_Staging_Bucket"
+      }
+    ],
+    "transformations" : [
+      {
+        "name" : "msgr_facts_pms_new_vw1",
+        "advancedProperties" : [
+          {
+            "name" : "Forward Rejected Rows",
+            "value" : "true"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "false",
+            "conflictResolutions" : [
+              {
+                "precedingGroupName" : "DefaultGroup",
+                "precedingTxName" : "AGGTRANS",
+                "rule" : {
+                  "bulkRename" : "true",
+                  "include" : "true",
+                  "bulkRenameOption" : {
+                    "pattern" : "^(Unearned_Premium|Written_Premium)$/$0_AGGTRANS",
+                    "suffix" : "false"
+                  }
+                }
+              }
+            ],
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "createTarget" : "false",
+        "fieldMappingMode" : "MANUAL",
+        "inputSorted" : "false",
+        "schemaProviderType" : "SELECTED_OBJECT",
+        "targetFieldsOrdered" : "false",
+        "updateColumns" : null,
+        "useLabels" : "false",
+        "useSequenceFields" : "false",
+        "fields" : [
+          {
+            "adapterField" : {
+              "name" : "row_id"
+            },
+            "name" : "row_id",
+            "platformType" : {
+              "name" : "bigint"
+            },
+            "precision" : 19,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "md5_hash_value"
+            },
+            "name" : "md5_hash_value",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 765,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "msgr_last_update_date"
+            },
+            "name" : "msgr_last_update_date",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "policy_key"
+            },
+            "name" : "policy_key",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 300,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "policy_key_code"
+            },
+            "name" : "policy_key_code",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 300,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "major_peril_id"
+            },
+            "name" : "major_peril_id",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 300,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "risk_state_id"
+            },
+            "name" : "risk_state_id",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 300,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "account_entered_dt"
+            },
+            "name" : "account_entered_dt",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "earned_premium"
+            },
+            "name" : "earned_premium",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 28,
+            "scale" : 6
+          },
+          {
+            "adapterField" : {
+              "name" : "unearned_premium"
+            },
+            "name" : "unearned_premium",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 28,
+            "scale" : 6
+          },
+          {
+            "adapterField" : {
+              "name" : "commission_amt"
+            },
+            "name" : "commission_amt",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 28,
+            "scale" : 6
+          },
+          {
+            "adapterField" : {
+              "name" : "taxes_service_charges"
+            },
+            "name" : "taxes_service_charges",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 28,
+            "scale" : 6
+          },
+          {
+            "adapterField" : {
+              "name" : "written_premium"
+            },
+            "name" : "written_premium",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 28,
+            "scale" : 6
+          },
+          {
+            "adapterField" : {
+              "name" : "annual_statement_line"
+            },
+            "name" : "annual_statement_line",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 9,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "stateline"
+            },
+            "name" : "stateline",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 9,
+            "scale" : 0
+          }
+        ],
+        "dataAdapter" : {
+          "connectionId$" : {
+            "name" : "DBConnection_TGT"
+          },
+          "excludeDynamicFileNameField" : "false",
+          "objectType" : "SINGLE",
+          "typeSystem" : "TOOLKIT",
+          "useDynamicFileName" : "false",
+          "bulkOptions" : {
+            "hardDelete" : "false",
+            "maxRowsPerRequest" : 0,
+            "monitorBulk" : "false",
+            "monitorBulkV2" : "false",
+            "pkChunkingEnabled" : "false",
+            "pkChunkingSize" : 0,
+            "serialMode" : "false",
+            "useBulkApi" : "false",
+            "useBulkApiV2" : "false"
+          },
+          "object" : {
+            "name" : "dbo/msgr_facts_pms_new_vw1",
+            "label" : "msgr_facts_pms_new_vw1",
+            "objectName" : "msgr_facts_pms_new_vw1",
+            "objectType" : "amazonredshift",
+            "path" : "dbo/msgr_facts_pms_new_vw1",
+            "retainMetadata" : "false",
+            "fields" : [
+              {
+                "name" : "policy_key",
+                "fieldType" : "CONNECTOR",
+                "label" : "policy_key",
+                "nativeName" : "policy_key",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 300,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "msgr_facts_pms_new_vw1"
+                  }
+                ]
+              },
+              {
+                "name" : "policy_key_code",
+                "fieldType" : "CONNECTOR",
+                "label" : "policy_key_code",
+                "nativeName" : "policy_key_code",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 300,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "msgr_facts_pms_new_vw1"
+                  }
+                ]
+              },
+              {
+                "name" : "major_peril_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "major_peril_id",
+                "nativeName" : "major_peril_id",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 300,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "msgr_facts_pms_new_vw1"
+                  }
+                ]
+              },
+              {
+                "name" : "risk_state_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "risk_state_id",
+                "nativeName" : "risk_state_id",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 300,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "msgr_facts_pms_new_vw1"
+                  }
+                ]
+              },
+              {
+                "name" : "account_entered_dt",
+                "fieldType" : "CONNECTOR",
+                "label" : "account_entered_dt",
+                "nativeName" : "account_entered_dt",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "msgr_facts_pms_new_vw1"
+                  }
+                ]
+              },
+              {
+                "name" : "earned_premium",
+                "fieldType" : "CONNECTOR",
+                "label" : "earned_premium",
+                "nativeName" : "earned_premium",
+                "nativeType" : "numeric",
+                "original" : "false",
+                "precision" : 28,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "msgr_facts_pms_new_vw1"
+                  }
+                ]
+              },
+              {
+                "name" : "unearned_premium",
+                "fieldType" : "CONNECTOR",
+                "label" : "unearned_premium",
+                "nativeName" : "unearned_premium",
+                "nativeType" : "numeric",
+                "original" : "false",
+                "precision" : 28,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "msgr_facts_pms_new_vw1"
+                  }
+                ]
+              },
+              {
+                "name" : "commission_amt",
+                "fieldType" : "CONNECTOR",
+                "label" : "commission_amt",
+                "nativeName" : "commission_amt",
+                "nativeType" : "numeric",
+                "original" : "false",
+                "precision" : 28,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "msgr_facts_pms_new_vw1"
+                  }
+                ]
+              },
+              {
+                "name" : "taxes_service_charges",
+                "fieldType" : "CONNECTOR",
+                "label" : "taxes_service_charges",
+                "nativeName" : "taxes_service_charges",
+                "nativeType" : "numeric",
+                "original" : "false",
+                "precision" : 28,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "msgr_facts_pms_new_vw1"
+                  }
+                ]
+              },
+              {
+                "name" : "written_premium",
+                "fieldType" : "CONNECTOR",
+                "label" : "written_premium",
+                "nativeName" : "written_premium",
+                "nativeType" : "numeric",
+                "original" : "false",
+                "precision" : 28,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "msgr_facts_pms_new_vw1"
+                  }
+                ]
+              },
+              {
+                "name" : "row_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "row_id",
+                "nativeName" : "row_id",
+                "nativeType" : "int8",
+                "original" : "false",
+                "precision" : 19,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "msgr_facts_pms_new_vw1"
+                  }
+                ]
+              },
+              {
+                "name" : "md5_hash_value",
+                "fieldType" : "CONNECTOR",
+                "label" : "md5_hash_value",
+                "nativeName" : "md5_hash_value",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 765,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "msgr_facts_pms_new_vw1"
+                  }
+                ]
+              },
+              {
+                "name" : "msgr_last_update_date",
+                "fieldType" : "CONNECTOR",
+                "label" : "msgr_last_update_date",
+                "nativeName" : "msgr_last_update_date",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "msgr_facts_pms_new_vw1"
+                  }
+                ]
+              },
+              {
+                "name" : "annual_statement_line",
+                "fieldType" : "CONNECTOR",
+                "label" : "annual_statement_line",
+                "nativeName" : "annual_statement_line",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 9,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "msgr_facts_pms_new_vw1"
+                  }
+                ]
+              },
+              {
+                "name" : "stateline",
+                "fieldType" : "CONNECTOR",
+                "label" : "stateline",
+                "nativeName" : "stateline",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 9,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "msgr_facts_pms_new_vw1"
+                  }
+                ]
+              }
+            ],
+            "objectAttributes" : [
+              {
+                "name" : "recordType",
+                "value" : "TABLE"
+              }
+            ]
+          },
+          "runtimeAttributes" : {
+            "attributes" : [
+              {
+                "name" : "S3 Bucket Name",
+                "value" : "$$S3_Staging_Bucket"
+              },
+              {
+                "name" : "Enable Compression",
+                "value" : "YES"
+              },
+              {
+                "name" : "Batch Size",
+                "value" : "2000000"
+              },
+              {
+                "name" : "Max Errors Per Batch Upload Insert",
+                "value" : "1"
+              },
+              {
+                "name" : "Truncate Target Table Before Data Upload",
+                "value" : "NO"
+              },
+              {
+                "name" : "WaitTime In Seconds For S3 File Consistency",
+                "value" : "0"
+              },
+              {
+                "name" : "Temporary Credential Duration",
+                "value" : "14400"
+              },
+              {
+                "name" : "S3 Server Side Encryption",
+                "value" : "NO"
+              },
+              {
+                "name" : "S3 Client Side Encryption",
+                "value" : "NO"
+              },
+              {
+                "name" : "Analyze Target Table",
+                "value" : "NO"
+              },
+              {
+                "name" : "Vacuum Target Table",
+                "value" : "None"
+              },
+              {
+                "name" : "Treat Source Rows As",
+                "value" : "INSERT"
+              },
+              {
+                "name" : "Transfer Manager Thread Pool Size",
+                "value" : "10"
+              },
+              {
+                "name" : "Minimum Upload Part Size",
+                "value" : "5242880"
+              },
+              {
+                "name" : "Preserve record order on write",
+                "value" : "NO"
+              },
+              {
+                "name" : "Number of files per batch",
+                "value" : "0"
+              }
+            ]
+          },
+          "writeOptions" : {
+            "batchSize" : 0,
+            "bulkApi" : "false",
+            "handleDecimalRoundOff" : "false",
+            "handleSpecialChars" : "false",
+            "operations" : [
+              "Rowbased"
+            ],
+            "setFieldsToNull" : "false",
+            "truncate" : "false",
+            "updateStrategyExpression" : "Update_Strategy_Expression_insert",
+            "useErrorFile" : "false",
+            "useExactSrcNames" : "false",
+            "useSuccessFile" : "false"
+          }
+        },
+        "manualMappings" : {
+          "mappingList" : [
+            {
+              "fromFieldName" : "Last_Update_Dt",
+              "toField" : {
+                "name" : "msgr_last_update_date"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "policy_key",
+              "toField" : {
+                "name" : "policy_key"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "policy_key_code",
+              "toField" : {
+                "name" : "policy_key_code"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "major_peril_id",
+              "toField" : {
+                "name" : "major_peril_id"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "risk_state_id",
+              "toField" : {
+                "name" : "risk_state_id"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "account_entered_dt",
+              "toField" : {
+                "name" : "account_entered_dt"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_MTD_Earned_Premium",
+              "toField" : {
+                "name" : "earned_premium"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_Unearned_Premium",
+              "toField" : {
+                "name" : "unearned_premium"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_Commission_Amount",
+              "toField" : {
+                "name" : "commission_amt"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_Taxes_Svc_Charges",
+              "toField" : {
+                "name" : "taxes_service_charges"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_Written_Premium",
+              "toField" : {
+                "name" : "written_premium"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "annual_statement_line",
+              "toField" : {
+                "name" : "annual_statement_line"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "stateline",
+              "toField" : {
+                "name" : "stateline"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "in_MD5_Hash",
+              "toField" : {
+                "name" : "md5_hash_value"
+              },
+              "fromFieldNames" : null
+            }
+          ]
+        }
+      },
+      {
+        "name" : "SQ_PMS_Fact_Premiums_Earned",
+        "advancedProperties" : [
+          {
+            "name" : "Tracing Level",
+            "value" : "Normal"
+          },
+          {
+            "name" : "Output is deterministic",
+            "value" : "false"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "false",
+            "name" : "DefaultGroup",
+            "output" : "true"
+          }
+        ],
+        "generateFilenamePort" : "false",
+        "useLabels" : "false",
+        "useSequenceFields" : "false",
+        "fields" : [
+          {
+            "adapterField" : {
+              "name" : "policy_key"
+            },
+            "name" : "policy_key",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 300,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "policy_key_code"
+            },
+            "name" : "policy_key_code",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 300,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "major_peril_id"
+            },
+            "name" : "major_peril_id",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 300,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "risk_state_id"
+            },
+            "name" : "risk_state_id",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 300,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "account_entered_dt"
+            },
+            "name" : "account_entered_dt",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "mtd_earned_premium"
+            },
+            "name" : "mtd_earned_premium",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 20,
+            "scale" : 8
+          },
+          {
+            "adapterField" : {
+              "name" : "unearned_premium"
+            },
+            "name" : "unearned_premium",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 20,
+            "scale" : 8
+          },
+          {
+            "adapterField" : {
+              "name" : "commission_amount"
+            },
+            "name" : "commission_amount",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 15,
+            "scale" : 4
+          },
+          {
+            "adapterField" : {
+              "name" : "taxes_svc_charges"
+            },
+            "name" : "taxes_svc_charges",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 15,
+            "scale" : 4
+          },
+          {
+            "adapterField" : {
+              "name" : "written_premium"
+            },
+            "name" : "written_premium",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 11,
+            "scale" : 2
+          },
+          {
+            "adapterField" : {
+              "name" : "pt_id"
+            },
+            "name" : "pt_id",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "stateline"
+            },
+            "name" : "stateline",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 9,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "annual_statement_line"
+            },
+            "name" : "annual_statement_line",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 9,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "policy_transaction_id"
+            },
+            "name" : "policy_transaction_id",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "row_id"
+            },
+            "name" : "row_id",
+            "platformType" : {
+              "name" : "bigint"
+            },
+            "precision" : 19,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "md5_hash_value"
+            },
+            "name" : "md5_hash_value",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 765,
+            "scale" : 0
+          }
+        ],
+        "dataAdapter" : {
+          "connectionId$" : {
+            "name" : "DBConnection_SRC"
+          },
+          "excludeDynamicFileNameField" : "false",
+          "objectType" : "QUERY",
+          "typeSystem" : "TOOLKIT",
+          "useDynamicFileName" : "false",
+          "object" : {
+            "customQuery" : "SELECT\nA.Policy_Key,\nA.Policy_Key_Code,\nA.Major_Peril_ID,\nA.Risk_State_ID,\nA.Account_Entered_Dt,\nA.MTD_Earned_Premium,\nA.Unearned_Premium,\nA.Commission_Amount,\nA.Taxes_Svc_Charges,\nA.Written_Premium,\nA.PT_ID,\nA.StateLine,\nA.annual_statement_line,\nB.Policy_Transaction_ID,\nTGT.row_id,\nTGT.md5_hash_value\nFROM\n\tdbo.PMS_Fact_Premiums_Earned A\n\tLEFT JOIN dbo.PMS_Policy_Transactions B\n\tON abs(A.PT_ID) = B.Policy_Transaction_ID\n\tleft join dbo.msgr_facts_pms_new_vw1 TGT on\n\t\tA.Policy_Key = TGT.Policy_Key AND\n\t\tA.Policy_Key_Code = TGT.Policy_Key_Code AND\n\t\tA.Major_Peril_ID = TGT.Major_Peril_ID AND\n\t\tA.Risk_State_ID = TGT.Risk_State_ID AND\n\t\tA.Account_Entered_Dt = TGT.Account_Entered_Dt AND\n\t\tNVL(A.StateLine,'NA') = NVL(TGT.StateLine,'NA') AND\n\t\tNVL(A.annual_statement_line,'NA') = NVL(TGT.annual_statement_line,'NA')\nWHERE\n--YEAR(Account_Entered_Dt) = 2023\n--and\tA.StateLine is not null\n--Account_Entered_Dt >=dateadd(month, -1, cast(getdate() as date)) AND\ndate_part(year,A.account_entered_dt) in ('2024') AND \n--2005 and 2006 '2007','2008','2009' 2010','2011','2012','2013' '2014','2015','2016','2017' 2018, 2019, 2020, 2021  '2022','2023','2024 done. Initial load for testing was completed several years at a time\n(A.row_ins_dt >= (SELECT etlbatchstartst FROM dbo.loadbatchetldt WHERE loadetltype = 'wf_msgr_views')\nOR B.row_ins_dt >= (SELECT etlbatchstartst FROM dbo.loadbatchetldt WHERE loadetltype = 'wf_msgr_views'))\nORDER BY\nA.Policy_Key,\nA.Policy_Key_Code,\nA.Major_Peril_ID,\nA.Risk_State_ID,\nA.Account_Entered_Dt,\nA.StateLine,\nA.annual_statement_line,\nTGT.row_id,\nTGT.md5_hash_value",
+            "retainMetadata" : "false",
+            "fields" : [
+              {
+                "name" : "policy_key",
+                "fieldType" : "CONNECTOR",
+                "label" : "policy_key",
+                "nativeName" : "policy_key",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 300,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "policy_key_code",
+                "fieldType" : "CONNECTOR",
+                "label" : "policy_key_code",
+                "nativeName" : "policy_key_code",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 300,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "major_peril_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "major_peril_id",
+                "nativeName" : "major_peril_id",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 300,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "risk_state_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "risk_state_id",
+                "nativeName" : "risk_state_id",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 300,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "account_entered_dt",
+                "fieldType" : "CONNECTOR",
+                "label" : "account_entered_dt",
+                "nativeName" : "account_entered_dt",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "mtd_earned_premium",
+                "fieldType" : "CONNECTOR",
+                "label" : "mtd_earned_premium",
+                "nativeName" : "mtd_earned_premium",
+                "nativeType" : "numeric",
+                "original" : "false",
+                "precision" : 20,
+                "scale" : 8,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "unearned_premium",
+                "fieldType" : "CONNECTOR",
+                "label" : "unearned_premium",
+                "nativeName" : "unearned_premium",
+                "nativeType" : "numeric",
+                "original" : "false",
+                "precision" : 20,
+                "scale" : 8,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "commission_amount",
+                "fieldType" : "CONNECTOR",
+                "label" : "commission_amount",
+                "nativeName" : "commission_amount",
+                "nativeType" : "numeric",
+                "original" : "false",
+                "precision" : 15,
+                "scale" : 4,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "taxes_svc_charges",
+                "fieldType" : "CONNECTOR",
+                "label" : "taxes_svc_charges",
+                "nativeName" : "taxes_svc_charges",
+                "nativeType" : "numeric",
+                "original" : "false",
+                "precision" : 15,
+                "scale" : 4,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "written_premium",
+                "fieldType" : "CONNECTOR",
+                "label" : "written_premium",
+                "nativeName" : "written_premium",
+                "nativeType" : "numeric",
+                "original" : "false",
+                "precision" : 11,
+                "scale" : 2,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "pt_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "pt_id",
+                "nativeName" : "pt_id",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "stateline",
+                "fieldType" : "CONNECTOR",
+                "label" : "stateline",
+                "nativeName" : "stateline",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 9,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "annual_statement_line",
+                "fieldType" : "CONNECTOR",
+                "label" : "annual_statement_line",
+                "nativeName" : "annual_statement_line",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 9,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "policy_transaction_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "policy_transaction_id",
+                "nativeName" : "policy_transaction_id",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "row_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "row_id",
+                "nativeName" : "row_id",
+                "nativeType" : "int8",
+                "original" : "false",
+                "precision" : 19,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "md5_hash_value",
+                "fieldType" : "CONNECTOR",
+                "label" : "md5_hash_value",
+                "nativeName" : "md5_hash_value",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 765,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              }
+            ]
+          },
+          "readOptions" : {
+            "commandType" : 0,
+            "descending" : "false",
+            "queryAll" : "false",
+            "rowLimit" : 0,
+            "selectDistinct" : "false"
+          },
+          "runtimeAttributes" : {
+            "attributes" : [
+              {
+                "name" : "Read Mode",
+                "value" : "Direct"
+              },
+              {
+                "name" : "Fetch Size",
+                "value" : "10000"
+              },
+              {
+                "name" : "Enable Compression",
+                "value" : "YES"
+              },
+              {
+                "name" : "Temporary Credential Duration",
+                "value" : "14400"
+              },
+              {
+                "name" : "Treat NULL Value as NULL",
+                "value" : "NO"
+              },
+              {
+                "name" : "Encryption Type",
+                "value" : "None"
+              },
+              {
+                "name" : "Download S3 Files In Multiple Parts",
+                "value" : "NO"
+              },
+              {
+                "name" : "Multipart Download Threshold Size",
+                "value" : "5242880"
+              },
+              {
+                "name" : "Select Distinct",
+                "value" : "NO"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "name" : "EXPTRANS",
+        "advancedProperties" : [
+          {
+            "name" : "Tracing Level",
+            "value" : "Normal"
+          },
+          {
+            "name" : "Optional",
+            "value" : "true"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "windowConfigurationEnabled" : "false"
+      },
+      {
+        "name" : "AGGTRANS",
+        "advancedProperties" : [
+          {
+            "name" : "Tracing Level",
+            "value" : "Normal"
+          },
+          {
+            "name" : "Optional",
+            "value" : "true"
+          },
+          {
+            "name" : "Cache Directory",
+            "value" : "$PMCacheDir"
+          },
+          {
+            "name" : "Aggregator Data Cache Size",
+            "value" : "AUTO"
+          },
+          {
+            "name" : "Aggregator Index Cache Size",
+            "value" : "AUTO"
+          },
+          {
+            "name" : "Transformation Scope",
+            "value" : "All Input"
+          },
+          {
+            "name" : "Sorted Input",
+            "value" : "true"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "fields" : [
+          {
+            "name" : "o_MTD_Earned_Premium",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 28,
+            "scale" : 6,
+            "expFieldType" : "OUTPUT",
+            "expression" : "sum(round(MTD_Earned_Premium,2))\r\n//round(sum(MTD_Earned_Premium),2)\r\n"
+          },
+          {
+            "name" : "o_Unearned_Premium",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 28,
+            "scale" : 6,
+            "expFieldType" : "OUTPUT",
+            "expression" : "//sum(isnull(Unearned_Premium),0)\r\n\r\nsum(iif(isnull(Unearned_Premium), 0, Unearned_Premium))\r\n\r\n"
+          },
+          {
+            "name" : "o_Commission_Amount",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 28,
+            "scale" : 6,
+            "expFieldType" : "OUTPUT",
+            "expression" : "//sum(isnull(Commission_Amount),0)\r\n\r\nsum(iif(isnull(Commission_Amount),0,Commission_Amount))"
+          },
+          {
+            "name" : "o_Taxes_Svc_Charges",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 28,
+            "scale" : 6,
+            "expFieldType" : "OUTPUT",
+            "expression" : "//sum(isnull(Taxes_Svc_Charges),0)\r\n\r\nsum(iif(isnull(Taxes_Svc_Charges),0,Taxes_Svc_Charges))"
+          },
+          {
+            "name" : "o_Written_Premium",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 28,
+            "scale" : 6,
+            "expFieldType" : "OUTPUT",
+            "expression" : "//sum(isnull(Written_Premium),0)\r\n\r\nsum(iif(isnull(Written_Premium),0,Written_Premium))\r\n"
+          }
+        ],
+        "groupByFieldsList" : {
+          "fields" : [
+            {
+              "fieldName" : "policy_key"
+            },
+            {
+              "fieldName" : "policy_key_code"
+            },
+            {
+              "fieldName" : "major_peril_id"
+            },
+            {
+              "fieldName" : "risk_state_id"
+            },
+            {
+              "fieldName" : "account_entered_dt"
+            },
+            {
+              "fieldName" : "stateline"
+            },
+            {
+              "fieldName" : "annual_statement_line"
+            },
+            {
+              "fieldName" : "row_id"
+            },
+            {
+              "fieldName" : "md5_hash_value"
+            }
+          ]
+        }
+      },
+      {
+        "createTime" : "2024-09-18T19:39:43.942Z",
+        "name" : "Exp_Final_Decider",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "windowConfigurationEnabled" : "false",
+        "fields" : [
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "Last_Update_Dt",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9,
+            "expFieldType" : "OUTPUT",
+            "expression" : "SYSDATE"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "Flag",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 10,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "IIF(ISNULL(row_id),'I',IIF(NOT ISNULL(row_id) AND (in_MD5_Hash<>md5_hash_value),'U',IIF(NOT ISNULL(row_id) AND ISNULL(md5_hash_value),'U','R')))"
+          }
+        ],
+        "windowSpec" : {
+          "allRowsFollowing" : "false",
+          "allRowsPreceding" : "false",
+          "endOffset" : 0,
+          "startOffset" : 0,
+          "partitionKeys" : null
+        }
+      },
+      {
+        "createTime" : "2024-09-18T19:40:08.165Z",
+        "name" : "Router",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "INPUT",
+            "output" : "false",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          },
+          {
+            "input" : "false",
+            "name" : "DEFAULT1",
+            "output" : "true"
+          },
+          {
+            "input" : "false",
+            "name" : "Insert",
+            "output" : "true"
+          },
+          {
+            "input" : "false",
+            "name" : "Update",
+            "output" : "true"
+          }
+        ],
+        "groupFilterConditions" : [
+          {
+            "name" : "Insert",
+            "simpleFilterConditions" : [
+              {
+                "fieldName" : "Flag",
+                "filterValue" : "I",
+                "operator" : "="
+              }
+            ]
+          },
+          {
+            "name" : "Update",
+            "simpleFilterConditions" : [
+              {
+                "fieldName" : "Flag",
+                "filterValue" : "U",
+                "operator" : "="
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "createTime" : "2024-09-18T19:40:51.612Z",
+        "name" : "Exp_Md5_Hash",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              },
+              {
+                "bulkRename" : "false",
+                "include" : "false",
+                "names" : [
+                  {
+                    "inputName" : "written_premium"
+                  },
+                  {
+                    "inputName" : "unearned_premium"
+                  },
+                  {
+                    "inputName" : "taxes_svc_charges"
+                  },
+                  {
+                    "inputName" : "mtd_earned_premium"
+                  },
+                  {
+                    "inputName" : "commission_amount"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "windowConfigurationEnabled" : "false",
+        "fields" : [
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "in_MD5_Hash",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 255,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "MD5(Policy_Key\n||Policy_Key_Code \n||Major_Peril_ID\n||Risk_State_ID\n||Account_Entered_Dt\n||O_MTD_Earned_Premium \n||O_Unearned_Premium\n||O_Commission_Amount\n||O_Taxes_Svc_Charges\n||O_Written_Premium\n||StateLine\n||annual_statement_line)"
+          }
+        ],
+        "windowSpec" : {
+          "allRowsFollowing" : "false",
+          "allRowsPreceding" : "false",
+          "endOffset" : 0,
+          "startOffset" : 0,
+          "partitionKeys" : null
+        }
+      },
+      {
+        "name" : "msgr_facts_pms_new_vw2",
+        "advancedProperties" : [
+          {
+            "name" : "Forward Rejected Rows",
+            "value" : "true"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "false",
+            "conflictResolutions" : [
+              {
+                "precedingGroupName" : "DefaultGroup",
+                "precedingTxName" : "AGGTRANS",
+                "rule" : {
+                  "bulkRename" : "true",
+                  "include" : "true",
+                  "bulkRenameOption" : {
+                    "pattern" : "^(Unearned_Premium|Written_Premium)$/$0_AGGTRANS",
+                    "suffix" : "false"
+                  }
+                }
+              }
+            ],
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "createTarget" : "false",
+        "fieldMappingMode" : "MANUAL",
+        "inputSorted" : "false",
+        "schemaProviderType" : "SELECTED_OBJECT",
+        "targetFieldsOrdered" : "false",
+        "updateColumns" : [
+          "row_id"
+        ],
+        "useLabels" : "false",
+        "useSequenceFields" : "false",
+        "fields" : [
+          {
+            "adapterField" : {
+              "name" : "row_id"
+            },
+            "name" : "row_id",
+            "platformType" : {
+              "name" : "bigint"
+            },
+            "precision" : 19,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "md5_hash_value"
+            },
+            "name" : "md5_hash_value",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 765,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "msgr_last_update_date"
+            },
+            "name" : "msgr_last_update_date",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "policy_key"
+            },
+            "name" : "policy_key",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 300,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "policy_key_code"
+            },
+            "name" : "policy_key_code",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 300,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "major_peril_id"
+            },
+            "name" : "major_peril_id",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 300,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "risk_state_id"
+            },
+            "name" : "risk_state_id",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 300,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "account_entered_dt"
+            },
+            "name" : "account_entered_dt",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "earned_premium"
+            },
+            "name" : "earned_premium",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 28,
+            "scale" : 6
+          },
+          {
+            "adapterField" : {
+              "name" : "unearned_premium"
+            },
+            "name" : "unearned_premium",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 28,
+            "scale" : 6
+          },
+          {
+            "adapterField" : {
+              "name" : "commission_amt"
+            },
+            "name" : "commission_amt",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 28,
+            "scale" : 6
+          },
+          {
+            "adapterField" : {
+              "name" : "taxes_service_charges"
+            },
+            "name" : "taxes_service_charges",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 28,
+            "scale" : 6
+          },
+          {
+            "adapterField" : {
+              "name" : "written_premium"
+            },
+            "name" : "written_premium",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 28,
+            "scale" : 6
+          },
+          {
+            "adapterField" : {
+              "name" : "annual_statement_line"
+            },
+            "name" : "annual_statement_line",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 9,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "stateline"
+            },
+            "name" : "stateline",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 9,
+            "scale" : 0
+          }
+        ],
+        "dataAdapter" : {
+          "connectionId$" : {
+            "name" : "DBConnection_TGT"
+          },
+          "excludeDynamicFileNameField" : "false",
+          "objectType" : "SINGLE",
+          "typeSystem" : "TOOLKIT",
+          "useDynamicFileName" : "false",
+          "bulkOptions" : {
+            "hardDelete" : "false",
+            "maxRowsPerRequest" : 0,
+            "monitorBulk" : "false",
+            "monitorBulkV2" : "false",
+            "pkChunkingEnabled" : "false",
+            "pkChunkingSize" : 0,
+            "serialMode" : "false",
+            "useBulkApi" : "false",
+            "useBulkApiV2" : "false"
+          },
+          "object" : {
+            "name" : "dbo/msgr_facts_pms_new_vw1",
+            "label" : "msgr_facts_pms_new_vw1",
+            "objectName" : "msgr_facts_pms_new_vw1",
+            "objectType" : "amazonredshift",
+            "path" : "dbo/msgr_facts_pms_new_vw1",
+            "retainMetadata" : "false",
+            "fields" : [
+              {
+                "name" : "policy_key",
+                "fieldType" : "CONNECTOR",
+                "label" : "policy_key",
+                "nativeName" : "policy_key",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 300,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "msgr_facts_pms_new_vw1"
+                  }
+                ]
+              },
+              {
+                "name" : "policy_key_code",
+                "fieldType" : "CONNECTOR",
+                "label" : "policy_key_code",
+                "nativeName" : "policy_key_code",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 300,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "msgr_facts_pms_new_vw1"
+                  }
+                ]
+              },
+              {
+                "name" : "major_peril_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "major_peril_id",
+                "nativeName" : "major_peril_id",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 300,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "msgr_facts_pms_new_vw1"
+                  }
+                ]
+              },
+              {
+                "name" : "risk_state_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "risk_state_id",
+                "nativeName" : "risk_state_id",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 300,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "msgr_facts_pms_new_vw1"
+                  }
+                ]
+              },
+              {
+                "name" : "account_entered_dt",
+                "fieldType" : "CONNECTOR",
+                "label" : "account_entered_dt",
+                "nativeName" : "account_entered_dt",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "msgr_facts_pms_new_vw1"
+                  }
+                ]
+              },
+              {
+                "name" : "earned_premium",
+                "fieldType" : "CONNECTOR",
+                "label" : "earned_premium",
+                "nativeName" : "earned_premium",
+                "nativeType" : "numeric",
+                "original" : "false",
+                "precision" : 28,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "msgr_facts_pms_new_vw1"
+                  }
+                ]
+              },
+              {
+                "name" : "unearned_premium",
+                "fieldType" : "CONNECTOR",
+                "label" : "unearned_premium",
+                "nativeName" : "unearned_premium",
+                "nativeType" : "numeric",
+                "original" : "false",
+                "precision" : 28,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "msgr_facts_pms_new_vw1"
+                  }
+                ]
+              },
+              {
+                "name" : "commission_amt",
+                "fieldType" : "CONNECTOR",
+                "label" : "commission_amt",
+                "nativeName" : "commission_amt",
+                "nativeType" : "numeric",
+                "original" : "false",
+                "precision" : 28,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "msgr_facts_pms_new_vw1"
+                  }
+                ]
+              },
+              {
+                "name" : "taxes_service_charges",
+                "fieldType" : "CONNECTOR",
+                "label" : "taxes_service_charges",
+                "nativeName" : "taxes_service_charges",
+                "nativeType" : "numeric",
+                "original" : "false",
+                "precision" : 28,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "msgr_facts_pms_new_vw1"
+                  }
+                ]
+              },
+              {
+                "name" : "written_premium",
+                "fieldType" : "CONNECTOR",
+                "label" : "written_premium",
+                "nativeName" : "written_premium",
+                "nativeType" : "numeric",
+                "original" : "false",
+                "precision" : 28,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "msgr_facts_pms_new_vw1"
+                  }
+                ]
+              },
+              {
+                "name" : "row_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "row_id",
+                "nativeName" : "row_id",
+                "nativeType" : "int8",
+                "original" : "false",
+                "precision" : 19,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "msgr_facts_pms_new_vw1"
+                  }
+                ]
+              },
+              {
+                "name" : "md5_hash_value",
+                "fieldType" : "CONNECTOR",
+                "label" : "md5_hash_value",
+                "nativeName" : "md5_hash_value",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 765,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "msgr_facts_pms_new_vw1"
+                  }
+                ]
+              },
+              {
+                "name" : "msgr_last_update_date",
+                "fieldType" : "CONNECTOR",
+                "label" : "msgr_last_update_date",
+                "nativeName" : "msgr_last_update_date",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "msgr_facts_pms_new_vw1"
+                  }
+                ]
+              },
+              {
+                "name" : "annual_statement_line",
+                "fieldType" : "CONNECTOR",
+                "label" : "annual_statement_line",
+                "nativeName" : "annual_statement_line",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 9,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "msgr_facts_pms_new_vw1"
+                  }
+                ]
+              },
+              {
+                "name" : "stateline",
+                "fieldType" : "CONNECTOR",
+                "label" : "stateline",
+                "nativeName" : "stateline",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 9,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "msgr_facts_pms_new_vw1"
+                  }
+                ]
+              }
+            ],
+            "objectAttributes" : [
+              {
+                "name" : "recordType",
+                "value" : "TABLE"
+              }
+            ]
+          },
+          "runtimeAttributes" : {
+            "attributes" : [
+              {
+                "name" : "S3 Bucket Name",
+                "value" : "$$S3_Staging_Bucket"
+              },
+              {
+                "name" : "Enable Compression",
+                "value" : "YES"
+              },
+              {
+                "name" : "Batch Size",
+                "value" : "2000000"
+              },
+              {
+                "name" : "Max Errors Per Batch Upload Insert",
+                "value" : "1"
+              },
+              {
+                "name" : "Truncate Target Table Before Data Upload",
+                "value" : "NO"
+              },
+              {
+                "name" : "WaitTime In Seconds For S3 File Consistency",
+                "value" : "0"
+              },
+              {
+                "name" : "Temporary Credential Duration",
+                "value" : "14400"
+              },
+              {
+                "name" : "S3 Server Side Encryption",
+                "value" : "NO"
+              },
+              {
+                "name" : "S3 Client Side Encryption",
+                "value" : "NO"
+              },
+              {
+                "name" : "Analyze Target Table",
+                "value" : "NO"
+              },
+              {
+                "name" : "Vacuum Target Table",
+                "value" : "None"
+              },
+              {
+                "name" : "Treat Source Rows As",
+                "value" : "UPDATE"
+              },
+              {
+                "name" : "Transfer Manager Thread Pool Size",
+                "value" : "10"
+              },
+              {
+                "name" : "Minimum Upload Part Size",
+                "value" : "5242880"
+              },
+              {
+                "name" : "Preserve record order on write",
+                "value" : "NO"
+              },
+              {
+                "name" : "Number of files per batch",
+                "value" : "0"
+              }
+            ]
+          },
+          "writeOptions" : {
+            "batchSize" : 0,
+            "bulkApi" : "false",
+            "handleDecimalRoundOff" : "false",
+            "handleSpecialChars" : "false",
+            "operations" : [
+              "Rowbased"
+            ],
+            "setFieldsToNull" : "false",
+            "truncate" : "false",
+            "updateStrategyExpression" : "Update_Strategy_Expression_Update",
+            "useErrorFile" : "false",
+            "useExactSrcNames" : "false",
+            "useSuccessFile" : "false"
+          }
+        },
+        "manualMappings" : {
+          "mappingList" : [
+            {
+              "fromFieldName" : "row_id",
+              "toField" : {
+                "name" : "row_id"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "Last_Update_Dt",
+              "toField" : {
+                "name" : "msgr_last_update_date"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "policy_key",
+              "toField" : {
+                "name" : "policy_key"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "policy_key_code",
+              "toField" : {
+                "name" : "policy_key_code"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "major_peril_id",
+              "toField" : {
+                "name" : "major_peril_id"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "risk_state_id",
+              "toField" : {
+                "name" : "risk_state_id"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "account_entered_dt",
+              "toField" : {
+                "name" : "account_entered_dt"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_MTD_Earned_Premium",
+              "toField" : {
+                "name" : "earned_premium"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_Unearned_Premium",
+              "toField" : {
+                "name" : "unearned_premium"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_Commission_Amount",
+              "toField" : {
+                "name" : "commission_amt"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_Taxes_Svc_Charges",
+              "toField" : {
+                "name" : "taxes_service_charges"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_Written_Premium",
+              "toField" : {
+                "name" : "written_premium"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "annual_statement_line",
+              "toField" : {
+                "name" : "annual_statement_line"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "stateline",
+              "toField" : {
+                "name" : "stateline"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "in_MD5_Hash",
+              "toField" : {
+                "name" : "md5_hash_value"
+              },
+              "fromFieldNames" : null
+            }
+          ]
+        }
+      },
+      {
+        "createTime" : "2024-09-23T20:03:16.992Z",
+        "name" : "Exp_Update",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "windowConfigurationEnabled" : "false",
+        "fields" : [
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "Update_Strategy_Expression_Update",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 100,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "DD_UPDATE"
+          }
+        ],
+        "windowSpec" : {
+          "allRowsFollowing" : "false",
+          "allRowsPreceding" : "false",
+          "endOffset" : 0,
+          "startOffset" : 0,
+          "partitionKeys" : null
+        }
+      },
+      {
+        "createTime" : "2024-09-23T20:03:26.937Z",
+        "name" : "Exp_Insert",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "windowConfigurationEnabled" : "false",
+        "fields" : [
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "Update_Strategy_Expression_insert",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 100,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "DD_INSERT"
+          }
+        ],
+        "windowSpec" : {
+          "allRowsFollowing" : "false",
+          "allRowsPreceding" : "false",
+          "endOffset" : 0,
+          "startOffset" : 0,
+          "partitionKeys" : null
+        }
+      }
+    ]
+  },
+  "vcsExportTime" : "2026-01-31 12:50:18 PST"
+}

@@ -1,0 +1,215 @@
+{
+  "name" : "s_m_load_msgr_facts_pms_new_vw2",
+  "description" : "Session pushed from PC to ICS : s_m_load_msgr_facts_pms_new_vw2",
+  "runtimeEnvironmentId" : "@94yEUbQ8g09k6LZ0ShdXQQ",
+  "runtimeEnvironmentName" : "sag_aws_linux",
+  "maxLogs" : 10,
+  "parameters" : [
+    {
+      "name" : "$SQ_PMS_Fact_Inforce_Premiums$",
+      "type" : "SOURCE",
+      "label" : "DBConnection_SRC",
+      "uiProperties" : {
+        "cnxtype" : "Amazon Redshift v2",
+        "connectionParameterized" : "true",
+        "paramName" : "DBConnection_SRC",
+        "paramType-mapping" : "Connection",
+        "logcnx" : "DBConnection_SRC",
+        "isSelectDistinct" : "false",
+        "objectParameterized" : "false",
+        "visible" : "false",
+        "originalPath" : "SQ_PMS_Fact_Inforce_Premiums"
+      },
+      "sourceConnectionId" : "@5Zcq1VmIGjxlaDWgHTaKA5",
+      "connectionName" : "redshift_nonprod_andover_dw_qa",
+      "sourceObject" : "DUMMY_SQ_PMS_Fact_Inforce_Premiums",
+      "newFlatFile" : false,
+      "newObject" : false,
+      "showBusinessNames" : true,
+      "naturalOrder" : true,
+      "truncateTarget" : false,
+      "bulkApiDBTarget" : false,
+      "customFuncCfg" : { },
+      "customQuery" : "SELECT PMS_Fact_Inforce_Premiums.Policy_Key,\nPMS_Fact_Inforce_Premiums.Policy_Key_Code,\nPMS_Fact_Inforce_Premiums.Major_Peril_ID,\nPMS_Fact_Inforce_Premiums.Risk_State_ID,\nPMS_Fact_Inforce_Premiums.Account_Entered_Dt,\nPMS_Fact_Inforce_Premiums.Inforce_Premium,\nPMS_Fact_Inforce_Premiums.Stateline,\nPMS_Fact_Inforce_Premiums.annual_statement_line,\nTGT.row_id,\nTGT.md5_hash_value\nFROM\n dbo.PMS_Fact_Inforce_Premiums\n left join dbo.msgr_facts_pms_new_vw2 TGT on\n\tPMS_Fact_Inforce_Premiums.Policy_Key = TGT.Policy_Key AND\n\tPMS_Fact_Inforce_Premiums.Policy_Key_Code = TGT.Policy_Key_Code AND\n\tPMS_Fact_Inforce_Premiums.Major_Peril_ID = TGT.Major_Peril_ID AND\n\tPMS_Fact_Inforce_Premiums.Risk_State_ID = TGT.Risk_State_ID AND\n\tPMS_Fact_Inforce_Premiums.Account_Entered_Dt = TGT.Account_Entered_Dt AND\n\tNVL(PMS_Fact_Inforce_Premiums.StateLine,'NA') = NVL(TGT.StateLine,'NA') AND\n\tNVL(PMS_Fact_Inforce_Premiums.annual_statement_line,'NA') = NVL(TGT.annual_statement_line,'NA')\nWHERE\n--Account_Entered_Dt >=dateadd(month, -1, cast(getdate() as date)) AND\ndate_part(year,PMS_Fact_Inforce_Premiums.account_entered_dt) in ('2024') AND\n--2006 and 2007 and '2008','2009','2010','2011' and '2012','2013','2014','2015' and '2016','2017','2018','2019' initial load was done in subsets of years\nrow_ins_dt >= (SELECT etlbatchstartst FROM dbo.loadbatchetldt WHERE loadetltype = 'wf_msgr_views')\n--PMS_Fact_Inforce_Premiums.Account_Entered_Dt >= convert(datetime,'1/1/2012',101)\n--year(Account_Entered_Dt) = 2023\nORDER BY PMS_Fact_Inforce_Premiums.Policy_Key,\nPMS_Fact_Inforce_Premiums.Policy_Key_Code,\nPMS_Fact_Inforce_Premiums.Major_Peril_ID,\nPMS_Fact_Inforce_Premiums.Risk_State_ID,\nPMS_Fact_Inforce_Premiums.Account_Entered_Dt,\nPMS_Fact_Inforce_Premiums.Stateline,\nPMS_Fact_Inforce_Premiums.annual_statement_line,\nTGT.row_id,\nTGT.md5_hash_value",
+      "commandType" : 0,
+      "handleSpecialChars" : false,
+      "handleDecimalRoundOff" : false,
+      "frsAsset" : false,
+      "dynamicFileName" : false,
+      "excludeDynamicFileNameField" : false,
+      "currentlyProcessedFileName" : false,
+      "retainFieldMetadata" : false,
+      "objectName" : "DUMMY_SQ_PMS_Fact_Inforce_Premiums",
+      "useExactSrcNames" : false,
+      "userUpdated" : true,
+      "fetchMode" : "ORIGINAL",
+      "runtimeParameterData" : {
+        "connectionParameterName" : "DBConnection_SRC",
+        "connectionRuntimeParameter" : true,
+        "objectRuntimeParameter" : false
+      },
+      "restmodernSource" : true,
+      "unspecified" : false,
+      "fileList" : false
+    },
+    {
+      "name" : "$msgr_facts_pms_new_vw2_ins$",
+      "type" : "TARGET",
+      "label" : "DBConnection_TGT",
+      "uiProperties" : {
+        "cnxtype" : "Amazon Redshift v2",
+        "connectionParameterized" : "true",
+        "paramName" : "DBConnection_TGT",
+        "paramType-mapping" : "Connection",
+        "logcnx" : "DBConnection_TGT",
+        "default" : "dbo/msgr_facts_pms_new_vw2",
+        "objectParameterized" : "false",
+        "visible" : "false",
+        "supportApplyDDLChanges" : "false",
+        "originalPath" : "msgr_facts_pms_new_vw2_ins"
+      },
+      "targetConnectionId" : "@5Zcq1VmIGjxlaDWgHTaKA5",
+      "connectionName" : "redshift_nonprod_andover_dw_qa",
+      "targetObject" : "dbo/msgr_facts_pms_new_vw2",
+      "targetObjectLabel" : "msgr_facts_pms_new_vw2",
+      "newFlatFile" : false,
+      "newObject" : false,
+      "showBusinessNames" : true,
+      "naturalOrder" : true,
+      "truncateTarget" : false,
+      "bulkApiDBTarget" : false,
+      "operationType" : "Rowbased",
+      "customFuncCfg" : { },
+      "extendedObject" : {
+        "singleMode" : true
+      },
+      "commandType" : 0,
+      "handleSpecialChars" : false,
+      "handleDecimalRoundOff" : false,
+      "frsAsset" : false,
+      "dynamicFileName" : false,
+      "excludeDynamicFileNameField" : false,
+      "currentlyProcessedFileName" : false,
+      "retainFieldMetadata" : false,
+      "objectName" : "dbo/msgr_facts_pms_new_vw2",
+      "objectLabel" : "msgr_facts_pms_new_vw2",
+      "useExactSrcNames" : false,
+      "userUpdated" : true,
+      "fetchMode" : "ORIGINAL",
+      "runtimeParameterData" : {
+        "connectionParameterName" : "DBConnection_TGT",
+        "connectionRuntimeParameter" : true,
+        "objectRuntimeParameter" : false
+      },
+      "restmodernSource" : true,
+      "unspecified" : false,
+      "fileList" : false
+    },
+    {
+      "name" : "$msgr_facts_pms_new_vw2_upd$",
+      "type" : "TARGET",
+      "label" : "DBConnection_TGT",
+      "uiProperties" : {
+        "cnxtype" : "Amazon Redshift v2",
+        "connectionParameterized" : "true",
+        "paramName" : "DBConnection_TGT",
+        "paramType-mapping" : "Connection",
+        "logcnx" : "DBConnection_TGT",
+        "default" : "dbo/msgr_facts_pms_new_vw2",
+        "objectParameterized" : "false",
+        "visible" : "false",
+        "defaultTargetUpdateColumns" : "row_id",
+        "supportApplyDDLChanges" : "false",
+        "originalPath" : "msgr_facts_pms_new_vw2_upd"
+      },
+      "targetConnectionId" : "@5Zcq1VmIGjxlaDWgHTaKA5",
+      "connectionName" : "redshift_nonprod_andover_dw_qa",
+      "targetObject" : "dbo/msgr_facts_pms_new_vw2",
+      "targetObjectLabel" : "msgr_facts_pms_new_vw2",
+      "newFlatFile" : false,
+      "newObject" : false,
+      "showBusinessNames" : true,
+      "naturalOrder" : true,
+      "truncateTarget" : false,
+      "bulkApiDBTarget" : false,
+      "operationType" : "Rowbased",
+      "customFuncCfg" : { },
+      "targetUpdateColumns" : [
+        "row_id"
+      ],
+      "extendedObject" : {
+        "singleMode" : true
+      },
+      "commandType" : 0,
+      "handleSpecialChars" : false,
+      "handleDecimalRoundOff" : false,
+      "frsAsset" : false,
+      "dynamicFileName" : false,
+      "excludeDynamicFileNameField" : false,
+      "currentlyProcessedFileName" : false,
+      "retainFieldMetadata" : false,
+      "objectName" : "dbo/msgr_facts_pms_new_vw2",
+      "objectLabel" : "msgr_facts_pms_new_vw2",
+      "useExactSrcNames" : false,
+      "userUpdated" : true,
+      "fetchMode" : "ORIGINAL",
+      "runtimeParameterData" : {
+        "connectionParameterName" : "DBConnection_TGT",
+        "connectionRuntimeParameter" : true,
+        "objectRuntimeParameter" : false
+      },
+      "restmodernSource" : true,
+      "unspecified" : false,
+      "fileList" : false
+    }
+  ],
+  "verbose" : false,
+  "lastRunTime" : 1728589600000,
+  "mappingId" : "@3tTvbVWGAKHbgXi2MTxdIA",
+  "mappingTemplateName" : "m_load_msgr_facts_pms_new_vw2",
+  "sessionPropertiesList" : [
+    {
+      "name" : "Allow Temporary Sequence for Pushdown",
+      "value" : "NO"
+    },
+    {
+      "name" : "Allow Temporary View for Pushdown",
+      "value" : "NO"
+    },
+    {
+      "name" : "Data Column Delimiter",
+      "value" : "|"
+    },
+    {
+      "name" : "Error Log File Name",
+      "value" : "PMError.log"
+    },
+    {
+      "name" : "Pushdown Optimization",
+      "value" : "None"
+    },
+    {
+      "name" : "Pushdown Optimization Context",
+      "value" : "None"
+    },
+    {
+      "name" : "Pushdown Optimization Fallback Option",
+      "value" : "Partial PDO"
+    }
+  ],
+  "hidden" : false,
+  "enableCrossSchemaPushdown" : false,
+  "enableParallelRun" : false,
+  "autoTunedApplied" : false,
+  "autoTunedAppliedType" : "NONE",
+  "parameterFileName" : "Andover_Parm_Peregrine.txt",
+  "parameterFileDir" : "$PMRootDir/andover/parameters",
+  "paramFileType" : "PARAM_FILE_LOCAL",
+  "schemaMode" : "async",
+  "valid" : true,
+  "optimizationPlan" : "NONE",
+  "allowMaxFieldLength" : false,
+  "specialCharacterSupport" : false,
+  "midstreamPreview" : false,
+  "vcsExportTime" : "2026-01-31 12:50:20 PST"
+}
