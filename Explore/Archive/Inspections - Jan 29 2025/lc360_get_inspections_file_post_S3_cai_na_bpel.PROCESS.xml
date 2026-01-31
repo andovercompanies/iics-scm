@@ -1,0 +1,107 @@
+<aetgt:getResponse xmlns:aetgt="http://schemas.active-endpoints.com/appmodules/repository/2010/10/avrepository.xsd"
+                   xmlns:types1="http://schemas.active-endpoints.com/appmodules/repository/2010/10/avrepository.xsd">
+   <types1:Item>
+      <types1:EntryId>SAP38nXxpr1Iw8j-gt-2371232-2025-04-29T14:18:20.724Z::pd.xml</types1:EntryId>
+      <types1:Name>lc360_get_inspections_file_post_S3_cai_na_bpel-8</types1:Name>
+      <types1:MimeType>application/xml+process</types1:MimeType>
+      <types1:Description>An event driven process that listens to the FTP Connection related to LC360 and posts files to S3 for further processing.</types1:Description>
+      <types1:AppliesTo/>
+      <types1:Tags>.agent:sag_aws_linux</types1:Tags>
+      <types1:VersionLabel>1.0</types1:VersionLabel>
+      <types1:State>CURRENT</types1:State>
+      <types1:ProcessGroup/>
+      <types1:CreatedBy>KKorukanti@andovercos.com.SAML</types1:CreatedBy>
+      <types1:CreationDate>2025-04-29T14:18:21Z</types1:CreationDate>
+      <types1:ModifiedBy/>
+      <types1:PublicationStatus>unpublished</types1:PublicationStatus>
+      <types1:Entry>
+         <process xmlns="http://schemas.active-endpoints.com/appmodules/screenflow/2010/10/avosScreenflow.xsd"
+                  xmlns:tfm="http://schemas.active-endpoints.com/appmodules/screenflow/2021/04/taskflowModel.xsd"
+                  xmlns:list="urn:activevos:spi:list:functions"
+                  GUID="5QB0AZmp5YCkXiGk7JMAET"
+                  displayName="lc360_get_inspections_file_post_S3_cai_na_bpel"
+                  name="lc360_get_inspections_file_post_S3_cai_na_bpel-8"
+                  overrideAPIName="false"
+                  processNamespace="urn:screenflow:process:">
+            <parameterSet xmlns="http://schemas.active-endpoints.com/appmodules/screenflow/2021/04/taskflowModel.xsd"/>
+            <appliesTo/>
+            <description>An event driven process that listens to the FTP Connection related to LC360 and posts files to S3 for further processing.</description>
+            <tags>.agent:sag_aws_linux</tags>
+            <generator>Informatica Process Designer 11</generator>
+            <input>
+               <parameter description=""
+                          name="fileEvent"
+                          required="false"
+                          type="reference">
+                  <options>
+                     <option name="required">false</option>
+                     <option name="referenceTo">lc360-sftp-cai-na-cnn-6:AttachmentFileContent</option>
+                     <option name="isCopy">true</option>
+                     <option name="guid">0gpPUjbGV6FjIj2epOJtKk</option>
+                  </options>
+               </parameter>
+            </input>
+            <tempFields>
+               <field description="" name="InputFile" type="reference">
+                  <options>
+                     <option name="referenceTo">lc360-S3-cai-na-cnn-7:StoreS3ObjectRequest</option>
+                     <option name="required">false</option>
+                     <option name="isCopy">true</option>
+                     <option name="guid">30ZBrh23u3YlnS94b58QcK</option>
+                  </options>
+               </field>
+            </tempFields>
+            <notes/>
+            <deployment skipIfRunning="false" suspendOnFault="false" tracingLevel="normal">
+               <targetLocation>sag_aws_linux</targetLocation>
+               <event eventSource="lc360-sftp-cai-na-cnn-6:lc360-FTPMonitor"/>
+            </deployment>
+            <extData>
+               <nvpair name="treatEmptyStringAsNotNull">false</nvpair>
+               <nvpair name="treatEmptyStringAsNull">true</nvpair>
+               <nvpair name="treatEmptyObjectListAsArray">true</nvpair>
+               <nvpair name="treatEmptyObjectListAsNotArray">false</nvpair>
+            </extData>
+            <flow id="x0ac7ce68-0fb7-4642-8be9-1c85d8d44062">
+               <start id="f633301a6-5e4a-47ac-84f7-b283e9aab5d1">
+                  <link id="wf3d265dc-d536-4b1c-8f1c-1ca49601be0f"
+                        targetId="a19VjCYSqN583fukxz49Fl6Z-lxxi5xl6"/>
+               </start>
+               <assignment id="a19VjCYSqN583fukxz49Fl6Z-lxxi5xl6">
+                  <title>Get S3 Object Request Values</title>
+                  <operation source="formula" to="temp.InputFile[1]/s3ObjectParameters[1]/awsS3Key">
+                     <expression language="XQuery">fn:concat('metal/tgt-cdl-lc360.metal/raw.inbox/', $input.fileEvent[1]/fileInfo[1]/fullName )</expression>
+                  </operation>
+                  <operation source="constant" to="temp.InputFile[1]/format">Attachment</operation>
+                  <operation source="field" to="temp.InputFile[1]/objectName">input.fileEvent[1]/fileInfo[1]/fullName</operation>
+                  <operation source="formula"
+                             to="temp.InputFile[1]/s3ObjectParameters[1]/contentType">
+                     <expression language="XQuery">'application/json'</expression>
+                  </operation>
+                  <link id="wec9b1e6e-77e8-49f6-b4d8-395144eb547d"
+                        targetId="a19VjCYSqN583fukxz49Fl6Z-lxxi5xls"/>
+               </assignment>
+               <service id="a19VjCYSqN583fukxz49Fl6Z-lxxi5xls">
+                  <title>Transfer File to S3 Folder</title>
+                  <serviceName>lc360-S3-cai-na-cnn-7:AwsS3Writer</serviceName>
+                  <serviceGUID>30ZBrh23u3YlnS94b58QcK</serviceGUID>
+                  <serviceInput>
+                     <parameter name="storeS3ObjectRequest" source="field">temp.InputFile</parameter>
+                     <parameter name="attachment" source="formula">
+                        <expression language="XQuery">$input.fileEvent[1]/attachment </expression>
+                     </parameter>
+                  </serviceInput>
+                  <link id="mc865b50c-ea74-43df-95f4-7b15c9149b4c"
+                        targetId="a19VjCYSqN583fukxz49Fl6Z-c"/>
+               </service>
+               <end id="a19VjCYSqN583fukxz49Fl6Z-c">
+                  <title>End</title>
+               </end>
+            </flow>
+         </process>
+      </types1:Entry>
+      <types1:GUID>5QB0AZmp5YCkXiGk7JMAET</types1:GUID>
+      <types1:DisplayName>lc360_get_inspections_file_post_S3_cai_na_bpel</types1:DisplayName>
+   </types1:Item>
+   <types1:CurrentServerDateTime>2026-01-31T15:45:55.252Z</types1:CurrentServerDateTime>
+</aetgt:getResponse>
