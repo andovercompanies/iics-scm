@@ -1,0 +1,227 @@
+<aetgt:getResponse xmlns:aetgt="http://schemas.active-endpoints.com/appmodules/repository/2010/10/avrepository.xsd"
+                   xmlns:types1="http://schemas.active-endpoints.com/appmodules/repository/2010/10/avrepository.xsd">
+   <types1:Item>
+      <types1:EntryId>tUSptM9hOznKKvv-gt-1756266-2023-12-08T11:03:55.312Z::pd.xml</types1:EntryId>
+      <types1:Name>process_Refresh_Tableau_Extracts</types1:Name>
+      <types1:MimeType>application/xml+process</types1:MimeType>
+      <types1:Description/>
+      <types1:AppliesTo/>
+      <types1:Tags>.agent:dev_aws_asg</types1:Tags>
+      <types1:VersionLabel>1.0</types1:VersionLabel>
+      <types1:State>CURRENT</types1:State>
+      <types1:ProcessGroup/>
+      <types1:CreatedBy>akumar@andovercos.com</types1:CreatedBy>
+      <types1:CreationDate>2023-12-08T11:03:55Z</types1:CreationDate>
+      <types1:ModifiedBy>akumar@andovercos.com</types1:ModifiedBy>
+      <types1:ModificationDate>2023-12-26T14:55:54Z</types1:ModificationDate>
+      <types1:PublicationStatus>out-of-date</types1:PublicationStatus>
+      <types1:PublishedBy>akumar@andovercos.com</types1:PublishedBy>
+      <types1:PublicationDate>2024-01-15T14:04:45Z</types1:PublicationDate>
+      <types1:PublishedContributionId>project:/spi.process_Refresh_Tableau_Extracts/process_Refresh_Tableau_Extracts.pd.xml</types1:PublishedContributionId>
+      <types1:Entry>
+         <process xmlns="http://schemas.active-endpoints.com/appmodules/screenflow/2010/10/avosScreenflow.xsd"
+                  xmlns:tfm="http://schemas.active-endpoints.com/appmodules/screenflow/2021/04/taskflowModel.xsd"
+                  xmlns:list="urn:activevos:spi:list:functions"
+                  displayName="process_Refresh_Tableau_Extracts"
+                  name="process_Refresh_Tableau_Extracts"
+                  overrideAPIName="true">
+            <parameterSet xmlns="http://schemas.active-endpoints.com/appmodules/screenflow/2021/04/taskflowModel.xsd"/>
+            <appliesTo/>
+            <description/>
+            <tags>.agent:dev_aws_asg</tags>
+            <generator>Informatica Process Designer 11</generator>
+            <input>
+               <parameter description="" name="in_Site_Name" type="string">
+                  <options>
+                     <option name="required">false</option>
+                  </options>
+               </parameter>
+               <parameter description="" name="in_DataSource_Name" type="string">
+                  <options>
+                     <option name="required">false</option>
+                  </options>
+               </parameter>
+               <parameter description="" name="in_Server_URL" type="string">
+                  <options>
+                     <option name="required">false</option>
+                  </options>
+               </parameter>
+            </input>
+            <output>
+               <field description="" name="out_FinishCode" type="int">
+                  <options>
+                     <option name="required">false</option>
+                  </options>
+               </field>
+               <field description="" name="out_Notes" type="string">
+                  <options>
+                     <option name="required">false</option>
+                  </options>
+               </field>
+            </output>
+            <tempFields>
+               <field description="" name="temp_CompletedPercentage" type="int">
+                  <options>
+                     <option name="required">false</option>
+                  </options>
+               </field>
+               <field description="" name="temp_ExtractRefreshJobId" type="string">
+                  <options>
+                     <option name="required">false</option>
+                  </options>
+               </field>
+            </tempFields>
+            <notes/>
+            <deployment skipIfRunning="false" suspendOnFault="false" tracingLevel="none">
+               <targetLocation>dev_aws_asg</targetLocation>
+               <rest>
+                  <allowedGroups>
+                     <group>Informatica-SQL</group>
+                  </allowedGroups>
+               </rest>
+            </deployment>
+            <flow id="a">
+               <start id="b">
+                  <link id="lq3n51pt" targetId="lq3n51ps"/>
+               </start>
+               <service id="lq3n51ps">
+                  <title>GetAuthToken</title>
+                  <serviceName>ac-TableauExtractRefresh:GetAuthToken</serviceName>
+                  <serviceGUID>92A0upfUbGKgaE5IMCs48u</serviceGUID>
+                  <serviceInput>
+                     <parameter name="ServerURL" source="field" updatable="true">input.in_Server_URL</parameter>
+                  </serviceInput>
+                  <link id="lq3n51q6" targetId="lq3n51q5"/>
+               </service>
+               <service id="lq3n51q5">
+                  <title>GetSiteID</title>
+                  <serviceName>ac-TableauExtractRefresh:GetSiteID</serviceName>
+                  <serviceGUID>92A0upfUbGKgaE5IMCs48u</serviceGUID>
+                  <serviceInput>
+                     <parameter name="Token" source="field" updatable="true">output.token</parameter>
+                     <parameter name="ServerURL" source="field" updatable="true">input.in_Server_URL</parameter>
+                     <parameter name="SiteName" source="field" updatable="true">input.in_Site_Name</parameter>
+                  </serviceInput>
+                  <link id="lq3n51qj" targetId="lq3n51qi"/>
+               </service>
+               <service id="lq3n51qi">
+                  <title>GetDataSourceID</title>
+                  <serviceName>ac-TableauExtractRefresh:GetDataSourceID</serviceName>
+                  <serviceGUID>92A0upfUbGKgaE5IMCs48u</serviceGUID>
+                  <serviceInput>
+                     <parameter name="Token" source="field" updatable="true">output.token</parameter>
+                     <parameter name="ServerURL" source="field" updatable="true">input.in_Server_URL</parameter>
+                     <parameter name="SiteID" source="field" updatable="true">output.SiteID</parameter>
+                     <parameter name="DataSourceName" source="field" updatable="true">input.in_DataSource_Name</parameter>
+                  </serviceInput>
+                  <link id="lq3n51rl" targetId="lq3n51rf"/>
+               </service>
+               <service id="lq3n51rf">
+                  <title>RefreshExtracts</title>
+                  <serviceName>ac-TableauExtractRefresh:RefreshExtracts</serviceName>
+                  <serviceGUID>92A0upfUbGKgaE5IMCs48u</serviceGUID>
+                  <serviceInput>
+                     <parameter name="Token" source="field" updatable="true">output.token</parameter>
+                     <parameter name="ServerURL" source="field" updatable="true">input.in_Server_URL</parameter>
+                     <parameter name="SiteID" source="field" updatable="true">output.SiteID</parameter>
+                     <parameter name="DataSourceID" source="field" updatable="true">output.DataSourceID</parameter>
+                  </serviceInput>
+                  <link id="lqfgi24e" targetId="lqfgi24d"/>
+               </service>
+               <service id="lqf4hbws">
+                  <title>GetJobStatus</title>
+                  <serviceName>ac-getJobDetails:getJobInfo</serviceName>
+                  <serviceGUID>1g4FonMloAJdbGst3c4jud</serviceGUID>
+                  <serviceInput>
+                     <parameter name="Token" source="field" updatable="true">output.token</parameter>
+                     <parameter name="SiteId" source="field" updatable="true">output.SiteID</parameter>
+                     <parameter name="ServerURL" source="field" updatable="true">input.in_Server_URL</parameter>
+                     <parameter name="JobID" source="field" updatable="true">temp.temp_ExtractRefreshJobId</parameter>
+                  </serviceInput>
+                  <link id="lqf8diev" targetId="lqf8dieu"/>
+               </service>
+               <assignment id="lqfgi24d">
+                  <title>assgn_tempjobID</title>
+                  <operation source="field" to="temp.temp_ExtractRefreshJobId">output.ExtractRefreshJobID</operation>
+                  <link id="lqfgi24f" targetId="lqf4hbws"/>
+               </assignment>
+               <assignment id="lqf8dieu">
+                  <title>assgn_temp</title>
+                  <operation source="formula" to="temp.temp_CompletedPercentage">
+                     <expression language="XQuery">xs:integer($output.PercentageCompletion='100')</expression>
+                  </operation>
+                  <link id="lqfgi23b" targetId="lqfgi23a"/>
+               </assignment>
+               <container id="lqfgi23a" type="exclusive">
+                  <title>temp_CompletedPercentage</title>
+                  <flow id="lqfgi23e">
+                     <service id="lqmgwlqw">
+                        <title>GetFinalJobStatus</title>
+                        <serviceName>ac-GetFinalJobStatus:GetFinalJobStatus</serviceName>
+                        <serviceGUID>92sf63txFMWd2Oy0qnUYSs</serviceGUID>
+                        <serviceInput>
+                           <parameter name="Token" source="field" updatable="true">output.token</parameter>
+                           <parameter name="Server_URL" source="field" updatable="true">input.in_Server_URL</parameter>
+                           <parameter name="SiteID" source="field" updatable="true">output.SiteID</parameter>
+                           <parameter name="JobID" source="field" updatable="true">temp.temp_ExtractRefreshJobId</parameter>
+                        </serviceInput>
+                        <link id="lqmgwlqx" targetId="lqfgi23t"/>
+                     </service>
+                     <assignment id="lqfgi23t">
+                        <title>assgn_final</title>
+                        <operation source="field" to="output.out_FinishCode">output.FinishCodeFinal</operation>
+                        <operation source="field" to="output.out_Notes">output.NotesFinal</operation>
+                     </assignment>
+                     <link id="lqfgi23f" targetId="lqfgi23a" type="containerLink"/>
+                  </flow>
+                  <flow id="lqfgi23h">
+                     <wait id="lqfgi25t">
+                        <title>Wait 1</title>
+                        <duration source="formula">
+                           <function name="duration_expression">
+                              <arg name="value">1</arg>
+                              <arg name="scale">M</arg>
+                              <arg name="businessDays"/>
+                           </function>
+                        </duration>
+                        <link id="lqfgi25u" targetId="lqfgi23y"/>
+                     </wait>
+                     <jumpTo id="lqfgi23y">
+                        <link id="lqfgi23z" targetId="lqf4hbws"/>
+                     </jumpTo>
+                  </flow>
+                  <link id="lqfgi23d" targetId="lqfgi23e" type="containerLink">
+                     <condition source="formula">
+                        <function name="equals">
+                           <arg name="left">{$temp.temp_CompletedPercentage}</arg>
+                           <arg name="right">{1}</arg>
+                        </function>
+                     </condition>
+                  </link>
+                  <link id="lqfgi23g" targetId="lqfgi23h" type="containerLink"/>
+                  <link id="lqfgi23c" targetId="c"/>
+               </container>
+               <end id="c"/>
+            </flow>
+         </process>
+         <ns1:sample-data-sets xmlns:ns1="http://schemas.active-endpoints.com/appmodules/repository/2010/10/sampleData.xsd">
+            <ns1:SampleData>
+               <ns1:Id>e7022b13-853d-486d-91f0-e0a2d5056033</ns1:Id>
+               <ns1:Name>MSGR_test</ns1:Name>
+               <ns1:CreatedBy>akumar@andovercos.com</ns1:CreatedBy>
+               <ns1:CreationDate>2023-12-20T17:53:52Z</ns1:CreationDate>
+               <ns1:ModifiedBy>akumar@andovercos.com</ns1:ModifiedBy>
+               <ns1:ModificationDate>2023-12-21T13:31:06Z</ns1:ModificationDate>
+               <ns1:Data format="json">{
+	 "in_Site_Name": "Default",
+	 "in_DataSource_Name": "MSGR_Refactor_Extract_v2",
+	 "in_Server_URL": "tab.nonprod.advr-dwh.com"
+}</ns1:Data>
+            </ns1:SampleData>
+         </ns1:sample-data-sets>
+      </types1:Entry>
+      <types1:GUID>e3xRvrdxf2wd8BJ1DQKQOk</types1:GUID>
+      <types1:DisplayName>process_Refresh_Tableau_Extracts</types1:DisplayName>
+   </types1:Item>
+   <types1:CurrentServerDateTime>2026-01-31T14:32:18.007Z</types1:CurrentServerDateTime>
+</aetgt:getResponse>

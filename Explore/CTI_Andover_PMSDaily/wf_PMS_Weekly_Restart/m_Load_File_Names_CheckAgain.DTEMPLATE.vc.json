@@ -1,0 +1,1559 @@
+{
+  "content" : {
+    "allowMaxFieldLength" : "false",
+    "bigIntConvertType" : "ONLY_BIGINT",
+    "documentType" : "MAPPING",
+    "name" : "m_Load_File_Names_CheckAgain",
+    "specialCharacterSupport" : "false",
+    "links" : [
+      {
+        "link" : "Srt_Filename -> lkp_fileprocess"
+      },
+      {
+        "link" : "Exp_FilePart -> Fil_ProcessFlag"
+      },
+      {
+        "link" : "Fil_ProcessFlag -> Fil_Rank"
+      },
+      {
+        "link" : "Fil_Trans -> Exp_File"
+      },
+      {
+        "link" : "Exp_Flag -> Fil_Trans"
+      },
+      {
+        "link" : "Fil_Trans1 -> Agg_Trans"
+      },
+      {
+        "link" : "Src_SrcFile1 -> expr_Src_SrcFile1"
+      },
+      {
+        "link" : "expr_Src_SrcFile1 -> Exp_Flag"
+      },
+      {
+        "link" : "Exp_File -> Srt_Filename"
+      },
+      {
+        "link" : "lkp_fileprocess -> Exp_Trans2"
+      },
+      {
+        "link" : "Srt_Filename -> Exp_Trans2"
+      },
+      {
+        "link" : "Exp_Trans2 -> Fil_Trans1"
+      },
+      {
+        "link" : "Agg_Trans -> Exp_FilePart"
+      },
+      {
+        "link" : "Fil_Rank -> Tgt_FileList"
+      }
+    ],
+    "parameters" : [
+      {
+        "input" : "true",
+        "output" : "false",
+        "precision" : 0,
+        "scale" : 0,
+        "allowRuntimeOverride" : "true",
+        "expressionVariable" : "false",
+        "name" : "PMSrcPath",
+        "anonymousType" : {
+          "subType" : "TOOLKIT_CCI",
+          "typeSystem" : "TOOLKIT",
+          "connectionType" : "Amazon S3 v2"
+        }
+      },
+      {
+        "input" : "true",
+        "output" : "false",
+        "precision" : 0,
+        "scale" : 0,
+        "allowRuntimeOverride" : "true",
+        "expressionVariable" : "false",
+        "name" : "PMTgtPath",
+        "anonymousType" : {
+          "subType" : "TOOLKIT_CCI",
+          "typeSystem" : "TOOLKIT",
+          "connectionType" : "Amazon S3 v2"
+        }
+      },
+      {
+        "input" : "true",
+        "output" : "false",
+        "precision" : 0,
+        "scale" : 0,
+        "allowRuntimeOverride" : "false",
+        "expressionVariable" : "false",
+        "name" : "Src_FileName"
+      }
+    ],
+    "transformations" : [
+      {
+        "name" : "Exp_Flag",
+        "advancedProperties" : [
+          {
+            "name" : "Tracing Level",
+            "value" : "Normal"
+          },
+          {
+            "name" : "Optional",
+            "value" : "true"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              },
+              {
+                "bulkRename" : "false",
+                "include" : "true",
+                "names" : [
+                  {
+                    "inputName" : "FileName",
+                    "outputName" : "FileName"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "windowConfigurationEnabled" : "false",
+        "fields" : [
+          {
+            "name" : "FilePart",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 10,
+            "scale" : 0,
+            "expFieldType" : "VARIABLE",
+            "expression" : "SUBSTR(FileName,1,8)"
+          },
+          {
+            "name" : "FilePartEx",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 10,
+            "scale" : 0,
+            "expFieldType" : "VARIABLE",
+            "expression" : "SUBSTR(FileName,19,3)"
+          },
+          {
+            "name" : "FilePartEx_2",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 10,
+            "scale" : 0,
+            "expFieldType" : "VARIABLE",
+            "expression" : "SUBSTR(FileName,22,3)\r\n---pifweekly_20191112.dat\r\n--pifsaturday_20191112.dat"
+          },
+          {
+            "name" : "Flag",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 10,
+            "scale" : 0,
+            "expFieldType" : "VARIABLE",
+            "expression" : "IIF(IN(UPPER(FilePart),'PIFDAILY' ,'PIFSATUR'),'Y','N')"
+          },
+          {
+            "name" : "FlagEx",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 10,
+            "scale" : 0,
+            "expFieldType" : "VARIABLE",
+            "expression" : "IIF(UPPER(FilePartEx)='DAT' or UPPER(FilePartEx_2)='DAT' ,'Y','N')"
+          },
+          {
+            "name" : "FlagLen",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 10,
+            "scale" : 0,
+            "expFieldType" : "VARIABLE",
+            "expression" : "IIF(in(Length(FileName),21,24),'Y','N')"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "v_Flag",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 10,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "IIF(Flag='Y' AND FlagEx='Y' and FlagLen='Y','Y','N')"
+          }
+        ]
+      },
+      {
+        "name" : "Fil_Trans",
+        "advancedProperties" : [
+          {
+            "name" : "Tracing Level",
+            "value" : "Normal"
+          },
+          {
+            "name" : "Optional",
+            "value" : "true"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "advancedFilterCondition" : "v_Flag='Y'"
+      },
+      {
+        "name" : "Exp_File",
+        "advancedProperties" : [
+          {
+            "name" : "Tracing Level",
+            "value" : "Normal"
+          },
+          {
+            "name" : "Optional",
+            "value" : "true"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "conflictResolutions" : [
+              {
+                "precedingGroupName" : "DefaultGroup",
+                "precedingTxName" : "Fil_Trans",
+                "rule" : {
+                  "bulkRename" : "true",
+                  "include" : "true",
+                  "bulkRenameOption" : {
+                    "pattern" : "^(v_Flag)$/$0_FILTRANS21",
+                    "suffix" : "false"
+                  }
+                }
+              }
+            ],
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              },
+              {
+                "bulkRename" : "false",
+                "include" : "false",
+                "names" : [
+                  {
+                    "inputName" : "v_Flag_FILTRANS21"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "windowConfigurationEnabled" : "false",
+        "fields" : [
+          {
+            "name" : "DatePart",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 29,
+            "scale" : 0,
+            "expFieldType" : "VARIABLE",
+            "expression" : "SUBSTR(FileName,10,8)\r\n--iif(isnull(to_date(SUBSTR(FileName,10,8),'YYYYMMDD')) \r\n--or not is_date(SUBSTR(FileName,10,8),'YYYYMMDD')\r\n--,to_date(SUBSTR(FileName,11,8),'YYYYMMDD')\r\n--,to_date(SUBSTR(FileName,10,8),'YYYYMMDD'))"
+          },
+          {
+            "name" : "DatePart_2",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 29,
+            "scale" : 0,
+            "expFieldType" : "VARIABLE",
+            "expression" : "SUBSTR(FileName,13,8)\r\n\r\n--iif(isnull(to_date(SUBSTR(FileName,10,8),'YYYYMMDD')) \r\n--or not is_date(SUBSTR(FileName,10,8),'YYYYMMDD')\r\n--,to_date(SUBSTR(FileName,11,8),'YYYYMMDD')\r\n--,to_date(SUBSTR(FileName,10,8),'YYYYMMDD'))"
+          },
+          {
+            "name" : "FilePart",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 10,
+            "scale" : 0,
+            "expFieldType" : "VARIABLE",
+            "expression" : "Upper(SUBSTR(FileName,1,8))"
+          },
+          {
+            "name" : "Flag",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 10,
+            "scale" : 0,
+            "expFieldType" : "VARIABLE",
+            "expression" : "IIF(in(UPPER(FilePart),'PIFDAILY','PIFSATUR'),'Y','N')"
+          },
+          {
+            "name" : "ToDate",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9,
+            "expFieldType" : "VARIABLE",
+            "expression" : "iif (not is_date(DatePart,'YYYYMMDD'),\r\nTO_DATE(DatePart_2,'YYYYMMDD'),\r\nTO_DATE(DatePart,'YYYYMMDD')\r\n)"
+          },
+          {
+            "name" : "DateDiff",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 15,
+            "scale" : 2,
+            "expFieldType" : "VARIABLE",
+            "expression" : "DATE_DIFF(ToDate,SYSDATE,'DD')"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "v_FilePart",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 10,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "FilePart"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "v_Flag",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 10,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "Flag"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "v_DateDiff",
+            "platformType" : {
+              "name" : "double"
+            },
+            "precision" : 15,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "DateDiff"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "O_ToDate",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9,
+            "expFieldType" : "OUTPUT",
+            "expression" : "ToDate"
+          }
+        ]
+      },
+      {
+        "name" : "Srt_Filename",
+        "advancedProperties" : [
+          {
+            "name" : "Tracing Level",
+            "value" : "Normal"
+          },
+          {
+            "name" : "Optional",
+            "value" : "true"
+          },
+          {
+            "name" : "Sorter Cache Size",
+            "value" : "AUTO"
+          },
+          {
+            "name" : "Case Sensitive",
+            "value" : "true"
+          },
+          {
+            "name" : "Work Directory",
+            "value" : "$PMTempDir"
+          },
+          {
+            "name" : "Distinct",
+            "value" : "false"
+          },
+          {
+            "name" : "Null Treated Low",
+            "value" : "false"
+          },
+          {
+            "name" : "Transformation Scope",
+            "value" : "All Input"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              },
+              {
+                "bulkRename" : "false",
+                "include" : "false",
+                "names" : [
+                  {
+                    "inputName" : "v_Flag"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "sorterMode" : "SIMPLE",
+        "sortEntries" : [
+          {
+            "ascending" : "false",
+            "fieldName" : "O_ToDate"
+          },
+          {
+            "ascending" : "false",
+            "fieldName" : "v_DateDiff"
+          },
+          {
+            "ascending" : "true",
+            "fieldName" : "v_FilePart"
+          }
+        ]
+      },
+      {
+        "name" : "lkp_fileprocess",
+        "advancedProperties" : [
+          {
+            "name" : "Tracing Level",
+            "value" : "Normal"
+          },
+          {
+            "name" : "Optional",
+            "value" : "true"
+          },
+          {
+            "name" : "Lookup source is static",
+            "value" : "false"
+          },
+          {
+            "name" : "Decimal Separator",
+            "value" : "."
+          },
+          {
+            "name" : "Thousand Separator",
+            "value" : "None"
+          },
+          {
+            "name" : "Subsecond Precision",
+            "value" : "6"
+          },
+          {
+            "name" : "Null ordering",
+            "value" : "Null Is Highest Value"
+          },
+          {
+            "name" : "Lookup cache persistent",
+            "value" : "false"
+          },
+          {
+            "name" : "Lookup caching enabled",
+            "value" : "true"
+          },
+          {
+            "name" : "Re-cache from lookup source",
+            "value" : "false"
+          },
+          {
+            "name" : "Output Old Value On Update",
+            "value" : "false"
+          },
+          {
+            "name" : "Lookup cache directory name",
+            "value" : "$PMCacheDir"
+          },
+          {
+            "name" : "Synchronize dynamic cache",
+            "value" : "false"
+          },
+          {
+            "name" : "Pre-build lookup cache",
+            "value" : "AUTO"
+          },
+          {
+            "name" : "Case Sensitive String Comparison",
+            "value" : "false"
+          },
+          {
+            "name" : "Insert Else Update",
+            "value" : "false"
+          },
+          {
+            "name" : "Lookup Data Cache Size",
+            "value" : "AUTO"
+          },
+          {
+            "name" : "Lookup Index Cache Size",
+            "value" : "AUTO"
+          },
+          {
+            "name" : "Dynamic Lookup Cache",
+            "value" : "false"
+          },
+          {
+            "name" : "Sorted Input",
+            "value" : "false"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              },
+              {
+                "bulkRename" : "false",
+                "include" : "false",
+                "names" : [
+                  {
+                    "inputName" : "O_ToDate"
+                  },
+                  {
+                    "inputName" : "v_DateDiff"
+                  },
+                  {
+                    "inputName" : "v_FilePart"
+                  }
+                ]
+              },
+              {
+                "bulkRename" : "false",
+                "include" : "true",
+                "names" : [
+                  {
+                    "inputName" : "FileName",
+                    "outputName" : "FileName1"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "multipleMatchPolicy" : "Use Any Value",
+        "unconnected" : "false",
+        "useLabels" : "false",
+        "fields" : [
+          {
+            "adapterField" : {
+              "name" : "filename"
+            },
+            "name" : "filename",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 150,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "processcd"
+            },
+            "name" : "processcd",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 30,
+            "scale" : 0
+          }
+        ],
+        "inputPortNames" : [
+          "FileName1"
+        ],
+        "lookupConditions" : [
+          {
+            "leftOperand" : "FileName",
+            "operator" : "=",
+            "rightOperand" : "FileName1"
+          }
+        ],
+        "dataAdapter" : {
+          "connectionId" : "saas:@aYZ4ekzHgIPeKpiaoqDLKP",
+          "connectionName" : "redshift_nonprod_andover_dw_dev",
+          "excludeDynamicFileNameField" : "false",
+          "objectType" : "SINGLE",
+          "typeSystem" : "TOOLKIT",
+          "useDynamicFileName" : "false",
+          "object" : {
+            "name" : "dbo/fileprocesssummary",
+            "label" : "fileprocesssummary",
+            "objectName" : "fileprocesssummary",
+            "objectType" : "amazonredshift",
+            "path" : "dbo/fileprocesssummary",
+            "retainMetadata" : "false",
+            "fields" : [
+              {
+                "name" : "filename",
+                "fieldType" : "CONNECTOR",
+                "label" : "filename",
+                "nativeName" : "filename",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 150,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "fileprocesssummary"
+                  }
+                ]
+              },
+              {
+                "name" : "processcd",
+                "fieldType" : "CONNECTOR",
+                "label" : "processcd",
+                "nativeName" : "processcd",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 30,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "fileprocesssummary"
+                  }
+                ]
+              }
+            ],
+            "objectAttributes" : [
+              {
+                "name" : "recordType",
+                "value" : "TABLE"
+              }
+            ]
+          },
+          "readOptions" : {
+            "commandType" : 0,
+            "descending" : "false",
+            "queryAll" : "false",
+            "rowLimit" : 0,
+            "selectDistinct" : "false"
+          },
+          "writeOptions" : {
+            "batchSize" : 0,
+            "bulkApi" : "false",
+            "handleDecimalRoundOff" : "false",
+            "handleSpecialChars" : "false",
+            "operations" : [
+              "Insert"
+            ],
+            "setFieldsToNull" : "false",
+            "truncate" : "false",
+            "useErrorFile" : "false",
+            "useExactSrcNames" : "false",
+            "useSuccessFile" : "false"
+          }
+        }
+      },
+      {
+        "name" : "Exp_Trans2",
+        "advancedProperties" : [
+          {
+            "name" : "Tracing Level",
+            "value" : "Normal"
+          },
+          {
+            "name" : "Optional",
+            "value" : "true"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "conflictResolutions" : [
+              {
+                "precedingGroupName" : "DefaultGroup",
+                "precedingTxName" : "lkp_fileprocess",
+                "rule" : {
+                  "bulkRename" : "true",
+                  "include" : "true",
+                  "bulkRenameOption" : {
+                    "pattern" : "^(FileName|FileName1)$/$0_lkp_fileprocess2",
+                    "suffix" : "false"
+                  }
+                }
+              },
+              {
+                "precedingGroupName" : "DefaultGroup",
+                "precedingTxName" : "Srt_Filename",
+                "rule" : {
+                  "bulkRename" : "true",
+                  "include" : "true",
+                  "bulkRenameOption" : {
+                    "pattern" : "^(FileName)$/$0_ST_Filename11",
+                    "suffix" : "false"
+                  }
+                }
+              }
+            ],
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              },
+              {
+                "bulkRename" : "false",
+                "include" : "false",
+                "names" : [
+                  {
+                    "inputName" : "FileName1_lkp_fileprocess2"
+                  }
+                ]
+              },
+              {
+                "bulkRename" : "false",
+                "include" : "true",
+                "names" : [
+                  {
+                    "inputName" : "filename",
+                    "outputName" : "FileName1"
+                  },
+                  {
+                    "inputName" : "FileName_ST_Filename11",
+                    "outputName" : "FileName"
+                  },
+                  {
+                    "inputName" : "O_ToDate"
+                  },
+                  {
+                    "inputName" : "processcd"
+                  },
+                  {
+                    "inputName" : "v_DateDiff"
+                  },
+                  {
+                    "inputName" : "v_FilePart"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "windowConfigurationEnabled" : "false",
+        "fields" : [
+          {
+            "name" : "Rank",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0,
+            "expFieldType" : "VARIABLE",
+            "expression" : "IIF(ISNULL(Last_Rnk) or FilePart<>Last_Filepart,1,Rank+1)"
+          },
+          {
+            "name" : "Last_Rnk",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0,
+            "expFieldType" : "VARIABLE",
+            "expression" : "Rank"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_Rank",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "Rank"
+          },
+          {
+            "name" : "Last_Filepart",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 100,
+            "scale" : 0,
+            "expFieldType" : "VARIABLE",
+            "expression" : "FilePart"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_Filepart",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 100,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "FilePart"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "ProcessFlag",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 10,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "IIF(ISNULL(FileName1),'Y','N')"
+          }
+        ]
+      },
+      {
+        "name" : "Fil_Trans1",
+        "advancedProperties" : [
+          {
+            "name" : "Tracing Level",
+            "value" : "Normal"
+          },
+          {
+            "name" : "Optional",
+            "value" : "true"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              },
+              {
+                "bulkRename" : "false",
+                "include" : "true",
+                "names" : [
+                  {
+                    "inputName" : "FileName"
+                  },
+                  {
+                    "inputName" : "FileName1"
+                  },
+                  {
+                    "inputName" : "O_ToDate"
+                  },
+                  {
+                    "inputName" : "processcd"
+                  },
+                  {
+                    "inputName" : "ProcessFlag"
+                  },
+                  {
+                    "inputName" : "v_DateDiff"
+                  },
+                  {
+                    "inputName" : "v_FilePart",
+                    "outputName" : "FilePart"
+                  }
+                ]
+              },
+              {
+                "bulkRename" : "false",
+                "include" : "false",
+                "names" : [
+                  {
+                    "inputName" : "o_Filepart"
+                  },
+                  {
+                    "inputName" : "o_Rank"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "advancedFilterCondition" : "ProcessFlag='Y'"
+      },
+      {
+        "name" : "Agg_Trans",
+        "advancedProperties" : [
+          {
+            "name" : "Tracing Level",
+            "value" : "Normal"
+          },
+          {
+            "name" : "Optional",
+            "value" : "true"
+          },
+          {
+            "name" : "Cache Directory",
+            "value" : "$PMCacheDir"
+          },
+          {
+            "name" : "Aggregator Data Cache Size",
+            "value" : "AUTO"
+          },
+          {
+            "name" : "Aggregator Index Cache Size",
+            "value" : "AUTO"
+          },
+          {
+            "name" : "Transformation Scope",
+            "value" : "All Input"
+          },
+          {
+            "name" : "Sorted Input",
+            "value" : "false"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name" : "Exp_FilePart",
+        "advancedProperties" : [
+          {
+            "name" : "Tracing Level",
+            "value" : "Normal"
+          },
+          {
+            "name" : "Optional",
+            "value" : "true"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              },
+              {
+                "bulkRename" : "false",
+                "include" : "true",
+                "names" : [
+                  {
+                    "inputName" : "FileName"
+                  },
+                  {
+                    "inputName" : "FileName1"
+                  },
+                  {
+                    "inputName" : "FilePart"
+                  },
+                  {
+                    "inputName" : "O_ToDate",
+                    "outputName" : "Date"
+                  },
+                  {
+                    "inputName" : "processcd"
+                  },
+                  {
+                    "inputName" : "ProcessFlag"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "windowConfigurationEnabled" : "false",
+        "fields" : [
+          {
+            "name" : "Rank",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0,
+            "expFieldType" : "VARIABLE",
+            "expression" : "IIF(ISNULL(Last_Rnk) or FilePart<>Last_Filepart,1,Rank+1)"
+          },
+          {
+            "name" : "Last_Rnk",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0,
+            "expFieldType" : "VARIABLE",
+            "expression" : "Rank"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_Rank",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "Rank"
+          },
+          {
+            "name" : "Last_Filepart",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 100,
+            "scale" : 0,
+            "expFieldType" : "VARIABLE",
+            "expression" : "FilePart"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_Filepart",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 100,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "FilePart"
+          }
+        ]
+      },
+      {
+        "name" : "Fil_ProcessFlag",
+        "advancedProperties" : [
+          {
+            "name" : "Tracing Level",
+            "value" : "Normal"
+          },
+          {
+            "name" : "Optional",
+            "value" : "true"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              },
+              {
+                "bulkRename" : "false",
+                "include" : "false",
+                "names" : [
+                  {
+                    "inputName" : "FilePart"
+                  },
+                  {
+                    "inputName" : "o_Filepart"
+                  },
+                  {
+                    "inputName" : "processcd"
+                  },
+                  {
+                    "inputName" : "v_DateDiff"
+                  },
+                  {
+                    "inputName" : "Date"
+                  },
+                  {
+                    "inputName" : "FileName1"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "advancedFilterCondition" : "ProcessFlag='Y'"
+      },
+      {
+        "name" : "Fil_Rank",
+        "advancedProperties" : [
+          {
+            "name" : "Tracing Level",
+            "value" : "Normal"
+          },
+          {
+            "name" : "Optional",
+            "value" : "true"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              },
+              {
+                "bulkRename" : "false",
+                "include" : "false",
+                "names" : [
+                  {
+                    "inputName" : "ProcessFlag"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "advancedFilterCondition" : "o_Rank<2"
+      },
+      {
+        "name" : "Tgt_FileList",
+        "advancedProperties" : [
+          {
+            "name" : "Forward Rejected Rows",
+            "value" : "true"
+          },
+          {
+            "name" : "Thousand Separator",
+            "value" : "None"
+          },
+          {
+            "name" : "Decimal Separator",
+            "value" : "."
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "false",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              },
+              {
+                "bulkRename" : "false",
+                "include" : "false",
+                "names" : [
+                  {
+                    "inputName" : "o_Rank"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "sessionProperties" : [
+          {
+            "name" : "Append if Exists",
+            "value" : "NO"
+          },
+          {
+            "name" : "Header Options",
+            "value" : "No Header"
+          },
+          {
+            "name" : "Output file directory",
+            "value" : "$PMTargetFileDir"
+          },
+          {
+            "name" : "Output filename",
+            "value" : "filelist_recheck.out"
+          },
+          {
+            "name" : "Reject file directory",
+            "value" : "$PMBadFileDir\\"
+          },
+          {
+            "name" : "Reject filename",
+            "value" : "filelist11.bad"
+          },
+          {
+            "name" : "Create Target Directory",
+            "value" : "NO"
+          },
+          {
+            "name" : "Output Type",
+            "value" : "File"
+          }
+        ],
+        "createTarget" : "true",
+        "fieldMappingMode" : "BY_NAME",
+        "inputSorted" : "false",
+        "schemaProviderType" : "SELECTED_OBJECT",
+        "targetFieldsOrdered" : "false",
+        "updateColumns" : null,
+        "useLabels" : "false",
+        "useSequenceFields" : "false",
+        "dataAdapter" : {
+          "connectionId$" : {
+            "name" : "PMTgtPath"
+          },
+          "excludeDynamicFileNameField" : "false",
+          "objectType" : "SINGLE",
+          "typeSystem" : "TOOLKIT",
+          "useDynamicFileName" : "false",
+          "dataFormat" : {
+            "formatId" : "Flat",
+            "validateHSchema" : "false",
+            "attributes" : [
+              {
+                "name" : "delimiter",
+                "value" : ","
+              },
+              {
+                "name" : "escapeChar",
+                "value" : "\\"
+              },
+              {
+                "name" : "qualifier",
+                "value" : "\""
+              },
+              {
+                "name" : "qualifierMode",
+                "value" : "ALL"
+              },
+              {
+                "name" : "disableEscapeChar",
+                "value" : "false"
+              },
+              {
+                "name" : "codePage",
+                "value" : "UTF-8"
+              },
+              {
+                "name" : "firstDataRow",
+                "value" : "1"
+              },
+              {
+                "name" : "targetHeader",
+                "value" : "Without Header"
+              },
+              {
+                "name" : "importColumnFromFirstLine",
+                "value" : "true"
+              },
+              {
+                "name" : "generateHeader",
+                "value" : "true"
+              },
+              {
+                "name" : "fixedWidthMode",
+                "value" : "false"
+              },
+              {
+                "name" : "maxRowsToPreview",
+                "value" : "0"
+              }
+            ]
+          },
+          "object" : {
+            "name" : "filelist_recheck.out",
+            "label" : "filelist_recheck.out",
+            "path" : "filelist_recheck.out",
+            "retainMetadata" : "false"
+          },
+          "runtimeAttributes" : {
+            "attributes" : [
+              {
+                "name" : "Overwrite File If Exists",
+                "value" : "YES"
+              },
+              {
+                "name" : "Folder Path",
+                "value" : "/tgtfiles"
+              },
+              {
+                "name" : "File Name",
+                "value" : "filelist_recheck.out"
+              },
+              {
+                "name" : "Encryption Type",
+                "value" : "None"
+              },
+              {
+                "name" : "File Merge",
+                "value" : "NO"
+              },
+              {
+                "name" : "Compression Format",
+                "value" : "None"
+              },
+              {
+                "name" : "TransferManager Thread Pool Size",
+                "value" : "10"
+              },
+              {
+                "name" : "Part Size",
+                "value" : "5242880"
+              },
+              {
+                "name" : "Merge Partition Files",
+                "value" : "NO"
+              },
+              {
+                "name" : "Temporary Credential Duration",
+                "value" : "900"
+              }
+            ]
+          },
+          "writeOptions" : {
+            "batchSize" : 0,
+            "bulkApi" : "false",
+            "handleDecimalRoundOff" : "false",
+            "handleSpecialChars" : "false",
+            "operations" : [
+              "Insert",
+              "Insert"
+            ],
+            "setFieldsToNull" : "false",
+            "truncate" : "false",
+            "useErrorFile" : "false",
+            "useExactSrcNames" : "false",
+            "useSuccessFile" : "false"
+          }
+        }
+      },
+      {
+        "createTime" : "2023-11-21T09:53:36.454Z",
+        "name" : "Src_SrcFile1",
+        "advancedProperties" : [
+          {
+            "name" : "Tracing Level",
+            "value" : "Normal"
+          },
+          {
+            "name" : "Output is deterministic",
+            "value" : "false"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "false",
+            "name" : "DefaultGroup",
+            "output" : "true"
+          }
+        ],
+        "generateFilenamePort" : "false",
+        "useLabels" : "false",
+        "useSequenceFields" : "false",
+        "dataAdapter" : {
+          "connectionId$" : {
+            "name" : "PMSrcPath"
+          },
+          "excludeDynamicFileNameField" : "false",
+          "object$" : {
+            "name" : "Src_FileName"
+          },
+          "objectType" : "PARAMETERIZED",
+          "typeSystem" : "TOOLKIT",
+          "useDynamicFileName" : "false",
+          "dataFormat" : {
+            "formatId" : "Flat",
+            "validateHSchema" : "false",
+            "attributes" : [
+              {
+                "name" : "delimiter",
+                "value" : ","
+              },
+              {
+                "name" : "qualifier",
+                "value" : "\""
+              },
+              {
+                "name" : "qualifierMode",
+                "value" : "MINIMAL"
+              },
+              {
+                "name" : "disableEscapeChar",
+                "value" : "true"
+              },
+              {
+                "name" : "codePage",
+                "value" : "UTF-8"
+              },
+              {
+                "name" : "headerLineNumber",
+                "value" : "1"
+              },
+              {
+                "name" : "firstDataRow",
+                "value" : "2"
+              },
+              {
+                "name" : "targetHeader",
+                "value" : "With Header"
+              },
+              {
+                "name" : "importColumnFromFirstLine",
+                "value" : "true"
+              },
+              {
+                "name" : "generateHeader",
+                "value" : "true"
+              },
+              {
+                "name" : "fixedWidthMode",
+                "value" : "false"
+              },
+              {
+                "name" : "maxRowsToPreview",
+                "value" : "0"
+              }
+            ]
+          },
+          "readOptions" : {
+            "commandType" : 0,
+            "descending" : "false",
+            "queryAll" : "false",
+            "rowLimit" : 0,
+            "selectDistinct" : "false"
+          },
+          "runtimeAttributes" : {
+            "attributes" : [
+              {
+                "name" : "Source Type",
+                "value" : "File"
+              },
+              {
+                "name" : "Folder Path",
+                "value" : "/srcfiles"
+              },
+              {
+                "name" : "Allow Wildcard Characters",
+                "value" : "NO"
+              },
+              {
+                "name" : "Enable Recursive Read",
+                "value" : "NO"
+              },
+              {
+                "name" : "Incremental File Load",
+                "value" : "NO"
+              },
+              {
+                "name" : "Encryption Type",
+                "value" : "None"
+              },
+              {
+                "name" : "Compression Format",
+                "value" : "None"
+              },
+              {
+                "name" : "Download Part Size",
+                "value" : "5242880"
+              },
+              {
+                "name" : "Multipart Download Threshold",
+                "value" : "10485760"
+              },
+              {
+                "name" : "Temporary Credential Duration",
+                "value" : "900"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "createTime" : "2023-11-21T09:56:44.573Z",
+        "name" : "expr_Src_SrcFile1",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "windowConfigurationEnabled" : "false",
+        "fields" : [
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "FileName",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 100,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "$$FileName"
+          }
+        ],
+        "windowSpec" : {
+          "allRowsFollowing" : "false",
+          "allRowsPreceding" : "false",
+          "endOffset" : 0,
+          "startOffset" : 0,
+          "partitionKeys" : null
+        }
+      }
+    ],
+    "variables" : [
+      {
+        "aggregationType" : "MAX",
+        "expressionVariable" : "false",
+        "name" : "FileName",
+        "platformType" : {
+          "name" : "string"
+        },
+        "precision" : 100,
+        "retentionPolicy" : "NEVER",
+        "scale" : 0
+      }
+    ]
+  },
+  "vcsExportTime" : "2026-01-31 06:32:15 PST"
+}

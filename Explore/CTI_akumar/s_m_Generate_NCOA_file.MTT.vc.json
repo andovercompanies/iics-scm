@@ -1,0 +1,198 @@
+{
+  "name" : "s_m_Generate_NCOA_file",
+  "description" : "Generate National Change of Address for quarterly certification",
+  "runtimeEnvironmentId" : "@3pADNCV9u0PcgrXjM7rx0t",
+  "runtimeEnvironmentName" : "sag_aws_linux",
+  "maxLogs" : 10,
+  "parameters" : [
+    {
+      "name" : "$SQ_PolicyDetail$",
+      "type" : "SOURCE",
+      "label" : "DBConnection_SRC",
+      "uiProperties" : {
+        "cnxtype" : "Amazon Redshift v2",
+        "connectionParameterized" : "true",
+        "paramName" : "DBConnection_SRC",
+        "paramType-mapping" : "Connection",
+        "logcnx" : "DBConnection_SRC",
+        "isSelectDistinct" : "false",
+        "objectParameterized" : "false",
+        "visible" : "false",
+        "originalPath" : "SQ_PolicyDetail"
+      },
+      "sourceConnectionId" : "@aYZ4ekzHgIPeKpiaoqDLKP",
+      "connectionName" : "redshift_nonprod_andover_dw_dev",
+      "sourceObject" : "DUMMY_SQ_PolicyDetail",
+      "sourceObjectLabel" : "DUMMY_SQ_PolicyDetail",
+      "newFlatFile" : false,
+      "newObject" : false,
+      "showBusinessNames" : true,
+      "naturalOrder" : true,
+      "truncateTarget" : false,
+      "bulkApiDBTarget" : false,
+      "customFuncCfg" : { },
+      "runtimeAttrs" : {
+        "Temporary Credential Duration" : "7200"
+      },
+      "oprRuntimeAttrs" : {
+        "temporaryCredentialDuration" : "7200"
+      },
+      "customQuery" : "SELECT PD.PolicyKey,\n       PD.PolicyID,\n       PD.PolicyNumber,\n       PD.StatusCd,\n       PD.PolicyEffectiveDt,\n       PD.PolicyExpirationDt,\n       PD.PolicyCancelDt,\n       PD.ShellPolicyInd,\n       ID.PolicyKey,\n       ID.PolicyStatus,\n       ID.InsuredId,\n       ID.InsuredName,\n       ID.InsuredAddress1,\n       ID.InsuredAddress2,\n       ID.InsuredCity,\n       ID.InsuredZip,\n       ID.RowEffStrtDt,\n       ID.RowEffEndDt\nFROM dbo.InsuredDetail ID\n         INNER JOIN dbo.PolicyDetail PD ON PD.PolicyKey = ID.PolicyKey\nWHERE ID.RowEffEndDt = '9999-12-31 00:00:00.000'\n  AND PD.ShellPolicyInd IS NULL\n  AND PD.PolicyKey NOT LIKE '%x%'\n  AND ((PD.StatusCd IN ('Active', 'Cancel Notice', 'Renewed', 'Non-Renewed', 'Non-Renew Requested', 'Expired') AND\n        PD.PolicyEffectiveDt <= getdate() AND PD.PolicyExpirationDt > getdate()) OR\n       (StatusCd = 'Cancelled' AND PolicyEffectiveDt <= getdate() AND PolicyCancelDt > getdate()))",
+      "commandType" : 0,
+      "handleSpecialChars" : false,
+      "handleDecimalRoundOff" : false,
+      "frsAsset" : false,
+      "dynamicFileName" : false,
+      "excludeDynamicFileNameField" : false,
+      "currentlyProcessedFileName" : false,
+      "retainFieldMetadata" : false,
+      "objectName" : "DUMMY_SQ_PolicyDetail",
+      "objectLabel" : "DUMMY_SQ_PolicyDetail",
+      "useExactSrcNames" : false,
+      "userUpdated" : true,
+      "runtimeParameterData" : {
+        "connectionParameterName" : "DBConnection_SRC",
+        "connectionRuntimeParameter" : true,
+        "objectRuntimeParameter" : false
+      },
+      "restmodernSource" : true,
+      "unspecified" : false,
+      "fileList" : false
+    },
+    {
+      "name" : "$NCOA$",
+      "type" : "TARGET",
+      "label" : "FF_Conn_Outbound",
+      "uiProperties" : {
+        "cnxtype" : "Amazon S3 v2",
+        "connectionParameterized" : "true",
+        "paramName" : "FF_Conn_Outbound",
+        "paramType-mapping" : "Connection",
+        "logcnx" : "FF_Conn_Outbound",
+        "default" : "$NCOA",
+        "objectParameterized" : "false",
+        "visible" : "false",
+        "supportApplyDDLChanges" : "true",
+        "originalPath" : "NCOA"
+      },
+      "targetConnectionId" : "@2xG9sf0VgfKh3CkghuJRmA",
+      "connectionName" : "conn_s3v2_advr_outbound_data",
+      "targetObject" : "$NCOA",
+      "targetObjectLabel" : "/internal/NCOA/NCOA_%Y%m%d.txt",
+      "newFlatFile" : false,
+      "newObject" : true,
+      "showBusinessNames" : true,
+      "naturalOrder" : true,
+      "newObjectName" : "$NCOA",
+      "truncateTarget" : false,
+      "bulkApiDBTarget" : false,
+      "operationType" : "Insert",
+      "customFuncCfg" : { },
+      "extendedObject" : {
+        "singleMode" : true
+      },
+      "commandType" : 0,
+      "handleSpecialChars" : true,
+      "handleDecimalRoundOff" : false,
+      "frsAsset" : false,
+      "dynamicFileName" : false,
+      "excludeDynamicFileNameField" : false,
+      "currentlyProcessedFileName" : false,
+      "retainFieldMetadata" : false,
+      "objectName" : "$NCOA",
+      "objectLabel" : "/internal/NCOA/NCOA_%Y%m%d.txt",
+      "useExactSrcNames" : false,
+      "userUpdated" : true,
+      "tgtObjectAttributes" : {
+        "parent" : "/internal/NCOA"
+      },
+      "targetSchemaMode" : "DONT_APPLY_CHANGES",
+      "dataFormat" : {
+        "formatId" : "Flat",
+        "fwConfigId" : "@1ZDOuQpqeAMlt57BF2P1Ut",
+        "fwConfigName" : "FW_NCOA",
+        "dataFormatAttributes" : {
+          "escapeChar" : "\\",
+          "importColumnFromFirstLine" : "true",
+          "headerLineNumber" : "1",
+          "maxRowsToPreview" : "0",
+          "qualifierMode" : "MINIMAL",
+          "firstDataRow" : "2",
+          "generateHeader" : "true",
+          "delimiter" : ",",
+          "qualifier" : "\"",
+          "targetHeader" : "With Header",
+          "disableEscapeChar" : "true",
+          "codePage" : "UTF-8",
+          "fixedWidthMode" : "true"
+        }
+      },
+      "runtimeParameterData" : {
+        "connectionParameterName" : "FF_Conn_Outbound",
+        "connectionRuntimeParameter" : true,
+        "objectRuntimeParameter" : false
+      },
+      "targetSchemaProviderType" : "SELECTED_OBJECT",
+      "restmodernSource" : true,
+      "unspecified" : false,
+      "fileList" : false
+    }
+  ],
+  "verbose" : false,
+  "lastRunTime" : 1710437994000,
+  "mappingId" : "@4Sa8ISUeYyjgaHUSbznCsP",
+  "mappingTemplateName" : "m_Generate_NCOA_file",
+  "sessionPropertiesList" : [
+    {
+      "name" : "Allow Temporary Sequence for Pushdown",
+      "value" : "NO"
+    },
+    {
+      "name" : "Allow Temporary View for Pushdown",
+      "value" : "NO"
+    },
+    {
+      "name" : "Commit On End Of File",
+      "value" : "YES"
+    },
+    {
+      "name" : "Data Column Delimiter",
+      "value" : "|"
+    },
+    {
+      "name" : "Error Log File Name",
+      "value" : "PMError.log"
+    },
+    {
+      "name" : "Pushdown Optimization",
+      "value" : "None"
+    },
+    {
+      "name" : "Pushdown Optimization Context",
+      "value" : "None"
+    },
+    {
+      "name" : "Pushdown Optimization Fallback Option",
+      "value" : "Partial PDO"
+    },
+    {
+      "name" : "Stop on errors",
+      "value" : "1"
+    }
+  ],
+  "hidden" : false,
+  "enableCrossSchemaPushdown" : false,
+  "enableParallelRun" : false,
+  "autoTunedApplied" : false,
+  "autoTunedAppliedType" : "NONE",
+  "parameterFileName" : "Andover_Param_GW.param",
+  "parameterFileDir" : "$PMRootDir/andover/parameters",
+  "paramFileType" : "PARAM_FILE_LOCAL",
+  "schemaMode" : "async",
+  "valid" : true,
+  "optimizationPlan" : "NONE",
+  "allowMaxFieldLength" : false,
+  "specialCharacterSupport" : false,
+  "midstreamPreview" : false,
+  "vcsExportTime" : "2026-01-31 06:32:12 PST"
+}

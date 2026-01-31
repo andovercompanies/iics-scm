@@ -1,0 +1,1972 @@
+{
+  "content" : {
+    "allowMaxFieldLength" : "false",
+    "bigIntConvertType" : "ONLY_BIGINT",
+    "documentType" : "MAPPING",
+    "name" : "m_load_Job_Completion_GW_And_PMS",
+    "specialCharacterSupport" : "false",
+    "links" : [
+      {
+        "link" : "src_Job_Completion_GW_And_PMS -> rtr_ins_upd",
+        "groupLink" : "DefaultGroup -> INPUT"
+      },
+      {
+        "link" : "expr_new_insert -> rtr_inserts",
+        "groupLink" : "DefaultGroup -> INPUT"
+      },
+      {
+        "link" : "rtr_ins_upd -> expr_new_insert",
+        "groupLink" : "No_Entry -> DefaultGroup"
+      },
+      {
+        "link" : "rtr_inserts -> tgt_PMS_New_Insert",
+        "groupLink" : "PMS_New_Insert -> DefaultGroup"
+      },
+      {
+        "link" : "rtr_inserts -> tgt_GW_New_Insert",
+        "groupLink" : "GW_New_Insert -> DefaultGroup"
+      },
+      {
+        "link" : "rtr_ins_upd -> expr_upd_PMS_Completion",
+        "groupLink" : "GW_Completed -> DefaultGroup"
+      },
+      {
+        "link" : "rtr_ins_upd -> expr_upd_GW_Completion",
+        "groupLink" : "PMS_Completed -> DefaultGroup"
+      },
+      {
+        "link" : "expr_upd_PMS_Completion -> tgt_upd_PMS_Completion"
+      },
+      {
+        "link" : "expr_upd_GW_Completion -> tgt_upd_GW_Completion"
+      },
+      {
+        "link" : "Sequence -> rtr_inserts",
+        "groupLink" : "DefaultGroup -> INPUT"
+      }
+    ],
+    "parameters" : [
+      {
+        "input" : "true",
+        "output" : "false",
+        "precision" : 0,
+        "scale" : 0,
+        "allowRuntimeOverride" : "true",
+        "expressionVariable" : "false",
+        "name" : "DBConnection_SRC",
+        "anonymousType" : {
+          "subType" : "TOOLKIT_CCI",
+          "typeSystem" : "TOOLKIT",
+          "connectionType" : "Amazon Redshift v2"
+        }
+      },
+      {
+        "input" : "true",
+        "output" : "false",
+        "precision" : 0,
+        "scale" : 0,
+        "allowRuntimeOverride" : "true",
+        "expressionVariable" : "false",
+        "name" : "DBConnection_TGT",
+        "anonymousType" : {
+          "subType" : "TOOLKIT_CCI",
+          "typeSystem" : "TOOLKIT",
+          "connectionType" : "Amazon Redshift v2"
+        }
+      }
+    ],
+    "transformations" : [
+      {
+        "createTime" : "2024-02-21T16:03:54.333Z",
+        "name" : "src_Job_Completion_GW_And_PMS",
+        "advancedProperties" : [
+          {
+            "name" : "Tracing Level",
+            "value" : "Normal"
+          },
+          {
+            "name" : "Output is deterministic",
+            "value" : "false"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "false",
+            "name" : "DefaultGroup",
+            "output" : "true"
+          }
+        ],
+        "generateFilenamePort" : "false",
+        "useLabels" : "false",
+        "useSequenceFields" : "false",
+        "fields" : [
+          {
+            "adapterField" : {
+              "name" : "id"
+            },
+            "name" : "id",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "gw_completion_flg"
+            },
+            "name" : "gw_completion_flg",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "pms_completion_flg"
+            },
+            "name" : "pms_completion_flg",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "gw_completion_time"
+            },
+            "name" : "gw_completion_time",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "pms_completion_time"
+            },
+            "name" : "pms_completion_time",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "action_flg"
+            },
+            "name" : "action_flg",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 10,
+            "scale" : 0
+          }
+        ],
+        "dataAdapter" : {
+          "connectionId$" : {
+            "name" : "DBConnection_SRC"
+          },
+          "excludeDynamicFileNameField" : "false",
+          "objectType" : "QUERY",
+          "typeSystem" : "TOOLKIT",
+          "useDynamicFileName" : "false",
+          "object" : {
+            "customQuery" : "select * from dbo.Job_Completion_GW_And_PMS where id=(select max(id) from dbo.Job_Completion_GW_And_PMS)\n\nUNION ALL\nSELECT \n    CASE \n        WHEN COUNT(*) = 0 THEN 1\n        ELSE NULL\n    END AS Id,\n    CASE \n        WHEN COUNT(*) = 0 THEN 'Y'\n        ELSE NULL\n    END AS GW_Completion_Flg,\n   CASE \n        WHEN COUNT(*) = 0 THEN 'Y'\n        ELSE NULL\n    END AS PMS_Completion_Flg,\n   CASE \n        WHEN COUNT(*) = 0 THEN SYSDATE\n        ELSE NULL\n    END AS GW_Completion_Time,\n   CASE \n        WHEN COUNT(*) = 0 THEN sysdate\n        ELSE NULL\n    END AS PMS_Completion_Flg,\n CASE \n        WHEN COUNT(*) = 0 THEN 'Y'\n        ELSE NULL\n    END AS Action_Flg\n\n  \nFROM dbo.Job_Completion_GW_And_PMS",
+            "retainMetadata" : "false",
+            "fields" : [
+              {
+                "name" : "id",
+                "fieldType" : "CONNECTOR",
+                "label" : "id",
+                "nativeName" : "id",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "gw_completion_flg",
+                "fieldType" : "CONNECTOR",
+                "label" : "gw_completion_flg",
+                "nativeName" : "gw_completion_flg",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "pms_completion_flg",
+                "fieldType" : "CONNECTOR",
+                "label" : "pms_completion_flg",
+                "nativeName" : "pms_completion_flg",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "gw_completion_time",
+                "fieldType" : "CONNECTOR",
+                "label" : "gw_completion_time",
+                "nativeName" : "gw_completion_time",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "pms_completion_time",
+                "fieldType" : "CONNECTOR",
+                "label" : "pms_completion_time",
+                "nativeName" : "pms_completion_time",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "action_flg",
+                "fieldType" : "CONNECTOR",
+                "label" : "action_flg",
+                "nativeName" : "action_flg",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              }
+            ]
+          },
+          "readOptions" : {
+            "commandType" : 0,
+            "descending" : "false",
+            "queryAll" : "false",
+            "rowLimit" : 0,
+            "selectDistinct" : "false"
+          },
+          "runtimeAttributes" : {
+            "attributes" : [
+              {
+                "name" : "Read Mode",
+                "value" : "Direct"
+              },
+              {
+                "name" : "Fetch Size",
+                "value" : "10000"
+              },
+              {
+                "name" : "Enable Compression",
+                "value" : "YES"
+              },
+              {
+                "name" : "Temporary Credential Duration",
+                "value" : "900"
+              },
+              {
+                "name" : "Treat NULL Value as NULL",
+                "value" : "NO"
+              },
+              {
+                "name" : "Encryption Type",
+                "value" : "None"
+              },
+              {
+                "name" : "Download S3 Files In Multiple Parts",
+                "value" : "NO"
+              },
+              {
+                "name" : "Multipart Download Threshold Size",
+                "value" : "5242880"
+              },
+              {
+                "name" : "Select Distinct",
+                "value" : "NO"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "createTime" : "2024-02-21T16:03:54.333Z",
+        "name" : "tgt_PMS_New_Insert",
+        "advancedProperties" : [
+          {
+            "name" : "Forward Rejected Rows",
+            "value" : "true"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "false",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "createTarget" : "false",
+        "fieldMappingMode" : "MANUAL",
+        "inputSorted" : "false",
+        "schemaProviderType" : "SELECTED_OBJECT",
+        "targetFieldsOrdered" : "false",
+        "updateColumns" : null,
+        "useLabels" : "false",
+        "useSequenceFields" : "false",
+        "fields" : [
+          {
+            "adapterField" : {
+              "name" : "id"
+            },
+            "name" : "id",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "gw_completion_flg"
+            },
+            "name" : "gw_completion_flg",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "pms_completion_flg"
+            },
+            "name" : "pms_completion_flg",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "gw_completion_time"
+            },
+            "name" : "gw_completion_time",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "pms_completion_time"
+            },
+            "name" : "pms_completion_time",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "action_flg"
+            },
+            "name" : "action_flg",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 10,
+            "scale" : 0
+          }
+        ],
+        "dataAdapter" : {
+          "connectionId$" : {
+            "name" : "DBConnection_TGT"
+          },
+          "excludeDynamicFileNameField" : "false",
+          "objectType" : "SINGLE",
+          "typeSystem" : "TOOLKIT",
+          "useDynamicFileName" : "false",
+          "object" : {
+            "name" : "dbo/job_completion_gw_and_pms",
+            "label" : "job_completion_gw_and_pms",
+            "objectName" : "job_completion_gw_and_pms",
+            "objectType" : "amazonredshift",
+            "path" : "dbo/job_completion_gw_and_pms",
+            "retainMetadata" : "false",
+            "fields" : [
+              {
+                "name" : "id",
+                "fieldType" : "CONNECTOR",
+                "label" : "id",
+                "nativeName" : "id",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "job_completion_gw_and_pms"
+                  }
+                ]
+              },
+              {
+                "name" : "gw_completion_flg",
+                "fieldType" : "CONNECTOR",
+                "label" : "gw_completion_flg",
+                "nativeName" : "gw_completion_flg",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "job_completion_gw_and_pms"
+                  }
+                ]
+              },
+              {
+                "name" : "pms_completion_flg",
+                "fieldType" : "CONNECTOR",
+                "label" : "pms_completion_flg",
+                "nativeName" : "pms_completion_flg",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "job_completion_gw_and_pms"
+                  }
+                ]
+              },
+              {
+                "name" : "gw_completion_time",
+                "fieldType" : "CONNECTOR",
+                "label" : "gw_completion_time",
+                "nativeName" : "gw_completion_time",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "job_completion_gw_and_pms"
+                  }
+                ]
+              },
+              {
+                "name" : "pms_completion_time",
+                "fieldType" : "CONNECTOR",
+                "label" : "pms_completion_time",
+                "nativeName" : "pms_completion_time",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "job_completion_gw_and_pms"
+                  }
+                ]
+              },
+              {
+                "name" : "action_flg",
+                "fieldType" : "CONNECTOR",
+                "label" : "action_flg",
+                "nativeName" : "action_flg",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "job_completion_gw_and_pms"
+                  }
+                ]
+              }
+            ],
+            "objectAttributes" : [
+              {
+                "name" : "recordType",
+                "value" : "TABLE"
+              }
+            ]
+          },
+          "runtimeAttributes" : {
+            "attributes" : [
+              {
+                "name" : "S3 Bucket Name",
+                "value" : "nonproddatawarehouseredshiftclust-staging12d1754e-1w9c6risqayrf"
+              },
+              {
+                "name" : "Enable Compression",
+                "value" : "YES"
+              },
+              {
+                "name" : "Batch Size",
+                "value" : "2000000"
+              },
+              {
+                "name" : "Max Errors Per Batch Upload Insert",
+                "value" : "1"
+              },
+              {
+                "name" : "Truncate Target Table Before Data Upload",
+                "value" : "NO"
+              },
+              {
+                "name" : "WaitTime In Seconds For S3 File Consistency",
+                "value" : "0"
+              },
+              {
+                "name" : "Temporary Credential Duration",
+                "value" : "900"
+              },
+              {
+                "name" : "S3 Server Side Encryption",
+                "value" : "NO"
+              },
+              {
+                "name" : "S3 Client Side Encryption",
+                "value" : "NO"
+              },
+              {
+                "name" : "Analyze Target Table",
+                "value" : "NO"
+              },
+              {
+                "name" : "Vacuum Target Table",
+                "value" : "None"
+              },
+              {
+                "name" : "Treat Source Rows As",
+                "value" : "INSERT"
+              },
+              {
+                "name" : "Transfer Manager Thread Pool Size",
+                "value" : "10"
+              },
+              {
+                "name" : "Minimum Upload Part Size",
+                "value" : "5242880"
+              },
+              {
+                "name" : "Preserve record order on write",
+                "value" : "NO"
+              },
+              {
+                "name" : "Number of files per batch",
+                "value" : "0"
+              }
+            ]
+          },
+          "writeOptions" : {
+            "batchSize" : 0,
+            "bulkApi" : "false",
+            "handleDecimalRoundOff" : "false",
+            "handleSpecialChars" : "false",
+            "operations" : [
+              "Insert"
+            ],
+            "setFieldsToNull" : "false",
+            "truncate" : "false",
+            "useErrorFile" : "false",
+            "useExactSrcNames" : "false",
+            "useSuccessFile" : "false"
+          }
+        },
+        "manualMappings" : {
+          "mappingList" : [
+            {
+              "fromFieldName" : "ID",
+              "toField" : {
+                "name" : "id"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "Complete_Flag",
+              "toField" : {
+                "name" : "pms_completion_flg"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "Completion_Time",
+              "toField" : {
+                "name" : "pms_completion_time"
+              },
+              "fromFieldNames" : null
+            }
+          ]
+        }
+      },
+      {
+        "createTime" : "2024-02-21T16:28:28.874Z",
+        "name" : "rtr_ins_upd",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "INPUT",
+            "output" : "false",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          },
+          {
+            "input" : "false",
+            "name" : "DEFAULT1",
+            "output" : "true"
+          },
+          {
+            "input" : "false",
+            "name" : "No_Entry",
+            "output" : "true"
+          },
+          {
+            "input" : "false",
+            "name" : "GW_Completed",
+            "output" : "true"
+          },
+          {
+            "input" : "false",
+            "name" : "PMS_Completed",
+            "output" : "true"
+          }
+        ],
+        "groupFilterConditions" : [
+          {
+            "advancedFilterCondition" : "(not isnull(gw_completion_flg) and not isnull(pms_completion_flg)) ",
+            "name" : "No_Entry"
+          },
+          {
+            "advancedFilterCondition" : "not isnull(gw_completion_flg) and isnull(pms_completion_flg)",
+            "name" : "GW_Completed"
+          },
+          {
+            "advancedFilterCondition" : "not isnull(pms_completion_flg) and isnull(gw_completion_flg)",
+            "name" : "PMS_Completed"
+          }
+        ]
+      },
+      {
+        "createTime" : "2024-02-21T16:35:17.348Z",
+        "name" : "rtr_inserts",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "INPUT",
+            "output" : "false",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true",
+                "names" : [
+                  {
+                    "inputName" : "id",
+                    "outputName" : "src_id"
+                  },
+                  {
+                    "inputName" : "NEXTVAL",
+                    "outputName" : "ID"
+                  },
+                  {
+                    "inputName" : "Complete_Flag"
+                  },
+                  {
+                    "inputName" : "Completion_Time"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "input" : "false",
+            "name" : "DEFAULT1",
+            "output" : "true"
+          },
+          {
+            "input" : "false",
+            "name" : "PMS_New_Insert",
+            "output" : "true"
+          },
+          {
+            "input" : "false",
+            "name" : "GW_New_Insert",
+            "output" : "true"
+          }
+        ],
+        "groupFilterConditions" : [
+          {
+            "advancedFilterCondition" : "$$PMWorkflowName='wf_PMS_SQL_Server_To_Redshift'",
+            "name" : "PMS_New_Insert"
+          },
+          {
+            "advancedFilterCondition" : "$$PMWorkflowName='wf_Load_Guidewire_master_tables_Reins' or $$PMWorkflowName='wf_msgr_part1_part2_part3'",
+            "name" : "GW_New_Insert"
+          }
+        ]
+      },
+      {
+        "createTime" : "2024-02-21T16:36:18.324Z",
+        "name" : "expr_new_insert",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true",
+                "names" : [
+                  {
+                    "inputName" : "id"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "windowConfigurationEnabled" : "false",
+        "fields" : [
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "Complete_Flag",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 10,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "'Y'"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "Completion_Time",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9,
+            "expFieldType" : "OUTPUT",
+            "expression" : "SESSSTARTTIME"
+          }
+        ],
+        "windowSpec" : {
+          "allRowsFollowing" : "false",
+          "allRowsPreceding" : "false",
+          "endOffset" : 0,
+          "startOffset" : 0,
+          "partitionKeys" : null
+        }
+      },
+      {
+        "createTime" : "2024-02-21T16:36:45.436Z",
+        "name" : "Sequence",
+        "groups" : [
+          {
+            "input" : "false",
+            "name" : "DefaultGroup",
+            "output" : "true"
+          }
+        ],
+        "midstream" : "false",
+        "state" : {
+          "currentValue" : "1",
+          "cycle" : "false",
+          "endValue" : "9223372036854775807",
+          "incrementBy" : "1",
+          "numberOfCachedValues" : "0",
+          "reset" : "false",
+          "startValue" : "0",
+          "useSharedSequence" : "false"
+        }
+      },
+      {
+        "createTime" : "2024-02-21T16:47:28.744Z",
+        "name" : "tgt_GW_New_Insert",
+        "advancedProperties" : [
+          {
+            "name" : "Forward Rejected Rows",
+            "value" : "true"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "false",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "createTarget" : "false",
+        "fieldMappingMode" : "MANUAL",
+        "inputSorted" : "false",
+        "schemaProviderType" : "SELECTED_OBJECT",
+        "targetFieldsOrdered" : "false",
+        "updateColumns" : null,
+        "useLabels" : "false",
+        "useSequenceFields" : "false",
+        "fields" : [
+          {
+            "adapterField" : {
+              "name" : "id"
+            },
+            "name" : "id",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "gw_completion_flg"
+            },
+            "name" : "gw_completion_flg",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "pms_completion_flg"
+            },
+            "name" : "pms_completion_flg",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "gw_completion_time"
+            },
+            "name" : "gw_completion_time",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "pms_completion_time"
+            },
+            "name" : "pms_completion_time",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "action_flg"
+            },
+            "name" : "action_flg",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 10,
+            "scale" : 0
+          }
+        ],
+        "dataAdapter" : {
+          "connectionId$" : {
+            "name" : "DBConnection_TGT"
+          },
+          "excludeDynamicFileNameField" : "false",
+          "objectType" : "SINGLE",
+          "typeSystem" : "TOOLKIT",
+          "useDynamicFileName" : "false",
+          "object" : {
+            "name" : "dbo/job_completion_gw_and_pms",
+            "label" : "job_completion_gw_and_pms",
+            "objectName" : "job_completion_gw_and_pms",
+            "objectType" : "amazonredshift",
+            "path" : "dbo/job_completion_gw_and_pms",
+            "retainMetadata" : "false",
+            "fields" : [
+              {
+                "name" : "id",
+                "fieldType" : "CONNECTOR",
+                "label" : "id",
+                "nativeName" : "id",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "job_completion_gw_and_pms"
+                  }
+                ]
+              },
+              {
+                "name" : "gw_completion_flg",
+                "fieldType" : "CONNECTOR",
+                "label" : "gw_completion_flg",
+                "nativeName" : "gw_completion_flg",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "job_completion_gw_and_pms"
+                  }
+                ]
+              },
+              {
+                "name" : "pms_completion_flg",
+                "fieldType" : "CONNECTOR",
+                "label" : "pms_completion_flg",
+                "nativeName" : "pms_completion_flg",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "job_completion_gw_and_pms"
+                  }
+                ]
+              },
+              {
+                "name" : "gw_completion_time",
+                "fieldType" : "CONNECTOR",
+                "label" : "gw_completion_time",
+                "nativeName" : "gw_completion_time",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "job_completion_gw_and_pms"
+                  }
+                ]
+              },
+              {
+                "name" : "pms_completion_time",
+                "fieldType" : "CONNECTOR",
+                "label" : "pms_completion_time",
+                "nativeName" : "pms_completion_time",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "job_completion_gw_and_pms"
+                  }
+                ]
+              },
+              {
+                "name" : "action_flg",
+                "fieldType" : "CONNECTOR",
+                "label" : "action_flg",
+                "nativeName" : "action_flg",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "job_completion_gw_and_pms"
+                  }
+                ]
+              }
+            ],
+            "objectAttributes" : [
+              {
+                "name" : "recordType",
+                "value" : "TABLE"
+              }
+            ]
+          },
+          "runtimeAttributes" : {
+            "attributes" : [
+              {
+                "name" : "S3 Bucket Name",
+                "value" : "nonproddatawarehouseredshiftclust-staging12d1754e-1w9c6risqayrf"
+              },
+              {
+                "name" : "Enable Compression",
+                "value" : "YES"
+              },
+              {
+                "name" : "Batch Size",
+                "value" : "2000000"
+              },
+              {
+                "name" : "Max Errors Per Batch Upload Insert",
+                "value" : "1"
+              },
+              {
+                "name" : "Truncate Target Table Before Data Upload",
+                "value" : "NO"
+              },
+              {
+                "name" : "WaitTime In Seconds For S3 File Consistency",
+                "value" : "0"
+              },
+              {
+                "name" : "Temporary Credential Duration",
+                "value" : "900"
+              },
+              {
+                "name" : "S3 Server Side Encryption",
+                "value" : "NO"
+              },
+              {
+                "name" : "S3 Client Side Encryption",
+                "value" : "NO"
+              },
+              {
+                "name" : "Analyze Target Table",
+                "value" : "NO"
+              },
+              {
+                "name" : "Vacuum Target Table",
+                "value" : "None"
+              },
+              {
+                "name" : "Treat Source Rows As",
+                "value" : "INSERT"
+              },
+              {
+                "name" : "Transfer Manager Thread Pool Size",
+                "value" : "10"
+              },
+              {
+                "name" : "Minimum Upload Part Size",
+                "value" : "5242880"
+              },
+              {
+                "name" : "Preserve record order on write",
+                "value" : "NO"
+              },
+              {
+                "name" : "Number of files per batch",
+                "value" : "0"
+              }
+            ]
+          },
+          "writeOptions" : {
+            "batchSize" : 0,
+            "bulkApi" : "false",
+            "handleDecimalRoundOff" : "false",
+            "handleSpecialChars" : "false",
+            "operations" : [
+              "Insert"
+            ],
+            "setFieldsToNull" : "false",
+            "truncate" : "false",
+            "useErrorFile" : "false",
+            "useExactSrcNames" : "false",
+            "useSuccessFile" : "false"
+          }
+        },
+        "manualMappings" : {
+          "mappingList" : [
+            {
+              "fromFieldName" : "ID",
+              "toField" : {
+                "name" : "id"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "Complete_Flag",
+              "toField" : {
+                "name" : "gw_completion_flg"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "Completion_Time",
+              "toField" : {
+                "name" : "gw_completion_time"
+              },
+              "fromFieldNames" : null
+            }
+          ]
+        }
+      },
+      {
+        "createTime" : "2024-02-21T17:21:14.966Z",
+        "name" : "expr_upd_PMS_Completion",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true",
+                "names" : [
+                  {
+                    "inputName" : "id"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "windowConfigurationEnabled" : "false",
+        "fields" : [
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "Complete_Flag",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 10,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "'Y'"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "Completion_Time",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9,
+            "expFieldType" : "OUTPUT",
+            "expression" : "SESSSTARTTIME"
+          }
+        ],
+        "windowSpec" : {
+          "allRowsFollowing" : "false",
+          "allRowsPreceding" : "false",
+          "endOffset" : 0,
+          "startOffset" : 0,
+          "partitionKeys" : null
+        }
+      },
+      {
+        "createTime" : "2024-02-21T17:21:19.834Z",
+        "name" : "expr_upd_GW_Completion",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true",
+                "names" : [
+                  {
+                    "inputName" : "id"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "windowConfigurationEnabled" : "false",
+        "fields" : [
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "Complete_Flag",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 10,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "'Y'"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "Completion_Time",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9,
+            "expFieldType" : "OUTPUT",
+            "expression" : "SESSSTARTTIME"
+          }
+        ],
+        "windowSpec" : {
+          "allRowsFollowing" : "false",
+          "allRowsPreceding" : "false",
+          "endOffset" : 0,
+          "startOffset" : 0,
+          "partitionKeys" : null
+        }
+      },
+      {
+        "createTime" : "2024-02-21T17:23:52.934Z",
+        "name" : "tgt_upd_PMS_Completion",
+        "advancedProperties" : [
+          {
+            "name" : "Forward Rejected Rows",
+            "value" : "true"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "false",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "createTarget" : "false",
+        "fieldMappingMode" : "MANUAL",
+        "inputSorted" : "false",
+        "schemaProviderType" : "SELECTED_OBJECT",
+        "targetFieldsOrdered" : "false",
+        "updateColumns" : [
+          "id"
+        ],
+        "useLabels" : "false",
+        "useSequenceFields" : "false",
+        "fields" : [
+          {
+            "adapterField" : {
+              "name" : "id"
+            },
+            "name" : "id",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "gw_completion_flg"
+            },
+            "name" : "gw_completion_flg",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "pms_completion_flg"
+            },
+            "name" : "pms_completion_flg",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "gw_completion_time"
+            },
+            "name" : "gw_completion_time",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "pms_completion_time"
+            },
+            "name" : "pms_completion_time",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "action_flg"
+            },
+            "name" : "action_flg",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 10,
+            "scale" : 0
+          }
+        ],
+        "dataAdapter" : {
+          "connectionId$" : {
+            "name" : "DBConnection_TGT"
+          },
+          "excludeDynamicFileNameField" : "false",
+          "objectType" : "SINGLE",
+          "typeSystem" : "TOOLKIT",
+          "useDynamicFileName" : "false",
+          "bulkOptions" : {
+            "hardDelete" : "false",
+            "maxRowsPerRequest" : 0,
+            "monitorBulk" : "false",
+            "monitorBulkV2" : "false",
+            "pkChunkingEnabled" : "false",
+            "pkChunkingSize" : 0,
+            "serialMode" : "false",
+            "useBulkApi" : "false",
+            "useBulkApiV2" : "false"
+          },
+          "object" : {
+            "name" : "dbo/job_completion_gw_and_pms",
+            "label" : "job_completion_gw_and_pms",
+            "objectName" : "job_completion_gw_and_pms",
+            "objectType" : "amazonredshift",
+            "path" : "dbo/job_completion_gw_and_pms",
+            "retainMetadata" : "false",
+            "fields" : [
+              {
+                "name" : "id",
+                "fieldType" : "CONNECTOR",
+                "label" : "id",
+                "nativeName" : "id",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "job_completion_gw_and_pms"
+                  }
+                ]
+              },
+              {
+                "name" : "gw_completion_flg",
+                "fieldType" : "CONNECTOR",
+                "label" : "gw_completion_flg",
+                "nativeName" : "gw_completion_flg",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "job_completion_gw_and_pms"
+                  }
+                ]
+              },
+              {
+                "name" : "pms_completion_flg",
+                "fieldType" : "CONNECTOR",
+                "label" : "pms_completion_flg",
+                "nativeName" : "pms_completion_flg",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "job_completion_gw_and_pms"
+                  }
+                ]
+              },
+              {
+                "name" : "gw_completion_time",
+                "fieldType" : "CONNECTOR",
+                "label" : "gw_completion_time",
+                "nativeName" : "gw_completion_time",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "job_completion_gw_and_pms"
+                  }
+                ]
+              },
+              {
+                "name" : "pms_completion_time",
+                "fieldType" : "CONNECTOR",
+                "label" : "pms_completion_time",
+                "nativeName" : "pms_completion_time",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "job_completion_gw_and_pms"
+                  }
+                ]
+              },
+              {
+                "name" : "action_flg",
+                "fieldType" : "CONNECTOR",
+                "label" : "action_flg",
+                "nativeName" : "action_flg",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "job_completion_gw_and_pms"
+                  }
+                ]
+              }
+            ],
+            "objectAttributes" : [
+              {
+                "name" : "recordType",
+                "value" : "TABLE"
+              }
+            ]
+          },
+          "runtimeAttributes" : {
+            "attributes" : [
+              {
+                "name" : "S3 Bucket Name",
+                "value" : "nonproddatawarehouseredshiftclust-staging12d1754e-1w9c6risqayrf"
+              },
+              {
+                "name" : "Enable Compression",
+                "value" : "YES"
+              },
+              {
+                "name" : "Batch Size",
+                "value" : "2000000"
+              },
+              {
+                "name" : "Max Errors Per Batch Upload Insert",
+                "value" : "1"
+              },
+              {
+                "name" : "Truncate Target Table Before Data Upload",
+                "value" : "NO"
+              },
+              {
+                "name" : "WaitTime In Seconds For S3 File Consistency",
+                "value" : "0"
+              },
+              {
+                "name" : "Temporary Credential Duration",
+                "value" : "900"
+              },
+              {
+                "name" : "S3 Server Side Encryption",
+                "value" : "NO"
+              },
+              {
+                "name" : "S3 Client Side Encryption",
+                "value" : "NO"
+              },
+              {
+                "name" : "Analyze Target Table",
+                "value" : "NO"
+              },
+              {
+                "name" : "Vacuum Target Table",
+                "value" : "None"
+              },
+              {
+                "name" : "Treat Source Rows As",
+                "value" : "UPDATE"
+              },
+              {
+                "name" : "Transfer Manager Thread Pool Size",
+                "value" : "10"
+              },
+              {
+                "name" : "Minimum Upload Part Size",
+                "value" : "5242880"
+              },
+              {
+                "name" : "Preserve record order on write",
+                "value" : "NO"
+              },
+              {
+                "name" : "Number of files per batch",
+                "value" : "0"
+              }
+            ]
+          },
+          "writeOptions" : {
+            "batchSize" : 0,
+            "bulkApi" : "false",
+            "handleDecimalRoundOff" : "false",
+            "handleSpecialChars" : "false",
+            "operations" : [
+              "Update"
+            ],
+            "setFieldsToNull" : "false",
+            "truncate" : "false",
+            "useErrorFile" : "false",
+            "useExactSrcNames" : "false",
+            "useSuccessFile" : "false"
+          }
+        },
+        "manualMappings" : {
+          "mappingList" : [
+            {
+              "fromFieldName" : "id",
+              "toField" : {
+                "name" : "id"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "Complete_Flag",
+              "toField" : {
+                "name" : "pms_completion_flg"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "Completion_Time",
+              "toField" : {
+                "name" : "pms_completion_time"
+              },
+              "fromFieldNames" : null
+            }
+          ]
+        }
+      },
+      {
+        "createTime" : "2024-02-21T17:23:54.782Z",
+        "name" : "tgt_upd_GW_Completion",
+        "advancedProperties" : [
+          {
+            "name" : "Forward Rejected Rows",
+            "value" : "true"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "false",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "createTarget" : "false",
+        "fieldMappingMode" : "MANUAL",
+        "inputSorted" : "false",
+        "schemaProviderType" : "SELECTED_OBJECT",
+        "targetFieldsOrdered" : "false",
+        "updateColumns" : [
+          "id"
+        ],
+        "useLabels" : "false",
+        "useSequenceFields" : "false",
+        "fields" : [
+          {
+            "adapterField" : {
+              "name" : "id"
+            },
+            "name" : "id",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "gw_completion_flg"
+            },
+            "name" : "gw_completion_flg",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "pms_completion_flg"
+            },
+            "name" : "pms_completion_flg",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "gw_completion_time"
+            },
+            "name" : "gw_completion_time",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "pms_completion_time"
+            },
+            "name" : "pms_completion_time",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "action_flg"
+            },
+            "name" : "action_flg",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 10,
+            "scale" : 0
+          }
+        ],
+        "dataAdapter" : {
+          "connectionId$" : {
+            "name" : "DBConnection_TGT"
+          },
+          "excludeDynamicFileNameField" : "false",
+          "objectType" : "SINGLE",
+          "typeSystem" : "TOOLKIT",
+          "useDynamicFileName" : "false",
+          "bulkOptions" : {
+            "hardDelete" : "false",
+            "maxRowsPerRequest" : 0,
+            "monitorBulk" : "false",
+            "monitorBulkV2" : "false",
+            "pkChunkingEnabled" : "false",
+            "pkChunkingSize" : 0,
+            "serialMode" : "false",
+            "useBulkApi" : "false",
+            "useBulkApiV2" : "false"
+          },
+          "object" : {
+            "name" : "dbo/job_completion_gw_and_pms",
+            "label" : "job_completion_gw_and_pms",
+            "objectName" : "job_completion_gw_and_pms",
+            "objectType" : "amazonredshift",
+            "path" : "dbo/job_completion_gw_and_pms",
+            "retainMetadata" : "false",
+            "fields" : [
+              {
+                "name" : "id",
+                "fieldType" : "CONNECTOR",
+                "label" : "id",
+                "nativeName" : "id",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "job_completion_gw_and_pms"
+                  }
+                ]
+              },
+              {
+                "name" : "gw_completion_flg",
+                "fieldType" : "CONNECTOR",
+                "label" : "gw_completion_flg",
+                "nativeName" : "gw_completion_flg",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "job_completion_gw_and_pms"
+                  }
+                ]
+              },
+              {
+                "name" : "pms_completion_flg",
+                "fieldType" : "CONNECTOR",
+                "label" : "pms_completion_flg",
+                "nativeName" : "pms_completion_flg",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "job_completion_gw_and_pms"
+                  }
+                ]
+              },
+              {
+                "name" : "gw_completion_time",
+                "fieldType" : "CONNECTOR",
+                "label" : "gw_completion_time",
+                "nativeName" : "gw_completion_time",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "job_completion_gw_and_pms"
+                  }
+                ]
+              },
+              {
+                "name" : "pms_completion_time",
+                "fieldType" : "CONNECTOR",
+                "label" : "pms_completion_time",
+                "nativeName" : "pms_completion_time",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "job_completion_gw_and_pms"
+                  }
+                ]
+              },
+              {
+                "name" : "action_flg",
+                "fieldType" : "CONNECTOR",
+                "label" : "action_flg",
+                "nativeName" : "action_flg",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "job_completion_gw_and_pms"
+                  }
+                ]
+              }
+            ],
+            "objectAttributes" : [
+              {
+                "name" : "recordType",
+                "value" : "TABLE"
+              }
+            ]
+          },
+          "runtimeAttributes" : {
+            "attributes" : [
+              {
+                "name" : "S3 Bucket Name",
+                "value" : "nonproddatawarehouseredshiftclust-staging12d1754e-1w9c6risqayrf"
+              },
+              {
+                "name" : "Enable Compression",
+                "value" : "YES"
+              },
+              {
+                "name" : "Batch Size",
+                "value" : "2000000"
+              },
+              {
+                "name" : "Max Errors Per Batch Upload Insert",
+                "value" : "1"
+              },
+              {
+                "name" : "Truncate Target Table Before Data Upload",
+                "value" : "NO"
+              },
+              {
+                "name" : "WaitTime In Seconds For S3 File Consistency",
+                "value" : "0"
+              },
+              {
+                "name" : "Temporary Credential Duration",
+                "value" : "900"
+              },
+              {
+                "name" : "S3 Server Side Encryption",
+                "value" : "NO"
+              },
+              {
+                "name" : "S3 Client Side Encryption",
+                "value" : "NO"
+              },
+              {
+                "name" : "Analyze Target Table",
+                "value" : "NO"
+              },
+              {
+                "name" : "Vacuum Target Table",
+                "value" : "None"
+              },
+              {
+                "name" : "Treat Source Rows As",
+                "value" : "UPDATE"
+              },
+              {
+                "name" : "Transfer Manager Thread Pool Size",
+                "value" : "10"
+              },
+              {
+                "name" : "Minimum Upload Part Size",
+                "value" : "5242880"
+              },
+              {
+                "name" : "Preserve record order on write",
+                "value" : "NO"
+              },
+              {
+                "name" : "Number of files per batch",
+                "value" : "0"
+              }
+            ]
+          },
+          "writeOptions" : {
+            "batchSize" : 0,
+            "bulkApi" : "false",
+            "handleDecimalRoundOff" : "false",
+            "handleSpecialChars" : "false",
+            "operations" : [
+              "Update"
+            ],
+            "setFieldsToNull" : "false",
+            "truncate" : "false",
+            "useErrorFile" : "false",
+            "useExactSrcNames" : "false",
+            "useSuccessFile" : "false"
+          }
+        },
+        "manualMappings" : {
+          "mappingList" : [
+            {
+              "fromFieldName" : "id",
+              "toField" : {
+                "name" : "id"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "Completion_Time",
+              "toField" : {
+                "name" : "gw_completion_time"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "Complete_Flag",
+              "toField" : {
+                "name" : "gw_completion_flg"
+              },
+              "fromFieldNames" : null
+            }
+          ]
+        }
+      }
+    ],
+    "variables" : [
+      {
+        "aggregationType" : "MAX",
+        "expressionVariable" : "false",
+        "name" : "PMWorkflowName",
+        "platformType" : {
+          "name" : "string"
+        },
+        "precision" : 1000,
+        "retentionPolicy" : "NEVER",
+        "scale" : 0
+      }
+    ]
+  },
+  "vcsExportTime" : "2026-01-31 06:32:14 PST"
+}

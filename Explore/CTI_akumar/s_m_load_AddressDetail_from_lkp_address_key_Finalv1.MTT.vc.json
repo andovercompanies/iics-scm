@@ -1,0 +1,214 @@
+{
+  "name" : "s_m_load_AddressDetail_from_lkp_address_key_Finalv1",
+  "runtimeEnvironmentId" : "@3pADNCV9u0PcgrXjM7rx0t",
+  "runtimeEnvironmentName" : "sag_aws_linux",
+  "maxLogs" : 10,
+  "parameters" : [
+    {
+      "name" : "$Src_Lkp_Address_Key$",
+      "type" : "SOURCE",
+      "label" : "Src_Lkp_Address_Key",
+      "uiProperties" : {
+        "connectionParameterized" : "false",
+        "isSelectDistinct" : "false",
+        "objectParameterized" : "false",
+        "visible" : "false",
+        "originalPath" : "Src_Lkp_Address_Key"
+      },
+      "sourceConnectionId" : "@aYZ4ekzHgIPeKpiaoqDLKP",
+      "connectionName" : "redshift_nonprod_andover_dw_dev",
+      "sourceObject" : "DUMMY_Src_Lkp_Address_Key",
+      "newFlatFile" : false,
+      "newObject" : false,
+      "showBusinessNames" : false,
+      "naturalOrder" : true,
+      "truncateTarget" : false,
+      "bulkApiDBTarget" : false,
+      "customFuncCfg" : { },
+      "oprRuntimeAttrs" : {
+        "selectDistinct" : "NO",
+        "EncryptionType" : "None",
+        "EnableCompression" : "YES",
+        "fetchSize" : "10000",
+        "multipartDownloadThreshold" : "5242880",
+        "temporaryCredentialDuration" : "10800",
+        "TreatNullValueAsNull" : "NO",
+        "DownloadS3FilesInMultipleParts" : "NO",
+        "readMode" : "Direct"
+      },
+      "customQuery" : "SELECT address_key,address_line,\n    SPLIT_PART(address_line, ',', 1) AS Address_Line1,\n    SPLIT_PART(address_line, ',', 2) AS Address_Line2,\n    SPLIT_PART(address_line, ',', 3) AS Address_Line3,\n    SPLIT_PART(address_line, ',', 4) AS Address_Line4,\n    SPLIT_PART(address_line, ',', 5) AS CITY,\n    SPLIT_PART(address_line, ',', 6) AS STATE,\n    SPLIT_PART(address_line, ',', 7) AS ZIP_CODE\nFROM dbo.lkp_address_key where address_key in (select address_Key from (SELECT address_key, LENGTH(address_line) - LENGTH(REPLACE(address_line, ',', '')) AS comma_count\n                      from dbo.lkp_address_key\n  where comma_count=6 )) ;",
+      "commandType" : 0,
+      "handleSpecialChars" : false,
+      "handleDecimalRoundOff" : false,
+      "frsAsset" : false,
+      "dynamicFileName" : false,
+      "excludeDynamicFileNameField" : false,
+      "currentlyProcessedFileName" : false,
+      "retainFieldMetadata" : false,
+      "objectName" : "DUMMY_Src_Lkp_Address_Key",
+      "useExactSrcNames" : false,
+      "userUpdated" : true,
+      "runtimeParameterData" : {
+        "connectionRuntimeParameter" : false,
+        "objectRuntimeParameter" : false
+      },
+      "restmodernSource" : true,
+      "unspecified" : false,
+      "fileList" : false
+    },
+    {
+      "name" : "$Target$",
+      "type" : "TARGET",
+      "label" : "Target",
+      "uiProperties" : {
+        "connectionParameterized" : "false",
+        "objectParameterized" : "false",
+        "visible" : "false",
+        "supportApplyDDLChanges" : "true",
+        "originalPath" : "Target"
+      },
+      "targetConnectionId" : "@4PR5UG8LgQbgjcPh0nvIgA",
+      "connectionName" : "conn_s3v2_advr_inbound_data",
+      "targetObject" : "/temp/address_verifier.txt",
+      "targetObjectLabel" : "/temp/address_verifier.txt",
+      "newFlatFile" : false,
+      "newObject" : true,
+      "showBusinessNames" : false,
+      "naturalOrder" : true,
+      "newObjectName" : "/temp/address_verifier.txt",
+      "truncateTarget" : false,
+      "bulkApiDBTarget" : false,
+      "operationType" : "Insert",
+      "customFuncCfg" : { },
+      "extendedObject" : {
+        "singleMode" : true
+      },
+      "commandType" : 0,
+      "handleSpecialChars" : false,
+      "handleDecimalRoundOff" : false,
+      "frsAsset" : false,
+      "dynamicFileName" : false,
+      "excludeDynamicFileNameField" : false,
+      "currentlyProcessedFileName" : false,
+      "retainFieldMetadata" : false,
+      "objectName" : "/temp/address_verifier.txt",
+      "objectLabel" : "/temp/address_verifier.txt",
+      "useExactSrcNames" : false,
+      "userUpdated" : true,
+      "tgtObjectAttributes" : {
+        "parent" : "/temp"
+      },
+      "dataFormat" : {
+        "formatId" : "Flat",
+        "dataFormatAttributes" : {
+          "escapeChar" : "\\",
+          "importColumnFromFirstLine" : "true",
+          "headerLineNumber" : "1",
+          "maxRowsToPreview" : "0",
+          "qualifierMode" : "MINIMAL",
+          "firstDataRow" : "2",
+          "generateHeader" : "true",
+          "delimiter" : ",",
+          "qualifier" : "\"",
+          "targetHeader" : "With Header",
+          "disableEscapeChar" : "true",
+          "codePage" : "UTF-8",
+          "fixedWidthMode" : "false"
+        }
+      },
+      "runtimeParameterData" : {
+        "connectionRuntimeParameter" : false,
+        "objectRuntimeParameter" : false
+      },
+      "restmodernSource" : true,
+      "unspecified" : false,
+      "fileList" : false
+    },
+    {
+      "name" : "$Tgt_Address_Detail$",
+      "type" : "TARGET",
+      "label" : "DBConnection_TGT",
+      "uiProperties" : {
+        "cnxtype" : "Amazon Redshift v2",
+        "connectionParameterized" : "true",
+        "paramName" : "DBConnection_TGT",
+        "paramType-mapping" : "Connection",
+        "logcnx" : "DBConnection_TGT",
+        "default" : "dbo/addressdetail",
+        "objectParameterized" : "false",
+        "visible" : "false",
+        "defaultTargetUpdateColumns" : "addresskey",
+        "supportApplyDDLChanges" : "false",
+        "originalPath" : "Tgt_Address_Detail"
+      },
+      "targetConnectionId" : "@aYZ4ekzHgIPeKpiaoqDLKP",
+      "connectionName" : "redshift_nonprod_andover_dw_dev",
+      "targetObject" : "dbo/addressdetail",
+      "targetObjectLabel" : "addressdetail",
+      "newFlatFile" : false,
+      "newObject" : false,
+      "showBusinessNames" : true,
+      "naturalOrder" : true,
+      "truncateTarget" : false,
+      "bulkApiDBTarget" : false,
+      "operationType" : "Rowbased",
+      "customFuncCfg" : { },
+      "targetUpdateColumns" : [
+        "addresskey"
+      ],
+      "extendedObject" : {
+        "singleMode" : true
+      },
+      "commandType" : 0,
+      "handleSpecialChars" : false,
+      "handleDecimalRoundOff" : false,
+      "frsAsset" : false,
+      "dynamicFileName" : false,
+      "excludeDynamicFileNameField" : false,
+      "currentlyProcessedFileName" : false,
+      "retainFieldMetadata" : false,
+      "objectName" : "dbo/addressdetail",
+      "objectLabel" : "addressdetail",
+      "useExactSrcNames" : false,
+      "userUpdated" : true,
+      "runtimeParameterData" : {
+        "connectionParameterName" : "DBConnection_TGT",
+        "connectionRuntimeParameter" : true,
+        "objectRuntimeParameter" : false
+      },
+      "restmodernSource" : true,
+      "unspecified" : false,
+      "fileList" : false
+    }
+  ],
+  "verbose" : false,
+  "mappingId" : "@4FHirtKoEQQfQ3zgioGpmQ",
+  "mappingTemplateName" : "m_load_AddressDetail_from_lkp_address_key_Finalv1",
+  "sessionPropertiesList" : [
+    {
+      "name" : "Pushdown Optimization",
+      "value" : "None"
+    },
+    {
+      "name" : "Pushdown Optimization Context",
+      "value" : "None"
+    },
+    {
+      "name" : "Pushdown Optimization Fallback Option",
+      "value" : "Partial PDO"
+    }
+  ],
+  "hidden" : false,
+  "enableCrossSchemaPushdown" : true,
+  "enableParallelRun" : false,
+  "autoTunedApplied" : false,
+  "autoTunedAppliedType" : "NONE",
+  "paramFileType" : "PARAM_FILE_LOCAL",
+  "schemaMode" : "async",
+  "valid" : true,
+  "optimizationPlan" : "NONE",
+  "allowMaxFieldLength" : false,
+  "specialCharacterSupport" : false,
+  "midstreamPreview" : false,
+  "vcsExportTime" : "2026-01-31 06:32:11 PST"
+}
