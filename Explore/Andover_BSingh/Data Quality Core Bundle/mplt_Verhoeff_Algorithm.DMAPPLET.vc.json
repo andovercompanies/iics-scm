@@ -1,0 +1,199 @@
+{
+  "content" : {
+    "description" : "Validates the check digit of a number according to the Verhoeff Algorithm. Returns valid if the check digit (the final digit of the input) is correct. Returns invalid for incorrect check digits and for all non-numeric input.",
+    "allowMaxFieldLength" : "false",
+    "documentType" : "DMAPPLET",
+    "name" : "mplt_Verhoeff_Algorithm",
+    "specialCharacterSupport" : "false",
+    "links" : [
+      {
+        "link" : "Input -> dq_Length_and_Numeric_Check"
+      },
+      {
+        "link" : "dq_Length_and_Numeric_Check -> java_verhoeff_checksum"
+      },
+      {
+        "link" : "java_verhoeff_checksum -> Output"
+      }
+    ],
+    "transformations" : [
+      {
+        "createTime" : "2020-11-13T08:01:30.497Z",
+        "name" : "Input",
+        "groups" : [
+          {
+            "input" : "false",
+            "name" : "DefaultGroup",
+            "output" : "true"
+          }
+        ],
+        "fields" : [
+          {
+            "name" : "In_UID",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 255,
+            "scale" : 0
+          }
+        ]
+      },
+      {
+        "createTime" : "2020-11-13T08:01:30.503Z",
+        "name" : "Output",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "false",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "fieldMappingMode" : "MANUAL",
+        "fields" : [
+          {
+            "name" : "Output_Status",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 255,
+            "scale" : 0
+          }
+        ],
+        "manualMappings" : {
+          "mappingList" : [
+            {
+              "fromFieldName" : "Out_Status",
+              "toField" : {
+                "name" : "Output_Status"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "createTime" : "2020-11-13T08:03:45.982Z",
+        "name" : "dq_Length_and_Numeric_Check",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "windowConfigurationEnabled" : "false",
+        "fields" : [
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "Out_UID",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 255,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "iif(is_Number(In_UID),In_UID,'000000000000')"
+          }
+        ],
+        "windowSpec" : {
+          "allRowsFollowing" : "false",
+          "allRowsPreceding" : "false",
+          "endOffset" : 0,
+          "startOffset" : 0,
+          "partitionKeys" : null
+        }
+      },
+      {
+        "createTime" : "2020-11-13T11:28:38.725Z",
+        "name" : "java_verhoeff_checksum",
+        "advancedProperties" : [
+          {
+            "name" : "Tracing Level",
+            "value" : "Normal"
+          },
+          {
+            "name" : "Transformation Scope",
+            "value" : "Row"
+          },
+          {
+            "name" : "Update Strategy Transformation",
+            "value" : "false"
+          },
+          {
+            "name" : "Enable_High_Precision",
+            "value" : "false"
+          },
+          {
+            "name" : "Optional",
+            "value" : "false"
+          },
+          {
+            "name" : "Is Active",
+            "value" : "false"
+          },
+          {
+            "name" : "Use_Nano_Seconds_In_Datetime",
+            "value" : "false"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true",
+                "names" : [
+                  {
+                    "inputName" : "Out_UID",
+                    "outputName" : "Input_UID"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "helperCodeSnippet" : "// ToDo: Declare static and non-static  partition level variables and functions here\n// For example,\n// \n// static int countNullRows;            // counts the number of output rows across all partitions containing null values\n// int partCountNullRows;               // counts the number of output rows in this partition containing null values\n// \n// static Object lock = new Object();   // lock to synchronize countNullRows\n\n// Dihedal table\nstatic int[][] d  = new int[][]\n                {\n                        {0, 1, 2, 3, 4, 5, 6, 7, 8, 9},\n                        {1, 2, 3, 4, 0, 6, 7, 8, 9, 5},\n                        {2, 3, 4, 0, 1, 7, 8, 9, 5, 6},\n                        {3, 4, 0, 1, 2, 8, 9, 5, 6, 7},\n                        {4, 0, 1, 2, 3, 9, 5, 6, 7, 8},\n                        {5, 9, 8, 7, 6, 0, 4, 3, 2, 1},\n                        {6, 5, 9, 8, 7, 1, 0, 4, 3, 2},\n                        {7, 6, 5, 9, 8, 2, 1, 0, 4, 3},\n                        {8, 7, 6, 5, 9, 3, 2, 1, 0, 4},\n                        {9, 8, 7, 6, 5, 4, 3, 2, 1, 0}\n                };\n                \n// Permutation table\nstatic int[][] p = new int[][]\n                {\n                        {0, 1, 2, 3, 4, 5, 6, 7, 8, 9},\n                        {1, 5, 7, 6, 2, 8, 3, 0, 9, 4},\n                        {5, 8, 0, 3, 7, 9, 6, 1, 4, 2},\n                        {8, 9, 1, 6, 0, 4, 3, 5, 2, 7},\n                        {9, 4, 5, 3, 1, 2, 6, 8, 7, 0},\n                        {4, 2, 8, 6, 5, 7, 3, 9, 0, 1},\n                        {2, 7, 9, 3, 8, 0, 6, 4, 1, 5},\n                        {7, 0, 4, 6, 9, 1, 3, 2, 5, 8}\n                };\n\n// Inverse table\nstatic int[] inv = {0, 4, 3, 2, 1, 5, 6, 7, 8, 9};\n\npublic static boolean validateVerhoeff(String num){\n            int c = 0;\n            int[] myArray = StringToReversedIntArray(num);\n            for (int i = 0; i < myArray.length; i++){\n                c = d[c][p[(i % 8)][myArray[i]]];\n            }\n\n            return (c == 0);\n}\nprivate static int[] StringToReversedIntArray(String num){\n            int[] myArray = new int[num.length()];\n            for(int i = 0; i < num.length(); i++){\n                myArray[i] = Integer.parseInt(num.substring(i, i + 1));\n            }\n            myArray = Reverse(myArray);\n            return myArray;\n}\nprivate static int[] Reverse(int[] myArray){\n            int[] reversed = new int[myArray.length];\n            for(int i = 0; i < myArray.length ; i++){\n                reversed[i] = myArray[myArray.length - (i + 1)];\n            }\n            return reversed;\n}\n\n",
+        "importPackagesSnippet" : "// ToDo: Enter the Java packages to be  imported here\n// For example, if you want to use Hashtable in any of the snippets, import the Hashtable // as shown below:\n // \n// import java.util.Hashtable;\n\n\n\n",
+        "lastCompilationFailed" : "false",
+        "onEndOfDataMethodSnippet" : "// ToDo: Enter code that executes when all the input data is received by the transformation here\n// \n// logInfo(\"The number of null rows for this partition is : \" + partCountNullRows);\n// synchronized(lock)\n// {\n//\t\tlogInfo(\"The total number of null rows across partitions till now is : \" +  countNullRows);\n// }\n\n\n",
+        "onInputRowMethodSnippet" : "// ToDo: Enter code to process an input row here.\n//You can access an input column data by referring the input column name\n// You can set an output column data by referring the output column name\n// For example, if\n// input1 and input2 are input ports of type int, and\n// output1 and output2  are output ports of type int\n// then transformation logic can be like as follows:\n// \n// if(!isNull(\"input1\") && !isNull(\"input1\"))\n// {\n//\t\toutput1 = input1 + input2;\n//\t\toutput2 = input1 - input2;\n// }\n// else\n// {\n//\t\tsetNull(\"output1\");\n//\t\tsetNull(\"output2\");\n//\t\tpartCountNullRows++;\n//\t\tsynchronized(lock)\n//\t\t{\n//\t\t\tcountNullRows++;\n//\t\t}\n// }\n\nif (validateVerhoeff(Input_UID.replaceAll(\"\\\\s+\",\"\"))) {\n\tOut_Status = \"Valid\";\n}\nelse {\n\tOut_Status = \"Invalid\";\n}\n\n\n",
+        "runtimeEnvId" : "01A6IV25000000000002",
+        "sorterModeJava" : "SIMPLE",
+        "unmodifiedCompilation" : "true",
+        "compiledInputFields" : [
+          {
+            "name" : "Input_UID",
+            "precision" : 255,
+            "scale" : 0,
+            "type" : "string"
+          }
+        ],
+        "outputFields" : [
+          {
+            "name" : "Out_Status",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 255,
+            "scale" : 0
+          }
+        ]
+      }
+    ]
+  },
+  "vcsExportTime" : "2026-01-31 06:29:20 PST"
+}

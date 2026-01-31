@@ -1,0 +1,260 @@
+{
+  "content" : {
+    "description" : "Formats an input date string using user-defined variables. Includes the exp_ParseDate and exp_FormatDate transformations. Input dates that are invalid or do not fit the designated input format are written as all zeros.",
+    "allowMaxFieldLength" : "false",
+    "documentType" : "DMAPPLET",
+    "name" : "mplt_Date_Standardization",
+    "specialCharacterSupport" : "false",
+    "links" : [
+      {
+        "link" : "Input -> expr_isNull"
+      },
+      {
+        "link" : "expr_isNull -> expr_ParseDate"
+      },
+      {
+        "link" : "expr_ParseDate -> expr_FormatDate"
+      },
+      {
+        "link" : "expr_FormatDate -> Output"
+      }
+    ],
+    "transformations" : [
+      {
+        "createTime" : "2020-07-29T15:42:18.672Z",
+        "name" : "Input",
+        "groups" : [
+          {
+            "input" : "false",
+            "name" : "DefaultGroup",
+            "output" : "true"
+          }
+        ],
+        "fields" : [
+          {
+            "name" : "Input_Date",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 50,
+            "scale" : 0
+          }
+        ]
+      },
+      {
+        "createTime" : "2020-07-29T15:42:18.674Z",
+        "name" : "Output",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "false",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true",
+                "names" : [
+                  {
+                    "inputName" : "Out_Formatted_Date"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "fieldMappingMode" : "MANUAL",
+        "fields" : [
+          {
+            "name" : "Out_Formatted_Date",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 25,
+            "scale" : 0
+          }
+        ],
+        "manualMappings" : {
+          "mappingList" : [
+            {
+              "fromFieldName" : "Out_Formatted_Date",
+              "toField" : {
+                "name" : "Out_Formatted_Date"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "createTime" : "2020-07-29T15:59:32.090Z",
+        "name" : "expr_isNull",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "windowConfigurationEnabled" : "false",
+        "fields" : [
+          {
+            "name" : "Out_NotNullDate",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 50,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "iif(isnull(Input_Date) or ltrim(rtrim(Input_Date)) = '','00000000',Input_Date)"
+          }
+        ]
+      },
+      {
+        "createTime" : "2020-07-29T16:14:01.820Z",
+        "name" : "expr_ParseDate",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true",
+                "names" : [
+                  {
+                    "inputName" : "Out_NotNullDate",
+                    "outputName" : "In_Date"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "windowConfigurationEnabled" : "false",
+        "fields" : [
+          {
+            "name" : "In_Date_Format",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 15,
+            "scale" : 0,
+            "expFieldType" : "VARIABLE",
+            "expression" : "'MM/DD/YYYY'\n\n-- Valid input date formats are defined in the help.\n-- some examples include:\n-- 'MM/DD/YYYY' or 'MM/DD/YY'\n-- 'DDMMYYYY' or 'DDMMYY'\n-- 'DDMONYYYY'"
+          },
+          {
+            "name" : "Cutoff_1900",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0,
+            "expFieldType" : "VARIABLE",
+            "expression" : "30"
+          },
+          {
+            "name" : "Out_Day",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 10,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "iif(is_Date(In_Date,In_Date_Format),lpad(Get_Date_Part(to_date(In_Date,In_Date_Format),'DD'),2,'0'),'00')"
+          },
+          {
+            "name" : "Out_Month",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 10,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "iif(is_date(In_Date,In_Date_Format),lpad(Get_Date_Part(to_date(In_Date,In_Date_Format),'MM'),2,'0'),'00')"
+          },
+          {
+            "name" : "Out_Year",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 10,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "iif(is_date(In_Date,In_Date_Format),lpad(Get_Date_Part(to_date(In_Date,In_Date_Format),'YYYY'),4,iif(to_integer(Get_Date_Part(to_date(In_Date,In_Date_Format),'YYYY') > Cutoff_1900),'19','20')),'0000')"
+          }
+        ]
+      },
+      {
+        "createTime" : "2020-07-29T16:26:51.048Z",
+        "name" : "expr_FormatDate",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true",
+                "names" : [
+                  {
+                    "inputName" : "Out_Day",
+                    "outputName" : "In_Day"
+                  },
+                  {
+                    "inputName" : "Out_Month",
+                    "outputName" : "In_Month"
+                  },
+                  {
+                    "inputName" : "Out_Year",
+                    "outputName" : "In_Year"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "windowConfigurationEnabled" : "false",
+        "fields" : [
+          {
+            "name" : "Output_Date_Format",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 15,
+            "scale" : 0,
+            "expFieldType" : "VARIABLE",
+            "expression" : "'MMDDYYYY'\n\n-- Valid Date Formats\n-- 'DDMMYYYY'\n-- 'MMDDYYYY'\n-- 'DDMONYYYY'\n-- 'MONDDYYYY'\n-- 'YYYYDDMM'\n-- 'YYYYMMDD'"
+          },
+          {
+            "name" : "Delimiter",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 1,
+            "scale" : 0,
+            "expFieldType" : "VARIABLE",
+            "expression" : "'-'"
+          },
+          {
+            "name" : "Out_Formatted_Date",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 25,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "iif(upper(Output_Date_Format) = 'DDMMYYYY',In_Day||Delimiter||In_Month||Delimiter||In_Year,\n  iif(upper(Output_Date_Format) = 'MMDDYYYY',In_Month||Delimiter||In_Day||Delimiter||In_Year,\n    iif(upper(Output_Date_Format) = 'MONDDYYYY',iif(In_Month = '01','Jan',iif(In_Month = '02','Feb',iif(In_Month = '03','Mar',iif(In_Month = '04','Apr',iif(In_Month = '05','May',iif(In_Month = '06','Jun',iif(In_Month = '07','Jul',iif(In_Month = '08','Aug',iif(In_Month = '09','Sep',iif(In_Month = '10','Oct',iif(In_Month = '11','Nov',iif(In_Month = '12','Dec',In_Month))))))))))))||Delimiter||In_Day||Delimiter||In_Year,\n  iif(upper(Output_Date_Format) = 'DDMONYYYY',In_Day||Delimiter||iif(In_Month = '01','Jan',iif(In_Month = '02','Feb',iif(In_Month = '03','Mar',iif(In_Month = '04','Apr',iif(In_Month = '05','May',iif(In_Month = '06','Jun',iif(In_Month = '07','Jul',iif(In_Month = '08','Aug',iif(In_Month = '09','Sep',iif(In_Month = '10','Oct',iif(In_Month = '11','Nov',iif(In_Month = '12','Dec',In_Month))))))))))))||Delimiter||In_Year,\n  iif(upper(Output_Date_Format) = 'YYYYMMDD',In_Year||Delimiter||In_Month||Delimiter||In_Day,\n  iif(upper(Output_Date_Format) = 'YYYYDDMM',In_Year||Delimiter||In_Day||Delimiter||In_Month,'Invalid output format'))))))"
+          }
+        ]
+      }
+    ]
+  },
+  "vcsExportTime" : "2026-01-31 06:29:20 PST"
+}

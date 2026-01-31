@@ -1,0 +1,243 @@
+{
+  "content" : {
+    "description" : "Calculates the difference between the two dates in days. The result is the difference between the end date and the start date. Input datatype should be set as String.",
+    "allowMaxFieldLength" : "false",
+    "documentType" : "DMAPPLET",
+    "name" : "mplt_Days_Between_Dates",
+    "specialCharacterSupport" : "false",
+    "links" : [
+      {
+        "link" : "Expr_Check_Date -> Expr_Calculate_difference_in_days"
+      },
+      {
+        "link" : "Expr_Calculate_difference_in_days -> Output"
+      },
+      {
+        "link" : "Input -> Expr_String_to_Date"
+      },
+      {
+        "link" : "Expr_String_to_Date -> Expr_Check_Date"
+      }
+    ],
+    "transformations" : [
+      {
+        "createTime" : "2020-07-30T08:34:43.477Z",
+        "name" : "Input",
+        "groups" : [
+          {
+            "input" : "false",
+            "name" : "DefaultGroup",
+            "output" : "true"
+          }
+        ],
+        "fields" : [
+          {
+            "name" : "Start_Date",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 50,
+            "scale" : 0
+          },
+          {
+            "name" : "End_Date",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 50,
+            "scale" : 0
+          }
+        ]
+      },
+      {
+        "createTime" : "2020-07-30T08:34:43.480Z",
+        "name" : "Output",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "false",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "fieldMappingMode" : "MANUAL",
+        "fields" : [
+          {
+            "name" : "Date_Difference",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "name" : "Note",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 100,
+            "scale" : 0
+          }
+        ],
+        "manualMappings" : {
+          "mappingList" : [
+            {
+              "fromFieldName" : "Days_Between_Dates",
+              "toField" : {
+                "name" : "Date_Difference"
+              }
+            },
+            {
+              "fromFieldName" : "Note",
+              "toField" : {
+                "name" : "Note"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "createTime" : "2020-07-30T08:44:32.978Z",
+        "name" : "Expr_Check_Date",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true",
+                "names" : [
+                  {
+                    "inputName" : "Out_End_Date"
+                  },
+                  {
+                    "inputName" : "Out_Start_Date"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "windowConfigurationEnabled" : "false",
+        "fields" : [
+          {
+            "name" : "Start_Date_Check",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 10,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "iif(IS_DATE(to_char(Out_Start_Date)) AND Out_Start_Date!=to_date('01-01-9999','MM-DD-YYYY'),1,0)"
+          },
+          {
+            "name" : "End_Date_Check",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 10,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "iif(IS_DATE(TO_CHAR(Out_End_Date)) AND Out_End_Date != to_date('01-01-9999','MM-DD-YYYY'),1,0)"
+          }
+        ]
+      },
+      {
+        "createTime" : "2020-07-30T08:57:22.465Z",
+        "name" : "Expr_Calculate_difference_in_days",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "windowConfigurationEnabled" : "false",
+        "fields" : [
+          {
+            "name" : "Days_Between_Dates",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "iif((Start_Date_Check != '1' OR End_Date_Check!='1'),0,ABS(date_diff(Out_End_Date,Out_Start_Date,'D')))"
+          },
+          {
+            "name" : "Note",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 100,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "iif((Start_Date_Check <> '1' or End_Date_Check <> '1' ),'Invalid date values','')"
+          }
+        ]
+      },
+      {
+        "createTime" : "2020-07-30T09:36:16.135Z",
+        "name" : "Expr_String_to_Date",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true",
+                "names" : [
+                  {
+                    "inputName" : "End_Date"
+                  },
+                  {
+                    "inputName" : "Start_Date"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "windowConfigurationEnabled" : "false",
+        "fields" : [
+          {
+            "name" : "Out_Start_Date",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9,
+            "expFieldType" : "OUTPUT",
+            "expression" : "iif(isNull(Start_Date) OR ltrim(rtrim(Start_Date))='',null,\n(iif(length(Start_Date)=7 AND is_date(Start_Date,'J'),to_date(Start_Date,'J'),\n(iif(length(Start_Date)=7 AND reg_match(Start_Date,'((([1-9]|[0-2][0-9]|[3][0-1]){1,2})(([1-9]|0[1-9]|1[012]){1,2})([0-9]{1,4}))'),to_date('0'||Start_Date,'DDMMYYYY'),\n(iif(length(Start_Date)=8 AND reg_match(Start_Date,'(((0[1-9]|[1-2][0-9]|[3][0-1]){1,2})((0[1-9]|1[012]){1,2})([0-9]{1,4}))'),to_date(Start_Date,'DDMMYYYY'),\n(iif(length(Start_Date)=8 AND reg_match(Start_Date,'((((0[1-9]|1[012]){1,2})(0[1-9]|[1-2][0-9]|[3][0-1]){1,2})([0-9]{1,4}))'),to_date(Start_Date,'MMDDYYYY'),\n(iif(length(Start_Date)=8 AND reg_match(Start_Date,'(([0-9]{1,4})((0[1-9]|1[012]){1,2})((0[1-9]|[1-2][0-9]|[3][0-1]){1,2}))'),to_date(Start_Date,'YYYYMMDD'),\n(iif((length(Start_Date)=8 OR length(Start_Date)=9 OR length(Start_Date)=10) AND reg_match(Start_Date,'[0-9]{8,10}'),Add_To_Date(To_Date('01-01-1970', 'DD-MM-YYYY'),'SS',to_integer(Start_Date)),\n(iif(length(Start_Date)=13 AND reg_match(Start_Date,'[0-9]{13}'),to_date('0'||Start_Date,'DDMMYYYYHH24MISS'),\n(iif(length(Start_Date)=14 AND reg_match(Start_Date,'[0-9]{14}'),to_date(Start_Date,'DDMMYYYYHH24MISS'),\n(iif((length(Start_Date)=10 OR length(Start_Date)=8 OR length(Start_Date)=9 OR length(Start_Date)=7) AND reg_match(Start_Date,'(([1-9]|[0-2][0-9]|[3][0-1])[-/. ]([1-9]|0[1-9]|1[012])[-/. ][0-9]{1,5})'),to_date(Start_Date,'DD-MM-YYYY'),\n(iif((length(Start_Date)=10 OR length(Start_Date)=8 OR length(Start_Date)=9 OR length(Start_Date)=7) AND reg_match(Start_Date,'(([1-9]|0[1-9]|1[012])[-/. ]([1-9]|[0-2][0-9]|[3][0-1])[-/. ][0-9]{1,5})'),to_date(Start_Date,'MM-DD-YYYY'),\n(iif((length(Start_Date)=10 OR length(Start_Date)=8 OR length(Start_Date)=9 OR length(Start_Date)=7) AND reg_match(Start_Date,'([0-9]{1,5}[-/. ]([1-9]|0[1-9]|1[012])[-/. ]([1-9]|[0-2][0-9]|[3][0-1]))'),to_date(Start_Date,'YYYY-MM-DD'),\n(iif((length(Start_Date)=11 OR length(Start_Date)=8 OR length(Start_Date)=9 OR length(Start_Date)=7) AND reg_match(Start_Date,'(([1-9]|[0-2][0-9]|[3][0-1])[-/. ][A-Za-z]{3}[-/. ][0-9]{1,5})'),to_date(Start_Date,'DD-MON-YYYY'),\n(iif((length(Start_Date)=11 OR length(Start_Date)=8 OR length(Start_Date)=9 OR length(Start_Date)=7) AND reg_match(Start_Date,'([A-Za-z]{3}[-/. ]([1-9]|[0-2][0-9]|[3][0-1])[-/. ][0-9]{1,5})'),to_date(Start_Date,'MON-DD-YYYY'),\n(iif((length(Start_Date)=11 OR length(Start_Date)=8 OR length(Start_Date)=9 OR length(Start_Date)=7) AND reg_match(Start_Date,'([0-9]{1,5}[-/. ][A-Za-z]{3}[-/. ]([1-9]|[0-2][0-9]|[3][0-1]))'),to_date(Start_Date,'YYYY-MON-DD'),\n(iif((length(Start_Date)=9 OR length(Start_Date)=8 OR length(Start_Date)=7 OR length(Start_Date)=6) AND reg_match(Start_Date,'(([1-9]|[0-2][0-9]|[3][0-1])[A-Za-z]{3}[0-9]{1,5})'),to_date(Start_Date,'DDMONYYYY'),\n(iif((length(Start_Date)=9 OR length(Start_Date)=8 OR length(Start_Date)=7 OR length(Start_Date)=6) AND reg_match(Start_Date,'([A-Za-z]{3}([1-9]|[0-2][0-9]|[3][0-1])[0-9]{1,5})'),to_date(Start_Date,'MONDDYYYY'),\n(iif((length(Start_Date)=9 OR length(Start_Date)=8 OR length(Start_Date)=7 OR length(Start_Date)=6) AND reg_match(Start_Date,'([0-9]{1,5}[A-Za-z]{3}([1-9]|[0-2][0-9]|[3][0-1]))'),to_date(Start_Date,'YYYYMONDD'),\n(iif(length(Start_Date)=23 AND reg_match(Start_Date,'(([1-9]|[0-2][0-9]|[3][0-1])[-/. ]([1-9]|0[1-9]|1[012])[-/. ][0-9]{1,5}[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9][.][0-9]{3})))'),to_date(Start_Date,'DD-MM-YYYY HH24:MI:SS.MS'),\n(iif(length(Start_Date)=23 AND reg_match(Start_Date,'(([1-9]|0[1-9]|1[012])[-/. ]([1-9]|[0-2][0-9]|[3][0-1])[-/. ][0-9]{1,5}[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9][.][0-9]{3})))'),to_date(Start_Date,'MM-DD-YYYY HH24:MI:SS.MS'),\n(iif(length(Start_Date)=23 AND reg_match(Start_Date,'(([0-9]{1,5}[-/. ]([1-9]|0[1-9]|1[012])[-/. ][0-9]{1,2})[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9][.][0-9]{3})))'),to_date(Start_Date,'YYYY-MM-DD HH24:MI:SS.MS'),\n(iif(length(Start_Date)=26 AND reg_match(Start_Date,'(([1-9]|[0-2][0-9]|[3][0-1])[-/. ]([1-9]|0[1-9]|1[012])[-/. ][0-9]{1,5}[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9][.][0-9]{6})))'),to_date(Start_Date,'DD-MM-YYYY HH24:MI:SS.US'),\n(iif(length(Start_Date)=26 AND reg_match(Start_Date,'(([1-9]|0[1-9]|1[012])[-/. ]([1-9]|[0-2][0-9]|[3][0-1])[-/. ][0-9]{1,5}[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9][.][0-9]{6})))'),to_date(Start_Date,'MM-DD-YYYY HH24:MI:SS.US'),\n(iif(length(Start_Date)=26 AND reg_match(Start_Date,'(([0-9]{1,5}[-/. ]([1-9]|0[1-9]|1[012])[-/. ][0-9]{1,2})[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9][.][0-9]{6})))'),to_date(Start_Date,'YYYY-MM-DD HH24:MI:SS.US'),\n(iif(length(Start_Date)=29 AND reg_match(Start_Date,'(([1-9]|[0-2][0-9]|[3][0-1])[-/. ]([1-9]|0[1-9]|1[012])[-/. ][0-9]{1,5}[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9][.][0-9]{9})))'),to_date(Start_Date,'DD-MM-YYYY HH24:MI:SS.NS'),\n(iif(length(Start_Date)=29 AND reg_match(Start_Date,'(([1-9]|0[1-9]|1[012])[-/. ]([1-9]|[0-2][0-9]|[3][0-1])[-/. ][0-9]{1,5}[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9][.][0-9]{9})))'),to_date(Start_Date,'MM-DD-YYYY HH24:MI:SS.NS'),\n(iif(length(Start_Date)=29 AND reg_match(Start_Date,'(([0-9]{1,5}[-/. ]([1-9]|0[1-9]|1[012])[-/. ][0-9]{1,2})[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9][.][0-9]{9})))'),to_date(Start_Date,'YYYY-MM-DD HH24:MI:SS.NS'),\n(iif(length(Start_Date)=26 AND reg_match(Start_Date,'(([1-9]|[0-2][0-9]|[3][0-1])[-/. ]([1-9]|0[1-9]|1[012])[-/. ][0-9]{1,5}[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9][.][0-9]{3}[ ]([AaPp][Mm]))))'),to_date(Start_Date,'DD-MM-YYYY HH12:MI:SS.MS AM'),\n(iif(length(Start_Date)=26 AND reg_match(Start_Date,'(([1-9]|0[1-9]|1[012])[-/. ]([1-9]|[0-2][0-9]|[3][0-1])[-/. ][0-9]{1,5}[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9][.][0-9]{3}[ ]([AaPp][Mm]))))'),to_date(Start_Date,'MM-DD-YYYY HH12:MI:SS.MS AM'),\n(iif(length(Start_Date)=26 AND reg_match(Start_Date,'(([0-9]{1,5}[-/. ]([1-9]|0[1-9]|1[012])[-/. ][0-9]{1,2})[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9][.][0-9]{3}[ ]([AaPp][Mm]))))'),to_date(Start_Date,'YYYY-MM-DD HH12:MI:SS.MS AM'),\n(iif(length(Start_Date)=29 AND reg_match(Start_Date,'(([1-9]|[0-2][0-9]|[3][0-1])[-/. ]([1-9]|0[1-9]|1[012])[-/. ][0-9]{1,5}[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9][.][0-9]{6}[ ]([AaPp][Mm]))))'),to_date(Start_Date,'DD-MM-YYYY HH12:MI:SS.US AM'),\n(iif(length(Start_Date)=29 AND reg_match(Start_Date,'(([1-9]|0[1-9]|1[012])[-/. ]([1-9]|[0-2][0-9]|[3][0-1])[-/. ][0-9]{1,5}[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9][.][0-9]{6}[ ]([AaPp][Mm]))))'),to_date(Start_Date,'MM-DD-YYYY HH12:MI:SS.US AM'),\n(iif(length(Start_Date)=29 AND reg_match(Start_Date,'(([0-9]{1,5}[-/. ]([1-9]|0[1-9]|1[012])[-/. ][0-9]{1,2})[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9][.][0-9]{6}[ ]([AaPp][Mm]))))'),to_date(Start_Date,'YYYY-MM-DD HH12:MI:SS.US AM'),\n(iif(length(Start_Date)=32 AND reg_match(Start_Date,'(([1-9]|[0-2][0-9]|[3][0-1])[-/. ]([1-9]|0[1-9]|1[012])[-/. ][0-9]{1,5}[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9][.][0-9]{9}[ ]([AaPp][Mm]))))'),to_date(Start_Date,'DD-MM-YYYY HH12:MI:SS.NS AM'),\n(iif(length(Start_Date)=32 AND reg_match(Start_Date,'(([1-9]|0[1-9]|1[012])[-/. ]([1-9]|[0-2][0-9]|[3][0-1])[-/. ][0-9]{1,5}[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9][.][0-9]{9}[ ]([AaPp][Mm]))))'),to_date(Start_Date,'MM-DD-YYYY HH12:MI:SS.NS AM'),\n(iif(length(Start_Date)=32 AND reg_match(Start_Date,'(([0-9]{1,5}[-/. ]([1-9]|0[1-9]|1[012])[-/. ][0-9]{1,2})[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9][.][0-9]{9}[ ]([AaPp][Mm]))))'),to_date(Start_Date,'YYYY-MM-DD HH12:MI:SS.NS AM'),\n(iif(length(Start_Date)=19 AND reg_match(Start_Date,'(([1-9]|[0-2][0-9]|[3][0-1])[-/. ]([1-9]|0[1-9]|1[012])[-/. ][0-9]{1,5}[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9])))'),to_date(Start_Date,'DD-MM-YYYY HH24:MI:SS'),\n(iif(length(Start_Date)=19 AND reg_match(Start_Date,'(([1-9]|0[1-9]|1[012])[-/. ]([1-9]|[0-2][0-9]|[3][0-1])[-/. ][0-9]{1,5}[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9])))'),to_date(Start_Date,'MM-DD-YYYY HH24:MI:SS'),\n(iif(length(Start_Date)=19 AND reg_match(Start_Date,'(([0-9]{1,5}[-/. ]([1-9]|0[1-9]|1[012])[-/. ][0-9]{1,2})[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9])))'),to_date(Start_Date,'YYYY-MM-DD HH24:MI:SS'),\n(iif(length(Start_Date)=22 AND reg_match(Start_Date,'(([1-9]|[0-2][0-9]|[3][0-1])[-/. ]([1-9]|0[1-9]|1[012])[-/. ][0-9]{1,5}[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9])[ ]([AaPp][Mm])))'),to_date(Start_Date,'DD-MM-YYYY HH12:MI:SS AM'),\n(iif(length(Start_Date)=22 AND reg_match(Start_Date,'(([1-9]|0[1-9]|1[012])[-/. ]([1-9]|[0-2][0-9]|[3][0-1])[-/. ][0-9]{1,5}[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9])[ ]([AaPp][Mm])))'),to_date(Start_Date,'MM-DD-YYYY HH12:MI:SS AM'),\n(iif(length(Start_Date)=22 AND reg_match(Start_Date,'(([0-9]{1,5}[-/. ]([1-9]|0[1-9]|1[012])[-/. ][0-9]{1,2})[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9])[ ]([AaPp][Mm])))'),to_date(Start_Date,'YYYY-MM-DD HH12:MI:SS AM'),\n(iif(length(Start_Date)=19 AND reg_match(Start_Date,'(([1-9]|[0-2][0-9]|[3][0-1])[-/. ]([1-9]|0[1-9]|1[012])[-/. ][0-9]{1,5}[T](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9])))'),to_date(Start_Date,'DD-MM-YYYY HH24:MI:SS'),\n(iif(length(Start_Date)=19 AND reg_match(Start_Date,'(([1-9]|0[1-9]|1[012])[-/. ]([1-9]|[0-2][0-9]|[3][0-1])[-/. ][0-9]{1,5}[T](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9])))'),to_date(Start_Date,'MM-DD-YYYY HH24:MI:SS'),\n(iif(length(Start_Date)=19 AND reg_match(Start_Date,'(([0-9]{1,5}[-/. ]([1-9]|0[1-9]|1[012])[-/. ]([1-9]|[0-2][0-9]|[3][0-1]))[T](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9])))'),to_date(Start_Date,'YYYY-MM-DD HH24:MI:SS'),\n(iif(length(Start_Date)=23 AND reg_match(Start_Date,'(([1-9]|[0-2][0-9]|[3][0-1])[-/. ][A-Za-z]{3}[-/. ][0-9]{1,5}[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9])[ ]([AaPp][Mm])))'),to_date(Start_Date,'DD-MON-YYYY HH12:MI:SS AM'),\n(iif(length(Start_Date)=23 AND reg_match(Start_Date,'([A-Za-z]{3}[-/. ]([1-9]|[0-2][0-9]|[3][0-1])[-/. ][0-9]{1,5})[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9])[ ]([AaPp][Mm]))'),to_date(Start_Date,'MON-DD-YYYY HH12:MI:SS AM'),\n(iif(length(Start_Date)=23 AND reg_match(Start_Date,'([0-9]{1,5}[-/. ][A-Za-z]{3}[-/. ]([1-9]|[0-2][0-9]|[3][0-1])[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9])[ ]([AaPp][Mm])))'),to_date(Start_Date,'YYYY-MON-DD HH12:MI:SS AM'),\n(iif(length(Start_Date)=20 AND reg_match(Start_Date,'(([1-9]|[0-2][0-9]|[3][0-1])[-/. ][A-Za-z]{3}[-/. ][0-9]{1,5}[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9])))'),to_date(Start_Date,'DD-MON-YYYY HH24:MI:SS'),\n(iif(length(Start_Date)=20 AND reg_match(Start_Date,'([A-Za-z]{3}[-/. ]([1-9]|[0-2][0-9]|[3][0-1])[-/. ][0-9]{1,5})[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9]))'),to_date(Start_Date,'MON-DD-YYYY HH24:MI:SS'),\n(iif(length(Start_Date)=20 AND reg_match(Start_Date,'([0-9]{1,5}[-/. ][A-Za-z]{3}[-/. ]([1-9]|[0-2][0-9]|[3][0-1])[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9])))'),to_date(Start_Date,'YYYY-MON-DD HH24:MI:SS'),\n(iif(length(Start_Date)=24 AND reg_match(Start_Date,'(([1-9]|[0-2][0-9]|[3][0-1])[-/. ][A-Za-z]{3}[-/. ][0-9]{1,5}[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9])[.][0-9]{3}))'),to_date(Start_Date,'DD-MON-YYYY HH24:MI:SS.MS'),\n(iif(length(Start_Date)=24 AND reg_match(Start_Date,'([A-Za-z]{3}[-/. ]([1-9]|[0-2][0-9]|[3][0-1])[-/. ][0-9]{1,5})[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9])[.][0-9]{3})'),to_date(Start_Date,'MON-DD-YYYY HH24:MI:SS.MS'),\n(iif(length(Start_Date)=24 AND reg_match(Start_Date,'([0-9]{1,5}[-/. ][A-Za-z]{3}[-/. ]([1-9]|[0-2][0-9]|[3][0-1])[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9])[.][0-9]{3}))'),to_date(Start_Date,'YYYY-MON-DD HH24:MI:SS.MS'),\n(iif(length(Start_Date)=27 AND reg_match(Start_Date,'(([1-9]|[0-2][0-9]|[3][0-1])[-/. ][A-Za-z]{3}[-/. ][0-9]{1,5}[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9])[.][0-9]{6}))'),to_date(Start_Date,'DD-MON-YYYY HH24:MI:SS.US'),\n(iif(length(Start_Date)=27 AND reg_match(Start_Date,'([A-Za-z]{3}[-/. ]([1-9]|[0-2][0-9]|[3][0-1])[-/. ][0-9]{1,5})[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9])[.][0-9]{6})'),to_date(Start_Date,'MON-DD-YYYY HH24:MI:SS.US'),\n(iif(length(Start_Date)=27 AND reg_match(Start_Date,'([0-9]{1,5}[-/. ][A-Za-z]{3}[-/. ]([1-9]|[0-2][0-9]|[3][0-1])[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9])[.][0-9]{6}))'),to_date(Start_Date,'YYYY-MON-DD HH24:MI:SS.US'),\n(iif(length(Start_Date)=30 AND reg_match(Start_Date,'(([1-9]|[0-2][0-9]|[3][0-1])[-/. ][A-Za-z]{3}[-/. ][0-9]{1,5}[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9])[.][0-9]{9}))'),to_date(Start_Date,'DD-MON-YYYY HH24:MI:SS.NS'),\n(iif(length(Start_Date)=30 AND reg_match(Start_Date,'([A-Za-z]{3}[-/. ]([1-9]|[0-2][0-9]|[3][0-1])[-/. ][0-9]{1,5})[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9])[.][0-9]{9})'),to_date(Start_Date,'MON-DD-YYYY HH24:MI:SS.NS'),\n(iif(length(Start_Date)=30 AND reg_match(Start_Date,'([0-9]{1,5}[-/. ][A-Za-z]{3}[-/. ]([1-9]|[0-2][0-9]|[3][0-1])[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9])[.][0-9]{9}))'),to_date(Start_Date,'YYYY-MON-DD HH24:MI:SS.NS'),\n(iif(length(Start_Date)=27 AND reg_match(Start_Date,'(([1-9]|[0-2][0-9]|[3][0-1])[-/. ][A-Za-z]{3}[-/. ][0-9]{1,5}[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9])[.][0-9]{3}([AaPp][Mm])))'),to_date(Start_Date,'DD-MON-YYYY HH12:MI:SS.MS AM'),\n(iif(length(Start_Date)=27 AND reg_match(Start_Date,'([A-Za-z]{3}[-/. ]([1-9]|[0-2][0-9]|[3][0-1])[-/. ][0-9]{1,5})[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9])[.][0-9]{3}([AaPp][Mm]))'),to_date(Start_Date,'MON-DD-YYYY HH12:MI:SS.MS'),\n(iif(length(Start_Date)=27 AND reg_match(Start_Date,'([0-9]{1,5}[-/. ][A-Za-z]{3}[-/. ]([1-9]|[0-2][0-9]|[3][0-1])[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9])[.][0-9]{3}([AaPp][Mm])))'),to_date(Start_Date,'YYYY-MON-DD HH12:MI:SS.MS AM'),\n(iif(length(Start_Date)=30 AND reg_match(Start_Date,'(([1-9]|[0-2][0-9]|[3][0-1])[-/. ][A-Za-z]{3}[-/. ][0-9]{1,5}[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9])[.][0-9]{6}([AaPp][Mm])))'),to_date(Start_Date,'DD-MON-YYYY HH12:MI:SS.US AM'),\n(iif(length(Start_Date)=30 AND reg_match(Start_Date,'([A-Za-z]{3}[-/. ]([1-9]|[0-2][0-9]|[3][0-1])[-/. ][0-9]{1,5})[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9])[.][0-9]{6})'),to_date(Start_Date,'MON-DD-YYYY HH24:MI:SS.US AM'),\n(iif(length(Start_Date)=30 AND reg_match(Start_Date,'([0-9]{1,5}[-/. ][A-Za-z]{3}[-/. ]([1-9]|[0-2][0-9]|[3][0-1])[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9])[.][0-9]{6}))'),to_date(Start_Date,'YYYY-MON-DD HH12:MI:SS.US AM'),\n(iif(length(Start_Date)=33 AND reg_match(Start_Date,'(([1-9]|[0-2][0-9]|[3][0-1])[-/. ][A-Za-z]{3}[-/. ][0-9]{1,5}[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9])[.][0-9]{9}))'),to_date(Start_Date,'DD-MON-YYYY HH12:MI:SS.NS AM'),\n(iif(length(Start_Date)=33 AND reg_match(Start_Date,'([A-Za-z]{3}[-/. ]([1-9]|[0-2][0-9]|[3][0-1])[-/. ][0-9]{1,5})[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9])[.][0-9]{9})'),to_date(Start_Date,'MON-DD-YYYY HH12:MI:SS.NS AM'),\n(iif(length(Start_Date)=33 AND reg_match(Start_Date,'([0-9]{1,5}[-/. ][A-Za-z]{3}[-/. ]([1-9]|[0-2][0-9]|[3][0-1])[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9])[.][0-9]{9}))'),to_date(Start_Date,'YYYY-MON-DD HH24:MI:SS.NS AM'),\n(iif(length(Start_Date)=15 AND reg_match(Start_Date,'(([1-9]|[0-2][0-9]|[3][0-1])[A-Za-z]{3}[0-9]{1,5}(([0-1][0-9]|[2][0-3])([0-5][0-9])([0-5][0-9])))'),to_date(Start_Date,'DDMONYYYYHH24MISS'),\n(iif(length(Start_Date)=15 AND reg_match(Start_Date,'([A-Za-z]{3}([1-9]|[0-2][0-9]|[3][0-1])[0-9]{1,5}(([0-1][0-9]|[2][0-3])([0-5][0-9])([0-5][0-9])))'),to_date(Start_Date,'MONDDYYYYHH24MISS'),\n(iif(length(Start_Date)=15 AND reg_match(Start_Date,'([0-9]{1,5}[A-Za-z]{3}([1-9]|[0-2][0-9]|[3][0-1])(([0-1][0-9]|[2][0-3])([0-5][0-9])([0-5][0-9])))'),to_date(Start_Date,'YYYYMONDDHH24MISS'),\nnull)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))"
+          },
+          {
+            "name" : "Out_End_Date",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9,
+            "expFieldType" : "OUTPUT",
+            "expression" : "iif(isNull(End_Date) OR ltrim(rtrim(End_Date))='',null,\n(iif(length(End_Date)=7 AND is_date(End_Date,'J'),to_date(End_Date,'J'),\n(iif(length(End_Date)=7 AND reg_match(End_Date,'((([1-9]|[0-2][0-9]|[3][0-1]){1,2})(([1-9]|0[1-9]|1[012]){1,2})([0-9]{1,4}))'),to_date('0'||End_Date,'DDMMYYYY'),\n(iif(length(End_Date)=8 AND reg_match(End_Date,'(((0[1-9]|[1-2][0-9]|[3][0-1]){1,2})((0[1-9]|1[012]){1,2})([0-9]{1,4}))'),to_date(End_Date,'DDMMYYYY'),\n(iif(length(End_Date)=8 AND reg_match(End_Date,'((((0[1-9]|1[012]){1,2})(0[1-9]|[1-2][0-9]|[3][0-1]){1,2})([0-9]{1,4}))'),to_date(End_Date,'MMDDYYYY'),\n(iif(length(End_Date)=8 AND reg_match(End_Date,'(([0-9]{1,4})((0[1-9]|1[012]){1,2})((0[1-9]|[1-2][0-9]|[3][0-1]){1,2}))'),to_date(End_Date,'YYYYMMDD'),\n(iif((length(End_Date)=8 OR length(End_Date)=9 OR length(End_Date)=10) AND reg_match(End_Date,'[0-9]{8,10}'),Add_To_Date(To_Date('01-01-1970', 'DD-MM-YYYY'),'SS',to_integer(End_Date)),\n(iif(length(End_Date)=13 AND reg_match(End_Date,'[0-9]{13}'),to_date('0'||End_Date,'DDMMYYYYHH24MISS'),\n(iif(length(End_Date)=14 AND reg_match(End_Date,'[0-9]{14}'),to_date(End_Date,'DDMMYYYYHH24MISS'),\n(iif((length(End_Date)=10 OR length(End_Date)=8 OR length(End_Date)=9 OR length(End_Date)=7) AND reg_match(End_Date,'(([1-9]|[0-2][0-9]|[3][0-1])[-/. ]([1-9]|0[1-9]|1[012])[-/. ][0-9]{1,5})'),to_date(End_Date,'DD-MM-YYYY'),\n(iif((length(End_Date)=10 OR length(End_Date)=8 OR length(End_Date)=9 OR length(End_Date)=7) AND reg_match(End_Date,'(([1-9]|0[1-9]|1[012])[-/. ]([1-9]|[0-2][0-9]|[3][0-1])[-/. ][0-9]{1,5})'),to_date(End_Date,'MM-DD-YYYY'),\n(iif((length(End_Date)=10 OR length(End_Date)=8 OR length(End_Date)=9 OR length(End_Date)=7) AND reg_match(End_Date,'([0-9]{1,5}[-/. ]([1-9]|0[1-9]|1[012])[-/. ]([1-9]|[0-2][0-9]|[3][0-1]))'),to_date(End_Date,'YYYY-MM-DD'),\n(iif((length(End_Date)=11 OR length(End_Date)=8 OR length(End_Date)=9 OR length(End_Date)=7) AND reg_match(End_Date,'(([1-9]|[0-2][0-9]|[3][0-1])[-/. ][A-Za-z]{3}[-/. ][0-9]{1,5})'),to_date(End_Date,'DD-MON-YYYY'),\n(iif((length(End_Date)=11 OR length(End_Date)=8 OR length(End_Date)=9 OR length(End_Date)=7) AND reg_match(End_Date,'([A-Za-z]{3}[-/. ]([1-9]|[0-2][0-9]|[3][0-1])[-/. ][0-9]{1,5})'),to_date(End_Date,'MON-DD-YYYY'),\n(iif((length(End_Date)=11 OR length(End_Date)=8 OR length(End_Date)=9 OR length(End_Date)=7) AND reg_match(End_Date,'([0-9]{1,5}[-/. ][A-Za-z]{3}[-/. ]([1-9]|[0-2][0-9]|[3][0-1]))'),to_date(End_Date,'YYYY-MON-DD'),\n(iif((length(End_Date)=9 OR length(End_Date)=8 OR length(End_Date)=7 OR length(End_Date)=6) AND reg_match(End_Date,'(([1-9]|[0-2][0-9]|[3][0-1])[A-Za-z]{3}[0-9]{1,5})'),to_date(End_Date,'DDMONYYYY'),\n(iif((length(End_Date)=9 OR length(End_Date)=8 OR length(End_Date)=7 OR length(End_Date)=6) AND reg_match(End_Date,'([A-Za-z]{3}([1-9]|[0-2][0-9]|[3][0-1])[0-9]{1,5})'),to_date(End_Date,'MONDDYYYY'),\n(iif((length(End_Date)=9 OR length(End_Date)=8 OR length(End_Date)=7 OR length(End_Date)=6) AND reg_match(End_Date,'([0-9]{1,5}[A-Za-z]{3}([1-9]|[0-2][0-9]|[3][0-1]))'),to_date(End_Date,'YYYYMONDD'),\n(iif(length(End_Date)=23 AND reg_match(End_Date,'(([1-9]|[0-2][0-9]|[3][0-1])[-/. ]([1-9]|0[1-9]|1[012])[-/. ][0-9]{1,5}[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9][.][0-9]{3})))'),to_date(End_Date,'DD-MM-YYYY HH24:MI:SS.MS'),\n(iif(length(End_Date)=23 AND reg_match(End_Date,'(([1-9]|0[1-9]|1[012])[-/. ]([1-9]|[0-2][0-9]|[3][0-1])[-/. ][0-9]{1,5}[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9][.][0-9]{3})))'),to_date(End_Date,'MM-DD-YYYY HH24:MI:SS.MS'),\n(iif(length(End_Date)=23 AND reg_match(End_Date,'(([0-9]{1,5}[-/. ]([1-9]|0[1-9]|1[012])[-/. ][0-9]{1,2})[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9][.][0-9]{3})))'),to_date(End_Date,'YYYY-MM-DD HH24:MI:SS.MS'),\n(iif(length(End_Date)=26 AND reg_match(End_Date,'(([1-9]|[0-2][0-9]|[3][0-1])[-/. ]([1-9]|0[1-9]|1[012])[-/. ][0-9]{1,5}[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9][.][0-9]{6})))'),to_date(End_Date,'DD-MM-YYYY HH24:MI:SS.US'),\n(iif(length(End_Date)=26 AND reg_match(End_Date,'(([1-9]|0[1-9]|1[012])[-/. ]([1-9]|[0-2][0-9]|[3][0-1])[-/. ][0-9]{1,5}[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9][.][0-9]{6})))'),to_date(End_Date,'MM-DD-YYYY HH24:MI:SS.US'),\n(iif(length(End_Date)=26 AND reg_match(End_Date,'(([0-9]{1,5}[-/. ]([1-9]|0[1-9]|1[012])[-/. ][0-9]{1,2})[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9][.][0-9]{6})))'),to_date(End_Date,'YYYY-MM-DD HH24:MI:SS.US'),\n(iif(length(End_Date)=29 AND reg_match(End_Date,'(([1-9]|[0-2][0-9]|[3][0-1])[-/. ]([1-9]|0[1-9]|1[012])[-/. ][0-9]{1,5}[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9][.][0-9]{9})))'),to_date(End_Date,'DD-MM-YYYY HH24:MI:SS.NS'),\n(iif(length(End_Date)=29 AND reg_match(End_Date,'(([1-9]|0[1-9]|1[012])[-/. ]([1-9]|[0-2][0-9]|[3][0-1])[-/. ][0-9]{1,5}[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9][.][0-9]{9})))'),to_date(End_Date,'MM-DD-YYYY HH24:MI:SS.NS'),\n(iif(length(End_Date)=29 AND reg_match(End_Date,'(([0-9]{1,5}[-/. ]([1-9]|0[1-9]|1[012])[-/. ][0-9]{1,2})[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9][.][0-9]{9})))'),to_date(End_Date,'YYYY-MM-DD HH24:MI:SS.NS'),\n(iif(length(End_Date)=26 AND reg_match(End_Date,'(([1-9]|[0-2][0-9]|[3][0-1])[-/. ]([1-9]|0[1-9]|1[012])[-/. ][0-9]{1,5}[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9][.][0-9]{3}[ ]([AaPp][Mm]))))'),to_date(End_Date,'DD-MM-YYYY HH12:MI:SS.MS AM'),\n(iif(length(End_Date)=26 AND reg_match(End_Date,'(([1-9]|0[1-9]|1[012])[-/. ]([1-9]|[0-2][0-9]|[3][0-1])[-/. ][0-9]{1,5}[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9][.][0-9]{3}[ ]([AaPp][Mm]))))'),to_date(End_Date,'MM-DD-YYYY HH12:MI:SS.MS AM'),\n(iif(length(End_Date)=26 AND reg_match(End_Date,'(([0-9]{1,5}[-/. ]([1-9]|0[1-9]|1[012])[-/. ][0-9]{1,2})[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9][.][0-9]{3}[ ]([AaPp][Mm]))))'),to_date(End_Date,'YYYY-MM-DD HH12:MI:SS.MS AM'),\n(iif(length(End_Date)=29 AND reg_match(End_Date,'(([1-9]|[0-2][0-9]|[3][0-1])[-/. ]([1-9]|0[1-9]|1[012])[-/. ][0-9]{1,5}[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9][.][0-9]{6}[ ]([AaPp][Mm]))))'),to_date(End_Date,'DD-MM-YYYY HH12:MI:SS.US AM'),\n(iif(length(End_Date)=29 AND reg_match(End_Date,'(([1-9]|0[1-9]|1[012])[-/. ]([1-9]|[0-2][0-9]|[3][0-1])[-/. ][0-9]{1,5}[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9][.][0-9]{6}[ ]([AaPp][Mm]))))'),to_date(End_Date,'MM-DD-YYYY HH12:MI:SS.US AM'),\n(iif(length(End_Date)=29 AND reg_match(End_Date,'(([0-9]{1,5}[-/. ]([1-9]|0[1-9]|1[012])[-/. ][0-9]{1,2})[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9][.][0-9]{6}[ ]([AaPp][Mm]))))'),to_date(End_Date,'YYYY-MM-DD HH12:MI:SS.US AM'),\n(iif(length(End_Date)=32 AND reg_match(End_Date,'(([1-9]|[0-2][0-9]|[3][0-1])[-/. ]([1-9]|0[1-9]|1[012])[-/. ][0-9]{1,5}[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9][.][0-9]{9}[ ]([AaPp][Mm]))))'),to_date(End_Date,'DD-MM-YYYY HH12:MI:SS.NS AM'),\n(iif(length(End_Date)=32 AND reg_match(End_Date,'(([1-9]|0[1-9]|1[012])[-/. ]([1-9]|[0-2][0-9]|[3][0-1])[-/. ][0-9]{1,5}[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9][.][0-9]{9}[ ]([AaPp][Mm]))))'),to_date(End_Date,'MM-DD-YYYY HH12:MI:SS.NS AM'),\n(iif(length(End_Date)=32 AND reg_match(End_Date,'(([0-9]{1,5}[-/. ]([1-9]|0[1-9]|1[012])[-/. ][0-9]{1,2})[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9][.][0-9]{9}[ ]([AaPp][Mm]))))'),to_date(End_Date,'YYYY-MM-DD HH12:MI:SS.NS AM'),\n(iif(length(End_Date)=19 AND reg_match(End_Date,'(([1-9]|[0-2][0-9]|[3][0-1])[-/. ]([1-9]|0[1-9]|1[012])[-/. ][0-9]{1,5}[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9])))'),to_date(End_Date,'DD-MM-YYYY HH24:MI:SS'),\n(iif(length(End_Date)=19 AND reg_match(End_Date,'(([1-9]|0[1-9]|1[012])[-/. ]([1-9]|[0-2][0-9]|[3][0-1])[-/. ][0-9]{1,5}[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9])))'),to_date(End_Date,'MM-DD-YYYY HH24:MI:SS'),\n(iif(length(End_Date)=19 AND reg_match(End_Date,'(([0-9]{1,5}[-/. ]([1-9]|0[1-9]|1[012])[-/. ][0-9]{1,2})[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9])))'),to_date(End_Date,'YYYY-MM-DD HH24:MI:SS'),\n(iif(length(End_Date)=22 AND reg_match(End_Date,'(([1-9]|[0-2][0-9]|[3][0-1])[-/. ]([1-9]|0[1-9]|1[012])[-/. ][0-9]{1,5}[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9])[ ]([AaPp][Mm])))'),to_date(End_Date,'DD-MM-YYYY HH12:MI:SS AM'),\n(iif(length(End_Date)=22 AND reg_match(End_Date,'(([1-9]|0[1-9]|1[012])[-/. ]([1-9]|[0-2][0-9]|[3][0-1])[-/. ][0-9]{1,5}[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9])[ ]([AaPp][Mm])))'),to_date(End_Date,'MM-DD-YYYY HH12:MI:SS AM'),\n(iif(length(End_Date)=22 AND reg_match(End_Date,'(([0-9]{1,5}[-/. ]([1-9]|0[1-9]|1[012])[-/. ][0-9]{1,2})[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9])[ ]([AaPp][Mm])))'),to_date(End_Date,'YYYY-MM-DD HH12:MI:SS AM'),\n(iif(length(End_Date)=19 AND reg_match(End_Date,'(([1-9]|[0-2][0-9]|[3][0-1])[-/. ]([1-9]|0[1-9]|1[012])[-/. ][0-9]{1,5}[T](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9])))'),to_date(End_Date,'DD-MM-YYYY HH24:MI:SS'),\n(iif(length(End_Date)=19 AND reg_match(End_Date,'(([1-9]|0[1-9]|1[012])[-/. ]([1-9]|[0-2][0-9]|[3][0-1])[-/. ][0-9]{1,5}[T](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9])))'),to_date(End_Date,'MM-DD-YYYY HH24:MI:SS'),\n(iif(length(End_Date)=19 AND reg_match(End_Date,'(([0-9]{1,5}[-/. ]([1-9]|0[1-9]|1[012])[-/. ]([1-9]|[0-2][0-9]|[3][0-1]))[T](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9])))'),to_date(End_Date,'YYYY-MM-DD HH24:MI:SS'),\n(iif(length(End_Date)=23 AND reg_match(End_Date,'(([1-9]|[0-2][0-9]|[3][0-1])[-/. ][A-Za-z]{3}[-/. ][0-9]{1,5}[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9])[ ]([AaPp][Mm])))'),to_date(End_Date,'DD-MON-YYYY HH12:MI:SS AM'),\n(iif(length(End_Date)=23 AND reg_match(End_Date,'([A-Za-z]{3}[-/. ]([1-9]|[0-2][0-9]|[3][0-1])[-/. ][0-9]{1,5})[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9])[ ]([AaPp][Mm]))'),to_date(End_Date,'MON-DD-YYYY HH12:MI:SS AM'),\n(iif(length(End_Date)=23 AND reg_match(End_Date,'([0-9]{1,5}[-/. ][A-Za-z]{3}[-/. ]([1-9]|[0-2][0-9]|[3][0-1])[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9])[ ]([AaPp][Mm])))'),to_date(End_Date,'YYYY-MON-DD HH12:MI:SS AM'),\n(iif(length(End_Date)=20 AND reg_match(End_Date,'(([1-9]|[0-2][0-9]|[3][0-1])[-/. ][A-Za-z]{3}[-/. ][0-9]{1,5}[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9])))'),to_date(End_Date,'DD-MON-YYYY HH24:MI:SS'),\n(iif(length(End_Date)=20 AND reg_match(End_Date,'([A-Za-z]{3}[-/. ]([1-9]|[0-2][0-9]|[3][0-1])[-/. ][0-9]{1,5})[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9]))'),to_date(End_Date,'MON-DD-YYYY HH24:MI:SS'),\n(iif(length(End_Date)=20 AND reg_match(End_Date,'([0-9]{1,5}[-/. ][A-Za-z]{3}[-/. ]([1-9]|[0-2][0-9]|[3][0-1])[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9])))'),to_date(End_Date,'YYYY-MON-DD HH24:MI:SS'),\n(iif(length(End_Date)=24 AND reg_match(End_Date,'(([1-9]|[0-2][0-9]|[3][0-1])[-/. ][A-Za-z]{3}[-/. ][0-9]{1,5}[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9])[.][0-9]{3}))'),to_date(End_Date,'DD-MON-YYYY HH24:MI:SS.MS'),\n(iif(length(End_Date)=24 AND reg_match(End_Date,'([A-Za-z]{3}[-/. ]([1-9]|[0-2][0-9]|[3][0-1])[-/. ][0-9]{1,5})[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9])[.][0-9]{3})'),to_date(End_Date,'MON-DD-YYYY HH24:MI:SS.MS'),\n(iif(length(End_Date)=24 AND reg_match(End_Date,'([0-9]{1,5}[-/. ][A-Za-z]{3}[-/. ]([1-9]|[0-2][0-9]|[3][0-1])[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9])[.][0-9]{3}))'),to_date(End_Date,'YYYY-MON-DD HH24:MI:SS.MS'),\n(iif(length(End_Date)=27 AND reg_match(End_Date,'(([1-9]|[0-2][0-9]|[3][0-1])[-/. ][A-Za-z]{3}[-/. ][0-9]{1,5}[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9])[.][0-9]{6}))'),to_date(End_Date,'DD-MON-YYYY HH24:MI:SS.US'),\n(iif(length(End_Date)=27 AND reg_match(End_Date,'([A-Za-z]{3}[-/. ]([1-9]|[0-2][0-9]|[3][0-1])[-/. ][0-9]{1,5})[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9])[.][0-9]{6})'),to_date(End_Date,'MON-DD-YYYY HH24:MI:SS.US'),\n(iif(length(End_Date)=27 AND reg_match(End_Date,'([0-9]{1,5}[-/. ][A-Za-z]{3}[-/. ]([1-9]|[0-2][0-9]|[3][0-1])[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9])[.][0-9]{6}))'),to_date(End_Date,'YYYY-MON-DD HH24:MI:SS.US'),\n(iif(length(End_Date)=30 AND reg_match(End_Date,'(([1-9]|[0-2][0-9]|[3][0-1])[-/. ][A-Za-z]{3}[-/. ][0-9]{1,5}[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9])[.][0-9]{9}))'),to_date(End_Date,'DD-MON-YYYY HH24:MI:SS.NS'),\n(iif(length(End_Date)=30 AND reg_match(End_Date,'([A-Za-z]{3}[-/. ]([1-9]|[0-2][0-9]|[3][0-1])[-/. ][0-9]{1,5})[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9])[.][0-9]{9})'),to_date(End_Date,'MON-DD-YYYY HH24:MI:SS.NS'),\n(iif(length(End_Date)=30 AND reg_match(End_Date,'([0-9]{1,5}[-/. ][A-Za-z]{3}[-/. ]([1-9]|[0-2][0-9]|[3][0-1])[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9])[.][0-9]{9}))'),to_date(End_Date,'YYYY-MON-DD HH24:MI:SS.NS'),\n(iif(length(End_Date)=27 AND reg_match(End_Date,'(([1-9]|[0-2][0-9]|[3][0-1])[-/. ][A-Za-z]{3}[-/. ][0-9]{1,5}[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9])[.][0-9]{3}([AaPp][Mm])))'),to_date(End_Date,'DD-MON-YYYY HH12:MI:SS.MS AM'),\n(iif(length(End_Date)=27 AND reg_match(End_Date,'([A-Za-z]{3}[-/. ]([1-9]|[0-2][0-9]|[3][0-1])[-/. ][0-9]{1,5})[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9])[.][0-9]{3}([AaPp][Mm]))'),to_date(End_Date,'MON-DD-YYYY HH12:MI:SS.MS'),\n(iif(length(End_Date)=27 AND reg_match(End_Date,'([0-9]{1,5}[-/. ][A-Za-z]{3}[-/. ]([1-9]|[0-2][0-9]|[3][0-1])[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9])[.][0-9]{3}([AaPp][Mm])))'),to_date(End_Date,'YYYY-MON-DD HH12:MI:SS.MS AM'),\n(iif(length(End_Date)=30 AND reg_match(End_Date,'(([1-9]|[0-2][0-9]|[3][0-1])[-/. ][A-Za-z]{3}[-/. ][0-9]{1,5}[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9])[.][0-9]{6}([AaPp][Mm])))'),to_date(End_Date,'DD-MON-YYYY HH12:MI:SS.US AM'),\n(iif(length(End_Date)=30 AND reg_match(End_Date,'([A-Za-z]{3}[-/. ]([1-9]|[0-2][0-9]|[3][0-1])[-/. ][0-9]{1,5})[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9])[.][0-9]{6})'),to_date(End_Date,'MON-DD-YYYY HH24:MI:SS.US AM'),\n(iif(length(End_Date)=30 AND reg_match(End_Date,'([0-9]{1,5}[-/. ][A-Za-z]{3}[-/. ]([1-9]|[0-2][0-9]|[3][0-1])[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9])[.][0-9]{6}))'),to_date(End_Date,'YYYY-MON-DD HH12:MI:SS.US AM'),\n(iif(length(End_Date)=33 AND reg_match(End_Date,'(([1-9]|[0-2][0-9]|[3][0-1])[-/. ][A-Za-z]{3}[-/. ][0-9]{1,5}[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9])[.][0-9]{9}))'),to_date(End_Date,'DD-MON-YYYY HH12:MI:SS.NS AM'),\n(iif(length(End_Date)=33 AND reg_match(End_Date,'([A-Za-z]{3}[-/. ]([1-9]|[0-2][0-9]|[3][0-1])[-/. ][0-9]{1,5})[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9])[.][0-9]{9})'),to_date(End_Date,'MON-DD-YYYY HH12:MI:SS.NS AM'),\n(iif(length(End_Date)=33 AND reg_match(End_Date,'([0-9]{1,5}[-/. ][A-Za-z]{3}[-/. ]([1-9]|[0-2][0-9]|[3][0-1])[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9])[.][0-9]{9}))'),to_date(End_Date,'YYYY-MON-DD HH24:MI:SS.NS AM'),\n(iif(length(End_Date)=15 AND reg_match(End_Date,'(([1-9]|[0-2][0-9]|[3][0-1])[A-Za-z]{3}[0-9]{1,5}(([0-1][0-9]|[2][0-3])([0-5][0-9])([0-5][0-9])))'),to_date(End_Date,'DDMONYYYYHH24MISS'),\n(iif(length(End_Date)=15 AND reg_match(End_Date,'([A-Za-z]{3}([1-9]|[0-2][0-9]|[3][0-1])[0-9]{1,5}(([0-1][0-9]|[2][0-3])([0-5][0-9])([0-5][0-9])))'),to_date(End_Date,'MONDDYYYYHH24MISS'),\n(iif(length(End_Date)=15 AND reg_match(End_Date,'([0-9]{1,5}[A-Za-z]{3}([1-9]|[0-2][0-9]|[3][0-1])(([0-1][0-9]|[2][0-3])([0-5][0-9])([0-5][0-9])))'),to_date(End_Date,'YYYYMONDDHH24MISS'),\nnull)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))"
+          }
+        ]
+      }
+    ]
+  },
+  "vcsExportTime" : "2026-01-31 06:29:17 PST"
+}

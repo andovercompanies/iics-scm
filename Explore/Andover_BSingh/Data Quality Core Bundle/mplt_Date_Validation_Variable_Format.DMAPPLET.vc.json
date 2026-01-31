@@ -1,0 +1,186 @@
+{
+  "content" : {
+    "description" : "Validates an input date string. The input date format variable allows the user to specify the format the input date should be in.",
+    "allowMaxFieldLength" : "false",
+    "documentType" : "DMAPPLET",
+    "name" : "mplt_Date_Validation_Variable_Format",
+    "specialCharacterSupport" : "false",
+    "links" : [
+      {
+        "link" : "Input -> Expr_IsDateNull"
+      },
+      {
+        "link" : "Expr_IsDateNull -> Expr_ValidateDate"
+      },
+      {
+        "link" : "Expr_ValidateDate -> Output"
+      }
+    ],
+    "transformations" : [
+      {
+        "createTime" : "2020-07-30T07:30:38.779Z",
+        "name" : "Input",
+        "groups" : [
+          {
+            "input" : "false",
+            "name" : "DefaultGroup",
+            "output" : "true"
+          }
+        ],
+        "fields" : [
+          {
+            "name" : "In_Date",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 50,
+            "scale" : 0
+          },
+          {
+            "name" : "In_Date_Format",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 50,
+            "scale" : 0
+          }
+        ]
+      },
+      {
+        "createTime" : "2020-07-30T07:30:38.789Z",
+        "name" : "Output",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "false",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true",
+                "names" : [
+                  {
+                    "inputName" : "Out_Date_Status"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "fieldMappingMode" : "MANUAL",
+        "fields" : [
+          {
+            "name" : "Out_Date_Status",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 50,
+            "scale" : 0
+          }
+        ],
+        "manualMappings" : {
+          "mappingList" : [
+            {
+              "fromFieldName" : "Out_Date_Status",
+              "toField" : {
+                "name" : "Out_Date_Status"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "description" : "In_Format - The format  (as string ) of the input date string.  Default value is set to 'MM/DD/YYYY'\nif input is empty/blank.",
+        "createTime" : "2020-07-30T07:31:40.643Z",
+        "name" : "Expr_IsDateNull",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true",
+                "names" : [
+                  {
+                    "inputName" : "In_Date"
+                  },
+                  {
+                    "inputName" : "In_Date_Format",
+                    "outputName" : "In_Format"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "windowConfigurationEnabled" : "false",
+        "fields" : [
+          {
+            "name" : "Out_NotNullDate",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 50,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "iif(isnull(In_Date) or ltrim(rtrim(In_Date)) = '','00000000',In_Date)"
+          },
+          {
+            "name" : "Out_Default_Format",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 50,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "iif(isnull(In_Format) or ltrim(rtrim(In_Format)) = '', 'MM/DD/YYYY', In_Format)"
+          }
+        ]
+      },
+      {
+        "description" : "Variable definitions:  (defined in the Ports tabs )\nIn_Date_Format - The format  (as string ) of the input date string.  Default value is set to 'MM/DD/YYYY'",
+        "createTime" : "2020-07-30T07:36:06.620Z",
+        "name" : "Expr_ValidateDate",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true",
+                "names" : [
+                  {
+                    "inputName" : "Out_Default_Format",
+                    "outputName" : "In_Date_Format"
+                  },
+                  {
+                    "inputName" : "Out_NotNullDate",
+                    "outputName" : "In_Date1"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "windowConfigurationEnabled" : "false",
+        "fields" : [
+          {
+            "name" : "Out_Date_Status",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 50,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "iif(In_Date1 = '00000000','Invalid, input is blank',\n   iif(is_Date(In_Date1,In_Date_Format),'Valid','Invalid'))"
+          }
+        ]
+      }
+    ]
+  },
+  "vcsExportTime" : "2026-01-31 06:29:18 PST"
+}

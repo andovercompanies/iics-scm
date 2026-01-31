@@ -1,0 +1,199 @@
+{
+  "content" : {
+    "description" : "The Bigram algorithm calculates a match score for two data strings based on the occurrence of consecutive characters in both strings. The algorithm looks for pairs of consecutive characters that are common to both strings. It divides the number of pairs that match in both strings by the total number of character pairs.",
+    "allowMaxFieldLength" : "false",
+    "documentType" : "DMAPPLET",
+    "name" : "mplt_Comparison_Bigram",
+    "specialCharacterSupport" : "false",
+    "links" : [
+      {
+        "link" : "Bigram_Algorithm -> Bigram_Output"
+      },
+      {
+        "link" : "Bigram_Input -> Bigram_Algorithm"
+      }
+    ],
+    "transformations" : [
+      {
+        "createTime" : "2022-10-26T21:24:58.027Z",
+        "name" : "Bigram_Input",
+        "groups" : [
+          {
+            "input" : "false",
+            "name" : "DefaultGroup",
+            "output" : "true"
+          }
+        ],
+        "fields" : [
+          {
+            "description" : "First string value",
+            "name" : "string1",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 512,
+            "scale" : 0
+          },
+          {
+            "description" : "Second string value",
+            "name" : "string2",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 512,
+            "scale" : 0
+          },
+          {
+            "description" : "Score for when one input is null",
+            "name" : "singleFieldNull",
+            "platformType" : {
+              "name" : "double"
+            },
+            "precision" : 15,
+            "scale" : 0
+          },
+          {
+            "description" : "Score for when both inputs are null",
+            "name" : "bothFieldsNull",
+            "platformType" : {
+              "name" : "double"
+            },
+            "precision" : 15,
+            "scale" : 0
+          }
+        ]
+      },
+      {
+        "createTime" : "2022-10-26T21:24:58.027Z",
+        "name" : "Bigram_Output",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "false",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "fieldMappingMode" : "MANUAL",
+        "fields" : [
+          {
+            "name" : "score",
+            "platformType" : {
+              "name" : "double"
+            },
+            "precision" : 15,
+            "scale" : 0
+          }
+        ],
+        "manualMappings" : {
+          "mappingList" : [
+            {
+              "fromFieldName" : "score",
+              "toField" : {
+                "name" : "score"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "createTime" : "2022-10-26T21:33:21.965Z",
+        "name" : "Bigram_Algorithm",
+        "advancedProperties" : [
+          {
+            "name" : "Tracing Level",
+            "value" : "Normal"
+          },
+          {
+            "name" : "Transformation Scope",
+            "value" : "Row"
+          },
+          {
+            "name" : "Update Strategy Transformation",
+            "value" : "false"
+          },
+          {
+            "name" : "Enable_High_Precision",
+            "value" : "false"
+          },
+          {
+            "name" : "Optional",
+            "value" : "true"
+          },
+          {
+            "name" : "Is Active",
+            "value" : "false"
+          },
+          {
+            "name" : "Use_Nano_Seconds_In_Datetime",
+            "value" : "false"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "helperCodeSnippet" : "private static final double  DEFAULT_SINGLE_NULL_DISTANCE = onPremiseRoundError(0.5);\nprivate static final double  DEFAULT_DOUBLE_NULL_DISTANCE = onPremiseRoundError(0.5);\n\t\nprivate double  singleNullDistanceScore = DEFAULT_SINGLE_NULL_DISTANCE;\nprivate double  doubleNullDistanceScore = DEFAULT_DOUBLE_NULL_DISTANCE;\nprivate boolean initialized = false;\n\t\n/*\n * There is a bug in the on-premise product where the single / double null distance values\n * have a float to double rounding error. For example, if the user specifies one of the \n * values to be 0.9, the actual value output is 0.8999999761581421. This is because somewhere\n * in the on-premise product, the initial \"0.9\" is a float that gets converted the output\n * data type of double.\n */\nprivate static double onPremiseRoundError(final double val) {\n  float f = (float)val;\n  return (double)f;\n}\n                    \nprivate double computeBigramDistance(final String string1, final String string2) throws SDKException {\n  BitSet matchedBigrams = new BitSet();   // Self adjusting to size\n \n  // Special check if both inputs are 1 char long\n  int lenA = string1.length();\n  int lenB = string2.length();\n  if ((lenA == 1) && (lenB == 1)) {\n    return (string1.equals(string2)) ? 1.0 : 0.0;\n  }\n\n  // Make sure the MatchBigrams buffer is set to false\n  matchedBigrams.clear();\n  \n  double numBigrams = 0.0;\n\n  for (int iA = 0; iA < (lenA - 1); iA++) {\n    for (int iB = 0; iB < (lenB - 1); iB++) {\n      if ( ! matchedBigrams.get(iB)) {\n        if ((string1.charAt(iA) == string2.charAt(iB)) && (string1.charAt(iA + 1) == string2.charAt(iB + 1))) {\n          matchedBigrams.set(iB);\n          numBigrams++;\n          break;\n        }\n      }\n    }\n  }  \n\n  return (numBigrams * 2.0) / (double)(lenA + lenB - 2);  \n}\n",
+        "importPackagesSnippet" : "import java.util.BitSet;\n\n",
+        "lastCompilationFailed" : "false",
+        "onEndOfDataMethodSnippet" : "\n",
+        "onInputRowMethodSnippet" : "// Initialization\nif ( ! initialized ) {\n  if (!isNull(\"singleFieldNull\")) {\n    singleNullDistanceScore = onPremiseRoundError(singleFieldNull);\n  }\n  if (!isNull(\"bothFieldsNull\")) {\n    doubleNullDistanceScore = onPremiseRoundError(bothFieldsNull);\n  }\n  initialized = true;\n}\n\n// Compute score\nif (isNull(\"string1\")){\n  if (isNull(\"string2\")) {\n    score = doubleNullDistanceScore;\n  } else {\n    score = singleNullDistanceScore;\n  }\n} else if (isNull(\"string2\")) {\n  score = singleNullDistanceScore;\n} else {\n  score = computeBigramDistance(string1,string2);\n}\n",
+        "onTransactionMethodSnippet" : "// TODO: Enter the code that executes when the transformation receives a transaction here.\n",
+        "runtimeEnvId" : "01A6IV25000000000002",
+        "sorterModeJava" : "SIMPLE",
+        "unmodifiedCompilation" : "true",
+        "compiledInputFields" : [
+          {
+            "name" : "string1",
+            "precision" : 512,
+            "scale" : 0,
+            "type" : "string"
+          },
+          {
+            "name" : "string2",
+            "precision" : 512,
+            "scale" : 0,
+            "type" : "string"
+          },
+          {
+            "name" : "singleFieldNull",
+            "precision" : 15,
+            "scale" : 0,
+            "type" : "double"
+          },
+          {
+            "name" : "bothFieldsNull",
+            "precision" : 15,
+            "scale" : 0,
+            "type" : "double"
+          }
+        ],
+        "outputFields" : [
+          {
+            "name" : "score",
+            "platformType" : {
+              "name" : "double"
+            },
+            "precision" : 15,
+            "scale" : 0
+          }
+        ]
+      }
+    ]
+  },
+  "vcsExportTime" : "2026-01-31 06:29:17 PST"
+}

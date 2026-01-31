@@ -1,0 +1,396 @@
+{
+  "content" : {
+    "description" : "Parses alphabetic characters and spaces from non-alphabetic characters.",
+    "allowMaxFieldLength" : "false",
+    "documentType" : "DMAPPLET",
+    "name" : "mplt_Parse_Alpha_Chars_from_Non_Alpha_Chars",
+    "specialCharacterSupport" : "false",
+    "links" : [
+      {
+        "link" : "Input -> lbl_Chars",
+        "groupLink" : "DefaultGroup -> Input group:"
+      },
+      {
+        "link" : "Input -> Java_Parse_Chars"
+      },
+      {
+        "link" : "lbl_Chars -> Java_Parse_Chars",
+        "groupLink" : "MappletOutputTx_Output -> DefaultGroup"
+      },
+      {
+        "link" : "Java_Parse_Chars -> c_remove_spaces",
+        "groupLink" : "DefaultGroup -> Input group:"
+      },
+      {
+        "link" : "c_remove_spaces -> Output",
+        "groupLink" : "MappletOutputTx_Output -> DefaultGroup"
+      }
+    ],
+    "transformations" : [
+      {
+        "createTime" : "2020-11-12T09:01:24.364Z",
+        "name" : "Input",
+        "groups" : [
+          {
+            "input" : "false",
+            "name" : "DefaultGroup",
+            "output" : "true"
+          }
+        ],
+        "fields" : [
+          {
+            "name" : "Input",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 255,
+            "scale" : 0
+          }
+        ]
+      },
+      {
+        "createTime" : "2020-11-12T09:01:24.370Z",
+        "name" : "Output",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "false",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "fieldMappingMode" : "MANUAL",
+        "fields" : [
+          {
+            "name" : "Input",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 255,
+            "scale" : 0
+          },
+          {
+            "name" : "Alpha",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 255,
+            "scale" : 0
+          },
+          {
+            "name" : "NonAlpha",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 255,
+            "scale" : 0
+          }
+        ],
+        "manualMappings" : {
+          "mappingList" : [
+            {
+              "fromFieldName" : "Input",
+              "toField" : {
+                "name" : "Input"
+              }
+            },
+            {
+              "fromFieldName" : "Alpha_Cleansed",
+              "toField" : {
+                "name" : "Alpha"
+              }
+            },
+            {
+              "fromFieldName" : "NonAlpha_Cleansed",
+              "toField" : {
+                "name" : "NonAlpha"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "createTime" : "2020-11-17T14:23:12.655Z",
+        "name" : "Java_Parse_Chars",
+        "advancedProperties" : [
+          {
+            "name" : "Is Active",
+            "value" : "false"
+          },
+          {
+            "name" : "Tracing Level",
+            "value" : "Normal"
+          },
+          {
+            "name" : "Transformation Scope",
+            "value" : "Row"
+          },
+          {
+            "name" : "Update Strategy Transformation",
+            "value" : "false"
+          },
+          {
+            "name" : "Enable_High_Precision",
+            "value" : "false"
+          },
+          {
+            "name" : "Use_Nano_Seconds_In_Datetime",
+            "value" : "false"
+          },
+          {
+            "name" : "Optional",
+            "value" : "true"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "conflictResolutions" : [
+              {
+                "precedingGroupName" : "DefaultGroup",
+                "precedingTxName" : "Input",
+                "rule" : {
+                  "bulkRename" : "true",
+                  "include" : "true",
+                  "bulkRenameOption" : {
+                    "literal" : "lbl",
+                    "suffix" : "false"
+                  }
+                }
+              }
+            ],
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true",
+                "names" : [
+                  {
+                    "inputName" : "Input"
+                  },
+                  {
+                    "inputName" : "LabeledOutput"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "helperCodeSnippet" : "// TODO: Declare static and non-static partition-level variables and functions here.\n// For example,\n//\n// static int countNullRows;   // Counts the number of output rows across all partitions that contains null values.\n// int partCountNullRows;      // Counts the number of output rows in this partition that contains null values.\n//\n// static Object lock = new Object();   // Lock to synchronize countNullRows.\n",
+        "importPackagesSnippet" : "// TODO: Enter the Java packages to be imported here.\n// For example, if you want to use Hashtable in any of the snippets, import it as shown below:\n\nimport java.lang.*;\nimport java.util.*;\n\n",
+        "lastCompilationFailed" : "false",
+        "onEndOfDataMethodSnippet" : "// TODO: Enter the code that executes after the transformation receives all of the input data here.\n//\n// logInfo(\"The number of null rows for this partition is: \" + partCountNullRows);\n// synchronized(lock)\n// {\n//\t\tlogInfo(\"The total number of null rows across partitions until now is: \" +  countNullRows);\n// }\n",
+        "onInputRowMethodSnippet" : "// ToDo: Enter code to process an input row here.\n\nint len = 0;\nint i = 0;\nint ascii = 0;\n\n//String s_Array[] = new String[len];\nchar c_curnt = 0;\nchar c_prev = 0;\n\nAlpha = \"\";\nNonAlpha = \"\";\n\nif (Input != null) {\n\t\n\tlen = Input.length();\n\t// loop through Input and load chars to ports\n\tdo {\n\t\tc_curnt = LabeledOutput.charAt(i);\n\t\tif (c_curnt == 'X'){\n\t\t\tAlpha = Alpha + Input.charAt(i);\n\t\t\tNonAlpha = NonAlpha + ' ';\n\t\t}\n\t\telse if (c_curnt == '9') {\n\t\t\tAlpha = Alpha + ' ';\n\t\t\tNonAlpha = NonAlpha +Input.charAt(i);\n\t\t}\n\t\telse if (c_curnt == 'S') {\n\t\t\tascii = (int) Input.charAt(i);\n\t\t\tif ((ascii == 39 || ascii == 45 | ascii == 44) && c_prev == 'X') {\n\t\t\t\tAlpha = Alpha + Input.charAt(i);\n\t\t\t}\n\t\t\telse {\n\t\t\t\tAlpha = Alpha + ' ';\n\t\t\t\tNonAlpha = NonAlpha +Input.charAt(i);\n\t\t\t}\n\t\t}\n\t\telse if (c_curnt == '_') {\n\t\t\tif (c_prev == 'X') {\n\t\t\t\tAlpha = Alpha + Input.charAt(i);\n\t\t\t}\n\t\t\telse {\n\t\t\t\tNonAlpha = NonAlpha +Input.charAt(i);\n\t\t\t}\n\t\t}\n\t\telse {\n\t\t\tNonAlpha = NonAlpha + Input.charAt(i);\n\t\t}\n\t\tc_prev = c_curnt;\n\t\ti++;\n\t}\n\twhile (i < len);\n}\nelse {\n\tAlpha = \"\";\n\tNonAlpha = \"\";\n}\n\nAlpha = Alpha.trim();\nNonAlpha = NonAlpha.trim();\t\n\n",
+        "onTransactionMethodSnippet" : "// TODO: Enter the code that executes when the transformation receives a transaction here.\n",
+        "runtimeEnvId" : "01A6IV25000000000002",
+        "sorterModeJava" : "SIMPLE",
+        "unmodifiedCompilation" : "true",
+        "compiledInputFields" : [
+          {
+            "name" : "LabeledOutput",
+            "precision" : 255,
+            "scale" : 0,
+            "type" : "string"
+          },
+          {
+            "name" : "Input",
+            "precision" : 255,
+            "scale" : 0,
+            "type" : "string"
+          }
+        ],
+        "outputFields" : [
+          {
+            "name" : "Alpha",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 255,
+            "scale" : 0
+          },
+          {
+            "name" : "NonAlpha",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 255,
+            "scale" : 0
+          }
+        ]
+      },
+      {
+        "createTime" : "2022-11-15T04:25:43.205Z",
+        "name" : "lbl_Chars",
+        "advancedProperties" : [
+          {
+            "name" : "version",
+            "value" : "R37"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "Input group:",
+            "output" : "false",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          },
+          {
+            "input" : "false",
+            "name" : "MappletOutputTx_Output",
+            "output" : "true"
+          }
+        ],
+        "assetId" : "@9WPhxfhzCqUctfxdl0mwsy",
+        "inputGroups" : [
+          {
+            "name" : "Input group:",
+            "fieldMappingMode" : "MANUAL",
+            "fieldMapping" : {
+              "fields" : [
+                {
+                  "name" : "Input",
+                  "precision" : 0,
+                  "scale" : 0,
+                  "txField" : {
+                    "name" : "lbl_Chars"
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "inputFields" : {
+          "fieldList" : [
+            {
+              "name" : "lbl_Chars",
+              "platformType" : {
+                "name" : "string"
+              },
+              "precision" : 255,
+              "scale" : 0
+            }
+          ]
+        },
+        "outputFields" : {
+          "fieldList" : [
+            {
+              "name" : "LabeledOutput",
+              "platformType" : {
+                "name" : "string"
+              },
+              "precision" : 255,
+              "scale" : 0
+            }
+          ]
+        }
+      },
+      {
+        "createTime" : "2022-11-15T11:55:55.914Z",
+        "name" : "c_remove_spaces",
+        "advancedProperties" : [
+          {
+            "name" : "version",
+            "value" : "R37"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "Input group:",
+            "output" : "false",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          },
+          {
+            "input" : "false",
+            "name" : "MappletOutputTx_Output",
+            "output" : "true"
+          }
+        ],
+        "assetId" : "@fJEsHBCyJgHdbEyZjN6hSK",
+        "inputGroups" : [
+          {
+            "name" : "Input group:",
+            "fieldMappingMode" : "MANUAL",
+            "fieldMapping" : {
+              "fields" : [
+                {
+                  "name" : "Alpha",
+                  "precision" : 0,
+                  "scale" : 0,
+                  "txField" : {
+                    "name" : "Alpha"
+                  }
+                },
+                {
+                  "name" : "NonAlpha",
+                  "precision" : 0,
+                  "scale" : 0,
+                  "txField" : {
+                    "name" : "NonAlpha"
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "inputFields" : {
+          "fieldList" : [
+            {
+              "name" : "Alpha",
+              "platformType" : {
+                "name" : "string"
+              },
+              "precision" : 255,
+              "scale" : 0
+            },
+            {
+              "name" : "NonAlpha",
+              "platformType" : {
+                "name" : "string"
+              },
+              "precision" : 255,
+              "scale" : 0
+            }
+          ]
+        },
+        "outputFields" : {
+          "fieldList" : [
+            {
+              "name" : "Alpha_Cleansed",
+              "platformType" : {
+                "name" : "string"
+              },
+              "precision" : 255,
+              "scale" : 0
+            },
+            {
+              "name" : "NonAlpha_Cleansed",
+              "platformType" : {
+                "name" : "string"
+              },
+              "precision" : 255,
+              "scale" : 0
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "vcsExportTime" : "2026-01-31 06:29:20 PST"
+}

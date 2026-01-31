@@ -1,0 +1,229 @@
+{
+  "content" : {
+    "description" : "The Jaro Distance match score reflects the degree of similarity between the first four characters of both strings and the number of identified character transpositions. The transformation weights the importance of the match between the first four characters by using the value that you enter in the Penalty property.",
+    "allowMaxFieldLength" : "false",
+    "documentType" : "DMAPPLET",
+    "name" : "mplt_Comparison_JaroDistance",
+    "specialCharacterSupport" : "false",
+    "links" : [
+      {
+        "link" : "JaroDistance -> JaroDistance_Output"
+      },
+      {
+        "link" : "JaroDistance_Input -> JaroDistance"
+      }
+    ],
+    "transformations" : [
+      {
+        "createTime" : "2022-10-27T14:25:59.170Z",
+        "name" : "JaroDistance_Input",
+        "groups" : [
+          {
+            "input" : "false",
+            "name" : "DefaultGroup",
+            "output" : "true"
+          }
+        ],
+        "fields" : [
+          {
+            "description" : "First string value",
+            "name" : "string1",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 512,
+            "scale" : 0
+          },
+          {
+            "description" : "Second string value",
+            "name" : "string2",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 512,
+            "scale" : 0
+          },
+          {
+            "description" : "Score when one of the inputs is null",
+            "name" : "singleFieldNull",
+            "platformType" : {
+              "name" : "double"
+            },
+            "precision" : 15,
+            "scale" : 0
+          },
+          {
+            "description" : "Score when both fields are null",
+            "name" : "bothFieldsNull",
+            "platformType" : {
+              "name" : "double"
+            },
+            "precision" : 15,
+            "scale" : 0
+          },
+          {
+            "description" : "Penalty for not matching the first 4 characters of the string",
+            "name" : "penalty",
+            "platformType" : {
+              "name" : "double"
+            },
+            "precision" : 15,
+            "scale" : 0
+          },
+          {
+            "description" : "1 for case sensitive comparison; 0 for case insensitive comparison",
+            "name" : "caseSensitive",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          }
+        ]
+      },
+      {
+        "createTime" : "2022-10-27T14:25:59.172Z",
+        "name" : "JaroDistance_Output",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "false",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "fieldMappingMode" : "MANUAL",
+        "fields" : [
+          {
+            "name" : "score",
+            "platformType" : {
+              "name" : "double"
+            },
+            "precision" : 15,
+            "scale" : 0
+          }
+        ],
+        "manualMappings" : {
+          "mappingList" : [
+            {
+              "fromFieldName" : "score",
+              "toField" : {
+                "name" : "score"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "createTime" : "2022-10-27T17:35:26.186Z",
+        "name" : "JaroDistance",
+        "advancedProperties" : [
+          {
+            "name" : "Tracing Level",
+            "value" : "Normal"
+          },
+          {
+            "name" : "Transformation Scope",
+            "value" : "Row"
+          },
+          {
+            "name" : "Update Strategy Transformation",
+            "value" : "false"
+          },
+          {
+            "name" : "Enable_High_Precision",
+            "value" : "false"
+          },
+          {
+            "name" : "Optional",
+            "value" : "true"
+          },
+          {
+            "name" : "Is Active",
+            "value" : "false"
+          },
+          {
+            "name" : "Use_Nano_Seconds_In_Datetime",
+            "value" : "false"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "helperCodeSnippet" : "private static final double  DEFAULT_SINGLE_NULL_DISTANCE = onPremiseRoundError(0.5);\nprivate static final double  DEFAULT_DOUBLE_NULL_DISTANCE = onPremiseRoundError(0.5);\nprivate static final double  DEFAULT_PENALTY = onPremiseRoundError(0.2);\nprivate static final boolean DEFAULT_CASE_SENSITIVE = false;\nprivate static final int     NOT_MATCHED = -2;\nprivate static final int     PENALTY_WEIGHTS [] = {8, 4, 2, 1};\n\t\nprivate double  singleNullDistanceScore = DEFAULT_SINGLE_NULL_DISTANCE;\nprivate double  doubleNullDistanceScore = DEFAULT_DOUBLE_NULL_DISTANCE;\nprivate double  penaltyWeight = DEFAULT_PENALTY;\nprivate boolean caseSensitiveFlag = DEFAULT_CASE_SENSITIVE;\nprivate boolean initialized = false;\n\t\n/*\n * There is a bug in the on-premise product where the single / double null distance values\n * have a float to double rounding error. For example, if the user specifies one of the \n * values to be 0.9, the actual value output is 0.8999999761581421. This is because somewhere\n * in the on-premise product, the initial \"0.9\" is a float that gets converted the output\n * data type of double.\n */\nprivate static double onPremiseRoundError(final double val) {\n  float f = (float)val;\n  return (double)f;\n}\n\nprivate double computeJaroDistance(final String sA, final String sB) {\n  // We want B to be the longer string\n  String stringA = sA;\n  String stringB = sB;\n  if (stringA.length() > stringB.length()) {\n    stringA = sB;\n    stringB = sA;\n  }\n\n  int lenA = stringA.length();\n  int lenB = stringB.length();\n\n  // If we're not case sensitive, then upper case the two strings\n  if ( ! caseSensitiveFlag) {\n    stringA = stringA.toUpperCase();\n    stringB = stringB.toUpperCase();\n  }\n\n  // Check if strings are identical\n  if (stringA.equals(stringB)) {\n    return 1.0;\n  }\n\n  // Zero out the match vector (or in this case, set it to -2)\n  int [] matchVector = new int[lenB];\n  Arrays.fill(matchVector, NOT_MATCHED);\n\n  BitSet matchA = new BitSet();\t // Self adjusting to size\n\n  // First of all we count the common characters\n  int commonChars = 0;\n  final int searchWindowSize = (lenA / 2) + 1;\n\n  // For each char in the shorter string, find it in the longer string within the search windows\n  for (int iA = 0; iA < lenA; ++iA) {\n    final int lb = (searchWindowSize > iA) ? 0 : iA - searchWindowSize;\n    final int ub = (lenB < (iA + searchWindowSize + 1)) ? lenB : iA + searchWindowSize + 1;\n\n    for (int iB = lb; iB < ub; iB++) {\n      if (stringA.charAt(iA) == stringB.charAt(iB)) {\n        if (matchVector[iB] == NOT_MATCHED) {\n          commonChars++;\n          matchVector[iB] = iA;\n          matchA.set(iA);\n          break;\n        }\n      }\n    }\n  }\n\n  if (commonChars == 0) {\n    return 0.0;\n  }\n\n  // Now we count the transposed characters\n  char [] commonA = new char[commonChars];\n  \n  // Now we copy the matched chars from string A into a temp buffer.\n  for (int iA = 0, iT = 0; iA < lenA; iA++) {\n    if (matchA.get(iA)) {\n      commonA[iT++] = stringA.charAt(iA);\n    }\n  }\n\n  // Now compare the matching chars to check if they are in the same order in A & B\n  int transposedChars = 0;\n  for (int iB = 0, iT = 0; iB < lenB; iB++) {\n    if (matchVector[iB] != NOT_MATCHED) {\n      if (commonA[iT++] != stringB.charAt(iB)) {\n        transposedChars++;\n      }\n    }\n  }\n  transposedChars /= 2;\n\n  // Now calculate the penalty\n  int penalty = 0;\n  final int penaltyBound = Math.min(lenA, 4);\n  for (int iPen = 0; iPen < penaltyBound; iPen++) {\n    if (stringA.charAt(iPen) != stringB.charAt(iPen)) {\n      penalty += PENALTY_WEIGHTS[iPen];\n    }\n  }\n\n  double answer = (((double)commonChars / (double)lenA) // Common chars / length A\n          +  ((double)commonChars / (double)lenB) // Common chars / length B\n          +  (1.0 - ((double)transposedChars / (double)commonChars)))\n          / 3.0;\n\n  answer -= (double)penalty * penaltyWeight * 0.125;\n\n  return (answer < 0.0) ? 0.0 : answer;\n}\n\n",
+        "importPackagesSnippet" : "import java.util.Arrays;\nimport java.util.BitSet;\n\n",
+        "lastCompilationFailed" : "false",
+        "onEndOfDataMethodSnippet" : "\n\n",
+        "onInputRowMethodSnippet" : "// Initialization\nif ( ! initialized ) {\n  if (!isNull(\"singleFieldNull\")) {\n    singleNullDistanceScore = onPremiseRoundError(singleFieldNull);\n  }\n  if (!isNull(\"bothFieldsNull\")) {\n    doubleNullDistanceScore = onPremiseRoundError(bothFieldsNull);\n  }\n  if (!isNull(\"penalty\")) {\n    penaltyWeight = onPremiseRoundError(penalty);\n  }\n  if (!isNull(\"caseSensitive\")) {\n    caseSensitiveFlag = (caseSensitive != 0);\n  }\n  initialized = true;\n}\n\n// Compute score\nif (isNull(\"string1\")){\n  if (isNull(\"string2\")) {\n    score = doubleNullDistanceScore;\n  } else {\n    score = singleNullDistanceScore;\n  }\n} else if (isNull(\"string2\")) {\n  score = singleNullDistanceScore;\n} else {\n  score = computeJaroDistance(string1,string2);\n}\n\n",
+        "onTransactionMethodSnippet" : "// TODO: Enter the code that executes when the transformation receives a transaction here.\n",
+        "runtimeEnvId" : "01A6IV25000000000002",
+        "sorterModeJava" : "SIMPLE",
+        "unmodifiedCompilation" : "true",
+        "compiledInputFields" : [
+          {
+            "name" : "string1",
+            "precision" : 512,
+            "scale" : 0,
+            "type" : "string"
+          },
+          {
+            "name" : "string2",
+            "precision" : 512,
+            "scale" : 0,
+            "type" : "string"
+          },
+          {
+            "name" : "singleFieldNull",
+            "precision" : 15,
+            "scale" : 0,
+            "type" : "double"
+          },
+          {
+            "name" : "bothFieldsNull",
+            "precision" : 15,
+            "scale" : 0,
+            "type" : "double"
+          },
+          {
+            "name" : "penalty",
+            "precision" : 15,
+            "scale" : 0,
+            "type" : "double"
+          },
+          {
+            "name" : "caseSensitive",
+            "precision" : 10,
+            "scale" : 0,
+            "type" : "integer"
+          }
+        ],
+        "outputFields" : [
+          {
+            "name" : "score",
+            "platformType" : {
+              "name" : "double"
+            },
+            "precision" : 15,
+            "scale" : 0
+          }
+        ]
+      }
+    ]
+  },
+  "vcsExportTime" : "2026-01-31 06:29:19 PST"
+}

@@ -1,0 +1,266 @@
+{
+  "content" : {
+    "description" : "Returns the number of years since a given date.\n",
+    "allowMaxFieldLength" : "false",
+    "documentType" : "DMAPPLET",
+    "name" : "mplt_Years_Since_Date_Of_Birth",
+    "specialCharacterSupport" : "false",
+    "links" : [
+      {
+        "link" : "Input -> c_Replace_Back_Slash_with_Fwd_Slash",
+        "groupLink" : "DefaultGroup -> Input group:"
+      },
+      {
+        "link" : "Expr_String_To_Date -> Expr_Validate_Years_Since_DOB"
+      },
+      {
+        "link" : "Expr_Validate_Years_Since_DOB -> Output"
+      },
+      {
+        "link" : "c_Replace_Back_Slash_with_Fwd_Slash -> Expr_String_To_Date",
+        "groupLink" : "MappletOutputTx_Output -> DefaultGroup"
+      }
+    ],
+    "transformations" : [
+      {
+        "createTime" : "2020-07-22T16:28:48.566Z",
+        "name" : "Input",
+        "groups" : [
+          {
+            "input" : "false",
+            "name" : "DefaultGroup",
+            "output" : "true"
+          }
+        ],
+        "fields" : [
+          {
+            "name" : "Input_Date",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 255,
+            "scale" : 0
+          }
+        ]
+      },
+      {
+        "createTime" : "2020-07-23T05:28:48.889Z",
+        "name" : "c_Replace_Back_Slash_with_Fwd_Slash",
+        "advancedProperties" : [
+          {
+            "name" : "version",
+            "value" : "R37"
+          },
+          {
+            "name" : "version",
+            "value" : "R37"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "Input group:",
+            "output" : "false",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          },
+          {
+            "input" : "false",
+            "name" : "MappletOutputTx_Output",
+            "output" : "true"
+          }
+        ],
+        "assetId" : "@c3qAdwfCpgeddVBlp0oRYA",
+        "inputGroups" : [
+          {
+            "name" : "Input group:",
+            "fieldMappingMode" : "BY_NAME"
+          }
+        ],
+        "inputFields" : {
+          "fieldList" : [
+            {
+              "name" : "Input_Date",
+              "platformType" : {
+                "name" : "string"
+              },
+              "precision" : 255,
+              "scale" : 0
+            }
+          ]
+        },
+        "outputFields" : {
+          "fieldList" : [
+            {
+              "name" : "Input_Date_c_Replace_Back_Slash_with_Fwd_Slash",
+              "platformType" : {
+                "name" : "string"
+              },
+              "precision" : 255,
+              "scale" : 0
+            }
+          ]
+        }
+      },
+      {
+        "createTime" : "2020-07-23T05:57:26.704Z",
+        "name" : "Expr_Validate_Years_Since_DOB",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true",
+                "names" : [
+                  {
+                    "inputName" : "Out_Expr_Date",
+                    "outputName" : "In_Date"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "windowConfigurationEnabled" : "false",
+        "fields" : [
+          {
+            "name" : "v_Check_Date",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 10,
+            "scale" : 0,
+            "expFieldType" : "VARIABLE",
+            "expression" : "is_date(to_char(In_Date))"
+          },
+          {
+            "name" : "v_Years",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 5,
+            "scale" : 2,
+            "expFieldType" : "VARIABLE",
+            "expression" : "date_diff(SYSDATE, In_Date, 'Y')"
+          },
+          {
+            "name" : "Out_Years",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 5,
+            "scale" : 2,
+            "expFieldType" : "OUTPUT",
+            "expression" : "v_Years"
+          },
+          {
+            "name" : "Out_Status",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 100,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "iif(v_Check_Date='1' AND (v_Years < 0),'Age is negative',\n(iif(v_Check_Date='1' AND (v_Years > 0 AND v_Years <= 18),'Age is between 0 and 18',\n(iif(v_Check_Date='1' AND (v_Years > 18 AND v_Years <= 120),'Current age is '||abs(v_Years)||' years',\n(iif(v_Check_Date='1' AND (v_Years >120),'Current age is over 120 years',\niif(v_Check_Date='0' ,'Invalid date input',\n'Invalid'))))))))"
+          }
+        ]
+      },
+      {
+        "createTime" : "2020-07-23T05:24:48.850Z",
+        "name" : "Expr_String_To_Date",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true",
+                "names" : [
+                  {
+                    "inputName" : "Input_Date_c_Replace_Back_Slash_with_Fwd_Slash",
+                    "outputName" : "In_Birth_Date"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "windowConfigurationEnabled" : "false",
+        "fields" : [
+          {
+            "name" : "Out_Expr_Date",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9,
+            "expFieldType" : "OUTPUT",
+            "expression" : "iif(isNull(In_Birth_Date) OR ltrim(rtrim(In_Birth_Date))='',null,\n(iif(length(In_Birth_Date)=7 AND is_date(In_Birth_Date,'J'),to_date(In_Birth_Date,'J'),\n(iif(length(In_Birth_Date)=7 AND reg_match(In_Birth_Date,'((([1-9]|[0-2][0-9]|[3][0-1]){1,2})(([1-9]|0[1-9]|1[012]){1,2})([0-9]{1,4}))'),to_date('0'||In_Birth_Date,'DDMMYYYY'),\n(iif(length(In_Birth_Date)=8 AND reg_match(In_Birth_Date,'(((0[1-9]|[1-2][0-9]|[3][0-1]){1,2})((0[1-9]|1[012]){1,2})([0-9]{1,4}))'),to_date(In_Birth_Date,'DDMMYYYY'),\n(iif(length(In_Birth_Date)=8 AND reg_match(In_Birth_Date,'((((0[1-9]|1[012]){1,2})(0[1-9]|[1-2][0-9]|[3][0-1]){1,2})([0-9]{1,4}))'),to_date(In_Birth_Date,'MMDDYYYY'),\n(iif(length(In_Birth_Date)=8 AND reg_match(In_Birth_Date,'(([0-9]{1,4})((0[1-9]|1[012]){1,2})((0[1-9]|[1-2][0-9]|[3][0-1]){1,2}))'),to_date(In_Birth_Date,'YYYYMMDD'),\n(iif((length(In_Birth_Date)=8 OR length(In_Birth_Date)=9 OR length(In_Birth_Date)=10) AND reg_match(In_Birth_Date,'[0-9]{8,10}'),Add_To_Date(To_Date('01-01-1970', 'DD-MM-YYYY'),'SS',to_integer(In_Birth_Date)),\n(iif(length(In_Birth_Date)=13 AND reg_match(In_Birth_Date,'[0-9]{13}'),to_date('0'||In_Birth_Date,'DDMMYYYYHH24MISS'),\n(iif(length(In_Birth_Date)=14 AND reg_match(In_Birth_Date,'[0-9]{14}'),to_date(In_Birth_Date,'DDMMYYYYHH24MISS'),\n(iif((length(In_Birth_Date)=10 OR length(In_Birth_Date)=8 OR length(In_Birth_Date)=9 OR length(In_Birth_Date)=7) AND reg_match(In_Birth_Date,'(([1-9]|[0-2][0-9]|[3][0-1])[-/. ]([1-9]|0[1-9]|1[012])[-/. ][0-9]{1,5})'),to_date(In_Birth_Date,'DD-MM-YYYY'),\n(iif((length(In_Birth_Date)=10 OR length(In_Birth_Date)=8 OR length(In_Birth_Date)=9 OR length(In_Birth_Date)=7) AND reg_match(In_Birth_Date,'(([1-9]|0[1-9]|1[012])[-/. ]([1-9]|[0-2][0-9]|[3][0-1])[-/. ][0-9]{1,5})'),to_date(In_Birth_Date,'MM-DD-YYYY'),\n(iif((length(In_Birth_Date)=10 OR length(In_Birth_Date)=8 OR length(In_Birth_Date)=9 OR length(In_Birth_Date)=7) AND reg_match(In_Birth_Date,'([0-9]{1,5}[-/. ]([1-9]|0[1-9]|1[012])[-/. ]([1-9]|[0-2][0-9]|[3][0-1]))'),to_date(In_Birth_Date,'YYYY-MM-DD'),\n(iif((length(In_Birth_Date)=11 OR length(In_Birth_Date)=8 OR length(In_Birth_Date)=9 OR length(In_Birth_Date)=7) AND reg_match(In_Birth_Date,'(([1-9]|[0-2][0-9]|[3][0-1])[-/. ][A-Za-z]{3}[-/. ][0-9]{1,5})'),to_date(In_Birth_Date,'DD-MON-YYYY'),\n(iif((length(In_Birth_Date)=11 OR length(In_Birth_Date)=8 OR length(In_Birth_Date)=9 OR length(In_Birth_Date)=7) AND reg_match(In_Birth_Date,'([A-Za-z]{3}[-/. ]([1-9]|[0-2][0-9]|[3][0-1])[-/. ][0-9]{1,5})'),to_date(In_Birth_Date,'MON-DD-YYYY'),\n(iif((length(In_Birth_Date)=11 OR length(In_Birth_Date)=8 OR length(In_Birth_Date)=9 OR length(In_Birth_Date)=7) AND reg_match(In_Birth_Date,'([0-9]{1,5}[-/. ][A-Za-z]{3}[-/. ]([1-9]|[0-2][0-9]|[3][0-1]))'),to_date(In_Birth_Date,'YYYY-MON-DD'),\n(iif((length(In_Birth_Date)=9 OR length(In_Birth_Date)=8 OR length(In_Birth_Date)=7 OR length(In_Birth_Date)=6) AND reg_match(In_Birth_Date,'(([1-9]|[0-2][0-9]|[3][0-1])[A-Za-z]{3}[0-9]{1,5})'),to_date(In_Birth_Date,'DDMONYYYY'),\n(iif((length(In_Birth_Date)=9 OR length(In_Birth_Date)=8 OR length(In_Birth_Date)=7 OR length(In_Birth_Date)=6) AND reg_match(In_Birth_Date,'([A-Za-z]{3}([1-9]|[0-2][0-9]|[3][0-1])[0-9]{1,5})'),to_date(In_Birth_Date,'MONDDYYYY'),\n(iif((length(In_Birth_Date)=9 OR length(In_Birth_Date)=8 OR length(In_Birth_Date)=7 OR length(In_Birth_Date)=6) AND reg_match(In_Birth_Date,'([0-9]{1,5}[A-Za-z]{3}([1-9]|[0-2][0-9]|[3][0-1]))'),to_date(In_Birth_Date,'YYYYMONDD'),\n(iif(length(In_Birth_Date)=23 AND reg_match(In_Birth_Date,'(([1-9]|[0-2][0-9]|[3][0-1])[-/. ]([1-9]|0[1-9]|1[012])[-/. ][0-9]{1,5}[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9][.][0-9]{3})))'),to_date(In_Birth_Date,'DD-MM-YYYY HH24:MI:SS.MS'),\n(iif(length(In_Birth_Date)=23 AND reg_match(In_Birth_Date,'(([1-9]|0[1-9]|1[012])[-/. ]([1-9]|[0-2][0-9]|[3][0-1])[-/. ][0-9]{1,5}[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9][.][0-9]{3})))'),to_date(In_Birth_Date,'MM-DD-YYYY HH24:MI:SS.MS'),\n(iif(length(In_Birth_Date)=23 AND reg_match(In_Birth_Date,'(([0-9]{1,5}[-/. ]([1-9]|0[1-9]|1[012])[-/. ][0-9]{1,2})[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9][.][0-9]{3})))'),to_date(In_Birth_Date,'YYYY-MM-DD HH24:MI:SS.MS'),\n(iif(length(In_Birth_Date)=26 AND reg_match(In_Birth_Date,'(([1-9]|[0-2][0-9]|[3][0-1])[-/. ]([1-9]|0[1-9]|1[012])[-/. ][0-9]{1,5}[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9][.][0-9]{6})))'),to_date(In_Birth_Date,'DD-MM-YYYY HH24:MI:SS.US'),\n(iif(length(In_Birth_Date)=26 AND reg_match(In_Birth_Date,'(([1-9]|0[1-9]|1[012])[-/. ]([1-9]|[0-2][0-9]|[3][0-1])[-/. ][0-9]{1,5}[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9][.][0-9]{6})))'),to_date(In_Birth_Date,'MM-DD-YYYY HH24:MI:SS.US'),\n(iif(length(In_Birth_Date)=26 AND reg_match(In_Birth_Date,'(([0-9]{1,5}[-/. ]([1-9]|0[1-9]|1[012])[-/. ][0-9]{1,2})[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9][.][0-9]{6})))'),to_date(In_Birth_Date,'YYYY-MM-DD HH24:MI:SS.US'),\n(iif(length(In_Birth_Date)=29 AND reg_match(In_Birth_Date,'(([1-9]|[0-2][0-9]|[3][0-1])[-/. ]([1-9]|0[1-9]|1[012])[-/. ][0-9]{1,5}[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9][.][0-9]{9})))'),to_date(In_Birth_Date,'DD-MM-YYYY HH24:MI:SS.NS'),\n(iif(length(In_Birth_Date)=29 AND reg_match(In_Birth_Date,'(([1-9]|0[1-9]|1[012])[-/. ]([1-9]|[0-2][0-9]|[3][0-1])[-/. ][0-9]{1,5}[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9][.][0-9]{9})))'),to_date(In_Birth_Date,'MM-DD-YYYY HH24:MI:SS.NS'),\n(iif(length(In_Birth_Date)=29 AND reg_match(In_Birth_Date,'(([0-9]{1,5}[-/. ]([1-9]|0[1-9]|1[012])[-/. ][0-9]{1,2})[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9][.][0-9]{9})))'),to_date(In_Birth_Date,'YYYY-MM-DD HH24:MI:SS.NS'),\n(iif(length(In_Birth_Date)=26 AND reg_match(In_Birth_Date,'(([1-9]|[0-2][0-9]|[3][0-1])[-/. ]([1-9]|0[1-9]|1[012])[-/. ][0-9]{1,5}[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9][.][0-9]{3}[ ]([AaPp][Mm]))))'),to_date(In_Birth_Date,'DD-MM-YYYY HH12:MI:SS.MS AM'),\n(iif(length(In_Birth_Date)=26 AND reg_match(In_Birth_Date,'(([1-9]|0[1-9]|1[012])[-/. ]([1-9]|[0-2][0-9]|[3][0-1])[-/. ][0-9]{1,5}[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9][.][0-9]{3}[ ]([AaPp][Mm]))))'),to_date(In_Birth_Date,'MM-DD-YYYY HH12:MI:SS.MS AM'),\n(iif(length(In_Birth_Date)=26 AND reg_match(In_Birth_Date,'(([0-9]{1,5}[-/. ]([1-9]|0[1-9]|1[012])[-/. ][0-9]{1,2})[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9][.][0-9]{3}[ ]([AaPp][Mm]))))'),to_date(In_Birth_Date,'YYYY-MM-DD HH12:MI:SS.MS AM'),\n(iif(length(In_Birth_Date)=29 AND reg_match(In_Birth_Date,'(([1-9]|[0-2][0-9]|[3][0-1])[-/. ]([1-9]|0[1-9]|1[012])[-/. ][0-9]{1,5}[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9][.][0-9]{6}[ ]([AaPp][Mm]))))'),to_date(In_Birth_Date,'DD-MM-YYYY HH12:MI:SS.US AM'),\n(iif(length(In_Birth_Date)=29 AND reg_match(In_Birth_Date,'(([1-9]|0[1-9]|1[012])[-/. ]([1-9]|[0-2][0-9]|[3][0-1])[-/. ][0-9]{1,5}[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9][.][0-9]{6}[ ]([AaPp][Mm]))))'),to_date(In_Birth_Date,'MM-DD-YYYY HH12:MI:SS.US AM'),\n(iif(length(In_Birth_Date)=29 AND reg_match(In_Birth_Date,'(([0-9]{1,5}[-/. ]([1-9]|0[1-9]|1[012])[-/. ][0-9]{1,2})[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9][.][0-9]{6}[ ]([AaPp][Mm]))))'),to_date(In_Birth_Date,'YYYY-MM-DD HH12:MI:SS.US AM'),\n(iif(length(In_Birth_Date)=32 AND reg_match(In_Birth_Date,'(([1-9]|[0-2][0-9]|[3][0-1])[-/. ]([1-9]|0[1-9]|1[012])[-/. ][0-9]{1,5}[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9][.][0-9]{9}[ ]([AaPp][Mm]))))'),to_date(In_Birth_Date,'DD-MM-YYYY HH12:MI:SS.NS AM'),\n(iif(length(In_Birth_Date)=32 AND reg_match(In_Birth_Date,'(([1-9]|0[1-9]|1[012])[-/. ]([1-9]|[0-2][0-9]|[3][0-1])[-/. ][0-9]{1,5}[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9][.][0-9]{9}[ ]([AaPp][Mm]))))'),to_date(In_Birth_Date,'MM-DD-YYYY HH12:MI:SS.NS AM'),\n(iif(length(In_Birth_Date)=32 AND reg_match(In_Birth_Date,'(([0-9]{1,5}[-/. ]([1-9]|0[1-9]|1[012])[-/. ][0-9]{1,2})[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9][.][0-9]{9}[ ]([AaPp][Mm]))))'),to_date(In_Birth_Date,'YYYY-MM-DD HH12:MI:SS.NS AM'),\n(iif(length(In_Birth_Date)=19 AND reg_match(In_Birth_Date,'(([1-9]|[0-2][0-9]|[3][0-1])[-/. ]([1-9]|0[1-9]|1[012])[-/. ][0-9]{1,5}[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9])))'),to_date(In_Birth_Date,'DD-MM-YYYY HH24:MI:SS'),\n(iif(length(In_Birth_Date)=19 AND reg_match(In_Birth_Date,'(([1-9]|0[1-9]|1[012])[-/. ]([1-9]|[0-2][0-9]|[3][0-1])[-/. ][0-9]{1,5}[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9])))'),to_date(In_Birth_Date,'MM-DD-YYYY HH24:MI:SS'),\n(iif(length(In_Birth_Date)=19 AND reg_match(In_Birth_Date,'(([0-9]{1,5}[-/. ]([1-9]|0[1-9]|1[012])[-/. ][0-9]{1,2})[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9])))'),to_date(In_Birth_Date,'YYYY-MM-DD HH24:MI:SS'),\n(iif(length(In_Birth_Date)=22 AND reg_match(In_Birth_Date,'(([1-9]|[0-2][0-9]|[3][0-1])[-/. ]([1-9]|0[1-9]|1[012])[-/. ][0-9]{1,5}[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9])[ ]([AaPp][Mm])))'),to_date(In_Birth_Date,'DD-MM-YYYY HH12:MI:SS AM'),\n(iif(length(In_Birth_Date)=22 AND reg_match(In_Birth_Date,'(([1-9]|0[1-9]|1[012])[-/. ]([1-9]|[0-2][0-9]|[3][0-1])[-/. ][0-9]{1,5}[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9])[ ]([AaPp][Mm])))'),to_date(In_Birth_Date,'MM-DD-YYYY HH12:MI:SS AM'),\n(iif(length(In_Birth_Date)=22 AND reg_match(In_Birth_Date,'(([0-9]{1,5}[-/. ]([1-9]|0[1-9]|1[012])[-/. ][0-9]{1,2})[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9])[ ]([AaPp][Mm])))'),to_date(In_Birth_Date,'YYYY-MM-DD HH12:MI:SS AM'),\n(iif(length(In_Birth_Date)=19 AND reg_match(In_Birth_Date,'(([1-9]|[0-2][0-9]|[3][0-1])[-/. ]([1-9]|0[1-9]|1[012])[-/. ][0-9]{1,5}[T](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9])))'),to_date(In_Birth_Date,'DD-MM-YYYY HH24:MI:SS'),\n(iif(length(In_Birth_Date)=19 AND reg_match(In_Birth_Date,'(([1-9]|0[1-9]|1[012])[-/. ]([1-9]|[0-2][0-9]|[3][0-1])[-/. ][0-9]{1,5}[T](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9])))'),to_date(In_Birth_Date,'MM-DD-YYYY HH24:MI:SS'),\n(iif(length(In_Birth_Date)=19 AND reg_match(In_Birth_Date,'(([0-9]{1,5}[-/. ]([1-9]|0[1-9]|1[012])[-/. ]([1-9]|[0-2][0-9]|[3][0-1]))[T](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9])))'),to_date(In_Birth_Date,'YYYY-MM-DD HH24:MI:SS'),\n(iif(length(In_Birth_Date)=23 AND reg_match(In_Birth_Date,'(([1-9]|[0-2][0-9]|[3][0-1])[-/. ][A-Za-z]{3}[-/. ][0-9]{1,5}[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9])[ ]([AaPp][Mm])))'),to_date(In_Birth_Date,'DD-MON-YYYY HH12:MI:SS AM'),\n(iif(length(In_Birth_Date)=23 AND reg_match(In_Birth_Date,'([A-Za-z]{3}[-/. ]([1-9]|[0-2][0-9]|[3][0-1])[-/. ][0-9]{1,5})[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9])[ ]([AaPp][Mm]))'),to_date(In_Birth_Date,'MON-DD-YYYY HH12:MI:SS AM'),\n(iif(length(In_Birth_Date)=23 AND reg_match(In_Birth_Date,'([0-9]{1,5}[-/. ][A-Za-z]{3}[-/. ]([1-9]|[0-2][0-9]|[3][0-1])[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9])[ ]([AaPp][Mm])))'),to_date(In_Birth_Date,'YYYY-MON-DD HH12:MI:SS AM'),\n(iif(length(In_Birth_Date)=20 AND reg_match(In_Birth_Date,'(([1-9]|[0-2][0-9]|[3][0-1])[-/. ][A-Za-z]{3}[-/. ][0-9]{1,5}[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9])))'),to_date(In_Birth_Date,'DD-MON-YYYY HH24:MI:SS'),\n(iif(length(In_Birth_Date)=20 AND reg_match(In_Birth_Date,'([A-Za-z]{3}[-/. ]([1-9]|[0-2][0-9]|[3][0-1])[-/. ][0-9]{1,5})[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9]))'),to_date(In_Birth_Date,'MON-DD-YYYY HH24:MI:SS'),\n(iif(length(In_Birth_Date)=20 AND reg_match(In_Birth_Date,'([0-9]{1,5}[-/. ][A-Za-z]{3}[-/. ]([1-9]|[0-2][0-9]|[3][0-1])[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9])))'),to_date(In_Birth_Date,'YYYY-MON-DD HH24:MI:SS'),\n(iif(length(In_Birth_Date)=24 AND reg_match(In_Birth_Date,'(([1-9]|[0-2][0-9]|[3][0-1])[-/. ][A-Za-z]{3}[-/. ][0-9]{1,5}[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9])[.][0-9]{3}))'),to_date(In_Birth_Date,'DD-MON-YYYY HH24:MI:SS.MS'),\n(iif(length(In_Birth_Date)=24 AND reg_match(In_Birth_Date,'([A-Za-z]{3}[-/. ]([1-9]|[0-2][0-9]|[3][0-1])[-/. ][0-9]{1,5})[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9])[.][0-9]{3})'),to_date(In_Birth_Date,'MON-DD-YYYY HH24:MI:SS.MS'),\n(iif(length(In_Birth_Date)=24 AND reg_match(In_Birth_Date,'([0-9]{1,5}[-/. ][A-Za-z]{3}[-/. ]([1-9]|[0-2][0-9]|[3][0-1])[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9])[.][0-9]{3}))'),to_date(In_Birth_Date,'YYYY-MON-DD HH24:MI:SS.MS'),\n(iif(length(In_Birth_Date)=27 AND reg_match(In_Birth_Date,'(([1-9]|[0-2][0-9]|[3][0-1])[-/. ][A-Za-z]{3}[-/. ][0-9]{1,5}[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9])[.][0-9]{6}))'),to_date(In_Birth_Date,'DD-MON-YYYY HH24:MI:SS.US'),\n(iif(length(In_Birth_Date)=27 AND reg_match(In_Birth_Date,'([A-Za-z]{3}[-/. ]([1-9]|[0-2][0-9]|[3][0-1])[-/. ][0-9]{1,5})[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9])[.][0-9]{6})'),to_date(In_Birth_Date,'MON-DD-YYYY HH24:MI:SS.US'),\n(iif(length(In_Birth_Date)=27 AND reg_match(In_Birth_Date,'([0-9]{1,5}[-/. ][A-Za-z]{3}[-/. ]([1-9]|[0-2][0-9]|[3][0-1])[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9])[.][0-9]{6}))'),to_date(In_Birth_Date,'YYYY-MON-DD HH24:MI:SS.US'),\n(iif(length(In_Birth_Date)=30 AND reg_match(In_Birth_Date,'(([1-9]|[0-2][0-9]|[3][0-1])[-/. ][A-Za-z]{3}[-/. ][0-9]{1,5}[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9])[.][0-9]{9}))'),to_date(In_Birth_Date,'DD-MON-YYYY HH24:MI:SS.NS'),\n(iif(length(In_Birth_Date)=30 AND reg_match(In_Birth_Date,'([A-Za-z]{3}[-/. ]([1-9]|[0-2][0-9]|[3][0-1])[-/. ][0-9]{1,5})[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9])[.][0-9]{9})'),to_date(In_Birth_Date,'MON-DD-YYYY HH24:MI:SS.NS'),\n(iif(length(In_Birth_Date)=30 AND reg_match(In_Birth_Date,'([0-9]{1,5}[-/. ][A-Za-z]{3}[-/. ]([1-9]|[0-2][0-9]|[3][0-1])[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9])[.][0-9]{9}))'),to_date(In_Birth_Date,'YYYY-MON-DD HH24:MI:SS.NS'),\n(iif(length(In_Birth_Date)=27 AND reg_match(In_Birth_Date,'(([1-9]|[0-2][0-9]|[3][0-1])[-/. ][A-Za-z]{3}[-/. ][0-9]{1,5}[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9])[.][0-9]{3}([AaPp][Mm])))'),to_date(In_Birth_Date,'DD-MON-YYYY HH12:MI:SS.MS AM'),\n(iif(length(In_Birth_Date)=27 AND reg_match(In_Birth_Date,'([A-Za-z]{3}[-/. ]([1-9]|[0-2][0-9]|[3][0-1])[-/. ][0-9]{1,5})[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9])[.][0-9]{3}([AaPp][Mm]))'),to_date(In_Birth_Date,'MON-DD-YYYY HH12:MI:SS.MS'),\n(iif(length(In_Birth_Date)=27 AND reg_match(In_Birth_Date,'([0-9]{1,5}[-/. ][A-Za-z]{3}[-/. ]([1-9]|[0-2][0-9]|[3][0-1])[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9])[.][0-9]{3}([AaPp][Mm])))'),to_date(In_Birth_Date,'YYYY-MON-DD HH12:MI:SS.MS AM'),\n(iif(length(In_Birth_Date)=30 AND reg_match(In_Birth_Date,'(([1-9]|[0-2][0-9]|[3][0-1])[-/. ][A-Za-z]{3}[-/. ][0-9]{1,5}[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9])[.][0-9]{6}([AaPp][Mm])))'),to_date(In_Birth_Date,'DD-MON-YYYY HH12:MI:SS.US AM'),\n(iif(length(In_Birth_Date)=30 AND reg_match(In_Birth_Date,'([A-Za-z]{3}[-/. ]([1-9]|[0-2][0-9]|[3][0-1])[-/. ][0-9]{1,5})[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9])[.][0-9]{6})'),to_date(In_Birth_Date,'MON-DD-YYYY HH24:MI:SS.US AM'),\n(iif(length(In_Birth_Date)=30 AND reg_match(In_Birth_Date,'([0-9]{1,5}[-/. ][A-Za-z]{3}[-/. ]([1-9]|[0-2][0-9]|[3][0-1])[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9])[.][0-9]{6}))'),to_date(In_Birth_Date,'YYYY-MON-DD HH12:MI:SS.US AM'),\n(iif(length(In_Birth_Date)=33 AND reg_match(In_Birth_Date,'(([1-9]|[0-2][0-9]|[3][0-1])[-/. ][A-Za-z]{3}[-/. ][0-9]{1,5}[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9])[.][0-9]{9}))'),to_date(In_Birth_Date,'DD-MON-YYYY HH12:MI:SS.NS AM'),\n(iif(length(In_Birth_Date)=33 AND reg_match(In_Birth_Date,'([A-Za-z]{3}[-/. ]([1-9]|[0-2][0-9]|[3][0-1])[-/. ][0-9]{1,5})[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9])[.][0-9]{9})'),to_date(In_Birth_Date,'MON-DD-YYYY HH12:MI:SS.NS AM'),\n(iif(length(In_Birth_Date)=33 AND reg_match(In_Birth_Date,'([0-9]{1,5}[-/. ][A-Za-z]{3}[-/. ]([1-9]|[0-2][0-9]|[3][0-1])[ ](([0-1][0-9]|[2][0-3])[-/.: ]([0-5][0-9])[-/.: ]([0-5][0-9])[.][0-9]{9}))'),to_date(In_Birth_Date,'YYYY-MON-DD HH24:MI:SS.NS AM'),\n(iif(length(In_Birth_Date)=15 AND reg_match(In_Birth_Date,'(([1-9]|[0-2][0-9]|[3][0-1])[A-Za-z]{3}[0-9]{1,5}(([0-1][0-9]|[2][0-3])([0-5][0-9])([0-5][0-9])))'),to_date(In_Birth_Date,'DDMONYYYYHH24MISS'),\n(iif(length(In_Birth_Date)=15 AND reg_match(In_Birth_Date,'([A-Za-z]{3}([1-9]|[0-2][0-9]|[3][0-1])[0-9]{1,5}(([0-1][0-9]|[2][0-3])([0-5][0-9])([0-5][0-9])))'),to_date(In_Birth_Date,'MONDDYYYYHH24MISS'),\n(iif(length(In_Birth_Date)=15 AND reg_match(In_Birth_Date,'([0-9]{1,5}[A-Za-z]{3}([1-9]|[0-2][0-9]|[3][0-1])(([0-1][0-9]|[2][0-3])([0-5][0-9])([0-5][0-9])))'),to_date(In_Birth_Date,'YYYYMONDDHH24MISS'),\nnull)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))"
+          }
+        ]
+      },
+      {
+        "createTime" : "2021-02-15T05:56:46.344Z",
+        "name" : "Output",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "false",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "fieldMappingMode" : "MANUAL",
+        "fields" : [
+          {
+            "name" : "Out_Years",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 5,
+            "scale" : 2
+          },
+          {
+            "name" : "Out_Status",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 255,
+            "scale" : 0
+          }
+        ],
+        "manualMappings" : {
+          "mappingList" : [
+            {
+              "fromFieldName" : "Out_Years",
+              "toField" : {
+                "name" : "Out_Years"
+              }
+            },
+            {
+              "fromFieldName" : "Out_Status",
+              "toField" : {
+                "name" : "Out_Status"
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "vcsExportTime" : "2026-01-31 06:29:22 PST"
+}
