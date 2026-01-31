@@ -4,9 +4,10 @@
     "bigIntConvertType" : "ONLY_BIGINT",
     "documentType" : "MAPPING",
     "name" : "sTEP_4 - Copy 1",
+    "specialCharacterSupport" : "false",
     "links" : [
       {
-        "link" : "Source_delta_chnages_agency_email -> exp_convert_datatype"
+        "link" : "src_metal_user_group_share -> exp_convert_datatype"
       },
       {
         "link" : "exp_convert_datatype -> exp_MD5"
@@ -16,36 +17,79 @@
         "groupLink" : "DefaultGroup -> INPUT"
       },
       {
-        "link" : "exp_insert_records -> tgt_insert_records"
-      },
-      {
-        "link" : "exp_update_records -> tgt_update_records"
+        "link" : "exp_update -> tgt_update_closeout"
       },
       {
         "link" : "exp_MD5 -> Joiner",
         "groupLink" : "DefaultGroup -> Master"
       },
       {
-        "link" : "src_tgt_query -> Joiner",
-        "groupLink" : "DefaultGroup -> Detail"
-      },
-      {
         "link" : "Joiner -> exp_flag_records",
         "groupLink" : "OutputGroup -> DefaultGroup"
       },
       {
-        "link" : "rtr_insert_update_path -> exp_insert_records",
-        "groupLink" : "insert_group -> DefaultGroup"
+        "link" : "rtr_insert_update_path -> exp_update",
+        "groupLink" : "update_group -> DefaultGroup"
       },
       {
-        "link" : "rtr_insert_update_path -> exp_update_records",
+        "link" : "exp_passthrough -> Joiner",
+        "groupLink" : "DefaultGroup -> Detail"
+      },
+      {
+        "link" : "src_tgt_query -> exp_passthrough"
+      },
+      {
+        "link" : "rtr_insert_update_path -> tgt_update_records",
         "groupLink" : "update_group -> DefaultGroup"
+      },
+      {
+        "link" : "rtr_insert_update_path -> tgt_insert_records",
+        "groupLink" : "insert_group -> DefaultGroup"
+      }
+    ],
+    "parameters" : [
+      {
+        "input" : "true",
+        "output" : "false",
+        "precision" : 0,
+        "scale" : 0,
+        "allowRuntimeOverride" : "false",
+        "expressionVariable" : "false",
+        "name" : "DBConnection_UDM_SRC",
+        "anonymousType" : {
+          "subType" : "TOOLKIT_CCI",
+          "typeSystem" : "TOOLKIT",
+          "connectionType" : "Amazon Redshift v2"
+        }
+      },
+      {
+        "input" : "true",
+        "output" : "false",
+        "precision" : 0,
+        "scale" : 0,
+        "allowRuntimeOverride" : "false",
+        "expressionVariable" : "false",
+        "name" : "DBConnection_UDM_TGT",
+        "anonymousType" : {
+          "subType" : "TOOLKIT_CCI",
+          "typeSystem" : "TOOLKIT",
+          "connectionType" : "Amazon Redshift v2"
+        }
+      },
+      {
+        "input" : "true",
+        "output" : "false",
+        "precision" : 0,
+        "scale" : 0,
+        "allowRuntimeOverride" : "false",
+        "expressionVariable" : "false",
+        "name" : "S3_Staging_Bucket"
       }
     ],
     "transformations" : [
       {
         "createTime" : "2025-05-12T20:18:11.235Z",
-        "name" : "Source_delta_chnages_agency_email",
+        "name" : "src_metal_user_group_share",
         "advancedProperties" : [
           {
             "name" : "Tracing Level",
@@ -67,17 +111,6 @@
         "useLabels" : "false",
         "useSequenceFields" : "false",
         "fields" : [
-          {
-            "adapterField" : {
-              "name" : "batch_id"
-            },
-            "name" : "batch_id",
-            "platformType" : {
-              "name" : "bigint"
-            },
-            "precision" : 19,
-            "scale" : 0
-          },
           {
             "adapterField" : {
               "name" : "source_name"
@@ -102,61 +135,6 @@
           },
           {
             "adapterField" : {
-              "name" : "agency_nup"
-            },
-            "name" : "agency_nup",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 15,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "create_date"
-            },
-            "name" : "create_date",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 31,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "email_address"
-            },
-            "name" : "email_address",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 63,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "email_type"
-            },
-            "name" : "email_type",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 7,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "group_nup"
-            },
-            "name" : "group_nup",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 15,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
               "name" : "id"
             },
             "name" : "id",
@@ -168,43 +146,72 @@
           },
           {
             "adapterField" : {
-              "name" : "modified_date"
+              "name" : "agency_nup"
             },
-            "name" : "modified_date",
+            "name" : "agency_nup",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 15,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "sharedagency"
+            },
+            "name" : "sharedagency",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 15,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "created"
+            },
+            "name" : "created",
             "platformType" : {
               "name" : "string"
             },
             "precision" : 31,
             "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "modified"
+            },
+            "name" : "modified",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 31,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "batch_id"
+            },
+            "name" : "batch_id",
+            "platformType" : {
+              "name" : "bigint"
+            },
+            "precision" : 19,
+            "scale" : 0
           }
         ],
         "dataAdapter" : {
-          "connectionId" : "saas:@aYZ4ekzHgIPeKpiaoqDLKP",
-          "connectionName" : "redshift_nonprod_andover_dw_dev",
+          "connectionId$" : {
+            "name" : "DBConnection_UDM_SRC"
+          },
           "excludeDynamicFileNameField" : "false",
           "objectType" : "QUERY",
           "typeSystem" : "TOOLKIT",
           "useDynamicFileName" : "false",
           "object" : {
-            "customQuery" : "select batch.batch_id, src.source_name,load_type, agency_nup, create_date, email_address, email_type,\ngroup_nup, id, modified_date from \n(select source_name,load_type, agency_nup, create_date, email_address, email_type,\ngroup_nup, id, modified_date ,'adm_agencyemail' tgt_table from metal.adm_agency_email) src\nleft JOIN\n(SELECT \n        bls.batch_id, bls.target_table_name,\n        bls.source_start_cutoff_datetime,\n        bls.source_end_cutoff_datetime\n    FROM metal.batch_load_summary bls\n    WHERE bls.source_system_code = 'Guidewire'\n      AND bls.batch_status = 'Inprogress'\n      AND bls.batch_id = (\n          SELECT MAX(batch_id)\n          FROM metal.batch_load_summary\n          WHERE source_system_code = 'Guidewire'\n            AND batch_status = 'Inprogress'\n            --and target_table_name = 'adm_agencyemail'\n      ) )batch \n\t\t\ton batch.target_table_name=src.tgt_table",
+            "customQuery" : "WITH current_batch AS (\n    SELECT \n        bls.batch_id,\n        bls.source_start_cutoff_datetime,\n        bls.source_end_cutoff_datetime\n    FROM metal.batch_load_summary bls\n    WHERE bls.source_system_code = 'ADM'\n      AND bls.batch_status = 'Inprogress'\n      AND bls.batch_id = (\n          SELECT MAX(batch_id)\n          FROM metal.batch_load_summary\n          WHERE source_system_code = 'ADM'\n            AND batch_status = 'Inprogress'\n      )\n)\nSELECT DISTINCT  \n\t\tmetal_ugs.source_name, \n\t\tmetal_ugs.load_type, \n\t\tmetal_ugs.id, \n\t\tmetal_ugs.agency_nup, \n\t\tmetal_ugs.sharedagency, \n\t\tmetal_ugs.created, \n\t\tmetal_ugs.modified, \n\t\tcurrent_batch.batch_id\nFROM metal.adm_user_group_share metal_ugs\nCROSS JOIN current_batch\nORDER BY \n    metal_ugs.id,\n    metal_ugs.created,\n    metal_ugs.modified;",
             "retainMetadata" : "false",
             "fields" : [
-              {
-                "name" : "batch_id",
-                "fieldType" : "CONNECTOR",
-                "label" : "batch_id",
-                "nativeName" : "batch_id",
-                "nativeType" : "int8",
-                "original" : "false",
-                "precision" : 19,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "INFARS_CUSTOM_SCHEMA"
-                  }
-                ]
-              },
               {
                 "name" : "source_name",
                 "fieldType" : "CONNECTOR",
@@ -238,86 +245,6 @@
                 ]
               },
               {
-                "name" : "agency_nup",
-                "fieldType" : "CONNECTOR",
-                "label" : "agency_nup",
-                "nativeName" : "agency_nup",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 15,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "INFARS_CUSTOM_SCHEMA"
-                  }
-                ]
-              },
-              {
-                "name" : "create_date",
-                "fieldType" : "CONNECTOR",
-                "label" : "create_date",
-                "nativeName" : "create_date",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 31,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "INFARS_CUSTOM_SCHEMA"
-                  }
-                ]
-              },
-              {
-                "name" : "email_address",
-                "fieldType" : "CONNECTOR",
-                "label" : "email_address",
-                "nativeName" : "email_address",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 63,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "INFARS_CUSTOM_SCHEMA"
-                  }
-                ]
-              },
-              {
-                "name" : "email_type",
-                "fieldType" : "CONNECTOR",
-                "label" : "email_type",
-                "nativeName" : "email_type",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 7,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "INFARS_CUSTOM_SCHEMA"
-                  }
-                ]
-              },
-              {
-                "name" : "group_nup",
-                "fieldType" : "CONNECTOR",
-                "label" : "group_nup",
-                "nativeName" : "group_nup",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 15,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "INFARS_CUSTOM_SCHEMA"
-                  }
-                ]
-              },
-              {
                 "name" : "id",
                 "fieldType" : "CONNECTOR",
                 "label" : "id",
@@ -334,13 +261,77 @@
                 ]
               },
               {
-                "name" : "modified_date",
+                "name" : "agency_nup",
                 "fieldType" : "CONNECTOR",
-                "label" : "modified_date",
-                "nativeName" : "modified_date",
+                "label" : "agency_nup",
+                "nativeName" : "agency_nup",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 15,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "sharedagency",
+                "fieldType" : "CONNECTOR",
+                "label" : "sharedagency",
+                "nativeName" : "sharedagency",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 15,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "created",
+                "fieldType" : "CONNECTOR",
+                "label" : "created",
+                "nativeName" : "created",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 31,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "modified",
+                "fieldType" : "CONNECTOR",
+                "label" : "modified",
+                "nativeName" : "modified",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 31,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "batch_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "batch_id",
+                "nativeName" : "batch_id",
+                "nativeType" : "int8",
+                "original" : "false",
+                "precision" : 19,
                 "scale" : 0,
                 "properties" : [
                   {
@@ -375,6 +366,10 @@
               {
                 "name" : "Fetch Size",
                 "value" : "10000"
+              },
+              {
+                "name" : "S3 Bucket Name",
+                "value" : "$$S3_Staging_Bucket"
               },
               {
                 "name" : "Enable Compression",
@@ -428,29 +423,40 @@
         "fields" : [
           {
             "defaultValue" : "ERROR('transformation error')",
-            "name" : "o_agency_email_datetime_created",
+            "name" : "o_user_group_share_datetime_created",
             "platformType" : {
               "name" : "date/time"
             },
             "precision" : 29,
             "scale" : 9,
             "expFieldType" : "OUTPUT",
-            "expression" : "TO_DATE(to_char(create_date), 'YYYY-MM-DD HH24:MI:SS')"
+            "expression" : "TO_DATE(to_char(created), 'YYYY-MM-DD HH24:MI:SS')"
           },
           {
             "defaultValue" : "ERROR('transformation error')",
-            "name" : "o_agency_email_datetime_modified",
+            "name" : "o_user_group_share_datetime_modified",
             "platformType" : {
               "name" : "date/time"
             },
             "precision" : 29,
             "scale" : 9,
             "expFieldType" : "OUTPUT",
-            "expression" : "TO_DATE(to_char(modified_date), 'YYYY-MM-DD HH24:MI:SS')"
+            "expression" : "TO_DATE(to_char(modified), 'YYYY-MM-DD HH24:MI:SS')"
           },
           {
             "defaultValue" : "ERROR('transformation error')",
-            "name" : "o_agency_id",
+            "name" : "o_user_group_share_id",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "to_integer(ltrim(rtrim(id)))"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_user_group_share_agency_id",
             "platformType" : {
               "name" : "integer"
             },
@@ -461,25 +467,14 @@
           },
           {
             "defaultValue" : "ERROR('transformation error')",
-            "name" : "o_group_id",
+            "name" : "o_user_group_share_sharedagency",
             "platformType" : {
               "name" : "integer"
             },
             "precision" : 10,
             "scale" : 0,
             "expFieldType" : "OUTPUT",
-            "expression" : "to_integer(ltrim(rtrim(group_nup)))"
-          },
-          {
-            "defaultValue" : "ERROR('transformation error')",
-            "name" : "o_agency_email_id",
-            "platformType" : {
-              "name" : "integer"
-            },
-            "precision" : 10,
-            "scale" : 0,
-            "expFieldType" : "OUTPUT",
-            "expression" : "to_integer(ltrim(rtrim(id)))"
+            "expression" : "to_integer(ltrim(rtrim(sharedagency)))"
           }
         ],
         "windowSpec" : {
@@ -517,7 +512,7 @@
             "precision" : 255,
             "scale" : 0,
             "expFieldType" : "OUTPUT",
-            "expression" : "MD5(to_char(o_agency_email_datetime_created) ||\n    to_char(o_agency_email_datetime_modified) ||\n    to_char(o_agency_id) ||\n    email_address ||\n    email_type ||\n    to_char(o_group_id) ||\n    to_char(o_agency_email_id))"
+            "expression" : "MD5('source_name' || source_name || \n\t'load_type' || load_type || \n\t'o_user_group_share_datetime_created' || to_char(o_user_group_share_datetime_created) || \n\t'o_user_group_share_datetime_modified' || to_char(o_user_group_share_datetime_modified) || \n\t'o_user_group_share_id' || to_char(o_user_group_share_id) || 'o_user_group_share_agency_id' || to_char(o_user_group_share_agency_id) || 'o_user_group_share_sharedagency' || to_char(o_user_group_share_sharedagency)\n    )"
           }
         ],
         "windowSpec" : {
@@ -554,9 +549,9 @@
         "fields" : [
           {
             "adapterField" : {
-              "name" : "agency_email_row_id"
+              "name" : "user_group_share_row_id"
             },
-            "name" : "agency_email_row_id",
+            "name" : "user_group_share_row_id",
             "platformType" : {
               "name" : "bigint"
             },
@@ -565,20 +560,9 @@
           },
           {
             "adapterField" : {
-              "name" : "agency_email_batch_id"
+              "name" : "user_group_share_row_md5checksum"
             },
-            "name" : "agency_email_batch_id",
-            "platformType" : {
-              "name" : "bigint"
-            },
-            "precision" : 19,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "agency_email_row_md5checksum"
-            },
-            "name" : "agency_email_row_md5checksum",
+            "name" : "user_group_share_row_md5checksum",
             "platformType" : {
               "name" : "string"
             },
@@ -587,53 +571,9 @@
           },
           {
             "adapterField" : {
-              "name" : "agency_email_datetime_created"
+              "name" : "user_group_share_id"
             },
-            "name" : "agency_email_datetime_created",
-            "platformType" : {
-              "name" : "date/time"
-            },
-            "precision" : 29,
-            "scale" : 9
-          },
-          {
-            "adapterField" : {
-              "name" : "agency_email_datetime_modified"
-            },
-            "name" : "agency_email_datetime_modified",
-            "platformType" : {
-              "name" : "date/time"
-            },
-            "precision" : 29,
-            "scale" : 9
-          },
-          {
-            "adapterField" : {
-              "name" : "agency_email_row_effective_start_datetime"
-            },
-            "name" : "agency_email_row_effective_start_datetime",
-            "platformType" : {
-              "name" : "date/time"
-            },
-            "precision" : 29,
-            "scale" : 9
-          },
-          {
-            "adapterField" : {
-              "name" : "agency_email_row_effective_end_datetime"
-            },
-            "name" : "agency_email_row_effective_end_datetime",
-            "platformType" : {
-              "name" : "date/time"
-            },
-            "precision" : 29,
-            "scale" : 9
-          },
-          {
-            "adapterField" : {
-              "name" : "agency_id"
-            },
-            "name" : "agency_id",
+            "name" : "user_group_share_id",
             "platformType" : {
               "name" : "integer"
             },
@@ -642,65 +582,44 @@
           },
           {
             "adapterField" : {
-              "name" : "agency_experience_report_email_address"
+              "name" : "user_group_share_datetime_modified"
             },
-            "name" : "agency_experience_report_email_address",
+            "name" : "user_group_share_datetime_modified",
             "platformType" : {
-              "name" : "string"
+              "name" : "date/time"
             },
-            "precision" : 63,
-            "scale" : 0
+            "precision" : 29,
+            "scale" : 9
           },
           {
             "adapterField" : {
-              "name" : "agency_email_type"
+              "name" : "user_group_share_row_effective_end_datetime"
             },
-            "name" : "agency_email_type",
+            "name" : "user_group_share_row_effective_end_datetime",
             "platformType" : {
-              "name" : "string"
+              "name" : "date/time"
             },
-            "precision" : 1,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "group_id"
-            },
-            "name" : "group_id",
-            "platformType" : {
-              "name" : "integer"
-            },
-            "precision" : 10,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "agency_email_id"
-            },
-            "name" : "agency_email_id",
-            "platformType" : {
-              "name" : "integer"
-            },
-            "precision" : 10,
-            "scale" : 0
+            "precision" : 29,
+            "scale" : 9
           }
         ],
         "dataAdapter" : {
-          "connectionId" : "saas:@aYZ4ekzHgIPeKpiaoqDLKP",
-          "connectionName" : "redshift_nonprod_andover_dw_dev",
+          "connectionId$" : {
+            "name" : "DBConnection_UDM_SRC"
+          },
           "excludeDynamicFileNameField" : "false",
           "objectType" : "QUERY",
           "typeSystem" : "TOOLKIT",
           "useDynamicFileName" : "false",
           "object" : {
-            "customQuery" : "select agency_email_row_id , agency_email_batch_id,agency_email_row_md5checksum, agency_email_datetime_created,\nagency_email_datetime_modified, agency_email_row_effective_start_datetime, agency_email_row_effective_end_datetime,\nagency_id, agency_experience_report_email_address, agency_email_type, group_id, agency_email_id\nfrom bronze.adm_agency_email where agency_email_row_effective_end_datetime ='9999-01-01 00:00:00.000'",
+            "customQuery" : "SELECT \n        user_group_share_row_id, \n        user_group_share_row_md5checksum, \n        user_group_share_id,  \n  user_group_share_datetime_modified,\n  user_group_share_row_effective_end_datetime\t\n    FROM bronze.adm_user_group_share\n    where  user_group_share_row_effective_end_datetime\t= '9999-12-31 00:00:00.000'",
             "retainMetadata" : "false",
             "fields" : [
               {
-                "name" : "agency_email_row_id",
+                "name" : "user_group_share_row_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "agency_email_row_id",
-                "nativeName" : "agency_email_row_id",
+                "label" : "user_group_share_row_id",
+                "nativeName" : "user_group_share_row_id",
                 "nativeType" : "int8",
                 "original" : "false",
                 "precision" : 19,
@@ -713,26 +632,10 @@
                 ]
               },
               {
-                "name" : "agency_email_batch_id",
+                "name" : "user_group_share_row_md5checksum",
                 "fieldType" : "CONNECTOR",
-                "label" : "agency_email_batch_id",
-                "nativeName" : "agency_email_batch_id",
-                "nativeType" : "int8",
-                "original" : "false",
-                "precision" : 19,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "INFARS_CUSTOM_SCHEMA"
-                  }
-                ]
-              },
-              {
-                "name" : "agency_email_row_md5checksum",
-                "fieldType" : "CONNECTOR",
-                "label" : "agency_email_row_md5checksum",
-                "nativeName" : "agency_email_row_md5checksum",
+                "label" : "user_group_share_row_md5checksum",
+                "nativeName" : "user_group_share_row_md5checksum",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 255,
@@ -745,74 +648,10 @@
                 ]
               },
               {
-                "name" : "agency_email_datetime_created",
+                "name" : "user_group_share_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "agency_email_datetime_created",
-                "nativeName" : "agency_email_datetime_created",
-                "nativeType" : "timestamp",
-                "original" : "false",
-                "precision" : 29,
-                "scale" : 6,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "INFARS_CUSTOM_SCHEMA"
-                  }
-                ]
-              },
-              {
-                "name" : "agency_email_datetime_modified",
-                "fieldType" : "CONNECTOR",
-                "label" : "agency_email_datetime_modified",
-                "nativeName" : "agency_email_datetime_modified",
-                "nativeType" : "timestamp",
-                "original" : "false",
-                "precision" : 29,
-                "scale" : 6,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "INFARS_CUSTOM_SCHEMA"
-                  }
-                ]
-              },
-              {
-                "name" : "agency_email_row_effective_start_datetime",
-                "fieldType" : "CONNECTOR",
-                "label" : "agency_email_row_effective_start_datetime",
-                "nativeName" : "agency_email_row_effective_start_datetime",
-                "nativeType" : "timestamp",
-                "original" : "false",
-                "precision" : 29,
-                "scale" : 6,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "INFARS_CUSTOM_SCHEMA"
-                  }
-                ]
-              },
-              {
-                "name" : "agency_email_row_effective_end_datetime",
-                "fieldType" : "CONNECTOR",
-                "label" : "agency_email_row_effective_end_datetime",
-                "nativeName" : "agency_email_row_effective_end_datetime",
-                "nativeType" : "timestamp",
-                "original" : "false",
-                "precision" : 29,
-                "scale" : 6,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "INFARS_CUSTOM_SCHEMA"
-                  }
-                ]
-              },
-              {
-                "name" : "agency_id",
-                "fieldType" : "CONNECTOR",
-                "label" : "agency_id",
-                "nativeName" : "agency_id",
+                "label" : "user_group_share_id",
+                "nativeName" : "user_group_share_id",
                 "nativeType" : "int4",
                 "original" : "false",
                 "precision" : 10,
@@ -825,14 +664,14 @@
                 ]
               },
               {
-                "name" : "agency_experience_report_email_address",
+                "name" : "user_group_share_datetime_modified",
                 "fieldType" : "CONNECTOR",
-                "label" : "agency_experience_report_email_address",
-                "nativeName" : "agency_experience_report_email_address",
-                "nativeType" : "varchar",
+                "label" : "user_group_share_datetime_modified",
+                "nativeName" : "user_group_share_datetime_modified",
+                "nativeType" : "timestamp",
                 "original" : "false",
-                "precision" : 63,
-                "scale" : 0,
+                "precision" : 29,
+                "scale" : 6,
                 "properties" : [
                   {
                     "name" : "parentObject",
@@ -841,46 +680,14 @@
                 ]
               },
               {
-                "name" : "agency_email_type",
+                "name" : "user_group_share_row_effective_end_datetime",
                 "fieldType" : "CONNECTOR",
-                "label" : "agency_email_type",
-                "nativeName" : "agency_email_type",
-                "nativeType" : "bpchar",
+                "label" : "user_group_share_row_effective_end_datetime",
+                "nativeName" : "user_group_share_row_effective_end_datetime",
+                "nativeType" : "timestamp",
                 "original" : "false",
-                "precision" : 1,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "INFARS_CUSTOM_SCHEMA"
-                  }
-                ]
-              },
-              {
-                "name" : "group_id",
-                "fieldType" : "CONNECTOR",
-                "label" : "group_id",
-                "nativeName" : "group_id",
-                "nativeType" : "int4",
-                "original" : "false",
-                "precision" : 10,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "INFARS_CUSTOM_SCHEMA"
-                  }
-                ]
-              },
-              {
-                "name" : "agency_email_id",
-                "fieldType" : "CONNECTOR",
-                "label" : "agency_email_id",
-                "nativeName" : "agency_email_id",
-                "nativeType" : "int4",
-                "original" : "false",
-                "precision" : 10,
-                "scale" : 0,
+                "precision" : 29,
+                "scale" : 6,
                 "properties" : [
                   {
                     "name" : "parentObject",
@@ -901,11 +708,15 @@
             "attributes" : [
               {
                 "name" : "Read Mode",
-                "value" : "Direct"
+                "value" : "Staging"
               },
               {
                 "name" : "Fetch Size",
                 "value" : "10000"
+              },
+              {
+                "name" : "S3 Bucket Name",
+                "value" : "$$S3_Staging_Bucket"
               },
               {
                 "name" : "Enable Compression",
@@ -959,36 +770,36 @@
         "fields" : [
           {
             "defaultValue" : "ERROR('transformation error')",
-            "name" : "o_flag",
+            "name" : "o_insert_flag",
             "platformType" : {
               "name" : "string"
             },
-            "precision" : 1,
+            "precision" : 10,
             "scale" : 0,
             "expFieldType" : "OUTPUT",
-            "expression" : "iif(isnull(agency_email_row_id),'I','N')"
+            "expression" : "IIF(ISNULL(user_group_share_row_id),'I','X')"
           },
           {
             "defaultValue" : "ERROR('transformation error')",
-            "name" : "o_agency_email_row_effective_end_datetime",
+            "name" : "o_user_group_share_row_effective_end_datetime",
             "platformType" : {
               "name" : "date/time"
             },
             "precision" : 29,
             "scale" : 9,
             "expFieldType" : "OUTPUT",
-            "expression" : "TO_DATE('01/01/9999','MM/DD/YYYY')"
+            "expression" : "TO_DATE('9999-12-31', 'YYYY-MM-DD')"
           },
           {
             "defaultValue" : "ERROR('transformation error')",
-            "name" : "o_agency_email_row_effective_start_datetime",
+            "name" : "o_user_group_share_row_effective_start_datetime",
             "platformType" : {
               "name" : "date/time"
             },
             "precision" : 29,
             "scale" : 9,
             "expFieldType" : "OUTPUT",
-            "expression" : "SESSSTARTTIME"
+            "expression" : "SYSDATE"
           },
           {
             "defaultValue" : "ERROR('transformation error')",
@@ -996,10 +807,10 @@
             "platformType" : {
               "name" : "string"
             },
-            "precision" : 1,
+            "precision" : 10,
             "scale" : 0,
             "expFieldType" : "OUTPUT",
-            "expression" : "iif(not isnull(agency_email_row_id) AND agency_email_row_md5checksum <> o_src_md5_hash_value, 'U','N')"
+            "expression" : "IIF(NOT ISNULL(user_group_share_row_id) AND user_group_share_row_md5checksum <> o_src_md5_hash_value, 'U','X')"
           }
         ],
         "windowSpec" : {
@@ -1043,15 +854,21 @@
         ],
         "groupFilterConditions" : [
           {
-            "advancedFilterCondition" : "iif(o_flag='I' or o_update_flag='U', True, false)\n ",
-            "name" : "insert_group"
+            "name" : "insert_group",
+            "simpleFilterConditions" : [
+              {
+                "fieldName" : "o_insert_flag",
+                "filterValue" : "I",
+                "operator" : "="
+              }
+            ]
           },
           {
             "name" : "update_group",
             "simpleFilterConditions" : [
               {
                 "fieldName" : "o_update_flag",
-                "filterValue" : "'U'",
+                "filterValue" : "U",
                 "operator" : "="
               }
             ]
@@ -1059,57 +876,8 @@
         ]
       },
       {
-        "createTime" : "2025-05-12T20:30:09.013Z",
-        "name" : "exp_insert_records",
-        "groups" : [
-          {
-            "input" : "true",
-            "name" : "DefaultGroup",
-            "output" : "true",
-            "rules" : [
-              {
-                "bulkRename" : "false",
-                "include" : "true"
-              }
-            ]
-          }
-        ],
-        "windowConfigurationEnabled" : "false",
-        "fields" : [
-          {
-            "defaultValue" : "ERROR('transformation error')",
-            "name" : "o_insert_agency_email_row_effective_end_datetime",
-            "platformType" : {
-              "name" : "date/time"
-            },
-            "precision" : 29,
-            "scale" : 9,
-            "expFieldType" : "OUTPUT",
-            "expression" : "iif(load_type<>'Historical',o_agency_email_row_effective_end_datetime, o_agency_email_datetime_modified)"
-          },
-          {
-            "defaultValue" : "ERROR('transformation error')",
-            "name" : "o_insert_agency_email_row_effective_start_datetime",
-            "platformType" : {
-              "name" : "date/time"
-            },
-            "precision" : 29,
-            "scale" : 9,
-            "expFieldType" : "OUTPUT",
-            "expression" : "iif(load_type<>'Historical',o_agency_email_row_effective_start_datetime,o_agency_email_datetime_created)"
-          }
-        ],
-        "windowSpec" : {
-          "allRowsFollowing" : "false",
-          "allRowsPreceding" : "false",
-          "endOffset" : 0,
-          "startOffset" : 0,
-          "partitionKeys" : null
-        }
-      },
-      {
         "createTime" : "2025-05-12T20:30:13.384Z",
-        "name" : "exp_update_records",
+        "name" : "exp_update",
         "groups" : [
           {
             "input" : "true",
@@ -1134,7 +902,7 @@
             "precision" : 29,
             "scale" : 9,
             "expFieldType" : "OUTPUT",
-            "expression" : "ADD_TO_DATE(SYSDATE, 'DD', -1)"
+            "expression" : "SYSDATE"
           }
         ],
         "windowSpec" : {
@@ -1171,15 +939,16 @@
         "fieldMappingMode" : "MANUAL",
         "inputSorted" : "false",
         "schemaProviderType" : "SELECTED_OBJECT",
+        "targetFieldsOrdered" : "false",
         "updateColumns" : null,
         "useLabels" : "false",
         "useSequenceFields" : "false",
         "fields" : [
           {
             "adapterField" : {
-              "name" : "agency_email_row_id"
+              "name" : "user_group_share_row_id"
             },
-            "name" : "agency_email_row_id",
+            "name" : "user_group_share_row_id",
             "platformType" : {
               "name" : "bigint"
             },
@@ -1188,9 +957,9 @@
           },
           {
             "adapterField" : {
-              "name" : "agency_email_batch_id"
+              "name" : "user_group_share_batch_id"
             },
-            "name" : "agency_email_batch_id",
+            "name" : "user_group_share_batch_id",
             "platformType" : {
               "name" : "bigint"
             },
@@ -1199,9 +968,31 @@
           },
           {
             "adapterField" : {
-              "name" : "agency_email_row_md5checksum"
+              "name" : "source_name"
             },
-            "name" : "agency_email_row_md5checksum",
+            "name" : "source_name",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "load_type"
+            },
+            "name" : "load_type",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "user_group_share_row_md5checksum"
+            },
+            "name" : "user_group_share_row_md5checksum",
             "platformType" : {
               "name" : "string"
             },
@@ -1210,9 +1001,9 @@
           },
           {
             "adapterField" : {
-              "name" : "agency_email_datetime_created"
+              "name" : "user_group_share_datetime_created"
             },
-            "name" : "agency_email_datetime_created",
+            "name" : "user_group_share_datetime_created",
             "platformType" : {
               "name" : "date/time"
             },
@@ -1221,9 +1012,9 @@
           },
           {
             "adapterField" : {
-              "name" : "agency_email_datetime_modified"
+              "name" : "user_group_share_datetime_modified"
             },
-            "name" : "agency_email_datetime_modified",
+            "name" : "user_group_share_datetime_modified",
             "platformType" : {
               "name" : "date/time"
             },
@@ -1232,9 +1023,9 @@
           },
           {
             "adapterField" : {
-              "name" : "agency_email_row_effective_start_datetime"
+              "name" : "user_group_share_row_effective_start_datetime"
             },
-            "name" : "agency_email_row_effective_start_datetime",
+            "name" : "user_group_share_row_effective_start_datetime",
             "platformType" : {
               "name" : "date/time"
             },
@@ -1243,14 +1034,25 @@
           },
           {
             "adapterField" : {
-              "name" : "agency_email_row_effective_end_datetime"
+              "name" : "user_group_share_row_effective_end_datetime"
             },
-            "name" : "agency_email_row_effective_end_datetime",
+            "name" : "user_group_share_row_effective_end_datetime",
             "platformType" : {
               "name" : "date/time"
             },
             "precision" : 29,
             "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "user_group_share_id"
+            },
+            "name" : "user_group_share_id",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
           },
           {
             "adapterField" : {
@@ -1265,42 +1067,9 @@
           },
           {
             "adapterField" : {
-              "name" : "agency_experience_report_email_address"
+              "name" : "shared_agency_id"
             },
-            "name" : "agency_experience_report_email_address",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 63,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "agency_email_type"
-            },
-            "name" : "agency_email_type",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 1,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "group_id"
-            },
-            "name" : "group_id",
-            "platformType" : {
-              "name" : "integer"
-            },
-            "precision" : 10,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "agency_email_id"
-            },
-            "name" : "agency_email_id",
+            "name" : "shared_agency_id",
             "platformType" : {
               "name" : "integer"
             },
@@ -1309,25 +1078,26 @@
           }
         ],
         "dataAdapter" : {
-          "connectionId" : "saas:@aYZ4ekzHgIPeKpiaoqDLKP",
-          "connectionName" : "redshift_nonprod_andover_dw_dev",
+          "connectionId$" : {
+            "name" : "DBConnection_UDM_TGT"
+          },
           "excludeDynamicFileNameField" : "false",
           "objectType" : "SINGLE",
           "typeSystem" : "TOOLKIT",
           "useDynamicFileName" : "false",
           "object" : {
-            "name" : "bronze/adm_agency_email",
-            "label" : "bronze/adm_agency_email",
-            "objectName" : "adm_agency_email",
+            "name" : "bronze/adm_user_group_share",
+            "label" : "bronze/adm_user_group_share",
+            "objectName" : "adm_user_group_share",
             "objectType" : "amazonredshift",
-            "path" : "bronze/adm_agency_email",
+            "path" : "bronze/adm_user_group_share",
             "retainMetadata" : "false",
             "fields" : [
               {
-                "name" : "agency_email_row_id",
+                "name" : "user_group_share_row_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "agency_email_row_id",
-                "nativeName" : "agency_email_row_id",
+                "label" : "user_group_share_row_id",
+                "nativeName" : "user_group_share_row_id",
                 "nativeType" : "int8",
                 "original" : "false",
                 "precision" : 19,
@@ -1335,15 +1105,15 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_agency_email"
+                    "value" : "adm_user_group_share"
                   }
                 ]
               },
               {
-                "name" : "agency_email_batch_id",
+                "name" : "user_group_share_batch_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "agency_email_batch_id",
-                "nativeName" : "agency_email_batch_id",
+                "label" : "user_group_share_batch_id",
+                "nativeName" : "user_group_share_batch_id",
                 "nativeType" : "int8",
                 "original" : "false",
                 "precision" : 19,
@@ -1351,15 +1121,47 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_agency_email"
+                    "value" : "adm_user_group_share"
                   }
                 ]
               },
               {
-                "name" : "agency_email_row_md5checksum",
+                "name" : "source_name",
                 "fieldType" : "CONNECTOR",
-                "label" : "agency_email_row_md5checksum",
-                "nativeName" : "agency_email_row_md5checksum",
+                "label" : "source_name",
+                "nativeName" : "source_name",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_user_group_share"
+                  }
+                ]
+              },
+              {
+                "name" : "load_type",
+                "fieldType" : "CONNECTOR",
+                "label" : "load_type",
+                "nativeName" : "load_type",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_user_group_share"
+                  }
+                ]
+              },
+              {
+                "name" : "user_group_share_row_md5checksum",
+                "fieldType" : "CONNECTOR",
+                "label" : "user_group_share_row_md5checksum",
+                "nativeName" : "user_group_share_row_md5checksum",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 255,
@@ -1367,15 +1169,15 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_agency_email"
+                    "value" : "adm_user_group_share"
                   }
                 ]
               },
               {
-                "name" : "agency_email_datetime_created",
+                "name" : "user_group_share_datetime_created",
                 "fieldType" : "CONNECTOR",
-                "label" : "agency_email_datetime_created",
-                "nativeName" : "agency_email_datetime_created",
+                "label" : "user_group_share_datetime_created",
+                "nativeName" : "user_group_share_datetime_created",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 29,
@@ -1383,15 +1185,15 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_agency_email"
+                    "value" : "adm_user_group_share"
                   }
                 ]
               },
               {
-                "name" : "agency_email_datetime_modified",
+                "name" : "user_group_share_datetime_modified",
                 "fieldType" : "CONNECTOR",
-                "label" : "agency_email_datetime_modified",
-                "nativeName" : "agency_email_datetime_modified",
+                "label" : "user_group_share_datetime_modified",
+                "nativeName" : "user_group_share_datetime_modified",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 29,
@@ -1399,15 +1201,15 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_agency_email"
+                    "value" : "adm_user_group_share"
                   }
                 ]
               },
               {
-                "name" : "agency_email_row_effective_start_datetime",
+                "name" : "user_group_share_row_effective_start_datetime",
                 "fieldType" : "CONNECTOR",
-                "label" : "agency_email_row_effective_start_datetime",
-                "nativeName" : "agency_email_row_effective_start_datetime",
+                "label" : "user_group_share_row_effective_start_datetime",
+                "nativeName" : "user_group_share_row_effective_start_datetime",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 29,
@@ -1415,15 +1217,15 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_agency_email"
+                    "value" : "adm_user_group_share"
                   }
                 ]
               },
               {
-                "name" : "agency_email_row_effective_end_datetime",
+                "name" : "user_group_share_row_effective_end_datetime",
                 "fieldType" : "CONNECTOR",
-                "label" : "agency_email_row_effective_end_datetime",
-                "nativeName" : "agency_email_row_effective_end_datetime",
+                "label" : "user_group_share_row_effective_end_datetime",
+                "nativeName" : "user_group_share_row_effective_end_datetime",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 29,
@@ -1431,7 +1233,23 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_agency_email"
+                    "value" : "adm_user_group_share"
+                  }
+                ]
+              },
+              {
+                "name" : "user_group_share_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "user_group_share_id",
+                "nativeName" : "user_group_share_id",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_user_group_share"
                   }
                 ]
               },
@@ -1447,47 +1265,15 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_agency_email"
+                    "value" : "adm_user_group_share"
                   }
                 ]
               },
               {
-                "name" : "agency_experience_report_email_address",
+                "name" : "shared_agency_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "agency_experience_report_email_address",
-                "nativeName" : "agency_experience_report_email_address",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 63,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_agency_email"
-                  }
-                ]
-              },
-              {
-                "name" : "agency_email_type",
-                "fieldType" : "CONNECTOR",
-                "label" : "agency_email_type",
-                "nativeName" : "agency_email_type",
-                "nativeType" : "char",
-                "original" : "false",
-                "precision" : 1,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_agency_email"
-                  }
-                ]
-              },
-              {
-                "name" : "group_id",
-                "fieldType" : "CONNECTOR",
-                "label" : "group_id",
-                "nativeName" : "group_id",
+                "label" : "shared_agency_id",
+                "nativeName" : "shared_agency_id",
                 "nativeType" : "int4",
                 "original" : "false",
                 "precision" : 10,
@@ -1495,23 +1281,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_agency_email"
-                  }
-                ]
-              },
-              {
-                "name" : "agency_email_id",
-                "fieldType" : "CONNECTOR",
-                "label" : "agency_email_id",
-                "nativeName" : "agency_email_id",
-                "nativeType" : "int4",
-                "original" : "false",
-                "precision" : 10,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_agency_email"
+                    "value" : "adm_user_group_share"
                   }
                 ]
               }
@@ -1527,7 +1297,7 @@
             "attributes" : [
               {
                 "name" : "S3 Bucket Name",
-                "value" : "advr-np-inbound-data/lc360-inbound-test/"
+                "value" : "$$S3_Staging_Bucket"
               },
               {
                 "name" : "Enable Compression",
@@ -1609,79 +1379,79 @@
         "manualMappings" : {
           "mappingList" : [
             {
+              "fromFieldName" : "batch_id",
+              "toField" : {
+                "name" : "user_group_share_batch_id"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "source_name",
+              "toField" : {
+                "name" : "source_name"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "load_type",
+              "toField" : {
+                "name" : "load_type"
+              },
+              "fromFieldNames" : null
+            },
+            {
               "fromFieldName" : "o_src_md5_hash_value",
               "toField" : {
-                "name" : "agency_email_row_md5checksum"
+                "name" : "user_group_share_row_md5checksum"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "o_agency_email_datetime_created",
+              "fromFieldName" : "o_user_group_share_datetime_created",
               "toField" : {
-                "name" : "agency_email_datetime_created"
+                "name" : "user_group_share_datetime_created"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "o_agency_email_datetime_modified",
+              "fromFieldName" : "o_user_group_share_datetime_modified",
               "toField" : {
-                "name" : "agency_email_datetime_modified"
+                "name" : "user_group_share_datetime_modified"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "o_agency_email_row_effective_start_datetime",
+              "fromFieldName" : "o_user_group_share_row_effective_end_datetime",
               "toField" : {
-                "name" : "agency_email_row_effective_start_datetime"
+                "name" : "user_group_share_row_effective_end_datetime"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "o_agency_email_row_effective_end_datetime",
+              "fromFieldName" : "o_user_group_share_row_effective_start_datetime",
               "toField" : {
-                "name" : "agency_email_row_effective_end_datetime"
+                "name" : "user_group_share_row_effective_start_datetime"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "o_agency_id",
+              "fromFieldName" : "o_user_group_share_id",
+              "toField" : {
+                "name" : "user_group_share_id"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_user_group_share_agency_id",
               "toField" : {
                 "name" : "agency_id"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "email_address",
+              "fromFieldName" : "o_user_group_share_sharedagency",
               "toField" : {
-                "name" : "agency_experience_report_email_address"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "email_type",
-              "toField" : {
-                "name" : "agency_email_type"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "o_group_id",
-              "toField" : {
-                "name" : "group_id"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "o_agency_email_id",
-              "toField" : {
-                "name" : "agency_email_id"
-              },
-              "fromFieldNames" : null
-            },
-            {
-              "fromFieldName" : "batch_id",
-              "toField" : {
-                "name" : "agency_email_batch_id"
+                "name" : "shared_agency_id"
               },
               "fromFieldNames" : null
             }
@@ -1690,7 +1460,7 @@
       },
       {
         "createTime" : "2025-05-12T20:30:21.032Z",
-        "name" : "tgt_update_records",
+        "name" : "tgt_update_closeout",
         "advancedProperties" : [
           {
             "name" : "Forward Rejected Rows",
@@ -1714,17 +1484,18 @@
         "fieldMappingMode" : "MANUAL",
         "inputSorted" : "false",
         "schemaProviderType" : "SELECTED_OBJECT",
+        "targetFieldsOrdered" : "false",
         "updateColumns" : [
-          "agency_email_row_id"
+          "user_group_share_row_id"
         ],
         "useLabels" : "false",
         "useSequenceFields" : "false",
         "fields" : [
           {
             "adapterField" : {
-              "name" : "agency_email_row_id"
+              "name" : "user_group_share_row_id"
             },
-            "name" : "agency_email_row_id",
+            "name" : "user_group_share_row_id",
             "platformType" : {
               "name" : "bigint"
             },
@@ -1733,9 +1504,9 @@
           },
           {
             "adapterField" : {
-              "name" : "agency_email_batch_id"
+              "name" : "user_group_share_batch_id"
             },
-            "name" : "agency_email_batch_id",
+            "name" : "user_group_share_batch_id",
             "platformType" : {
               "name" : "bigint"
             },
@@ -1744,9 +1515,31 @@
           },
           {
             "adapterField" : {
-              "name" : "agency_email_row_md5checksum"
+              "name" : "source_name"
             },
-            "name" : "agency_email_row_md5checksum",
+            "name" : "source_name",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "load_type"
+            },
+            "name" : "load_type",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "user_group_share_row_md5checksum"
+            },
+            "name" : "user_group_share_row_md5checksum",
             "platformType" : {
               "name" : "string"
             },
@@ -1755,9 +1548,9 @@
           },
           {
             "adapterField" : {
-              "name" : "agency_email_datetime_created"
+              "name" : "user_group_share_datetime_created"
             },
-            "name" : "agency_email_datetime_created",
+            "name" : "user_group_share_datetime_created",
             "platformType" : {
               "name" : "date/time"
             },
@@ -1766,9 +1559,9 @@
           },
           {
             "adapterField" : {
-              "name" : "agency_email_datetime_modified"
+              "name" : "user_group_share_datetime_modified"
             },
-            "name" : "agency_email_datetime_modified",
+            "name" : "user_group_share_datetime_modified",
             "platformType" : {
               "name" : "date/time"
             },
@@ -1777,9 +1570,9 @@
           },
           {
             "adapterField" : {
-              "name" : "agency_email_row_effective_start_datetime"
+              "name" : "user_group_share_row_effective_start_datetime"
             },
-            "name" : "agency_email_row_effective_start_datetime",
+            "name" : "user_group_share_row_effective_start_datetime",
             "platformType" : {
               "name" : "date/time"
             },
@@ -1788,14 +1581,25 @@
           },
           {
             "adapterField" : {
-              "name" : "agency_email_row_effective_end_datetime"
+              "name" : "user_group_share_row_effective_end_datetime"
             },
-            "name" : "agency_email_row_effective_end_datetime",
+            "name" : "user_group_share_row_effective_end_datetime",
             "platformType" : {
               "name" : "date/time"
             },
             "precision" : 29,
             "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "user_group_share_id"
+            },
+            "name" : "user_group_share_id",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
           },
           {
             "adapterField" : {
@@ -1810,42 +1614,9 @@
           },
           {
             "adapterField" : {
-              "name" : "agency_experience_report_email_address"
+              "name" : "shared_agency_id"
             },
-            "name" : "agency_experience_report_email_address",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 63,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "agency_email_type"
-            },
-            "name" : "agency_email_type",
-            "platformType" : {
-              "name" : "string"
-            },
-            "precision" : 1,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "group_id"
-            },
-            "name" : "group_id",
-            "platformType" : {
-              "name" : "integer"
-            },
-            "precision" : 10,
-            "scale" : 0
-          },
-          {
-            "adapterField" : {
-              "name" : "agency_email_id"
-            },
-            "name" : "agency_email_id",
+            "name" : "shared_agency_id",
             "platformType" : {
               "name" : "integer"
             },
@@ -1854,8 +1625,9 @@
           }
         ],
         "dataAdapter" : {
-          "connectionId" : "saas:@aYZ4ekzHgIPeKpiaoqDLKP",
-          "connectionName" : "redshift_nonprod_andover_dw_dev",
+          "connectionId$" : {
+            "name" : "DBConnection_UDM_TGT"
+          },
           "excludeDynamicFileNameField" : "false",
           "objectType" : "SINGLE",
           "typeSystem" : "TOOLKIT",
@@ -1872,18 +1644,18 @@
             "useBulkApiV2" : "false"
           },
           "object" : {
-            "name" : "bronze/adm_agency_email",
-            "label" : "bronze/adm_agency_email",
-            "objectName" : "adm_agency_email",
+            "name" : "bronze/adm_user_group_share",
+            "label" : "bronze/adm_user_group_share",
+            "objectName" : "adm_user_group_share",
             "objectType" : "amazonredshift",
-            "path" : "bronze/adm_agency_email",
+            "path" : "bronze/adm_user_group_share",
             "retainMetadata" : "false",
             "fields" : [
               {
-                "name" : "agency_email_row_id",
+                "name" : "user_group_share_row_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "agency_email_row_id",
-                "nativeName" : "agency_email_row_id",
+                "label" : "user_group_share_row_id",
+                "nativeName" : "user_group_share_row_id",
                 "nativeType" : "int8",
                 "original" : "false",
                 "precision" : 19,
@@ -1891,15 +1663,15 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_agency_email"
+                    "value" : "adm_user_group_share"
                   }
                 ]
               },
               {
-                "name" : "agency_email_batch_id",
+                "name" : "user_group_share_batch_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "agency_email_batch_id",
-                "nativeName" : "agency_email_batch_id",
+                "label" : "user_group_share_batch_id",
+                "nativeName" : "user_group_share_batch_id",
                 "nativeType" : "int8",
                 "original" : "false",
                 "precision" : 19,
@@ -1907,15 +1679,47 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_agency_email"
+                    "value" : "adm_user_group_share"
                   }
                 ]
               },
               {
-                "name" : "agency_email_row_md5checksum",
+                "name" : "source_name",
                 "fieldType" : "CONNECTOR",
-                "label" : "agency_email_row_md5checksum",
-                "nativeName" : "agency_email_row_md5checksum",
+                "label" : "source_name",
+                "nativeName" : "source_name",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_user_group_share"
+                  }
+                ]
+              },
+              {
+                "name" : "load_type",
+                "fieldType" : "CONNECTOR",
+                "label" : "load_type",
+                "nativeName" : "load_type",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_user_group_share"
+                  }
+                ]
+              },
+              {
+                "name" : "user_group_share_row_md5checksum",
+                "fieldType" : "CONNECTOR",
+                "label" : "user_group_share_row_md5checksum",
+                "nativeName" : "user_group_share_row_md5checksum",
                 "nativeType" : "varchar",
                 "original" : "false",
                 "precision" : 255,
@@ -1923,15 +1727,15 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_agency_email"
+                    "value" : "adm_user_group_share"
                   }
                 ]
               },
               {
-                "name" : "agency_email_datetime_created",
+                "name" : "user_group_share_datetime_created",
                 "fieldType" : "CONNECTOR",
-                "label" : "agency_email_datetime_created",
-                "nativeName" : "agency_email_datetime_created",
+                "label" : "user_group_share_datetime_created",
+                "nativeName" : "user_group_share_datetime_created",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 29,
@@ -1939,15 +1743,15 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_agency_email"
+                    "value" : "adm_user_group_share"
                   }
                 ]
               },
               {
-                "name" : "agency_email_datetime_modified",
+                "name" : "user_group_share_datetime_modified",
                 "fieldType" : "CONNECTOR",
-                "label" : "agency_email_datetime_modified",
-                "nativeName" : "agency_email_datetime_modified",
+                "label" : "user_group_share_datetime_modified",
+                "nativeName" : "user_group_share_datetime_modified",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 29,
@@ -1955,15 +1759,15 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_agency_email"
+                    "value" : "adm_user_group_share"
                   }
                 ]
               },
               {
-                "name" : "agency_email_row_effective_start_datetime",
+                "name" : "user_group_share_row_effective_start_datetime",
                 "fieldType" : "CONNECTOR",
-                "label" : "agency_email_row_effective_start_datetime",
-                "nativeName" : "agency_email_row_effective_start_datetime",
+                "label" : "user_group_share_row_effective_start_datetime",
+                "nativeName" : "user_group_share_row_effective_start_datetime",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 29,
@@ -1971,15 +1775,15 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_agency_email"
+                    "value" : "adm_user_group_share"
                   }
                 ]
               },
               {
-                "name" : "agency_email_row_effective_end_datetime",
+                "name" : "user_group_share_row_effective_end_datetime",
                 "fieldType" : "CONNECTOR",
-                "label" : "agency_email_row_effective_end_datetime",
-                "nativeName" : "agency_email_row_effective_end_datetime",
+                "label" : "user_group_share_row_effective_end_datetime",
+                "nativeName" : "user_group_share_row_effective_end_datetime",
                 "nativeType" : "timestamp",
                 "original" : "false",
                 "precision" : 29,
@@ -1987,7 +1791,23 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_agency_email"
+                    "value" : "adm_user_group_share"
+                  }
+                ]
+              },
+              {
+                "name" : "user_group_share_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "user_group_share_id",
+                "nativeName" : "user_group_share_id",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_user_group_share"
                   }
                 ]
               },
@@ -2003,47 +1823,15 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_agency_email"
+                    "value" : "adm_user_group_share"
                   }
                 ]
               },
               {
-                "name" : "agency_experience_report_email_address",
+                "name" : "shared_agency_id",
                 "fieldType" : "CONNECTOR",
-                "label" : "agency_experience_report_email_address",
-                "nativeName" : "agency_experience_report_email_address",
-                "nativeType" : "varchar",
-                "original" : "false",
-                "precision" : 63,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_agency_email"
-                  }
-                ]
-              },
-              {
-                "name" : "agency_email_type",
-                "fieldType" : "CONNECTOR",
-                "label" : "agency_email_type",
-                "nativeName" : "agency_email_type",
-                "nativeType" : "char",
-                "original" : "false",
-                "precision" : 1,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_agency_email"
-                  }
-                ]
-              },
-              {
-                "name" : "group_id",
-                "fieldType" : "CONNECTOR",
-                "label" : "group_id",
-                "nativeName" : "group_id",
+                "label" : "shared_agency_id",
+                "nativeName" : "shared_agency_id",
                 "nativeType" : "int4",
                 "original" : "false",
                 "precision" : 10,
@@ -2051,23 +1839,7 @@
                 "properties" : [
                   {
                     "name" : "parentObject",
-                    "value" : "adm_agency_email"
-                  }
-                ]
-              },
-              {
-                "name" : "agency_email_id",
-                "fieldType" : "CONNECTOR",
-                "label" : "agency_email_id",
-                "nativeName" : "agency_email_id",
-                "nativeType" : "int4",
-                "original" : "false",
-                "precision" : 10,
-                "scale" : 0,
-                "properties" : [
-                  {
-                    "name" : "parentObject",
-                    "value" : "adm_agency_email"
+                    "value" : "adm_user_group_share"
                   }
                 ]
               }
@@ -2083,7 +1855,7 @@
             "attributes" : [
               {
                 "name" : "S3 Bucket Name",
-                "value" : "advr-np-inbound-data/lc360-inbound-test/"
+                "value" : "$$S3_Staging_Bucket"
               },
               {
                 "name" : "Enable Compression",
@@ -2165,16 +1937,16 @@
         "manualMappings" : {
           "mappingList" : [
             {
-              "fromFieldName" : "o_retire_old_record",
+              "fromFieldName" : "user_group_share_row_id",
               "toField" : {
-                "name" : "agency_email_row_effective_end_datetime"
+                "name" : "user_group_share_row_id"
               },
               "fromFieldNames" : null
             },
             {
-              "fromFieldName" : "agency_email_row_id",
+              "fromFieldName" : "o_retire_old_record",
               "toField" : {
-                "name" : "agency_email_row_id"
+                "name" : "user_group_share_row_effective_end_datetime"
               },
               "fromFieldNames" : null
             }
@@ -2220,13 +1992,583 @@
         "joinType" : "Detail Outer Join",
         "joinConditions" : [
           {
-            "leftOperand" : "o_agency_email_id",
+            "leftOperand" : "o_user_group_share_id",
             "operator" : "=",
-            "rightOperand" : "agency_email_id"
+            "rightOperand" : "user_group_share_id"
           }
         ]
+      },
+      {
+        "createTime" : "2025-05-26T17:59:42.156Z",
+        "name" : "exp_passthrough",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "windowConfigurationEnabled" : "false",
+        "windowSpec" : {
+          "allRowsFollowing" : "false",
+          "allRowsPreceding" : "false",
+          "endOffset" : 0,
+          "startOffset" : 0,
+          "partitionKeys" : null
+        }
+      },
+      {
+        "createTime" : "2025-05-26T18:05:12.437Z",
+        "name" : "tgt_update_records",
+        "advancedProperties" : [
+          {
+            "name" : "Forward Rejected Rows",
+            "value" : "true"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "false",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "createTarget" : "false",
+        "fieldMappingMode" : "MANUAL",
+        "inputSorted" : "false",
+        "schemaProviderType" : "SELECTED_OBJECT",
+        "targetFieldsOrdered" : "false",
+        "updateColumns" : null,
+        "useLabels" : "false",
+        "useSequenceFields" : "false",
+        "fields" : [
+          {
+            "adapterField" : {
+              "name" : "user_group_share_row_id"
+            },
+            "name" : "user_group_share_row_id",
+            "platformType" : {
+              "name" : "bigint"
+            },
+            "precision" : 19,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "user_group_share_batch_id"
+            },
+            "name" : "user_group_share_batch_id",
+            "platformType" : {
+              "name" : "bigint"
+            },
+            "precision" : 19,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "source_name"
+            },
+            "name" : "source_name",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 127,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "load_type"
+            },
+            "name" : "load_type",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 63,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "user_group_share_row_md5checksum"
+            },
+            "name" : "user_group_share_row_md5checksum",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 255,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "user_group_share_datetime_created"
+            },
+            "name" : "user_group_share_datetime_created",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "user_group_share_datetime_modified"
+            },
+            "name" : "user_group_share_datetime_modified",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "user_group_share_row_effective_start_datetime"
+            },
+            "name" : "user_group_share_row_effective_start_datetime",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "user_group_share_row_effective_end_datetime"
+            },
+            "name" : "user_group_share_row_effective_end_datetime",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "user_group_share_id"
+            },
+            "name" : "user_group_share_id",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "agency_id"
+            },
+            "name" : "agency_id",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "shared_agency_id"
+            },
+            "name" : "shared_agency_id",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          }
+        ],
+        "dataAdapter" : {
+          "connectionId$" : {
+            "name" : "DBConnection_UDM_TGT"
+          },
+          "excludeDynamicFileNameField" : "false",
+          "objectType" : "SINGLE",
+          "typeSystem" : "TOOLKIT",
+          "useDynamicFileName" : "false",
+          "object" : {
+            "name" : "bronze/adm_user_group_share",
+            "label" : "bronze/adm_user_group_share",
+            "objectName" : "adm_user_group_share",
+            "objectType" : "amazonredshift",
+            "path" : "bronze/adm_user_group_share",
+            "retainMetadata" : "false",
+            "fields" : [
+              {
+                "name" : "user_group_share_row_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "user_group_share_row_id",
+                "nativeName" : "user_group_share_row_id",
+                "nativeType" : "int8",
+                "original" : "false",
+                "precision" : 19,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_user_group_share"
+                  }
+                ]
+              },
+              {
+                "name" : "user_group_share_batch_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "user_group_share_batch_id",
+                "nativeName" : "user_group_share_batch_id",
+                "nativeType" : "int8",
+                "original" : "false",
+                "precision" : 19,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_user_group_share"
+                  }
+                ]
+              },
+              {
+                "name" : "source_name",
+                "fieldType" : "CONNECTOR",
+                "label" : "source_name",
+                "nativeName" : "source_name",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 127,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_user_group_share"
+                  }
+                ]
+              },
+              {
+                "name" : "load_type",
+                "fieldType" : "CONNECTOR",
+                "label" : "load_type",
+                "nativeName" : "load_type",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 63,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_user_group_share"
+                  }
+                ]
+              },
+              {
+                "name" : "user_group_share_row_md5checksum",
+                "fieldType" : "CONNECTOR",
+                "label" : "user_group_share_row_md5checksum",
+                "nativeName" : "user_group_share_row_md5checksum",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 255,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_user_group_share"
+                  }
+                ]
+              },
+              {
+                "name" : "user_group_share_datetime_created",
+                "fieldType" : "CONNECTOR",
+                "label" : "user_group_share_datetime_created",
+                "nativeName" : "user_group_share_datetime_created",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_user_group_share"
+                  }
+                ]
+              },
+              {
+                "name" : "user_group_share_datetime_modified",
+                "fieldType" : "CONNECTOR",
+                "label" : "user_group_share_datetime_modified",
+                "nativeName" : "user_group_share_datetime_modified",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_user_group_share"
+                  }
+                ]
+              },
+              {
+                "name" : "user_group_share_row_effective_start_datetime",
+                "fieldType" : "CONNECTOR",
+                "label" : "user_group_share_row_effective_start_datetime",
+                "nativeName" : "user_group_share_row_effective_start_datetime",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_user_group_share"
+                  }
+                ]
+              },
+              {
+                "name" : "user_group_share_row_effective_end_datetime",
+                "fieldType" : "CONNECTOR",
+                "label" : "user_group_share_row_effective_end_datetime",
+                "nativeName" : "user_group_share_row_effective_end_datetime",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_user_group_share"
+                  }
+                ]
+              },
+              {
+                "name" : "user_group_share_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "user_group_share_id",
+                "nativeName" : "user_group_share_id",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_user_group_share"
+                  }
+                ]
+              },
+              {
+                "name" : "agency_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "agency_id",
+                "nativeName" : "agency_id",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_user_group_share"
+                  }
+                ]
+              },
+              {
+                "name" : "shared_agency_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "shared_agency_id",
+                "nativeName" : "shared_agency_id",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "adm_user_group_share"
+                  }
+                ]
+              }
+            ],
+            "objectAttributes" : [
+              {
+                "name" : "recordType",
+                "value" : "TABLE"
+              }
+            ]
+          },
+          "runtimeAttributes" : {
+            "attributes" : [
+              {
+                "name" : "S3 Bucket Name",
+                "value" : "$$S3_Staging_Bucket"
+              },
+              {
+                "name" : "Enable Compression",
+                "value" : "YES"
+              },
+              {
+                "name" : "Batch Size",
+                "value" : "2000000"
+              },
+              {
+                "name" : "Max Errors Per Batch Upload Insert",
+                "value" : "1"
+              },
+              {
+                "name" : "Truncate Target Table Before Data Upload",
+                "value" : "NO"
+              },
+              {
+                "name" : "WaitTime In Seconds For S3 File Consistency",
+                "value" : "0"
+              },
+              {
+                "name" : "Temporary Credential Duration",
+                "value" : "900"
+              },
+              {
+                "name" : "S3 Server Side Encryption",
+                "value" : "NO"
+              },
+              {
+                "name" : "S3 Client Side Encryption",
+                "value" : "NO"
+              },
+              {
+                "name" : "Analyze Target Table",
+                "value" : "NO"
+              },
+              {
+                "name" : "Vacuum Target Table",
+                "value" : "None"
+              },
+              {
+                "name" : "Treat Source Rows As",
+                "value" : "INSERT"
+              },
+              {
+                "name" : "Transfer Manager Thread Pool Size",
+                "value" : "10"
+              },
+              {
+                "name" : "Minimum Upload Part Size",
+                "value" : "5242880"
+              },
+              {
+                "name" : "Preserve record order on write",
+                "value" : "NO"
+              },
+              {
+                "name" : "Number of files per batch",
+                "value" : "0"
+              }
+            ]
+          },
+          "writeOptions" : {
+            "batchSize" : 0,
+            "bulkApi" : "false",
+            "handleDecimalRoundOff" : "false",
+            "handleSpecialChars" : "false",
+            "operations" : [
+              "Insert"
+            ],
+            "setFieldsToNull" : "false",
+            "truncate" : "false",
+            "useErrorFile" : "false",
+            "useExactSrcNames" : "false",
+            "useSuccessFile" : "false"
+          }
+        },
+        "manualMappings" : {
+          "mappingList" : [
+            {
+              "fromFieldName" : "batch_id",
+              "toField" : {
+                "name" : "user_group_share_batch_id"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "source_name",
+              "toField" : {
+                "name" : "source_name"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "load_type",
+              "toField" : {
+                "name" : "load_type"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_src_md5_hash_value",
+              "toField" : {
+                "name" : "user_group_share_row_md5checksum"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_user_group_share_datetime_created",
+              "toField" : {
+                "name" : "user_group_share_datetime_created"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_user_group_share_datetime_modified",
+              "toField" : {
+                "name" : "user_group_share_datetime_modified"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_user_group_share_row_effective_start_datetime",
+              "toField" : {
+                "name" : "user_group_share_row_effective_start_datetime"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_user_group_share_row_effective_end_datetime",
+              "toField" : {
+                "name" : "user_group_share_row_effective_end_datetime"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_user_group_share_id",
+              "toField" : {
+                "name" : "user_group_share_id"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_user_group_share_agency_id",
+              "toField" : {
+                "name" : "agency_id"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_user_group_share_sharedagency",
+              "toField" : {
+                "name" : "shared_agency_id"
+              },
+              "fromFieldNames" : null
+            }
+          ]
+        }
       }
     ]
   },
-  "vcsExportTime" : "2025-05-15 12:22:25 PDT"
+  "vcsExportTime" : "2026-01-31 07:10:27 PST"
 }
