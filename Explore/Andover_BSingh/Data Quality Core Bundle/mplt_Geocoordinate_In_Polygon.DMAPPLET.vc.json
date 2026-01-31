@@ -1,0 +1,222 @@
+{
+  "content" : {
+    "description" : "Determines if a coordinate point falls inside or outside a set of coordinates that form a polygon shape. Enter the latitude and longitude values for the coordinate point in the Coordinate_Point field. Enter the latitude and longitude values that define the polygon in the Polygon_Coordinates field.\nEnter the latitude and longitude values in decimal format. Use a semi-colon to separate the values. For example:\n17.25458;78.244393\nWhen you enter the polygon coordinates, use a pipe symbol to separate each set of latitude and longitude values. For example:\n88;-179.999999|89.999999;-179.999999|89.999999;179.999999|88;179.999999\nThe polygon coordinates must connect to each other in a sequence that describes the perimeter of the polygon. For example, the first point connects to the second point, and the second point connects to the third point.",
+    "allowMaxFieldLength" : "false",
+    "documentType" : "DMAPPLET",
+    "name" : "mplt_Geocoordinate_In_Polygon",
+    "specialCharacterSupport" : "false",
+    "links" : [
+      {
+        "link" : "Input -> java_geo_polygon"
+      },
+      {
+        "link" : "java_geo_polygon -> Decision_Status"
+      },
+      {
+        "link" : "Decision_Status -> Output"
+      }
+    ],
+    "transformations" : [
+      {
+        "createTime" : "2020-11-27T14:54:37.776Z",
+        "name" : "Input",
+        "groups" : [
+          {
+            "input" : "false",
+            "name" : "DefaultGroup",
+            "output" : "true"
+          }
+        ],
+        "fields" : [
+          {
+            "name" : "Coordinate_Point",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 64,
+            "scale" : 0
+          },
+          {
+            "name" : "Polygon_Coordinates",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 2048,
+            "scale" : 0
+          }
+        ]
+      },
+      {
+        "createTime" : "2020-11-27T14:54:37.779Z",
+        "name" : "Output",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "false",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true",
+                "names" : [
+                  {
+                    "inputName" : "Process_Status"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "fieldMappingMode" : "MANUAL",
+        "fields" : [
+          {
+            "name" : "Out_Status",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 40,
+            "scale" : 0
+          }
+        ],
+        "manualMappings" : {
+          "mappingList" : [
+            {
+              "fromFieldName" : "Process_Status",
+              "toField" : {
+                "name" : "Out_Status"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "createTime" : "2020-11-27T14:57:01.155Z",
+        "name" : "java_geo_polygon",
+        "advancedProperties" : [
+          {
+            "name" : "Tracing Level",
+            "value" : "Normal"
+          },
+          {
+            "name" : "Transformation Scope",
+            "value" : "Row"
+          },
+          {
+            "name" : "Update Strategy Transformation",
+            "value" : "false"
+          },
+          {
+            "name" : "Enable_High_Precision",
+            "value" : "true"
+          },
+          {
+            "name" : "Optional",
+            "value" : "false"
+          },
+          {
+            "name" : "Is Active",
+            "value" : "false"
+          },
+          {
+            "name" : "Use_Nano_Seconds_In_Datetime",
+            "value" : "false"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true",
+                "names" : [
+                  {
+                    "inputName" : "Coordinate_Point",
+                    "outputName" : "Points"
+                  },
+                  {
+                    "inputName" : "Polygon_Coordinates",
+                    "outputName" : "Coordinates"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "helperCodeSnippet" : "// TODO: Declare static and non-static partition-level variables and functions here.\n// For example,\n//\n// static int countNullRows;   // Counts the number of output rows across all partitions that contains null values.\n// int partCountNullRows;      // Counts the number of output rows in this partition that contains null values.\n//\n// static Object lock = new Object();   // Lock to synchronize countNullRows.\n\nprivate  static double[][] toMatrix(double[] array, int cols) {\n\t\tdouble[][] matrix = new double[(array.length + cols - 1) / cols][cols];\n\t\tfor (int i = 0; i < array.length; i++)\n\t\t\tmatrix[i / cols][i % cols] = array[i];\n\t\treturn matrix;\n}\n\t\nprivate static double[] toColumn(double[][] matrix, int col) {\n\t\tdouble []column=new double[matrix.length];\n\t\tfor (int i=0;i<column.length;++i) {\n\t\t\tcolumn[i]=matrix[i][col];\n\t\t}\n\t\treturn column;\n}\n\nprivate static double[] toCoordinates(String coordinates) {\n\t\tStringTokenizer strTok=new StringTokenizer(coordinates,\"|;\");\n\t\tdouble []ans=new double[strTok.countTokens()];\n\t\tfor (int i=0;i<ans.length;++i) {\n\t\t\tans[i]=Double.valueOf(strTok.nextToken());\n\t\t}\n\t\treturn ans;\n}\nstatic boolean polyTest(double []polyX,double[] polyY, double x, double y) {\n\t\tint i, j = polyX.length - 1;\n\t\tboolean oddNodes = false;\n\t\tfor (i = 0; i <  polyX.length; i++) {\n\t\t\tif ((polyY[i] < y && polyY[j] >= y || polyY[j] < y && polyY[i] >= y)\n\t\t\t\t\t&& (polyX[i] <= x || polyX[j] <= x)) {\n\t\t\t\toddNodes ^= (polyX[i] + (y - polyY[i]) / (polyY[j] - polyY[i])\n\t\t\t\t\t\t* (polyX[j] - polyX[i]) < x);\n\t\t\t}\n\t\t\tj = i;\n\t\t}\n\n\t\treturn oddNodes;\n}\n\n",
+        "importPackagesSnippet" : "// TODO: Enter the Java packages to be imported here.\n// For example, if you want to use Hashtable in any of the snippets, import it as shown below:\n//\n// import java.util.Hashtable;\nimport java.util.StringTokenizer;\n",
+        "lastCompilationFailed" : "false",
+        "onEndOfDataMethodSnippet" : "// TODO: Enter the code that executes after the transformation receives all of the input data here.\n//\n// logInfo(\"The number of null rows for this partition is: \" + partCountNullRows);\n// synchronized(lock)\n// {\n//\t\tlogInfo(\"The total number of null rows across partitions until now is: \" +  countNullRows);\n// }\n",
+        "onInputRowMethodSnippet" : "// TODO: Enter the code to process an input row here.\n// You can access input column data by referencing the input column name.\n// You can set output column data by referencing the output column name.\n// For example, if\n// input1 and input2 are input fields of type int, and\n// output1 and output2 are output fields of type int,\n// then the transformation logic might be as follows:\n//\n// if(!isNull(\"input1\") && !isNull(\"input1\"))\n// {\n//\t\toutput1 = input1 + input2;\n//\t\toutput2 = input1 - input2;\n// }\n// else\n// {\n//\t\tsetNull(\"output1\");\n//\t\tsetNull(\"output2\");\n//\t\tpartCountNullRows++;\n//\t\tsynchronized(lock)\n//\t\t{\n//\t\t\tcountNullRows++;\n//\t\t}\n// }\ntry {\ndouble[][] xy = toMatrix(toCoordinates(Coordinates), 2);\ndouble[] testXY=toCoordinates(Points);\nIN=Boolean.valueOf(polyTest(toColumn(xy,0), toColumn(xy,1), testXY[0], testXY[1])).toString();\n} catch(Exception e)  {\n  IN = \"Not checked\";\n}\n",
+        "onTransactionMethodSnippet" : "// TODO: Enter the code that executes when the transformation receives a transaction here.\n",
+        "runtimeEnvId" : "01A6IV25000000000002",
+        "sorterModeJava" : "SIMPLE",
+        "unmodifiedCompilation" : "true",
+        "compiledInputFields" : [
+          {
+            "name" : "Points",
+            "precision" : 64,
+            "scale" : 0,
+            "type" : "string"
+          },
+          {
+            "name" : "Coordinates",
+            "precision" : 2048,
+            "scale" : 0,
+            "type" : "string"
+          }
+        ],
+        "outputFields" : [
+          {
+            "name" : "IN",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 40,
+            "scale" : 0
+          }
+        ]
+      },
+      {
+        "createTime" : "2020-11-27T15:02:34.410Z",
+        "name" : "Decision_Status",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "windowConfigurationEnabled" : "false",
+        "fields" : [
+          {
+            "name" : "Process_Status",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 40,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "iif(UPPER(IN) = 'TRUE','Coordinate found in polygon',\n(iif(UPPER(IN)='FALSE','Coordinate outside polygon',\niif(UPPER(IN)='NOT CHECKED','Error processing coordinates', \n'Unknown Error'))))"
+          }
+        ],
+        "windowSpec" : {
+          "allRowsFollowing" : "false",
+          "allRowsPreceding" : "false",
+          "endOffset" : 0,
+          "startOffset" : 0,
+          "partitionKeys" : null
+        }
+      }
+    ]
+  },
+  "vcsExportTime" : "2026-01-31 06:33:57 PST"
+}
