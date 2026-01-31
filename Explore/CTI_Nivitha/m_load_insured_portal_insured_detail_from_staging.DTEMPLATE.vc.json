@@ -1,0 +1,2988 @@
+{
+  "content" : {
+    "allowMaxFieldLength" : "false",
+    "bigIntConvertType" : "ONLY_BIGINT",
+    "documentType" : "MAPPING",
+    "name" : "m_load_insured_portal_insured_detail_from_staging",
+    "specialCharacterSupport" : "false",
+    "links" : [
+      {
+        "link" : "SQ_Insured_portal_users_stg -> agg_email"
+      },
+      {
+        "link" : "agg_email -> exp_audit"
+      },
+      {
+        "link" : "lkp_target -> Exp_Update_check"
+      },
+      {
+        "link" : "exp_audit -> lkp_target"
+      },
+      {
+        "link" : "exp_audit -> Exp_Update_check"
+      },
+      {
+        "link" : "Exp_Update_check -> rtr_ins_upd",
+        "groupLink" : "DefaultGroup -> INPUT"
+      },
+      {
+        "link" : "upd_upd -> insured_portal_insured_detail_upd"
+      },
+      {
+        "link" : "upd_ins -> insured_portal_insured_detail_ins"
+      },
+      {
+        "link" : "rtr_ins_upd -> upd_upd",
+        "groupLink" : "UPDATE -> DefaultGroup"
+      },
+      {
+        "link" : "rtr_ins_upd -> upd_ins",
+        "groupLink" : "INSERT -> DefaultGroup"
+      }
+    ],
+    "parameters" : [
+      {
+        "input" : "true",
+        "output" : "false",
+        "precision" : 0,
+        "scale" : 0,
+        "allowRuntimeOverride" : "false",
+        "expressionVariable" : "false",
+        "name" : "DBConnection_SRC",
+        "anonymousType" : {
+          "subType" : "TOOLKIT_CCI",
+          "typeSystem" : "TOOLKIT",
+          "connectionType" : "Amazon Redshift v2"
+        }
+      },
+      {
+        "input" : "true",
+        "output" : "false",
+        "precision" : 0,
+        "scale" : 0,
+        "allowRuntimeOverride" : "false",
+        "expressionVariable" : "false",
+        "name" : "DBConnection_TGT",
+        "anonymousType" : {
+          "subType" : "TOOLKIT_CCI",
+          "typeSystem" : "TOOLKIT",
+          "connectionType" : "Amazon Redshift v2"
+        }
+      },
+      {
+        "input" : "true",
+        "output" : "false",
+        "precision" : 0,
+        "scale" : 0,
+        "allowRuntimeOverride" : "false",
+        "expressionVariable" : "false",
+        "name" : "S3_Staging_Bucket"
+      }
+    ],
+    "transformations" : [
+      {
+        "createTime" : "2024-06-06T18:06:10.830Z",
+        "name" : "SQ_Insured_portal_users_stg",
+        "advancedProperties" : [
+          {
+            "name" : "Tracing Level",
+            "value" : "Normal"
+          },
+          {
+            "name" : "Output is deterministic",
+            "value" : "false"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "false",
+            "name" : "DefaultGroup",
+            "output" : "true"
+          }
+        ],
+        "generateFilenamePort" : "false",
+        "useLabels" : "false",
+        "useSequenceFields" : "false",
+        "fields" : [
+          {
+            "adapterField" : {
+              "name" : "user_customer_number"
+            },
+            "name" : "user_customer_number",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 120,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "user_name"
+            },
+            "name" : "user_name",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 135,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "email_number"
+            },
+            "name" : "email_number",
+            "platformType" : {
+              "name" : "bigint"
+            },
+            "precision" : 19,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "policynumber"
+            },
+            "name" : "policynumber",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 360,
+            "scale" : 0
+          }
+        ],
+        "dataAdapter" : {
+          "connectionId$" : {
+            "name" : "DBConnection_SRC"
+          },
+          "excludeDynamicFileNameField" : "false",
+          "objectType" : "QUERY",
+          "typeSystem" : "TOOLKIT",
+          "useDynamicFileName" : "false",
+          "object" : {
+            "customQuery" : "select\nuser_customer_number,\nuser_name,\nrank() over (partition by user_customer_number, policynumber order by created_date desc) as email_number,\nPolicyNumber\nfrom \n(select distinct user_customer_number, user_name, created_date \nfrom dbo.insured_portal_users_stg\nwhere user_active in ('1', '2')\nand user_role = 'Insured') ins\njoin \n(select distinct policynumber, customernumber\nfrom dbo.PolicyDetail) pol\non pol.CustomerNumber = ins.user_customer_number\n\norder by user_customer_number",
+            "retainMetadata" : "false",
+            "fields" : [
+              {
+                "name" : "user_customer_number",
+                "fieldType" : "CONNECTOR",
+                "label" : "user_customer_number",
+                "nativeName" : "user_customer_number",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 120,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "user_name",
+                "fieldType" : "CONNECTOR",
+                "label" : "user_name",
+                "nativeName" : "user_name",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 135,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "email_number",
+                "fieldType" : "CONNECTOR",
+                "label" : "email_number",
+                "nativeName" : "email_number",
+                "nativeType" : "int8",
+                "original" : "false",
+                "precision" : 19,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "policynumber",
+                "fieldType" : "CONNECTOR",
+                "label" : "policynumber",
+                "nativeName" : "policynumber",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 360,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              }
+            ]
+          },
+          "readOptions" : {
+            "commandType" : 0,
+            "descending" : "false",
+            "queryAll" : "false",
+            "rowLimit" : 0,
+            "selectDistinct" : "false"
+          },
+          "runtimeAttributes" : {
+            "attributes" : [
+              {
+                "name" : "Read Mode",
+                "value" : "Direct"
+              },
+              {
+                "name" : "Fetch Size",
+                "value" : "10000"
+              },
+              {
+                "name" : "S3 Bucket Name",
+                "value" : "$$S3_Staging_Bucket"
+              },
+              {
+                "name" : "Enable Compression",
+                "value" : "YES"
+              },
+              {
+                "name" : "Temporary Credential Duration",
+                "value" : "900"
+              },
+              {
+                "name" : "Treat NULL Value as NULL",
+                "value" : "NO"
+              },
+              {
+                "name" : "Encryption Type",
+                "value" : "None"
+              },
+              {
+                "name" : "Download S3 Files In Multiple Parts",
+                "value" : "NO"
+              },
+              {
+                "name" : "Multipart Download Threshold Size",
+                "value" : "5242880"
+              },
+              {
+                "name" : "Select Distinct",
+                "value" : "NO"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "createTime" : "2024-06-06T18:19:15.192Z",
+        "name" : "agg_email",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "fields" : [
+          {
+            "name" : "insured_email_address_1",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 45,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "FIRST(user_name, email_number = 1)"
+          },
+          {
+            "name" : "insured_email_address_2",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 45,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "FIRST(user_name, email_number = 2)"
+          },
+          {
+            "name" : "insured_email_address_3",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 45,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "FIRST(user_name, email_number = 3)"
+          },
+          {
+            "name" : "insured_email_address_4",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 45,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "FIRST(user_name, email_number = 4)"
+          },
+          {
+            "name" : "insured_email_address_5",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 45,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "FIRST(user_name, email_number = 5)"
+          },
+          {
+            "name" : "insured_email_address_6",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 45,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "FIRST(user_name, email_number = 6)"
+          },
+          {
+            "name" : "insured_email_address_7",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 45,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "FIRST(user_name, email_number = 7)"
+          },
+          {
+            "name" : "insured_email_address_8",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 45,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "FIRST(user_name, email_number = 8)"
+          },
+          {
+            "name" : "insured_email_address_9",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 45,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "FIRST(user_name, email_number = 9)"
+          },
+          {
+            "name" : "insured_email_address_10",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 45,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "FIRST(user_name, email_number = 10)"
+          },
+          {
+            "name" : "count_email",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "count(user_customer_number)"
+          }
+        ],
+        "groupByFieldsList" : {
+          "fields" : [
+            {
+              "fieldName" : "user_customer_number"
+            },
+            {
+              "fieldName" : "policynumber"
+            }
+          ]
+        }
+      },
+      {
+        "createTime" : "2024-06-06T18:36:50.297Z",
+        "name" : "exp_audit",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "windowConfigurationEnabled" : "false",
+        "fields" : [
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "more_than_10_active_email_ind",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "IIF(count_email > 10, 1, 0)"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "insert_date",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9,
+            "expFieldType" : "OUTPUT",
+            "expression" : "SESSSTARTTIME"
+          }
+        ],
+        "windowSpec" : {
+          "allRowsFollowing" : "false",
+          "allRowsPreceding" : "false",
+          "endOffset" : 0,
+          "startOffset" : 0,
+          "partitionKeys" : null
+        }
+      },
+      {
+        "createTime" : "2024-06-10T15:29:47.445Z",
+        "name" : "lkp_target",
+        "advancedProperties" : [
+          {
+            "name" : "Tracing Level",
+            "value" : "Normal"
+          },
+          {
+            "name" : "Lookup caching enabled",
+            "value" : "true"
+          },
+          {
+            "name" : "Lookup cache directory name",
+            "value" : "$PMCacheDir"
+          },
+          {
+            "name" : "Lookup cache persistent",
+            "value" : "false"
+          },
+          {
+            "name" : "Re-cache from lookup source",
+            "value" : "false"
+          },
+          {
+            "name" : "Lookup Data Cache Size",
+            "value" : "AUTO"
+          },
+          {
+            "name" : "Lookup Index Cache Size",
+            "value" : "AUTO"
+          },
+          {
+            "name" : "Dynamic Lookup Cache",
+            "value" : "false"
+          },
+          {
+            "name" : "Update Dynamic Cache Condition",
+            "value" : "TRUE"
+          },
+          {
+            "name" : "Output Old Value On Update",
+            "value" : "false"
+          },
+          {
+            "name" : "Insert Else Update",
+            "value" : "false"
+          },
+          {
+            "name" : "Case Sensitive String Comparison",
+            "value" : "false"
+          },
+          {
+            "name" : "Sorted Input",
+            "value" : "false"
+          },
+          {
+            "name" : "Lookup source is static",
+            "value" : "false"
+          },
+          {
+            "name" : "Pre-build lookup cache",
+            "value" : "AUTO"
+          },
+          {
+            "name" : "Optional",
+            "value" : "true"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "conflictResolutions" : [
+              {
+                "precedingGroupName" : "DefaultGroup",
+                "precedingTxName" : "exp_audit",
+                "rule" : {
+                  "bulkRename" : "true",
+                  "include" : "true",
+                  "bulkRenameOption" : {
+                    "literal" : "aud_",
+                    "suffix" : "false"
+                  }
+                }
+              }
+            ],
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true",
+                "names" : [
+                  {
+                    "inputName" : "aud_policynumber",
+                    "outputName" : "in_policynumber"
+                  },
+                  {
+                    "inputName" : "aud_user_customer_number",
+                    "outputName" : "in_user_customer_number"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "multipleMatchPolicy" : "Use First Value",
+        "unconnected" : "false",
+        "useLabels" : "false",
+        "fields" : [
+          {
+            "adapterField" : {
+              "name" : "row_id"
+            },
+            "name" : "row_id",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "insert_date"
+            },
+            "name" : "insert_date",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "insured_customer_number"
+            },
+            "name" : "insured_customer_number",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 40,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "insured_email_address_1"
+            },
+            "name" : "insured_email_address_1",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 45,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "insured_email_address_2"
+            },
+            "name" : "insured_email_address_2",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 45,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "insured_email_address_3"
+            },
+            "name" : "insured_email_address_3",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 45,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "insured_email_address_4"
+            },
+            "name" : "insured_email_address_4",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 45,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "insured_email_address_5"
+            },
+            "name" : "insured_email_address_5",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 45,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "insured_email_address_6"
+            },
+            "name" : "insured_email_address_6",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 45,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "insured_email_address_7"
+            },
+            "name" : "insured_email_address_7",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 45,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "insured_email_address_8"
+            },
+            "name" : "insured_email_address_8",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 45,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "insured_email_address_9"
+            },
+            "name" : "insured_email_address_9",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 45,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "insured_email_address_10"
+            },
+            "name" : "insured_email_address_10",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 45,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "more_than_ten_active_email_addresses_indicator"
+            },
+            "name" : "more_than_ten_active_email_addresses_indicator",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "policy_number"
+            },
+            "name" : "policy_number",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 120,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "update_date"
+            },
+            "name" : "update_date",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          }
+        ],
+        "inputPortNames" : null,
+        "lookupConditions" : [
+          {
+            "leftOperand" : "insured_customer_number",
+            "operator" : "=",
+            "rightOperand" : "in_user_customer_number"
+          },
+          {
+            "leftOperand" : "policy_number",
+            "operator" : "=",
+            "rightOperand" : "in_policynumber"
+          }
+        ],
+        "dataAdapter" : {
+          "connectionId" : "saas:@aYZ4ekzHgIPeKpiaoqDLKP",
+          "connectionName" : "redshift_nonprod_andover_dw_dev",
+          "excludeDynamicFileNameField" : "false",
+          "objectType" : "SINGLE",
+          "typeSystem" : "TOOLKIT",
+          "useDynamicFileName" : "false",
+          "object" : {
+            "name" : "dbo/insured_portal_insured_detail",
+            "label" : "insured_portal_insured_detail",
+            "objectName" : "insured_portal_insured_detail",
+            "objectType" : "amazonredshift",
+            "path" : "dbo/insured_portal_insured_detail",
+            "retainMetadata" : "false",
+            "fields" : [
+              {
+                "name" : "row_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "row_id",
+                "nativeName" : "row_id",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "insured_portal_insured_detail"
+                  }
+                ]
+              },
+              {
+                "name" : "insert_date",
+                "fieldType" : "CONNECTOR",
+                "label" : "insert_date",
+                "nativeName" : "insert_date",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "insured_portal_insured_detail"
+                  }
+                ]
+              },
+              {
+                "name" : "insured_customer_number",
+                "fieldType" : "CONNECTOR",
+                "label" : "insured_customer_number",
+                "nativeName" : "insured_customer_number",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 40,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "insured_portal_insured_detail"
+                  }
+                ]
+              },
+              {
+                "name" : "policy_number",
+                "fieldType" : "CONNECTOR",
+                "label" : "policy_number",
+                "nativeName" : "policy_number",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 120,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "insured_portal_insured_detail"
+                  }
+                ]
+              },
+              {
+                "name" : "insured_email_address_1",
+                "fieldType" : "CONNECTOR",
+                "label" : "insured_email_address_1",
+                "nativeName" : "insured_email_address_1",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 45,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "insured_portal_insured_detail"
+                  }
+                ]
+              },
+              {
+                "name" : "insured_email_address_2",
+                "fieldType" : "CONNECTOR",
+                "label" : "insured_email_address_2",
+                "nativeName" : "insured_email_address_2",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 45,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "insured_portal_insured_detail"
+                  }
+                ]
+              },
+              {
+                "name" : "insured_email_address_3",
+                "fieldType" : "CONNECTOR",
+                "label" : "insured_email_address_3",
+                "nativeName" : "insured_email_address_3",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 45,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "insured_portal_insured_detail"
+                  }
+                ]
+              },
+              {
+                "name" : "insured_email_address_4",
+                "fieldType" : "CONNECTOR",
+                "label" : "insured_email_address_4",
+                "nativeName" : "insured_email_address_4",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 45,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "insured_portal_insured_detail"
+                  }
+                ]
+              },
+              {
+                "name" : "insured_email_address_5",
+                "fieldType" : "CONNECTOR",
+                "label" : "insured_email_address_5",
+                "nativeName" : "insured_email_address_5",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 45,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "insured_portal_insured_detail"
+                  }
+                ]
+              },
+              {
+                "name" : "insured_email_address_6",
+                "fieldType" : "CONNECTOR",
+                "label" : "insured_email_address_6",
+                "nativeName" : "insured_email_address_6",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 45,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "insured_portal_insured_detail"
+                  }
+                ]
+              },
+              {
+                "name" : "insured_email_address_7",
+                "fieldType" : "CONNECTOR",
+                "label" : "insured_email_address_7",
+                "nativeName" : "insured_email_address_7",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 45,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "insured_portal_insured_detail"
+                  }
+                ]
+              },
+              {
+                "name" : "insured_email_address_8",
+                "fieldType" : "CONNECTOR",
+                "label" : "insured_email_address_8",
+                "nativeName" : "insured_email_address_8",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 45,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "insured_portal_insured_detail"
+                  }
+                ]
+              },
+              {
+                "name" : "insured_email_address_9",
+                "fieldType" : "CONNECTOR",
+                "label" : "insured_email_address_9",
+                "nativeName" : "insured_email_address_9",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 45,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "insured_portal_insured_detail"
+                  }
+                ]
+              },
+              {
+                "name" : "insured_email_address_10",
+                "fieldType" : "CONNECTOR",
+                "label" : "insured_email_address_10",
+                "nativeName" : "insured_email_address_10",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 45,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "insured_portal_insured_detail"
+                  }
+                ]
+              },
+              {
+                "name" : "more_than_ten_active_email_addresses_indicator",
+                "fieldType" : "CONNECTOR",
+                "label" : "more_than_ten_active_email_addresses_indicator",
+                "nativeName" : "more_than_ten_active_email_addresses_indicator",
+                "nativeType" : "bool",
+                "original" : "false",
+                "precision" : 1,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "insured_portal_insured_detail"
+                  }
+                ]
+              },
+              {
+                "name" : "update_date",
+                "fieldType" : "CONNECTOR",
+                "label" : "update_date",
+                "nativeName" : "update_date",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "insured_portal_insured_detail"
+                  }
+                ]
+              }
+            ],
+            "objectAttributes" : [
+              {
+                "name" : "recordType",
+                "value" : "TABLE"
+              }
+            ]
+          },
+          "readOptions" : {
+            "commandType" : 0,
+            "descending" : "false",
+            "queryAll" : "false",
+            "rowLimit" : 0,
+            "selectDistinct" : "false"
+          },
+          "runtimeAttributes" : {
+            "attributes" : [
+              {
+                "name" : "Read Mode",
+                "value" : "Staging"
+              },
+              {
+                "name" : "Fetch Size",
+                "value" : "10000"
+              },
+              {
+                "name" : "S3 Bucket Name",
+                "value" : "$$S3_Staging_Bucket"
+              },
+              {
+                "name" : "Enable Compression",
+                "value" : "YES"
+              },
+              {
+                "name" : "Temporary Credential Duration",
+                "value" : "900"
+              },
+              {
+                "name" : "Treat NULL Value as NULL",
+                "value" : "NO"
+              },
+              {
+                "name" : "Encryption Type",
+                "value" : "None"
+              },
+              {
+                "name" : "Download S3 Files In Multiple Parts",
+                "value" : "NO"
+              },
+              {
+                "name" : "Multipart Download Threshold Size",
+                "value" : "5242880"
+              },
+              {
+                "name" : "Select Distinct",
+                "value" : "NO"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "createTime" : "2024-06-11T13:53:08.442Z",
+        "name" : "Exp_Update_check",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "conflictResolutions" : [
+              {
+                "precedingGroupName" : "DefaultGroup",
+                "precedingTxName" : "lkp_target",
+                "rule" : {
+                  "bulkRename" : "true",
+                  "include" : "true",
+                  "bulkRenameOption" : {
+                    "literal" : "lkp_",
+                    "suffix" : "false"
+                  }
+                }
+              },
+              {
+                "precedingGroupName" : "DefaultGroup",
+                "precedingTxName" : "exp_audit",
+                "rule" : {
+                  "bulkRename" : "true",
+                  "include" : "true",
+                  "bulkRenameOption" : {
+                    "literal" : "IN_",
+                    "suffix" : "false"
+                  }
+                }
+              }
+            ],
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "windowConfigurationEnabled" : "false",
+        "fields" : [
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_insert_date",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9,
+            "expFieldType" : "OUTPUT",
+            "expression" : "IIF(ISNULL(lkp_row_id), IN_insert_date, lkp_insert_date)"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "update_date",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9,
+            "expFieldType" : "OUTPUT",
+            "expression" : "SESSSTARTTIME"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "update_flag",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 1,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "IIF(ISNULL(lkp_row_id), 'I',\nIIF(IN_insured_email_address_1 <> lkp_insured_email_address_1\nOR IN_insured_email_address_2 <> lkp_insured_email_address_2\nOR IN_insured_email_address_3 <> lkp_insured_email_address_3\nOR IN_insured_email_address_4 <> lkp_insured_email_address_4\nOR IN_insured_email_address_5 <> lkp_insured_email_address_5\nOR IN_insured_email_address_6 <> lkp_insured_email_address_6\nOR IN_insured_email_address_7 <> lkp_insured_email_address_7\nOR IN_insured_email_address_8 <> lkp_insured_email_address_8\nOR IN_insured_email_address_9 <> lkp_insured_email_address_9\nOR IN_insured_email_address_10 <> lkp_insured_email_address_10\nOR IN_more_than_10_active_email_ind <> lkp_more_than_ten_active_email_addresses_indicator, 'U', 'X'))"
+          }
+        ],
+        "windowSpec" : {
+          "allRowsFollowing" : "false",
+          "allRowsPreceding" : "false",
+          "endOffset" : 0,
+          "startOffset" : 0,
+          "partitionKeys" : null
+        }
+      },
+      {
+        "createTime" : "2024-06-14T16:18:06.915Z",
+        "name" : "rtr_ins_upd",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "INPUT",
+            "output" : "false",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true",
+                "names" : [
+                  {
+                    "inputName" : "update_date"
+                  },
+                  {
+                    "inputName" : "update_flag"
+                  },
+                  {
+                    "inputName" : "IN_count_email"
+                  },
+                  {
+                    "inputName" : "IN_email_number"
+                  },
+                  {
+                    "inputName" : "IN_insert_date"
+                  },
+                  {
+                    "inputName" : "IN_insured_email_address_1"
+                  },
+                  {
+                    "inputName" : "IN_insured_email_address_10"
+                  },
+                  {
+                    "inputName" : "IN_insured_email_address_2"
+                  },
+                  {
+                    "inputName" : "IN_insured_email_address_3"
+                  },
+                  {
+                    "inputName" : "IN_insured_email_address_4"
+                  },
+                  {
+                    "inputName" : "IN_insured_email_address_5"
+                  },
+                  {
+                    "inputName" : "IN_insured_email_address_6"
+                  },
+                  {
+                    "inputName" : "IN_insured_email_address_7"
+                  },
+                  {
+                    "inputName" : "IN_insured_email_address_8"
+                  },
+                  {
+                    "inputName" : "IN_insured_email_address_9"
+                  },
+                  {
+                    "inputName" : "IN_more_than_10_active_email_ind"
+                  },
+                  {
+                    "inputName" : "IN_policynumber"
+                  },
+                  {
+                    "inputName" : "IN_user_customer_number"
+                  },
+                  {
+                    "inputName" : "IN_user_name"
+                  },
+                  {
+                    "inputName" : "lkp_insured_customer_number"
+                  },
+                  {
+                    "inputName" : "lkp_row_id"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "input" : "false",
+            "name" : "DEFAULT1",
+            "output" : "true"
+          },
+          {
+            "input" : "false",
+            "name" : "INSERT",
+            "output" : "true"
+          },
+          {
+            "input" : "false",
+            "name" : "UPDATE",
+            "output" : "true"
+          }
+        ],
+        "groupFilterConditions" : [
+          {
+            "name" : "INSERT",
+            "simpleFilterConditions" : [
+              {
+                "fieldName" : "update_flag",
+                "filterValue" : " 'I'",
+                "operator" : "="
+              }
+            ]
+          },
+          {
+            "name" : "UPDATE",
+            "simpleFilterConditions" : [
+              {
+                "fieldName" : "update_flag",
+                "filterValue" : "'U'",
+                "operator" : "="
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "createTime" : "2024-06-14T17:14:53.129Z",
+        "name" : "upd_upd",
+        "advancedProperties" : [
+          {
+            "name" : "Tracing Level",
+            "value" : "Normal"
+          },
+          {
+            "name" : "Optional",
+            "value" : "true"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true",
+                "names" : [
+                  {
+                    "inputName" : "IN_insert_date"
+                  },
+                  {
+                    "inputName" : "IN_insured_email_address_1"
+                  },
+                  {
+                    "inputName" : "IN_insured_email_address_10"
+                  },
+                  {
+                    "inputName" : "IN_insured_email_address_2"
+                  },
+                  {
+                    "inputName" : "IN_insured_email_address_3"
+                  },
+                  {
+                    "inputName" : "IN_insured_email_address_4"
+                  },
+                  {
+                    "inputName" : "IN_insured_email_address_5"
+                  },
+                  {
+                    "inputName" : "IN_insured_email_address_6"
+                  },
+                  {
+                    "inputName" : "IN_insured_email_address_7"
+                  },
+                  {
+                    "inputName" : "IN_insured_email_address_8"
+                  },
+                  {
+                    "inputName" : "IN_insured_email_address_9"
+                  },
+                  {
+                    "inputName" : "IN_more_than_10_active_email_ind"
+                  },
+                  {
+                    "inputName" : "IN_policynumber"
+                  },
+                  {
+                    "inputName" : "IN_user_customer_number"
+                  },
+                  {
+                    "inputName" : "lkp_row_id"
+                  },
+                  {
+                    "inputName" : "update_date"
+                  },
+                  {
+                    "inputName" : "lkp_insured_customer_number"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "windowConfigurationEnabled" : "false",
+        "fields" : [
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "update_strategy",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 100,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "DD_UPDATE"
+          }
+        ],
+        "windowSpec" : {
+          "allRowsFollowing" : "false",
+          "allRowsPreceding" : "false",
+          "endOffset" : 0,
+          "startOffset" : 0,
+          "partitionKeys" : null
+        }
+      },
+      {
+        "createTime" : "2024-06-14T17:49:17.943Z",
+        "name" : "insured_portal_insured_detail_upd",
+        "advancedProperties" : [
+          {
+            "name" : "Forward Rejected Rows",
+            "value" : "true"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "false",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true",
+                "names" : [
+                  {
+                    "inputName" : "lkp_row_id"
+                  },
+                  {
+                    "inputName" : "update_date"
+                  },
+                  {
+                    "inputName" : "IN_insert_date"
+                  },
+                  {
+                    "inputName" : "IN_insured_email_address_1"
+                  },
+                  {
+                    "inputName" : "IN_insured_email_address_10"
+                  },
+                  {
+                    "inputName" : "IN_insured_email_address_2"
+                  },
+                  {
+                    "inputName" : "IN_insured_email_address_3"
+                  },
+                  {
+                    "inputName" : "IN_insured_email_address_4"
+                  },
+                  {
+                    "inputName" : "IN_insured_email_address_5"
+                  },
+                  {
+                    "inputName" : "IN_insured_email_address_6"
+                  },
+                  {
+                    "inputName" : "IN_insured_email_address_8"
+                  },
+                  {
+                    "inputName" : "IN_insured_email_address_7"
+                  },
+                  {
+                    "inputName" : "IN_insured_email_address_9"
+                  },
+                  {
+                    "inputName" : "IN_more_than_10_active_email_ind"
+                  },
+                  {
+                    "inputName" : "IN_policynumber"
+                  },
+                  {
+                    "inputName" : "IN_user_customer_number"
+                  },
+                  {
+                    "inputName" : "lkp_insured_customer_number"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "createTarget" : "false",
+        "fieldMappingMode" : "MANUAL",
+        "inputSorted" : "false",
+        "schemaProviderType" : "SELECTED_OBJECT",
+        "targetFieldsOrdered" : "false",
+        "updateColumns" : null,
+        "useLabels" : "false",
+        "useSequenceFields" : "false",
+        "fields" : [
+          {
+            "adapterField" : {
+              "name" : "row_id"
+            },
+            "name" : "row_id",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "insert_date"
+            },
+            "name" : "insert_date",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "insured_customer_number"
+            },
+            "name" : "insured_customer_number",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 120,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "insured_email_address_1"
+            },
+            "name" : "insured_email_address_1",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 135,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "insured_email_address_2"
+            },
+            "name" : "insured_email_address_2",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 135,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "insured_email_address_3"
+            },
+            "name" : "insured_email_address_3",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 135,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "insured_email_address_4"
+            },
+            "name" : "insured_email_address_4",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 135,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "insured_email_address_5"
+            },
+            "name" : "insured_email_address_5",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 135,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "insured_email_address_6"
+            },
+            "name" : "insured_email_address_6",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 135,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "insured_email_address_7"
+            },
+            "name" : "insured_email_address_7",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 135,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "insured_email_address_8"
+            },
+            "name" : "insured_email_address_8",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 135,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "insured_email_address_9"
+            },
+            "name" : "insured_email_address_9",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 135,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "insured_email_address_10"
+            },
+            "name" : "insured_email_address_10",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 135,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "more_than_ten_active_email_addresses_indicator"
+            },
+            "name" : "more_than_ten_active_email_addresses_indicator",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "policy_number"
+            },
+            "name" : "policy_number",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 360,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "update_date"
+            },
+            "name" : "update_date",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          }
+        ],
+        "dataAdapter" : {
+          "connectionId$" : {
+            "name" : "DBConnection_TGT"
+          },
+          "excludeDynamicFileNameField" : "false",
+          "objectType" : "SINGLE",
+          "typeSystem" : "TOOLKIT",
+          "useDynamicFileName" : "false",
+          "object" : {
+            "name" : "dbo/insured_portal_insured_detail",
+            "label" : "insured_portal_insured_detail",
+            "objectName" : "insured_portal_insured_detail",
+            "objectType" : "amazonredshift",
+            "path" : "dbo/insured_portal_insured_detail",
+            "retainMetadata" : "false",
+            "fields" : [
+              {
+                "name" : "row_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "row_id",
+                "nativeName" : "row_id",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "insured_portal_insured_detail"
+                  }
+                ]
+              },
+              {
+                "name" : "insert_date",
+                "fieldType" : "CONNECTOR",
+                "label" : "insert_date",
+                "nativeName" : "insert_date",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "insured_portal_insured_detail"
+                  }
+                ]
+              },
+              {
+                "name" : "insured_customer_number",
+                "fieldType" : "CONNECTOR",
+                "label" : "insured_customer_number",
+                "nativeName" : "insured_customer_number",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 120,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "insured_portal_insured_detail"
+                  }
+                ]
+              },
+              {
+                "name" : "insured_email_address_1",
+                "fieldType" : "CONNECTOR",
+                "label" : "insured_email_address_1",
+                "nativeName" : "insured_email_address_1",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 135,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "insured_portal_insured_detail"
+                  }
+                ]
+              },
+              {
+                "name" : "insured_email_address_2",
+                "fieldType" : "CONNECTOR",
+                "label" : "insured_email_address_2",
+                "nativeName" : "insured_email_address_2",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 135,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "insured_portal_insured_detail"
+                  }
+                ]
+              },
+              {
+                "name" : "insured_email_address_3",
+                "fieldType" : "CONNECTOR",
+                "label" : "insured_email_address_3",
+                "nativeName" : "insured_email_address_3",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 135,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "insured_portal_insured_detail"
+                  }
+                ]
+              },
+              {
+                "name" : "insured_email_address_4",
+                "fieldType" : "CONNECTOR",
+                "label" : "insured_email_address_4",
+                "nativeName" : "insured_email_address_4",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 135,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "insured_portal_insured_detail"
+                  }
+                ]
+              },
+              {
+                "name" : "insured_email_address_5",
+                "fieldType" : "CONNECTOR",
+                "label" : "insured_email_address_5",
+                "nativeName" : "insured_email_address_5",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 135,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "insured_portal_insured_detail"
+                  }
+                ]
+              },
+              {
+                "name" : "insured_email_address_6",
+                "fieldType" : "CONNECTOR",
+                "label" : "insured_email_address_6",
+                "nativeName" : "insured_email_address_6",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 135,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "insured_portal_insured_detail"
+                  }
+                ]
+              },
+              {
+                "name" : "insured_email_address_7",
+                "fieldType" : "CONNECTOR",
+                "label" : "insured_email_address_7",
+                "nativeName" : "insured_email_address_7",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 135,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "insured_portal_insured_detail"
+                  }
+                ]
+              },
+              {
+                "name" : "insured_email_address_8",
+                "fieldType" : "CONNECTOR",
+                "label" : "insured_email_address_8",
+                "nativeName" : "insured_email_address_8",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 135,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "insured_portal_insured_detail"
+                  }
+                ]
+              },
+              {
+                "name" : "insured_email_address_9",
+                "fieldType" : "CONNECTOR",
+                "label" : "insured_email_address_9",
+                "nativeName" : "insured_email_address_9",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 135,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "insured_portal_insured_detail"
+                  }
+                ]
+              },
+              {
+                "name" : "insured_email_address_10",
+                "fieldType" : "CONNECTOR",
+                "label" : "insured_email_address_10",
+                "nativeName" : "insured_email_address_10",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 135,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "insured_portal_insured_detail"
+                  }
+                ]
+              },
+              {
+                "name" : "more_than_ten_active_email_addresses_indicator",
+                "fieldType" : "CONNECTOR",
+                "label" : "more_than_ten_active_email_addresses_indicator",
+                "nativeName" : "more_than_ten_active_email_addresses_indicator",
+                "nativeType" : "bool",
+                "original" : "false",
+                "precision" : 1,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "insured_portal_insured_detail"
+                  }
+                ]
+              },
+              {
+                "name" : "policy_number",
+                "fieldType" : "CONNECTOR",
+                "label" : "policy_number",
+                "nativeName" : "policy_number",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 360,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "insured_portal_insured_detail"
+                  }
+                ]
+              },
+              {
+                "name" : "update_date",
+                "fieldType" : "CONNECTOR",
+                "label" : "update_date",
+                "nativeName" : "update_date",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "insured_portal_insured_detail"
+                  }
+                ]
+              }
+            ],
+            "objectAttributes" : [
+              {
+                "name" : "recordType",
+                "value" : "TABLE"
+              }
+            ]
+          },
+          "runtimeAttributes" : {
+            "attributes" : [
+              {
+                "name" : "S3 Bucket Name",
+                "value" : "$$S3_Staging_Bucket"
+              },
+              {
+                "name" : "Enable Compression",
+                "value" : "YES"
+              },
+              {
+                "name" : "Batch Size",
+                "value" : "2000000"
+              },
+              {
+                "name" : "Max Errors Per Batch Upload Insert",
+                "value" : "1"
+              },
+              {
+                "name" : "Truncate Target Table Before Data Upload",
+                "value" : "NO"
+              },
+              {
+                "name" : "WaitTime In Seconds For S3 File Consistency",
+                "value" : "0"
+              },
+              {
+                "name" : "Temporary Credential Duration",
+                "value" : "900"
+              },
+              {
+                "name" : "S3 Server Side Encryption",
+                "value" : "NO"
+              },
+              {
+                "name" : "S3 Client Side Encryption",
+                "value" : "NO"
+              },
+              {
+                "name" : "Analyze Target Table",
+                "value" : "NO"
+              },
+              {
+                "name" : "Vacuum Target Table",
+                "value" : "None"
+              },
+              {
+                "name" : "Treat Source Rows As",
+                "value" : "INSERT"
+              },
+              {
+                "name" : "Transfer Manager Thread Pool Size",
+                "value" : "10"
+              },
+              {
+                "name" : "Minimum Upload Part Size",
+                "value" : "5242880"
+              },
+              {
+                "name" : "Preserve record order on write",
+                "value" : "NO"
+              },
+              {
+                "name" : "Number of files per batch",
+                "value" : "0"
+              }
+            ]
+          },
+          "writeOptions" : {
+            "batchSize" : 0,
+            "bulkApi" : "false",
+            "handleDecimalRoundOff" : "false",
+            "handleSpecialChars" : "false",
+            "operations" : [
+              "Insert"
+            ],
+            "setFieldsToNull" : "false",
+            "truncate" : "false",
+            "useErrorFile" : "false",
+            "useExactSrcNames" : "false",
+            "useSuccessFile" : "false"
+          }
+        },
+        "manualMappings" : {
+          "mappingList" : [
+            {
+              "fromFieldName" : "lkp_row_id",
+              "toField" : {
+                "name" : "row_id"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "lkp_insured_customer_number",
+              "toField" : {
+                "name" : "insured_customer_number"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "IN_insert_date",
+              "toField" : {
+                "name" : "insert_date"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "IN_insured_email_address_1",
+              "toField" : {
+                "name" : "insured_email_address_1"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "IN_insured_email_address_2",
+              "toField" : {
+                "name" : "insured_email_address_2"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "IN_insured_email_address_3",
+              "toField" : {
+                "name" : "insured_email_address_3"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "IN_insured_email_address_4",
+              "toField" : {
+                "name" : "insured_email_address_4"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "IN_insured_email_address_5",
+              "toField" : {
+                "name" : "insured_email_address_5"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "IN_insured_email_address_6",
+              "toField" : {
+                "name" : "insured_email_address_6"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "IN_insured_email_address_7",
+              "toField" : {
+                "name" : "insured_email_address_7"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "IN_insured_email_address_8",
+              "toField" : {
+                "name" : "insured_email_address_8"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "IN_insured_email_address_9",
+              "toField" : {
+                "name" : "insured_email_address_9"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "IN_insured_email_address_10",
+              "toField" : {
+                "name" : "insured_email_address_10"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "IN_more_than_10_active_email_ind",
+              "toField" : {
+                "name" : "more_than_ten_active_email_addresses_indicator"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "IN_policynumber",
+              "toField" : {
+                "name" : "policy_number"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "update_date",
+              "toField" : {
+                "name" : "update_date"
+              },
+              "fromFieldNames" : null
+            }
+          ]
+        }
+      },
+      {
+        "createTime" : "2024-06-14T17:14:53.129Z",
+        "name" : "upd_ins",
+        "advancedProperties" : [
+          {
+            "name" : "Tracing Level",
+            "value" : "Terse"
+          },
+          {
+            "name" : "Optional",
+            "value" : "true"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true",
+                "names" : [
+                  {
+                    "inputName" : "IN_insert_date"
+                  },
+                  {
+                    "inputName" : "IN_insured_email_address_1"
+                  },
+                  {
+                    "inputName" : "IN_insured_email_address_10"
+                  },
+                  {
+                    "inputName" : "IN_insured_email_address_2"
+                  },
+                  {
+                    "inputName" : "IN_insured_email_address_3"
+                  },
+                  {
+                    "inputName" : "IN_insured_email_address_4"
+                  },
+                  {
+                    "inputName" : "IN_insured_email_address_5"
+                  },
+                  {
+                    "inputName" : "IN_insured_email_address_6"
+                  },
+                  {
+                    "inputName" : "IN_insured_email_address_7"
+                  },
+                  {
+                    "inputName" : "IN_insured_email_address_8"
+                  },
+                  {
+                    "inputName" : "IN_insured_email_address_9"
+                  },
+                  {
+                    "inputName" : "IN_more_than_10_active_email_ind"
+                  },
+                  {
+                    "inputName" : "IN_policynumber"
+                  },
+                  {
+                    "inputName" : "IN_user_customer_number"
+                  },
+                  {
+                    "inputName" : "lkp_row_id"
+                  },
+                  {
+                    "inputName" : "update_date"
+                  },
+                  {
+                    "inputName" : "lkp_insured_customer_number"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "windowConfigurationEnabled" : "false",
+        "fields" : [
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "update_strategy",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 100,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "DD_INSERT"
+          }
+        ],
+        "windowSpec" : {
+          "allRowsFollowing" : "false",
+          "allRowsPreceding" : "false",
+          "endOffset" : 0,
+          "startOffset" : 0,
+          "partitionKeys" : null
+        }
+      },
+      {
+        "createTime" : "2024-06-14T17:49:17.943Z",
+        "name" : "insured_portal_insured_detail_ins",
+        "advancedProperties" : [
+          {
+            "name" : "Forward Rejected Rows",
+            "value" : "true"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "false",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true",
+                "names" : [
+                  {
+                    "inputName" : "lkp_row_id"
+                  },
+                  {
+                    "inputName" : "update_date"
+                  },
+                  {
+                    "inputName" : "IN_insert_date"
+                  },
+                  {
+                    "inputName" : "IN_insured_email_address_1"
+                  },
+                  {
+                    "inputName" : "IN_insured_email_address_10"
+                  },
+                  {
+                    "inputName" : "IN_insured_email_address_2"
+                  },
+                  {
+                    "inputName" : "IN_insured_email_address_3"
+                  },
+                  {
+                    "inputName" : "IN_insured_email_address_4"
+                  },
+                  {
+                    "inputName" : "IN_insured_email_address_5"
+                  },
+                  {
+                    "inputName" : "IN_insured_email_address_6"
+                  },
+                  {
+                    "inputName" : "IN_insured_email_address_8"
+                  },
+                  {
+                    "inputName" : "IN_insured_email_address_7"
+                  },
+                  {
+                    "inputName" : "IN_insured_email_address_9"
+                  },
+                  {
+                    "inputName" : "IN_more_than_10_active_email_ind"
+                  },
+                  {
+                    "inputName" : "IN_policynumber"
+                  },
+                  {
+                    "inputName" : "IN_user_customer_number"
+                  },
+                  {
+                    "inputName" : "lkp_insured_customer_number"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "createTarget" : "false",
+        "fieldMappingMode" : "MANUAL",
+        "inputSorted" : "false",
+        "schemaProviderType" : "SELECTED_OBJECT",
+        "targetFieldsOrdered" : "false",
+        "updateColumns" : null,
+        "useLabels" : "false",
+        "useSequenceFields" : "false",
+        "fields" : [
+          {
+            "adapterField" : {
+              "name" : "row_id"
+            },
+            "name" : "row_id",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "insert_date"
+            },
+            "name" : "insert_date",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "insured_customer_number"
+            },
+            "name" : "insured_customer_number",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 120,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "insured_email_address_1"
+            },
+            "name" : "insured_email_address_1",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 135,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "insured_email_address_2"
+            },
+            "name" : "insured_email_address_2",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 135,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "insured_email_address_3"
+            },
+            "name" : "insured_email_address_3",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 135,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "insured_email_address_4"
+            },
+            "name" : "insured_email_address_4",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 135,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "insured_email_address_5"
+            },
+            "name" : "insured_email_address_5",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 135,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "insured_email_address_6"
+            },
+            "name" : "insured_email_address_6",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 135,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "insured_email_address_7"
+            },
+            "name" : "insured_email_address_7",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 135,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "insured_email_address_8"
+            },
+            "name" : "insured_email_address_8",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 135,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "insured_email_address_9"
+            },
+            "name" : "insured_email_address_9",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 135,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "insured_email_address_10"
+            },
+            "name" : "insured_email_address_10",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 135,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "more_than_ten_active_email_addresses_indicator"
+            },
+            "name" : "more_than_ten_active_email_addresses_indicator",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "policy_number"
+            },
+            "name" : "policy_number",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 360,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "update_date"
+            },
+            "name" : "update_date",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          }
+        ],
+        "dataAdapter" : {
+          "connectionId$" : {
+            "name" : "DBConnection_TGT"
+          },
+          "excludeDynamicFileNameField" : "false",
+          "objectType" : "SINGLE",
+          "typeSystem" : "TOOLKIT",
+          "useDynamicFileName" : "false",
+          "object" : {
+            "name" : "dbo/insured_portal_insured_detail",
+            "label" : "insured_portal_insured_detail",
+            "objectName" : "insured_portal_insured_detail",
+            "objectType" : "amazonredshift",
+            "path" : "dbo/insured_portal_insured_detail",
+            "retainMetadata" : "false",
+            "fields" : [
+              {
+                "name" : "row_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "row_id",
+                "nativeName" : "row_id",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "insured_portal_insured_detail"
+                  }
+                ]
+              },
+              {
+                "name" : "insert_date",
+                "fieldType" : "CONNECTOR",
+                "label" : "insert_date",
+                "nativeName" : "insert_date",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "insured_portal_insured_detail"
+                  }
+                ]
+              },
+              {
+                "name" : "insured_customer_number",
+                "fieldType" : "CONNECTOR",
+                "label" : "insured_customer_number",
+                "nativeName" : "insured_customer_number",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 120,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "insured_portal_insured_detail"
+                  }
+                ]
+              },
+              {
+                "name" : "insured_email_address_1",
+                "fieldType" : "CONNECTOR",
+                "label" : "insured_email_address_1",
+                "nativeName" : "insured_email_address_1",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 135,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "insured_portal_insured_detail"
+                  }
+                ]
+              },
+              {
+                "name" : "insured_email_address_2",
+                "fieldType" : "CONNECTOR",
+                "label" : "insured_email_address_2",
+                "nativeName" : "insured_email_address_2",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 135,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "insured_portal_insured_detail"
+                  }
+                ]
+              },
+              {
+                "name" : "insured_email_address_3",
+                "fieldType" : "CONNECTOR",
+                "label" : "insured_email_address_3",
+                "nativeName" : "insured_email_address_3",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 135,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "insured_portal_insured_detail"
+                  }
+                ]
+              },
+              {
+                "name" : "insured_email_address_4",
+                "fieldType" : "CONNECTOR",
+                "label" : "insured_email_address_4",
+                "nativeName" : "insured_email_address_4",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 135,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "insured_portal_insured_detail"
+                  }
+                ]
+              },
+              {
+                "name" : "insured_email_address_5",
+                "fieldType" : "CONNECTOR",
+                "label" : "insured_email_address_5",
+                "nativeName" : "insured_email_address_5",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 135,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "insured_portal_insured_detail"
+                  }
+                ]
+              },
+              {
+                "name" : "insured_email_address_6",
+                "fieldType" : "CONNECTOR",
+                "label" : "insured_email_address_6",
+                "nativeName" : "insured_email_address_6",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 135,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "insured_portal_insured_detail"
+                  }
+                ]
+              },
+              {
+                "name" : "insured_email_address_7",
+                "fieldType" : "CONNECTOR",
+                "label" : "insured_email_address_7",
+                "nativeName" : "insured_email_address_7",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 135,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "insured_portal_insured_detail"
+                  }
+                ]
+              },
+              {
+                "name" : "insured_email_address_8",
+                "fieldType" : "CONNECTOR",
+                "label" : "insured_email_address_8",
+                "nativeName" : "insured_email_address_8",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 135,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "insured_portal_insured_detail"
+                  }
+                ]
+              },
+              {
+                "name" : "insured_email_address_9",
+                "fieldType" : "CONNECTOR",
+                "label" : "insured_email_address_9",
+                "nativeName" : "insured_email_address_9",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 135,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "insured_portal_insured_detail"
+                  }
+                ]
+              },
+              {
+                "name" : "insured_email_address_10",
+                "fieldType" : "CONNECTOR",
+                "label" : "insured_email_address_10",
+                "nativeName" : "insured_email_address_10",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 135,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "insured_portal_insured_detail"
+                  }
+                ]
+              },
+              {
+                "name" : "more_than_ten_active_email_addresses_indicator",
+                "fieldType" : "CONNECTOR",
+                "label" : "more_than_ten_active_email_addresses_indicator",
+                "nativeName" : "more_than_ten_active_email_addresses_indicator",
+                "nativeType" : "bool",
+                "original" : "false",
+                "precision" : 1,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "insured_portal_insured_detail"
+                  }
+                ]
+              },
+              {
+                "name" : "policy_number",
+                "fieldType" : "CONNECTOR",
+                "label" : "policy_number",
+                "nativeName" : "policy_number",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 360,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "insured_portal_insured_detail"
+                  }
+                ]
+              },
+              {
+                "name" : "update_date",
+                "fieldType" : "CONNECTOR",
+                "label" : "update_date",
+                "nativeName" : "update_date",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "insured_portal_insured_detail"
+                  }
+                ]
+              }
+            ],
+            "objectAttributes" : [
+              {
+                "name" : "recordType",
+                "value" : "TABLE"
+              }
+            ]
+          },
+          "runtimeAttributes" : {
+            "attributes" : [
+              {
+                "name" : "S3 Bucket Name",
+                "value" : "$$S3_Staging_Bucket"
+              },
+              {
+                "name" : "Enable Compression",
+                "value" : "YES"
+              },
+              {
+                "name" : "Batch Size",
+                "value" : "2000000"
+              },
+              {
+                "name" : "Max Errors Per Batch Upload Insert",
+                "value" : "1"
+              },
+              {
+                "name" : "Truncate Target Table Before Data Upload",
+                "value" : "NO"
+              },
+              {
+                "name" : "WaitTime In Seconds For S3 File Consistency",
+                "value" : "0"
+              },
+              {
+                "name" : "Temporary Credential Duration",
+                "value" : "900"
+              },
+              {
+                "name" : "S3 Server Side Encryption",
+                "value" : "NO"
+              },
+              {
+                "name" : "S3 Client Side Encryption",
+                "value" : "NO"
+              },
+              {
+                "name" : "Analyze Target Table",
+                "value" : "NO"
+              },
+              {
+                "name" : "Vacuum Target Table",
+                "value" : "None"
+              },
+              {
+                "name" : "Treat Source Rows As",
+                "value" : "INSERT"
+              },
+              {
+                "name" : "Transfer Manager Thread Pool Size",
+                "value" : "10"
+              },
+              {
+                "name" : "Minimum Upload Part Size",
+                "value" : "5242880"
+              },
+              {
+                "name" : "Preserve record order on write",
+                "value" : "NO"
+              },
+              {
+                "name" : "Number of files per batch",
+                "value" : "0"
+              }
+            ]
+          },
+          "writeOptions" : {
+            "batchSize" : 0,
+            "bulkApi" : "false",
+            "handleDecimalRoundOff" : "false",
+            "handleSpecialChars" : "false",
+            "operations" : [
+              "Insert"
+            ],
+            "setFieldsToNull" : "false",
+            "truncate" : "false",
+            "useErrorFile" : "false",
+            "useExactSrcNames" : "false",
+            "useSuccessFile" : "false"
+          }
+        },
+        "manualMappings" : {
+          "mappingList" : [
+            {
+              "fromFieldName" : "IN_insert_date",
+              "toField" : {
+                "name" : "insert_date"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "IN_user_customer_number",
+              "toField" : {
+                "name" : "insured_customer_number"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "IN_insured_email_address_1",
+              "toField" : {
+                "name" : "insured_email_address_1"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "IN_insured_email_address_2",
+              "toField" : {
+                "name" : "insured_email_address_2"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "IN_insured_email_address_3",
+              "toField" : {
+                "name" : "insured_email_address_3"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "IN_insured_email_address_4",
+              "toField" : {
+                "name" : "insured_email_address_4"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "IN_insured_email_address_5",
+              "toField" : {
+                "name" : "insured_email_address_5"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "IN_insured_email_address_6",
+              "toField" : {
+                "name" : "insured_email_address_6"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "IN_insured_email_address_7",
+              "toField" : {
+                "name" : "insured_email_address_7"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "IN_insured_email_address_8",
+              "toField" : {
+                "name" : "insured_email_address_8"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "IN_insured_email_address_9",
+              "toField" : {
+                "name" : "insured_email_address_9"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "IN_insured_email_address_10",
+              "toField" : {
+                "name" : "insured_email_address_10"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "IN_more_than_10_active_email_ind",
+              "toField" : {
+                "name" : "more_than_ten_active_email_addresses_indicator"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "IN_policynumber",
+              "toField" : {
+                "name" : "policy_number"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "update_date",
+              "toField" : {
+                "name" : "update_date"
+              },
+              "fromFieldNames" : null
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "vcsExportTime" : "2026-01-31 06:36:46 PST"
+}

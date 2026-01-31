@@ -1,0 +1,420 @@
+<aetgt:getResponse xmlns:aetgt="http://schemas.active-endpoints.com/appmodules/repository/2010/10/avrepository.xsd"
+                   xmlns:types1="http://schemas.active-endpoints.com/appmodules/repository/2010/10/avrepository.xsd">
+   <types1:Item>
+      <types1:EntryId>K5BjE7ppppppppp-gt-21137134-2024-12-04T20:41:15.582Z::tf.xml</types1:EntryId>
+      <types1:Name>cdi_tkf_flow_lc_inspections</types1:Name>
+      <types1:MimeType>application/xml+taskflow</types1:MimeType>
+      <types1:Description>Executes all mapping tasks and mappings related to a new Inspection file.</types1:Description>
+      <types1:AppliesTo/>
+      <types1:Tags/>
+      <types1:VersionLabel>1.0</types1:VersionLabel>
+      <types1:State>CURRENT</types1:State>
+      <types1:ProcessGroup/>
+      <types1:CreatedBy>JHines@andovercos.com.SAML2</types1:CreatedBy>
+      <types1:CreationDate>2024-12-04T20:41:16Z</types1:CreationDate>
+      <types1:ModifiedBy>JHines@andovercos.com.SAML2</types1:ModifiedBy>
+      <types1:ModificationDate>2024-12-18T21:59:19Z</types1:ModificationDate>
+      <types1:PublicationStatus>unpublished</types1:PublicationStatus>
+      <types1:Entry>
+         <taskflow xmlns="http://schemas.active-endpoints.com/appmodules/screenflow/2010/10/avosScreenflow.xsd"
+                   xmlns:tfm="http://schemas.active-endpoints.com/appmodules/screenflow/2021/04/taskflowModel.xsd"
+                   xmlns:list="urn:activevos:spi:list:functions"
+                   displayName="cdi_tkf_flow_lc_inspections"
+                   name="cdi_tkf_flow_lc_inspections"
+                   overrideAPIName="false">
+            <parameterSet xmlns="http://schemas.active-endpoints.com/appmodules/screenflow/2021/04/taskflowModel.xsd"/>
+            <appliesTo/>
+            <description>Executes all mapping tasks and mappings related to a new Inspection file.</description>
+            <tags/>
+            <generator>Informatica Process Designer 11</generator>
+            <input>
+               <parameter description="" name="fl_test_inspections" type="reference">
+                  <options>
+                     <option name="required">false</option>
+                     <option name="referenceTo">$po:INTERNALB2BFILELISTENER1565084895</option>
+                     <option name="isCopy">true</option>
+                     <option name="guid">79y0kAzh9cxd9x51CBCSm9</option>
+                  </options>
+               </parameter>
+            </input>
+            <tempFields>
+               <field description="" name="p_file" type="string">
+                  <options>
+                     <option name="required">false</option>
+                     <option name="initialvalue">{$input.inspections_cdi_cmp_flls[1]/arrivedFiles[1]/name}</option>
+                     <option name="source">constant</option>
+                  </options>
+               </field>
+               <field description="" name="p_fileloc" type="string">
+                  <options>
+                     <option name="required">false</option>
+                     <option name="initialvalue">{$input.inspections_cdi_cmp_flls[1]/arrivedFiles[1]/path}</option>
+                     <option name="source">constant</option>
+                  </options>
+               </field>
+               <field description="" name="p_path" type="string">
+                  <options>
+                     <option name="required">false</option>
+                     <option name="initialvalue">
+                        <expression language="XQuery">fn:concat($temp.p_fileloc , $temp.p_file )</expression>
+                     </option>
+                     <option name="source">formula</option>
+                  </options>
+               </field>
+               <field description="" name="address_cdi_tsk_map" type="reference">
+                  <options>
+                     <option name="referenceTo">$po:cdi-tsk-map-lc-address-0AI0t5hb7JtlxhaclUv0an</option>
+                     <option name="failOnNotRun">false</option>
+                     <option name="failOnFault">false</option>
+                  </options>
+               </field>
+               <field description="" name="SrcFileName" type="string">
+                  <options>
+                     <option name="required">false</option>
+                  </options>
+               </field>
+               <field description="" name="Arch_Del_script" type="reference">
+                  <options>
+                     <option name="referenceTo">$po:INFA-commandTask</option>
+                     <option name="failOnNotRun">false</option>
+                     <option name="failOnFault">false</option>
+                  </options>
+               </field>
+               <field description="" name="Filename" type="string">
+                  <options>
+                     <option name="required">false</option>
+                  </options>
+               </field>
+               <field description="" name="S3_Bucket" type="string">
+                  <options>
+                     <option name="required">false</option>
+                  </options>
+               </field>
+               <field description="" name="S3_Path" type="string">
+                  <options>
+                     <option name="required">false</option>
+                  </options>
+               </field>
+            </tempFields>
+            <notes/>
+            <deployment skipIfRunning="false" suspendOnFault="false" tracingLevel="verbose">
+               <event eventSource="fileListenerTask:fl_test_inspections"/>
+            </deployment>
+            <extData>
+               <nvpair name="treatEmptyStringAsNotNull">false</nvpair>
+               <nvpair name="treatEmptyObjectListAsArray">false</nvpair>
+            </extData>
+            <flow id="a">
+               <start id="b">
+                  <link id="lz0ibuel" targetId="lz0ibuek"/>
+               </start>
+               <assignment id="lz0ibuek">
+                  <title>Assign File</title>
+                  <operation source="formula" to="temp.p_path">
+                     <expression language="XQuery">fn:concat("'",$temp.p_fileloc,"'")</expression>
+                  </operation>
+                  <operation source="formula" to="temp.SrcFileName">
+                     <expression language="XQuery">fn:concat('./metal//tgt-cdl-lc360.metal//raw.inbox//',$input.fl_test_inspections[1]/arrivedFiles[1]/name)</expression>
+                  </operation>
+                  <operation source="formula" to="temp.S3_Bucket">
+                     <expression language="XQuery">fn:substring-before($input.fl_test_inspections[1]/arrivedFiles[1]/path , "/")</expression>
+                  </operation>
+                  <operation source="formula" to="temp.S3_Path">
+                     <expression language="XQuery">fn:substring-after($input.fl_test_inspections[1]/arrivedFiles[1]/path , "/")</expression>
+                  </operation>
+                  <operation source="constant" to="temp.Filename">{$input.fl_test_inspections[1]/arrivedFiles[1]/name}</operation>
+                  <link id="m4bv9o64" targetId="m4bv9o6s"/>
+               </assignment>
+               <eventContainer id="m4bv9o6s">
+                  <service id="m4bv9o63">
+                     <title>address_cdi_tsk_map</title>
+                     <serviceName>ICSExecuteDataTask</serviceName>
+                     <serviceGUID/>
+                     <serviceInput>
+                        <parameter name="Wait for Task to Complete" source="constant" updatable="true">true</parameter>
+                        <parameter name="Max Wait" source="constant" updatable="true">604800</parameter>
+                        <parameter name="Task Name" source="constant" updatable="true">cdi_tsk_map_lc_address</parameter>
+                        <parameter name="GUID" source="constant" updatable="true">0AI0t5hb7JtlxhaclUv0an</parameter>
+                        <parameter name="Task Type" source="constant" updatable="true">MCT</parameter>
+                        <parameter name="Has Inout Parameters" source="constant" updatable="true">false</parameter>
+                        <parameter name="taskField" source="nested">
+                           <operation source="field" to="cdi-tsk-map-lc-address-0AI0t5hb7JtlxhaclUv0an">temp.address_cdi_tsk_map</operation>
+                           <operation source="field"
+                                      to="cdi-tsk-map-lc-address-0AI0t5hb7JtlxhaclUv0an/input[1]/source[1]/cnn_cdl_lc360_metal[1]/object">temp.SrcFileName</operation>
+                           <operation source="field"
+                                      to="cdi-tsk-map-lc-address-0AI0t5hb7JtlxhaclUv0an/input[1]/p_path">temp.p_path</operation>
+                           <operation source="field"
+                                      to="temp.address_cdi_tsk_map[1]/input[1]/source[1]/cnn_cdl_lc360_metal[1]/object">temp.SrcFileName</operation>
+                           <operation source="field" to="temp.address_cdi_tsk_map[1]/input[1]/p_path">temp.p_path</operation>
+                        </parameter>
+                     </serviceInput>
+                     <serviceOutput>
+                        <operation source="field" to="temp.address_cdi_tsk_map/output/Object_Name">Object Name</operation>
+                        <operation source="field" to="temp.address_cdi_tsk_map/output/Run_Id">Run Id</operation>
+                        <operation source="field" to="temp.address_cdi_tsk_map/output/Log_Id">Log Id</operation>
+                        <operation source="field" to="temp.address_cdi_tsk_map/output/Task_Id">Task Id</operation>
+                        <operation source="field" to="temp.address_cdi_tsk_map/output/Task_Status">Task Status</operation>
+                        <operation source="field" to="temp.address_cdi_tsk_map/output/Success_Source_Rows">Success Source Rows</operation>
+                        <operation source="field" to="temp.address_cdi_tsk_map/output/Failed_Source_Rows">Failed Source Rows</operation>
+                        <operation source="field" to="temp.address_cdi_tsk_map/output/Success_Target_Rows">Success Target Rows</operation>
+                        <operation source="field" to="temp.address_cdi_tsk_map/output/Failed_Target_Rows">Failed Target Rows</operation>
+                        <operation source="field" to="temp.address_cdi_tsk_map/output/Start_Time">Start Time</operation>
+                        <operation source="field" to="temp.address_cdi_tsk_map/output/End_Time">End Time</operation>
+                        <operation source="field" to="temp.address_cdi_tsk_map/output/Error_Message">Error Message</operation>
+                        <operation source="field" to="temp.address_cdi_tsk_map/output/TotalTransErrors">Total Transformation Errors</operation>
+                        <operation source="field" to="temp.address_cdi_tsk_map/output/FirstErrorCode">First Error Code</operation>
+                     </serviceOutput>
+                  </service>
+                  <link id="m4ubp9jn" targetId="m4sxdr8h"/>
+                  <events>
+                     <catch faultField="temp.address_cdi_tsk_map/fault"
+                            id="lz0ibudw"
+                            interrupting="true"
+                            name="error">
+                        <suspend/>
+                     </catch>
+                     <catch faultField="temp.address_cdi_tsk_map/fault"
+                            id="lz0ibudx"
+                            interrupting="true"
+                            name="warning"/>
+                  </events>
+               </eventContainer>
+               <eventContainer id="m4sxdr8h">
+                  <service id="m4sxdr73">
+                     <title>Arch_Del_script</title>
+                     <serviceName>ICSExecuteCommandTask</serviceName>
+                     <serviceGUID/>
+                     <serviceInput>
+                        <parameter name="Task Name" source="constant">Arch_Del_script</parameter>
+                        <parameter name="Wait for Task to Complete" source="constant">true</parameter>
+                        <parameter name="Runtime Environment" source="constant">01COEW25000000000005:sag_aws_linux</parameter>
+                        <parameter name="Max Wait" source="constant">86400</parameter>
+                        <parameter name="Script Name" source="constant"/>
+                        <parameter name="Input Arguments" source="constant"/>
+                        <parameter name="Work Directory" source="constant"/>
+                        <parameter name="RuntimeEnvGUID" source="constant">3pADNCV9u0PcgrXjM7rx0t</parameter>
+                        <parameter name="FailTaskIfAnyScriptFails" source="constant">false</parameter>
+                        <parameter name="taskField" source="nested">
+                           <operation source="field" to="INFA-commandTask">temp.Arch_Del_script</operation>
+                           <operation source="constant" to="INFA-commandTask/input[1]/script-1/name">Script1</operation>
+                           <operation source="constant" to="INFA-commandTask/input[1]/script-1/scriptName">/opt/informatica/infaagent/apps/Data_Integration_Server/data/andover/scripts/LC360_File_Arch_Del.sh</operation>
+                           <operation source="constant"
+                                      to="INFA-commandTask/input[1]/script-1/inputArguments">"sample1.json","{$temp.S3_Bucket}" ,"{$temp.S3_Path}","metal/tgt-cdl-lc360.metal/raw.archive"</operation>
+                           <operation source="constant" to="INFA-commandTask/input[1]/script-1/workDir"/>
+                        </parameter>
+                     </serviceInput>
+                     <serviceOutput>
+                        <operation source="field" to="temp.Arch_Del_script/output/Run_Id">Run Id</operation>
+                        <operation source="field" to="temp.Arch_Del_script/output/Start_Time">Start Time</operation>
+                        <operation source="field" to="temp.Arch_Del_script/output/End_Time">End Time</operation>
+                        <operation source="field" to="temp.Arch_Del_script/output/Exit_Code">Exit Code</operation>
+                        <operation source="field" to="temp.Arch_Del_script/output/Execution_Status">Execution Status</operation>
+                        <operation source="field" to="temp.Arch_Del_script/output/Std_Error">Std Error</operation>
+                     </serviceOutput>
+                  </service>
+                  <link id="m4sxdr81" targetId="c"/>
+                  <events>
+                     <catch faultField="temp.Arch_Del_script/fault"
+                            id="m4sxdr8g"
+                            interrupting="true"
+                            name="error">
+                        <suspend/>
+                     </catch>
+                  </events>
+               </eventContainer>
+               <end id="c"/>
+            </flow>
+            <dependencies>
+               <processObject xmlns="http://schemas.active-endpoints.com/appmodules/screenflow/2011/06/avosHostEnvironment.xsd"
+                              displayName="cdi-tsk-map-lc-address-0AI0t5hb7JtlxhaclUv0an"
+                              isByCopy="true"
+                              name="cdi-tsk-map-lc-address-0AI0t5hb7JtlxhaclUv0an">
+                  <description/>
+                  <tags/>
+                  <detail>
+                     <field label="Input Parameters"
+                            name="input"
+                            nullable="true"
+                            required="false"
+                            type="reference"/>
+                     <field label="TaskProperties Parameters"
+                            name="taskProperties"
+                            nullable="true"
+                            required="false"
+                            type="reference"/>
+                     <field label="Output Parameters"
+                            name="output"
+                            nullable="true"
+                            required="false"
+                            type="reference"/>
+                     <field label="Fault"
+                            name="fault"
+                            nullable="true"
+                            required="false"
+                            type="reference"/>
+                     <field label="Max Wait (Seconds)"
+                            name="Max_Wait"
+                            nullable="true"
+                            required="false"
+                            type="int"/>
+                  </detail>
+               </processObject>
+               <processObject xmlns="http://schemas.active-endpoints.com/appmodules/screenflow/2011/06/avosHostEnvironment.xsd"
+                              displayName="INFA-commandTask"
+                              isByCopy="true"
+                              name="INFA-commandTask">
+                  <description>This process object represents a taskflow specific command task output field details.</description>
+                  <tags/>
+                  <detail>
+                     <field label="Output Parameters"
+                            name="output"
+                            nullable="true"
+                            required="false"
+                            type="reference"/>
+                     <field label="Fault"
+                            name="fault"
+                            nullable="true"
+                            required="false"
+                            type="reference"/>
+                  </detail>
+               </processObject>
+               <processObject xmlns="http://schemas.active-endpoints.com/appmodules/screenflow/2011/06/avosHostEnvironment.xsd"
+                              displayName="INTERNALB2BFILELISTENER1565084895"
+                              isByCopy="true"
+                              name="INTERNALB2BFILELISTENER1565084895">
+                  <description>This process object represents a taskflow specific file task field details.</description>
+                  <tags/>
+                  <detail>
+                     <field label="Arrived Files"
+                            name="arrivedFiles"
+                            nullable="true"
+                            required="false"
+                            type="objectlist">
+                        <options>
+                           <option name="referenceTo">$po:INTERNALB2BFILELISTENER1565084895-arrivedFiles</option>
+                           <option name="relationshipName">Child</option>
+                           <option hide="true" name="multiSelect">true</option>
+                           <option name="required">false</option>
+                        </options>
+                     </field>
+                     <field label="Update Files"
+                            name="updatedFiles"
+                            nullable="true"
+                            required="false"
+                            type="objectlist">
+                        <options>
+                           <option name="referenceTo">$po:INTERNALB2BFILELISTENER1565084895-updatedFiles</option>
+                           <option name="relationshipName">Child</option>
+                           <option hide="true" name="multiSelect">true</option>
+                           <option name="required">false</option>
+                        </options>
+                     </field>
+                     <field label="Deleted Files"
+                            name="deletedFiles"
+                            nullable="true"
+                            required="false"
+                            type="objectlist">
+                        <options>
+                           <option name="referenceTo">$po:INTERNALB2BFILELISTENER1565084895-deletedFiles</option>
+                           <option name="relationshipName">Child</option>
+                           <option hide="true" name="multiSelect">true</option>
+                           <option name="required">false</option>
+                        </options>
+                     </field>
+                  </detail>
+               </processObject>
+               <processObject xmlns="http://schemas.active-endpoints.com/appmodules/screenflow/2011/06/avosHostEnvironment.xsd"
+                              displayName="INTERNALB2BFILELISTENER1565084895-arrivedFiles"
+                              isByCopy="true"
+                              name="INTERNALB2BFILELISTENER1565084895-arrivedFiles">
+                  <description>This process object represents a arrivedFiles structure of the file task field.This is in case of taskflow.</description>
+                  <tags/>
+                  <detail>
+                     <field label="Path"
+                            name="path"
+                            nullable="true"
+                            required="false"
+                            type="string"/>
+                     <field label="Name"
+                            name="name"
+                            nullable="true"
+                            required="false"
+                            type="string"/>
+                     <field label="Size"
+                            name="size"
+                            nullable="true"
+                            required="false"
+                            type="string"/>
+                     <field label="Last Modified"
+                            name="lastModified"
+                            nullable="true"
+                            required="false"
+                            type="string"/>
+                  </detail>
+               </processObject>
+               <processObject xmlns="http://schemas.active-endpoints.com/appmodules/screenflow/2011/06/avosHostEnvironment.xsd"
+                              displayName="INTERNALB2BFILELISTENER1565084895-updatedFiles"
+                              isByCopy="true"
+                              name="INTERNALB2BFILELISTENER1565084895-updatedFiles">
+                  <description>This process object represents a updatedFiles structure of the file task field.This is in case of taskflow.</description>
+                  <tags/>
+                  <detail>
+                     <field label="Path"
+                            name="path"
+                            nullable="true"
+                            required="false"
+                            type="string"/>
+                     <field label="Name"
+                            name="name"
+                            nullable="true"
+                            required="false"
+                            type="string"/>
+                     <field label="Size"
+                            name="size"
+                            nullable="true"
+                            required="false"
+                            type="string"/>
+                     <field label="Last Modified"
+                            name="lastModified"
+                            nullable="true"
+                            required="false"
+                            type="string"/>
+                  </detail>
+               </processObject>
+               <processObject xmlns="http://schemas.active-endpoints.com/appmodules/screenflow/2011/06/avosHostEnvironment.xsd"
+                              displayName="INTERNALB2BFILELISTENER1565084895-deletedFiles"
+                              isByCopy="true"
+                              name="INTERNALB2BFILELISTENER1565084895-deletedFiles">
+                  <description>This process object represents file listener task deletedFiles structure.This is in case of taskflow.</description>
+                  <tags/>
+                  <detail>
+                     <field label="Path"
+                            name="path"
+                            nullable="true"
+                            required="false"
+                            type="string"/>
+                     <field label="Name"
+                            name="name"
+                            nullable="true"
+                            required="false"
+                            type="string"/>
+                     <field label="Size"
+                            name="size"
+                            nullable="true"
+                            required="false"
+                            type="string"/>
+                     <field label="Last Modified"
+                            name="lastModified"
+                            nullable="true"
+                            required="false"
+                            type="string"/>
+                  </detail>
+               </processObject>
+            </dependencies>
+         </taskflow>
+      </types1:Entry>
+      <types1:GUID>9iL83phId9QebMODfAHwg9</types1:GUID>
+      <types1:DisplayName>cdi_tkf_flow_lc_inspections</types1:DisplayName>
+   </types1:Item>
+   <types1:CurrentServerDateTime>2026-01-31T14:36:46.36Z</types1:CurrentServerDateTime>
+</aetgt:getResponse>

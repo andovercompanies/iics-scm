@@ -1,0 +1,5085 @@
+{
+  "content" : {
+    "description" : "Mapping to load master Claim table from Stage table. Checked the code and it looks good. This is related to GRIN-3078 for MR. ",
+    "allowMaxFieldLength" : "false",
+    "name" : "m_Load_Litigation_stg_to_MasterLitigation_Ld",
+    "specialCharacterSupport" : "false",
+    "flowOrderEntries" : [
+      {
+        "sourceTypes" : [
+          "Source"
+        ],
+        "sources" : [
+          "SQ_litigation_STG"
+        ],
+        "targetTypes" : [
+          "Target",
+          "Target"
+        ],
+        "targets" : [
+          "LitigationDetail_Insert",
+          "LitigationDetail_Update"
+        ]
+      }
+    ],
+    "links" : [
+      {
+        "link" : "LKP_Claimant_Stg -> EXPTRANS"
+      },
+      {
+        "link" : "lkp_allcontacts -> EXPTRANS"
+      },
+      {
+        "link" : "LKP_litigationAssociate -> EXPTRANS"
+      },
+      {
+        "link" : "EXPTRANS -> LKP_Claim"
+      },
+      {
+        "link" : "EXPTRANS -> EXPTRANS1"
+      },
+      {
+        "link" : "LKP_Claim -> EXPTRANS1"
+      },
+      {
+        "link" : "LKP_LitigationDetail -> EXPTRANS1"
+      },
+      {
+        "link" : "FIL_Transactions -> RTRTRANS",
+        "groupLink" : "DefaultGroup -> INPUT"
+      },
+      {
+        "link" : "RTRTRANS -> EXPTRANS2",
+        "groupLink" : "Insert -> DefaultGroup"
+      },
+      {
+        "link" : "RTRTRANS -> EXPTRANS3",
+        "groupLink" : "Update -> DefaultGroup"
+      },
+      {
+        "link" : "EXPTRANS2 -> UPD_Insert"
+      },
+      {
+        "link" : "LKP_litigationAssociate -> lkp_allcontacts"
+      },
+      {
+        "link" : "EXPTRANS -> LKP_LitigationDetail"
+      },
+      {
+        "link" : "LKP_Claim -> LKP_LitigationDetail"
+      },
+      {
+        "link" : "EXPTRANS1 -> FIL_Transactions"
+      },
+      {
+        "link" : "UPD_Insert -> LitigationDetail_Insert"
+      },
+      {
+        "link" : "Expression -> EXPTRANS"
+      },
+      {
+        "link" : "SQ_litigation_STG -> Expression"
+      },
+      {
+        "link" : "Expression -> LKP_litigationAssociate"
+      },
+      {
+        "link" : "Expression -> LKP_Claimant_Stg"
+      },
+      {
+        "link" : "EXPTRANS3 -> UPD_Update"
+      },
+      {
+        "link" : "UPD_Update -> LitigationDetail_Update"
+      }
+    ],
+    "parameters" : [
+      {
+        "input" : "true",
+        "output" : "false",
+        "precision" : 0,
+        "scale" : 0,
+        "allowRuntimeOverride" : "true",
+        "expressionVariable" : "false",
+        "name" : "DBConnection_TGT",
+        "anonymousType" : {
+          "subType" : "TOOLKIT_CCI",
+          "typeSystem" : "TOOLKIT",
+          "connectionType" : "Amazon Redshift v2"
+        }
+      },
+      {
+        "input" : "true",
+        "output" : "false",
+        "precision" : 0,
+        "scale" : 0,
+        "allowRuntimeOverride" : "true",
+        "expressionVariable" : "false",
+        "name" : "DBConnection_SRC",
+        "anonymousType" : {
+          "subType" : "TOOLKIT_CCI",
+          "typeSystem" : "TOOLKIT",
+          "connectionType" : "Amazon Redshift v2"
+        }
+      },
+      {
+        "input" : "true",
+        "output" : "false",
+        "precision" : 0,
+        "scale" : 0,
+        "allowRuntimeOverride" : "true",
+        "expressionVariable" : "false",
+        "name" : "DBConnection_SRCM",
+        "anonymousType" : {
+          "typeSystem" : "MySQL",
+          "connectionType" : "MySQL"
+        }
+      },
+      {
+        "input" : "true",
+        "output" : "false",
+        "precision" : 0,
+        "scale" : 0,
+        "allowRuntimeOverride" : "false",
+        "expressionVariable" : "false",
+        "name" : "S3_Staging_Bucket"
+      }
+    ],
+    "transformations" : [
+      {
+        "name" : "LitigationDetail_Update",
+        "advancedProperties" : [
+          {
+            "name" : "Forward Rejected Rows",
+            "value" : "true"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "false",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              },
+              {
+                "bulkRename" : "false",
+                "include" : "true",
+                "names" : [
+                  {
+                    "inputName" : "o_SuitOriginType",
+                    "outputName" : "SuitOriginType"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "createTarget" : "false",
+        "fieldMappingMode" : "MANUAL",
+        "inputSorted" : "false",
+        "schemaProviderType" : "SELECTED_OBJECT",
+        "targetFieldsOrdered" : "false",
+        "updateColumns" : [
+          "LitigationKey"
+        ],
+        "useLabels" : "false",
+        "useSequenceFields" : "false",
+        "fields" : [
+          {
+            "adapterField" : {
+              "name" : "litigationkey"
+            },
+            "name" : "litigationkey",
+            "platformType" : {
+              "name" : "bigint"
+            },
+            "precision" : 19,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "suitorigintype"
+            },
+            "name" : "suitorigintype",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 75,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "claimnumber"
+            },
+            "name" : "claimnumber",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 768,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "policykey"
+            },
+            "name" : "policykey",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 768,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "claimantnumber"
+            },
+            "name" : "claimantnumber",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "suitdt"
+            },
+            "name" : "suitdt",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "suitcloseddt"
+            },
+            "name" : "suitcloseddt",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "suitfiledind"
+            },
+            "name" : "suitfiledind",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 768,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "suitsettlementcd"
+            },
+            "name" : "suitsettlementcd",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 768,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "suitstatuscd"
+            },
+            "name" : "suitstatuscd",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 768,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "associatenumber"
+            },
+            "name" : "associatenumber",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "claimcounselassigned"
+            },
+            "name" : "claimcounselassigned",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 768,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "subrogationcounselassigned"
+            },
+            "name" : "subrogationcounselassigned",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 768,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "defencecounsel"
+            },
+            "name" : "defencecounsel",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 768,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "plaintiffcounsel"
+            },
+            "name" : "plaintiffcounsel",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 768,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "rowinsdt"
+            },
+            "name" : "rowinsdt",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "insertindicator"
+            },
+            "name" : "insertindicator",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 30,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "settlementamt"
+            },
+            "name" : "settlementamt",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 28,
+            "scale" : 6
+          },
+          {
+            "adapterField" : {
+              "name" : "associatetypecd"
+            },
+            "name" : "associatetypecd",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 360,
+            "scale" : 0
+          }
+        ],
+        "dataAdapter" : {
+          "connectionId$" : {
+            "name" : "DBConnection_TGT"
+          },
+          "excludeDynamicFileNameField" : "false",
+          "objectType" : "SINGLE",
+          "typeSystem" : "TOOLKIT",
+          "useDynamicFileName" : "false",
+          "object" : {
+            "name" : "dbo/litigationdetail",
+            "label" : "litigationdetail",
+            "objectName" : "litigationdetail",
+            "objectType" : "amazonredshift",
+            "path" : "dbo/litigationdetail",
+            "retainMetadata" : "false",
+            "fields" : [
+              {
+                "name" : "litigationkey",
+                "fieldType" : "CONNECTOR",
+                "label" : "litigationkey",
+                "nativeName" : "litigationkey",
+                "nativeType" : "int8",
+                "original" : "false",
+                "precision" : 19,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "litigationdetail"
+                  }
+                ]
+              },
+              {
+                "name" : "suitorigintype",
+                "fieldType" : "CONNECTOR",
+                "label" : "suitorigintype",
+                "nativeName" : "suitorigintype",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 75,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "litigationdetail"
+                  }
+                ]
+              },
+              {
+                "name" : "claimnumber",
+                "fieldType" : "CONNECTOR",
+                "label" : "claimnumber",
+                "nativeName" : "claimnumber",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 768,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "litigationdetail"
+                  }
+                ]
+              },
+              {
+                "name" : "policykey",
+                "fieldType" : "CONNECTOR",
+                "label" : "policykey",
+                "nativeName" : "policykey",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 768,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "litigationdetail"
+                  }
+                ]
+              },
+              {
+                "name" : "claimantnumber",
+                "fieldType" : "CONNECTOR",
+                "label" : "claimantnumber",
+                "nativeName" : "claimantnumber",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "litigationdetail"
+                  }
+                ]
+              },
+              {
+                "name" : "suitdt",
+                "fieldType" : "CONNECTOR",
+                "label" : "suitdt",
+                "nativeName" : "suitdt",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "litigationdetail"
+                  }
+                ]
+              },
+              {
+                "name" : "suitcloseddt",
+                "fieldType" : "CONNECTOR",
+                "label" : "suitcloseddt",
+                "nativeName" : "suitcloseddt",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "litigationdetail"
+                  }
+                ]
+              },
+              {
+                "name" : "suitfiledind",
+                "fieldType" : "CONNECTOR",
+                "label" : "suitfiledind",
+                "nativeName" : "suitfiledind",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 768,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "litigationdetail"
+                  }
+                ]
+              },
+              {
+                "name" : "suitsettlementcd",
+                "fieldType" : "CONNECTOR",
+                "label" : "suitsettlementcd",
+                "nativeName" : "suitsettlementcd",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 768,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "litigationdetail"
+                  }
+                ]
+              },
+              {
+                "name" : "suitstatuscd",
+                "fieldType" : "CONNECTOR",
+                "label" : "suitstatuscd",
+                "nativeName" : "suitstatuscd",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 768,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "litigationdetail"
+                  }
+                ]
+              },
+              {
+                "name" : "associatenumber",
+                "fieldType" : "CONNECTOR",
+                "label" : "associatenumber",
+                "nativeName" : "associatenumber",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "litigationdetail"
+                  }
+                ]
+              },
+              {
+                "name" : "claimcounselassigned",
+                "fieldType" : "CONNECTOR",
+                "label" : "claimcounselassigned",
+                "nativeName" : "claimcounselassigned",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 768,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "litigationdetail"
+                  }
+                ]
+              },
+              {
+                "name" : "subrogationcounselassigned",
+                "fieldType" : "CONNECTOR",
+                "label" : "subrogationcounselassigned",
+                "nativeName" : "subrogationcounselassigned",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 768,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "litigationdetail"
+                  }
+                ]
+              },
+              {
+                "name" : "defencecounsel",
+                "fieldType" : "CONNECTOR",
+                "label" : "defencecounsel",
+                "nativeName" : "defencecounsel",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 768,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "litigationdetail"
+                  }
+                ]
+              },
+              {
+                "name" : "plaintiffcounsel",
+                "fieldType" : "CONNECTOR",
+                "label" : "plaintiffcounsel",
+                "nativeName" : "plaintiffcounsel",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 768,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "litigationdetail"
+                  }
+                ]
+              },
+              {
+                "name" : "rowinsdt",
+                "fieldType" : "CONNECTOR",
+                "label" : "rowinsdt",
+                "nativeName" : "rowinsdt",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "litigationdetail"
+                  }
+                ]
+              },
+              {
+                "name" : "insertindicator",
+                "fieldType" : "CONNECTOR",
+                "label" : "insertindicator",
+                "nativeName" : "insertindicator",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 30,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "litigationdetail"
+                  }
+                ]
+              },
+              {
+                "name" : "settlementamt",
+                "fieldType" : "CONNECTOR",
+                "label" : "settlementamt",
+                "nativeName" : "settlementamt",
+                "nativeType" : "numeric",
+                "original" : "false",
+                "precision" : 28,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "litigationdetail"
+                  }
+                ]
+              },
+              {
+                "name" : "associatetypecd",
+                "fieldType" : "CONNECTOR",
+                "label" : "associatetypecd",
+                "nativeName" : "associatetypecd",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 360,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "litigationdetail"
+                  }
+                ]
+              }
+            ],
+            "objectAttributes" : [
+              {
+                "name" : "recordType",
+                "value" : "TABLE"
+              }
+            ]
+          },
+          "runtimeAttributes" : {
+            "attributes" : [
+              {
+                "name" : "S3 Bucket Name",
+                "value" : "$$S3_Staging_Bucket"
+              },
+              {
+                "name" : "Enable Compression",
+                "value" : "YES"
+              },
+              {
+                "name" : "Batch Size",
+                "value" : "2000000"
+              },
+              {
+                "name" : "Max Errors Per Batch Upload Insert",
+                "value" : "1"
+              },
+              {
+                "name" : "Truncate Target Table Before Data Upload",
+                "value" : "NO"
+              },
+              {
+                "name" : "WaitTime In Seconds For S3 File Consistency",
+                "value" : "0"
+              },
+              {
+                "name" : "Temporary Credential Duration",
+                "value" : "7200"
+              },
+              {
+                "name" : "S3 Server Side Encryption",
+                "value" : "NO"
+              },
+              {
+                "name" : "S3 Client Side Encryption",
+                "value" : "NO"
+              },
+              {
+                "name" : "Analyze Target Table",
+                "value" : "NO"
+              },
+              {
+                "name" : "Vacuum Target Table",
+                "value" : "None"
+              },
+              {
+                "name" : "Treat Source Rows As",
+                "value" : "UPDATE"
+              },
+              {
+                "name" : "Transfer Manager Thread Pool Size",
+                "value" : "10"
+              },
+              {
+                "name" : "Minimum Upload Part Size",
+                "value" : "5242880"
+              },
+              {
+                "name" : "Preserve record order on write",
+                "value" : "NO"
+              },
+              {
+                "name" : "Number of files per batch",
+                "value" : "0"
+              }
+            ]
+          },
+          "writeOptions" : {
+            "batchSize" : 0,
+            "bulkApi" : "false",
+            "handleDecimalRoundOff" : "false",
+            "handleSpecialChars" : "false",
+            "operations" : [
+              "Rowbased"
+            ],
+            "setFieldsToNull" : "false",
+            "truncate" : "false",
+            "updateStrategyExpression" : "Update_Strategy_Expression_96565",
+            "useErrorFile" : "false",
+            "useExactSrcNames" : "false",
+            "useSuccessFile" : "false"
+          }
+        },
+        "manualMappings" : {
+          "mappingList" : [
+            {
+              "fromFieldName" : "LitigationKey",
+              "toField" : {
+                "name" : "litigationkey"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "ClaimCounselAssigned",
+              "toField" : {
+                "name" : "claimcounselassigned"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "DefenseCounsel",
+              "toField" : {
+                "name" : "defencecounsel"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "PlaintiffCounsel",
+              "toField" : {
+                "name" : "plaintiffcounsel"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "SubrogationCounselAssigned",
+              "toField" : {
+                "name" : "subrogationcounselassigned"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "ClaimantNumber",
+              "toField" : {
+                "name" : "claimantnumber"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "SuitFiledInd",
+              "toField" : {
+                "name" : "suitfiledind"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "AssociateNumber",
+              "toField" : {
+                "name" : "associatenumber"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "SuitOriginType",
+              "toField" : {
+                "name" : "suitorigintype"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "SuitStatusCd",
+              "toField" : {
+                "name" : "suitstatuscd"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "SuitSettlementCd",
+              "toField" : {
+                "name" : "suitsettlementcd"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "SuitClosedDt",
+              "toField" : {
+                "name" : "suitcloseddt"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "SettlementAmt",
+              "toField" : {
+                "name" : "settlementamt"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "ClaimNumber",
+              "toField" : {
+                "name" : "claimnumber"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "PolicyKey",
+              "toField" : {
+                "name" : "policykey"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "SuitDt",
+              "toField" : {
+                "name" : "suitdt"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "Row_Ins_dt",
+              "toField" : {
+                "name" : "rowinsdt"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "associatetypecode",
+              "toField" : {
+                "name" : "associatetypecd"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "InsertIndicator",
+              "toField" : {
+                "name" : "insertindicator"
+              },
+              "fromFieldNames" : null
+            }
+          ]
+        }
+      },
+      {
+        "name" : "LitigationDetail_Insert",
+        "advancedProperties" : [
+          {
+            "name" : "Forward Rejected Rows",
+            "value" : "true"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "false",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              },
+              {
+                "bulkRename" : "false",
+                "include" : "true",
+                "names" : [
+                  {
+                    "inputName" : "o_SuitOriginType",
+                    "outputName" : "SuitOriginType"
+                  }
+                ]
+              },
+              {
+                "bulkRename" : "false",
+                "include" : "false",
+                "names" : [
+                  {
+                    "inputName" : "LitigationKey"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "createTarget" : "false",
+        "fieldMappingMode" : "MANUAL",
+        "inputSorted" : "false",
+        "schemaProviderType" : "SELECTED_OBJECT",
+        "targetFieldsOrdered" : "false",
+        "updateColumns" : null,
+        "useLabels" : "false",
+        "useSequenceFields" : "false",
+        "fields" : [
+          {
+            "adapterField" : {
+              "name" : "litigationkey"
+            },
+            "name" : "litigationkey",
+            "platformType" : {
+              "name" : "bigint"
+            },
+            "precision" : 19,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "suitorigintype"
+            },
+            "name" : "suitorigintype",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 75,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "claimnumber"
+            },
+            "name" : "claimnumber",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 768,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "policykey"
+            },
+            "name" : "policykey",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 768,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "claimantnumber"
+            },
+            "name" : "claimantnumber",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "suitdt"
+            },
+            "name" : "suitdt",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "suitcloseddt"
+            },
+            "name" : "suitcloseddt",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "suitfiledind"
+            },
+            "name" : "suitfiledind",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 768,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "suitsettlementcd"
+            },
+            "name" : "suitsettlementcd",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 768,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "suitstatuscd"
+            },
+            "name" : "suitstatuscd",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 768,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "associatenumber"
+            },
+            "name" : "associatenumber",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "claimcounselassigned"
+            },
+            "name" : "claimcounselassigned",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 768,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "subrogationcounselassigned"
+            },
+            "name" : "subrogationcounselassigned",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 768,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "defencecounsel"
+            },
+            "name" : "defencecounsel",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 768,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "plaintiffcounsel"
+            },
+            "name" : "plaintiffcounsel",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 768,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "rowinsdt"
+            },
+            "name" : "rowinsdt",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "insertindicator"
+            },
+            "name" : "insertindicator",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 30,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "settlementamt"
+            },
+            "name" : "settlementamt",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 28,
+            "scale" : 6
+          },
+          {
+            "adapterField" : {
+              "name" : "associatetypecd"
+            },
+            "name" : "associatetypecd",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 360,
+            "scale" : 0
+          }
+        ],
+        "dataAdapter" : {
+          "connectionId$" : {
+            "name" : "DBConnection_TGT"
+          },
+          "excludeDynamicFileNameField" : "false",
+          "objectType" : "SINGLE",
+          "typeSystem" : "TOOLKIT",
+          "useDynamicFileName" : "false",
+          "object" : {
+            "name" : "dbo/litigationdetail",
+            "label" : "litigationdetail",
+            "objectName" : "litigationdetail",
+            "objectType" : "amazonredshift",
+            "path" : "dbo/litigationdetail",
+            "retainMetadata" : "false",
+            "fields" : [
+              {
+                "name" : "litigationkey",
+                "fieldType" : "CONNECTOR",
+                "label" : "litigationkey",
+                "nativeName" : "litigationkey",
+                "nativeType" : "int8",
+                "original" : "false",
+                "precision" : 19,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "litigationdetail"
+                  }
+                ]
+              },
+              {
+                "name" : "suitorigintype",
+                "fieldType" : "CONNECTOR",
+                "label" : "suitorigintype",
+                "nativeName" : "suitorigintype",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 75,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "litigationdetail"
+                  }
+                ]
+              },
+              {
+                "name" : "claimnumber",
+                "fieldType" : "CONNECTOR",
+                "label" : "claimnumber",
+                "nativeName" : "claimnumber",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 768,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "litigationdetail"
+                  }
+                ]
+              },
+              {
+                "name" : "policykey",
+                "fieldType" : "CONNECTOR",
+                "label" : "policykey",
+                "nativeName" : "policykey",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 768,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "litigationdetail"
+                  }
+                ]
+              },
+              {
+                "name" : "claimantnumber",
+                "fieldType" : "CONNECTOR",
+                "label" : "claimantnumber",
+                "nativeName" : "claimantnumber",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "litigationdetail"
+                  }
+                ]
+              },
+              {
+                "name" : "suitdt",
+                "fieldType" : "CONNECTOR",
+                "label" : "suitdt",
+                "nativeName" : "suitdt",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "litigationdetail"
+                  }
+                ]
+              },
+              {
+                "name" : "suitcloseddt",
+                "fieldType" : "CONNECTOR",
+                "label" : "suitcloseddt",
+                "nativeName" : "suitcloseddt",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "litigationdetail"
+                  }
+                ]
+              },
+              {
+                "name" : "suitfiledind",
+                "fieldType" : "CONNECTOR",
+                "label" : "suitfiledind",
+                "nativeName" : "suitfiledind",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 768,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "litigationdetail"
+                  }
+                ]
+              },
+              {
+                "name" : "suitsettlementcd",
+                "fieldType" : "CONNECTOR",
+                "label" : "suitsettlementcd",
+                "nativeName" : "suitsettlementcd",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 768,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "litigationdetail"
+                  }
+                ]
+              },
+              {
+                "name" : "suitstatuscd",
+                "fieldType" : "CONNECTOR",
+                "label" : "suitstatuscd",
+                "nativeName" : "suitstatuscd",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 768,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "litigationdetail"
+                  }
+                ]
+              },
+              {
+                "name" : "associatenumber",
+                "fieldType" : "CONNECTOR",
+                "label" : "associatenumber",
+                "nativeName" : "associatenumber",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "litigationdetail"
+                  }
+                ]
+              },
+              {
+                "name" : "claimcounselassigned",
+                "fieldType" : "CONNECTOR",
+                "label" : "claimcounselassigned",
+                "nativeName" : "claimcounselassigned",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 768,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "litigationdetail"
+                  }
+                ]
+              },
+              {
+                "name" : "subrogationcounselassigned",
+                "fieldType" : "CONNECTOR",
+                "label" : "subrogationcounselassigned",
+                "nativeName" : "subrogationcounselassigned",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 768,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "litigationdetail"
+                  }
+                ]
+              },
+              {
+                "name" : "defencecounsel",
+                "fieldType" : "CONNECTOR",
+                "label" : "defencecounsel",
+                "nativeName" : "defencecounsel",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 768,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "litigationdetail"
+                  }
+                ]
+              },
+              {
+                "name" : "plaintiffcounsel",
+                "fieldType" : "CONNECTOR",
+                "label" : "plaintiffcounsel",
+                "nativeName" : "plaintiffcounsel",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 768,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "litigationdetail"
+                  }
+                ]
+              },
+              {
+                "name" : "rowinsdt",
+                "fieldType" : "CONNECTOR",
+                "label" : "rowinsdt",
+                "nativeName" : "rowinsdt",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "litigationdetail"
+                  }
+                ]
+              },
+              {
+                "name" : "insertindicator",
+                "fieldType" : "CONNECTOR",
+                "label" : "insertindicator",
+                "nativeName" : "insertindicator",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 30,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "litigationdetail"
+                  }
+                ]
+              },
+              {
+                "name" : "settlementamt",
+                "fieldType" : "CONNECTOR",
+                "label" : "settlementamt",
+                "nativeName" : "settlementamt",
+                "nativeType" : "numeric",
+                "original" : "false",
+                "precision" : 28,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "litigationdetail"
+                  }
+                ]
+              },
+              {
+                "name" : "associatetypecd",
+                "fieldType" : "CONNECTOR",
+                "label" : "associatetypecd",
+                "nativeName" : "associatetypecd",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 360,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "litigationdetail"
+                  }
+                ]
+              }
+            ],
+            "objectAttributes" : [
+              {
+                "name" : "recordType",
+                "value" : "TABLE"
+              }
+            ]
+          },
+          "runtimeAttributes" : {
+            "attributes" : [
+              {
+                "name" : "S3 Bucket Name",
+                "value" : "$$S3_Staging_Bucket"
+              },
+              {
+                "name" : "Enable Compression",
+                "value" : "YES"
+              },
+              {
+                "name" : "Batch Size",
+                "value" : "2000000"
+              },
+              {
+                "name" : "Max Errors Per Batch Upload Insert",
+                "value" : "1"
+              },
+              {
+                "name" : "Truncate Target Table Before Data Upload",
+                "value" : "NO"
+              },
+              {
+                "name" : "WaitTime In Seconds For S3 File Consistency",
+                "value" : "0"
+              },
+              {
+                "name" : "Temporary Credential Duration",
+                "value" : "7200"
+              },
+              {
+                "name" : "S3 Server Side Encryption",
+                "value" : "NO"
+              },
+              {
+                "name" : "S3 Client Side Encryption",
+                "value" : "NO"
+              },
+              {
+                "name" : "Analyze Target Table",
+                "value" : "NO"
+              },
+              {
+                "name" : "Vacuum Target Table",
+                "value" : "None"
+              },
+              {
+                "name" : "Treat Source Rows As",
+                "value" : "INSERT"
+              },
+              {
+                "name" : "Transfer Manager Thread Pool Size",
+                "value" : "10"
+              },
+              {
+                "name" : "Minimum Upload Part Size",
+                "value" : "5242880"
+              },
+              {
+                "name" : "Preserve record order on write",
+                "value" : "NO"
+              },
+              {
+                "name" : "Number of files per batch",
+                "value" : "0"
+              }
+            ]
+          },
+          "writeOptions" : {
+            "batchSize" : 0,
+            "bulkApi" : "false",
+            "handleDecimalRoundOff" : "false",
+            "handleSpecialChars" : "false",
+            "operations" : [
+              "Rowbased"
+            ],
+            "setFieldsToNull" : "false",
+            "truncate" : "false",
+            "updateStrategyExpression" : "Update_Strategy_Expression_67764",
+            "useErrorFile" : "false",
+            "useExactSrcNames" : "false",
+            "useSuccessFile" : "false"
+          }
+        },
+        "manualMappings" : {
+          "mappingList" : [
+            {
+              "fromFieldName" : "ClaimantNumber",
+              "toField" : {
+                "name" : "claimantnumber"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "SuitFiledInd",
+              "toField" : {
+                "name" : "suitfiledind"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "AssociateNumber",
+              "toField" : {
+                "name" : "associatenumber"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "SuitSettlementCd",
+              "toField" : {
+                "name" : "suitsettlementcd"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "SuitStatusCd",
+              "toField" : {
+                "name" : "suitstatuscd"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "SubrogationCounselAssigned",
+              "toField" : {
+                "name" : "subrogationcounselassigned"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "ClaimCounselAssigned",
+              "toField" : {
+                "name" : "claimcounselassigned"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "DefenseCounsel",
+              "toField" : {
+                "name" : "defencecounsel"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "SuitClosedDt",
+              "toField" : {
+                "name" : "suitcloseddt"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "SuitDt",
+              "toField" : {
+                "name" : "suitdt"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "PlaintiffCounsel",
+              "toField" : {
+                "name" : "plaintiffcounsel"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "InsertIndicator",
+              "toField" : {
+                "name" : "insertindicator"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "Row_Ins_dt",
+              "toField" : {
+                "name" : "rowinsdt"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "SettlementAmt",
+              "toField" : {
+                "name" : "settlementamt"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "associatetypecode",
+              "toField" : {
+                "name" : "associatetypecd"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "PolicyKey",
+              "toField" : {
+                "name" : "policykey"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "ClaimNumber",
+              "toField" : {
+                "name" : "claimnumber"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "SuitOriginType",
+              "toField" : {
+                "name" : "suitorigintype"
+              },
+              "fromFieldNames" : null
+            }
+          ]
+        }
+      },
+      {
+        "name" : "SQ_litigation_STG",
+        "advancedProperties" : [
+          {
+            "name" : "Tracing Level",
+            "value" : "Normal"
+          },
+          {
+            "name" : "Output is deterministic",
+            "value" : "false"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "false",
+            "name" : "DefaultGroup",
+            "output" : "true"
+          }
+        ],
+        "generateFilenamePort" : "false",
+        "useLabels" : "false",
+        "useSequenceFields" : "false",
+        "fields" : [
+          {
+            "adapterField" : {
+              "name" : "systemid"
+            },
+            "name" : "systemid",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "parentid"
+            },
+            "name" : "parentid",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 360,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "id"
+            },
+            "name" : "id",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 360,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "suitfiledind"
+            },
+            "name" : "suitfiledind",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 360,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "suitdt"
+            },
+            "name" : "suitdt",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "suitstatuscd"
+            },
+            "name" : "suitstatuscd",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 360,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "suitsettlementcd"
+            },
+            "name" : "suitsettlementcd",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 360,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "suitcloseddt"
+            },
+            "name" : "suitcloseddt",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "settlementamt"
+            },
+            "name" : "settlementamt",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 300,
+            "scale" : 0
+          }
+        ],
+        "dataAdapter" : {
+          "connectionId$" : {
+            "name" : "DBConnection_SRC"
+          },
+          "excludeDynamicFileNameField" : "false",
+          "objectType" : "QUERY",
+          "typeSystem" : "TOOLKIT",
+          "useDynamicFileName" : "false",
+          "object" : {
+            "customQuery" : "SELECT litigation_STG.SystemId, litigation_STG.ParentId, litigation_STG.Id, litigation_STG.SuitFiledInd, litigation_STG.SuitDt, litigation_STG.SuitStatusCd, litigation_STG.SuitSettlementCd, litigation_STG.SuitClosedDt, REPLACE(REPLACE(REPLACE(litigation_STG.SettlementAmt, '$', ''),',',''),' ','') as SettlementAmt \nFROM\n dbo.litigation_STG",
+            "retainMetadata" : "false",
+            "fields" : [
+              {
+                "name" : "systemid",
+                "fieldType" : "CONNECTOR",
+                "label" : "systemid",
+                "nativeName" : "systemid",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "parentid",
+                "fieldType" : "CONNECTOR",
+                "label" : "parentid",
+                "nativeName" : "parentid",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 360,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "id",
+                "fieldType" : "CONNECTOR",
+                "label" : "id",
+                "nativeName" : "id",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 360,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "suitfiledind",
+                "fieldType" : "CONNECTOR",
+                "label" : "suitfiledind",
+                "nativeName" : "suitfiledind",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 360,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "suitdt",
+                "fieldType" : "CONNECTOR",
+                "label" : "suitdt",
+                "nativeName" : "suitdt",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "suitstatuscd",
+                "fieldType" : "CONNECTOR",
+                "label" : "suitstatuscd",
+                "nativeName" : "suitstatuscd",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 360,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "suitsettlementcd",
+                "fieldType" : "CONNECTOR",
+                "label" : "suitsettlementcd",
+                "nativeName" : "suitsettlementcd",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 360,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "suitcloseddt",
+                "fieldType" : "CONNECTOR",
+                "label" : "suitcloseddt",
+                "nativeName" : "suitcloseddt",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "settlementamt",
+                "fieldType" : "CONNECTOR",
+                "label" : "settlementamt",
+                "nativeName" : "settlementamt",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 300,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              }
+            ]
+          },
+          "readOptions" : {
+            "commandType" : 0,
+            "descending" : "false",
+            "queryAll" : "false",
+            "rowLimit" : 0,
+            "selectDistinct" : "false"
+          },
+          "runtimeAttributes" : {
+            "attributes" : [
+              {
+                "name" : "Read Mode",
+                "value" : "Direct"
+              },
+              {
+                "name" : "Fetch Size",
+                "value" : "10000"
+              },
+              {
+                "name" : "Enable Compression",
+                "value" : "NO"
+              },
+              {
+                "name" : "Temporary Credential Duration",
+                "value" : "7200"
+              },
+              {
+                "name" : "Treat NULL Value as NULL",
+                "value" : "NO"
+              },
+              {
+                "name" : "Encryption Type",
+                "value" : "None"
+              },
+              {
+                "name" : "Download S3 Files In Multiple Parts",
+                "value" : "NO"
+              },
+              {
+                "name" : "Multipart Download Threshold Size",
+                "value" : "5242880"
+              },
+              {
+                "name" : "Select Distinct",
+                "value" : "NO"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "name" : "EXPTRANS",
+        "advancedProperties" : [
+          {
+            "name" : "Tracing Level",
+            "value" : "Normal"
+          },
+          {
+            "name" : "Optional",
+            "value" : "true"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "conflictResolutions" : [
+              {
+                "precedingGroupName" : "DefaultGroup",
+                "precedingTxName" : "SQ_litigation_STG",
+                "rule" : {
+                  "bulkRename" : "true",
+                  "include" : "true",
+                  "bulkRenameOption" : {
+                    "pattern" : "^(SystemId|ParentId|Id|CMMContainer|RowId)$/$0_SQ_litigation_STG",
+                    "suffix" : "false"
+                  }
+                }
+              },
+              {
+                "precedingGroupName" : "DefaultGroup",
+                "precedingTxName" : "LKP_Claimant_Stg",
+                "rule" : {
+                  "bulkRename" : "true",
+                  "include" : "true",
+                  "bulkRenameOption" : {
+                    "pattern" : "^(SystemId|ParentId|CMMContainer|Id)$/$0_LKP_Claimant_Stg",
+                    "suffix" : "false"
+                  }
+                }
+              },
+              {
+                "precedingGroupName" : "DefaultGroup",
+                "precedingTxName" : "lkp_allcontacts",
+                "rule" : {
+                  "bulkRename" : "true",
+                  "include" : "true",
+                  "bulkRenameOption" : {
+                    "pattern" : "^(SystemId|CMMContainer|AssociateTypeCd|SystemId1)$/$0_lkp_allcontacts",
+                    "suffix" : "false"
+                  }
+                }
+              },
+              {
+                "precedingGroupName" : "DefaultGroup",
+                "precedingTxName" : "LKP_litigationAssociate",
+                "rule" : {
+                  "bulkRename" : "true",
+                  "include" : "true",
+                  "bulkRenameOption" : {
+                    "pattern" : "^(SystemId|ParentId|CMMContainer|Id|StatusCd|RowId|Id1|SystemId1|AssociateTypeCd)$/$0_LKP_litigationAssociate",
+                    "suffix" : "false"
+                  }
+                }
+              }
+            ],
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              },
+              {
+                "bulkRename" : "false",
+                "include" : "false",
+                "names" : [
+                  {
+                    "inputName" : "CMMContainer2"
+                  },
+                  {
+                    "inputName" : "CMMContainer_lkp_allcontacts"
+                  },
+                  {
+                    "inputName" : "CMMContainer_LKP_litigationAssociate"
+                  },
+                  {
+                    "inputName" : "id"
+                  },
+                  {
+                    "inputName" : "Id1_LKP_litigationAssociate"
+                  },
+                  {
+                    "inputName" : "ParentId1"
+                  },
+                  {
+                    "inputName" : "ParentId_LKP_litigationAssociate"
+                  },
+                  {
+                    "inputName" : "SystemId1_LKP_litigationAssociate"
+                  },
+                  {
+                    "inputName" : "SystemId2"
+                  },
+                  {
+                    "inputName" : "SystemId_lkp_allcontacts"
+                  },
+                  {
+                    "inputName" : "SystemId_LKP_litigationAssociate"
+                  },
+                  {
+                    "inputName" : "AssociateTypeCd_LKP_litigationAssociate"
+                  }
+                ]
+              },
+              {
+                "bulkRename" : "false",
+                "include" : "true",
+                "names" : [
+                  {
+                    "inputName" : "AssociateNumber"
+                  },
+                  {
+                    "inputName" : "AssociateTypeCd_lkp_allcontacts",
+                    "outputName" : "AssociateTypeCd"
+                  },
+                  {
+                    "inputName" : "claimantnumber",
+                    "outputName" : "ClaimantNumber"
+                  },
+                  {
+                    "inputName" : "CommercialName"
+                  },
+                  {
+                    "inputName" : "Id"
+                  },
+                  {
+                    "inputName" : "ParentId"
+                  },
+                  {
+                    "inputName" : "SettlementAmt"
+                  },
+                  {
+                    "inputName" : "SuitClosedDt"
+                  },
+                  {
+                    "inputName" : "SuitFiledInd"
+                  },
+                  {
+                    "inputName" : "SuitDt"
+                  },
+                  {
+                    "inputName" : "SuitSettlementCd"
+                  },
+                  {
+                    "inputName" : "SuitStatusCd"
+                  },
+                  {
+                    "inputName" : "SystemId"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "windowConfigurationEnabled" : "false",
+        "fields" : [
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "Row_Ins_dt",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9,
+            "expFieldType" : "OUTPUT",
+            "expression" : "sysdate"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "ClaimCounselAssigned",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 255,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "IIF(AssociateTypeCd = 'OutsideCounsel', CommercialName, NULL)"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "SubrogationCounselAssigned",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 255,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "IIF(AssociateTypeCd = 'SubrogationCounsel', CommercialName, NULL)"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_DefenseCounsel",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 255,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : ":LKP.LKP_DERIVE_ASSIGNED_OTHER(SystemId,'OutsideCounsel',ParentId)"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_PlaintiffCounsel",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 255,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : ":LKP.LKP_DERIVE_ADDITIONAL_FIELDS(SystemId,'OutsideCounsel',Id)"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_SuitOriginType",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 50,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "IIF(substr(ParentId,1,3)='Cla','Claim','Subrogation')"
+          }
+        ]
+      },
+      {
+        "name" : "LKP_litigationAssociate",
+        "advancedProperties" : [
+          {
+            "name" : "Tracing Level",
+            "value" : "Normal"
+          },
+          {
+            "name" : "Lookup caching enabled",
+            "value" : "true"
+          },
+          {
+            "name" : "Lookup cache directory name",
+            "value" : "$PMCacheDir"
+          },
+          {
+            "name" : "Lookup cache persistent",
+            "value" : "false"
+          },
+          {
+            "name" : "Re-cache from lookup source",
+            "value" : "false"
+          },
+          {
+            "name" : "Lookup Data Cache Size",
+            "value" : "AUTO"
+          },
+          {
+            "name" : "Lookup Index Cache Size",
+            "value" : "AUTO"
+          },
+          {
+            "name" : "Dynamic Lookup Cache",
+            "value" : "false"
+          },
+          {
+            "name" : "Output Old Value On Update",
+            "value" : "false"
+          },
+          {
+            "name" : "Synchronize dynamic cache",
+            "value" : "false"
+          },
+          {
+            "name" : "Insert Else Update",
+            "value" : "false"
+          },
+          {
+            "name" : "Lookup source is static",
+            "value" : "false"
+          },
+          {
+            "name" : "Pre-build lookup cache",
+            "value" : "AUTO"
+          },
+          {
+            "name" : "Subsecond Precision",
+            "value" : "6"
+          },
+          {
+            "name" : "Optional",
+            "value" : "true"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "conflictResolutions" : [
+              {
+                "precedingGroupName" : "DefaultGroup",
+                "precedingTxName" : "SQ_litigation_STG",
+                "rule" : {
+                  "bulkRename" : "true",
+                  "include" : "true",
+                  "bulkRenameOption" : {
+                    "pattern" : "^(ParentId|CMMContainer|RowId)$/$0_SQ_litigation_STG",
+                    "suffix" : "false"
+                  }
+                }
+              }
+            ],
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              },
+              {
+                "bulkRename" : "false",
+                "include" : "false",
+                "names" : [
+                  {
+                    "inputName" : "parentid"
+                  },
+                  {
+                    "inputName" : "settlementamt"
+                  },
+                  {
+                    "inputName" : "suitcloseddt"
+                  },
+                  {
+                    "inputName" : "suitdt"
+                  },
+                  {
+                    "inputName" : "suitfiledind"
+                  },
+                  {
+                    "inputName" : "suitsettlementcd"
+                  },
+                  {
+                    "inputName" : "suitstatuscd"
+                  },
+                  {
+                    "inputName" : "ParentId"
+                  },
+                  {
+                    "inputName" : "SettlementAmt"
+                  },
+                  {
+                    "inputName" : "SuitClosedDt"
+                  },
+                  {
+                    "inputName" : "SuitDt"
+                  },
+                  {
+                    "inputName" : "SuitFiledInd"
+                  },
+                  {
+                    "inputName" : "SuitSettlementCd"
+                  },
+                  {
+                    "inputName" : "SuitStatusCd"
+                  }
+                ]
+              },
+              {
+                "bulkRename" : "false",
+                "include" : "true",
+                "names" : [
+                  {
+                    "inputName" : "Id",
+                    "outputName" : "Id1"
+                  },
+                  {
+                    "inputName" : "SystemId",
+                    "outputName" : "SystemId1"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "multipleMatchPolicy" : "Use Any Value",
+        "unconnected" : "false",
+        "useLabels" : "false",
+        "fields" : [
+          {
+            "adapterField" : {
+              "name" : "SystemId"
+            },
+            "name" : "SystemId",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "ParentId"
+            },
+            "name" : "ParentId",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 120,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "CMMContainer"
+            },
+            "name" : "CMMContainer",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 120,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "AssociateNumber"
+            },
+            "name" : "AssociateNumber",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "AssociateTypeCd"
+            },
+            "name" : "AssociateTypeCd",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 120,
+            "scale" : 0
+          }
+        ],
+        "inputPortNames" : [
+          "SystemId1",
+          "Id1"
+        ],
+        "lookupConditions" : [
+          {
+            "leftOperand" : "SystemId",
+            "operator" : "=",
+            "rightOperand" : "SystemId1"
+          },
+          {
+            "leftOperand" : "ParentId",
+            "operator" : "=",
+            "rightOperand" : "Id1"
+          }
+        ],
+        "dataAdapter" : {
+          "connectionId$" : {
+            "name" : "DBConnection_SRCM"
+          },
+          "excludeDynamicFileNameField" : "false",
+          "objectType" : "SINGLE",
+          "typeSystem" : "MySQL",
+          "useDynamicFileName" : "false",
+          "object" : {
+            "name" : "litigationassociate",
+            "label" : "litigationassociate",
+            "objectName" : "litigationassociate",
+            "path" : "litigationassociate",
+            "retainMetadata" : "false",
+            "fields" : [
+              {
+                "name" : "SystemId",
+                "fieldType" : "CONNECTOR",
+                "label" : "SystemId",
+                "nativeName" : "SystemId",
+                "nativeType" : "integer",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "litigationassociate"
+                  }
+                ]
+              },
+              {
+                "name" : "ParentId",
+                "fieldType" : "CONNECTOR",
+                "label" : "ParentId",
+                "nativeName" : "ParentId",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 120,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "litigationassociate"
+                  }
+                ]
+              },
+              {
+                "name" : "CMMContainer",
+                "fieldType" : "CONNECTOR",
+                "label" : "CMMContainer",
+                "nativeName" : "CMMContainer",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 120,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "litigationassociate"
+                  }
+                ]
+              },
+              {
+                "name" : "AssociateNumber",
+                "fieldType" : "CONNECTOR",
+                "label" : "AssociateNumber",
+                "nativeName" : "AssociateNumber",
+                "nativeType" : "integer",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "litigationassociate"
+                  }
+                ]
+              },
+              {
+                "name" : "AssociateTypeCd",
+                "fieldType" : "CONNECTOR",
+                "label" : "AssociateTypeCd",
+                "nativeName" : "AssociateTypeCd",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 120,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "litigationassociate"
+                  }
+                ]
+              }
+            ]
+          },
+          "readOptions" : {
+            "commandType" : 0,
+            "descending" : "false",
+            "queryAll" : "false",
+            "rowLimit" : 0,
+            "selectDistinct" : "false"
+          },
+          "writeOptions" : {
+            "batchSize" : 0,
+            "bulkApi" : "false",
+            "handleDecimalRoundOff" : "false",
+            "handleSpecialChars" : "false",
+            "operations" : [
+              "Insert"
+            ],
+            "setFieldsToNull" : "false",
+            "truncate" : "false",
+            "useErrorFile" : "false",
+            "useExactSrcNames" : "false",
+            "useSuccessFile" : "false"
+          }
+        }
+      },
+      {
+        "name" : "LKP_Claimant_Stg",
+        "advancedProperties" : [
+          {
+            "name" : "Tracing Level",
+            "value" : "Normal"
+          },
+          {
+            "name" : "Lookup caching enabled",
+            "value" : "true"
+          },
+          {
+            "name" : "Lookup cache directory name",
+            "value" : "$PMCacheDir"
+          },
+          {
+            "name" : "Lookup cache persistent",
+            "value" : "false"
+          },
+          {
+            "name" : "Re-cache from lookup source",
+            "value" : "false"
+          },
+          {
+            "name" : "Lookup Data Cache Size",
+            "value" : "AUTO"
+          },
+          {
+            "name" : "Lookup Index Cache Size",
+            "value" : "AUTO"
+          },
+          {
+            "name" : "Dynamic Lookup Cache",
+            "value" : "false"
+          },
+          {
+            "name" : "Output Old Value On Update",
+            "value" : "false"
+          },
+          {
+            "name" : "Insert Else Update",
+            "value" : "false"
+          },
+          {
+            "name" : "Case Sensitive String Comparison",
+            "value" : "false"
+          },
+          {
+            "name" : "Sorted Input",
+            "value" : "false"
+          },
+          {
+            "name" : "Lookup source is static",
+            "value" : "false"
+          },
+          {
+            "name" : "Pre-build lookup cache",
+            "value" : "AUTO"
+          },
+          {
+            "name" : "Optional",
+            "value" : "true"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "conflictResolutions" : [
+              {
+                "precedingGroupName" : "DefaultGroup",
+                "precedingTxName" : "SQ_litigation_STG",
+                "rule" : {
+                  "bulkRename" : "true",
+                  "include" : "true",
+                  "bulkRenameOption" : {
+                    "pattern" : "^(SystemId|CMMContainer|Id)$/$0_SQ_litigation_STG",
+                    "suffix" : "false"
+                  }
+                }
+              }
+            ],
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              },
+              {
+                "bulkRename" : "false",
+                "include" : "false",
+                "names" : [
+                  {
+                    "inputName" : "Caption"
+                  },
+                  {
+                    "inputName" : "CaseAnalysis"
+                  },
+                  {
+                    "inputName" : "CaseFacts"
+                  },
+                  {
+                    "inputName" : "ClaimSettledDt"
+                  },
+                  {
+                    "inputName" : "CMMContainer_SQ_litigation_STG"
+                  },
+                  {
+                    "inputName" : "DocketNumber"
+                  },
+                  {
+                    "inputName" : "EmployeeRepresentationDt"
+                  },
+                  {
+                    "inputName" : "Id_SQ_litigation_STG"
+                  },
+                  {
+                    "inputName" : "RowId"
+                  },
+                  {
+                    "inputName" : "SettlementAmt"
+                  },
+                  {
+                    "inputName" : "SuitClosedDt"
+                  },
+                  {
+                    "inputName" : "SuitDt"
+                  },
+                  {
+                    "inputName" : "SuitFiledInd"
+                  },
+                  {
+                    "inputName" : "SuitSettlementCd"
+                  },
+                  {
+                    "inputName" : "SuitStatusCd"
+                  },
+                  {
+                    "inputName" : "SystemId_SQ_litigation_STG"
+                  },
+                  {
+                    "inputName" : "SystemId"
+                  },
+                  {
+                    "inputName" : "Id"
+                  }
+                ]
+              },
+              {
+                "bulkRename" : "false",
+                "include" : "true",
+                "names" : [
+                  {
+                    "inputName" : "ParentId",
+                    "outputName" : "ParentId1"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "multipleMatchPolicy" : "Use Any Value",
+        "unconnected" : "false",
+        "useLabels" : "false",
+        "fields" : [
+          {
+            "adapterField" : {
+              "name" : "id"
+            },
+            "name" : "id",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 360,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "claimantnumber"
+            },
+            "name" : "claimantnumber",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          }
+        ],
+        "inputPortNames" : [
+          "ParentId1"
+        ],
+        "lookupConditions" : [
+          {
+            "leftOperand" : "id",
+            "operator" : "=",
+            "rightOperand" : "ParentId1"
+          }
+        ],
+        "dataAdapter" : {
+          "connectionId$" : {
+            "name" : "DBConnection_TGT"
+          },
+          "excludeDynamicFileNameField" : "false",
+          "objectType" : "SINGLE",
+          "typeSystem" : "TOOLKIT",
+          "useDynamicFileName" : "false",
+          "object" : {
+            "name" : "dbo/claimant_stg",
+            "label" : "claimant_stg",
+            "objectName" : "claimant_stg",
+            "objectType" : "amazonredshift",
+            "path" : "dbo/claimant_stg",
+            "retainMetadata" : "false",
+            "fields" : [
+              {
+                "name" : "id",
+                "fieldType" : "CONNECTOR",
+                "label" : "id",
+                "nativeName" : "id",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 360,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "claimant_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "claimantnumber",
+                "fieldType" : "CONNECTOR",
+                "label" : "claimantnumber",
+                "nativeName" : "claimantnumber",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "claimant_stg"
+                  }
+                ]
+              }
+            ],
+            "objectAttributes" : [
+              {
+                "name" : "recordType",
+                "value" : "TABLE"
+              }
+            ]
+          },
+          "readOptions" : {
+            "commandType" : 0,
+            "descending" : "false",
+            "queryAll" : "false",
+            "rowLimit" : 0,
+            "selectDistinct" : "false"
+          },
+          "runtimeAttributes" : {
+            "attributes" : [
+              {
+                "name" : "Read Mode",
+                "value" : "Direct"
+              },
+              {
+                "name" : "Fetch Size",
+                "value" : "10000"
+              },
+              {
+                "name" : "Enable Compression",
+                "value" : "YES"
+              },
+              {
+                "name" : "Temporary Credential Duration",
+                "value" : "7200"
+              },
+              {
+                "name" : "Treat NULL Value as NULL",
+                "value" : "NO"
+              },
+              {
+                "name" : "Encryption Type",
+                "value" : "None"
+              },
+              {
+                "name" : "Download S3 Files In Multiple Parts",
+                "value" : "NO"
+              },
+              {
+                "name" : "Multipart Download Threshold Size",
+                "value" : "5242880"
+              },
+              {
+                "name" : "Select Distinct",
+                "value" : "NO"
+              }
+            ]
+          },
+          "writeOptions" : {
+            "batchSize" : 0,
+            "bulkApi" : "false",
+            "handleDecimalRoundOff" : "false",
+            "handleSpecialChars" : "false",
+            "operations" : [
+              "Insert"
+            ],
+            "setFieldsToNull" : "false",
+            "truncate" : "false",
+            "useErrorFile" : "false",
+            "useExactSrcNames" : "false",
+            "useSuccessFile" : "false"
+          }
+        }
+      },
+      {
+        "name" : "LKP_Claim",
+        "advancedProperties" : [
+          {
+            "name" : "Tracing Level",
+            "value" : "Normal"
+          },
+          {
+            "name" : "Lookup caching enabled",
+            "value" : "true"
+          },
+          {
+            "name" : "Lookup cache directory name",
+            "value" : "$PMCacheDir"
+          },
+          {
+            "name" : "Lookup cache persistent",
+            "value" : "false"
+          },
+          {
+            "name" : "Re-cache from lookup source",
+            "value" : "false"
+          },
+          {
+            "name" : "Lookup Data Cache Size",
+            "value" : "AUTO"
+          },
+          {
+            "name" : "Lookup Index Cache Size",
+            "value" : "AUTO"
+          },
+          {
+            "name" : "Dynamic Lookup Cache",
+            "value" : "false"
+          },
+          {
+            "name" : "Output Old Value On Update",
+            "value" : "false"
+          },
+          {
+            "name" : "Insert Else Update",
+            "value" : "false"
+          },
+          {
+            "name" : "Case Sensitive String Comparison",
+            "value" : "false"
+          },
+          {
+            "name" : "Sorted Input",
+            "value" : "false"
+          },
+          {
+            "name" : "Lookup source is static",
+            "value" : "false"
+          },
+          {
+            "name" : "Pre-build lookup cache",
+            "value" : "AUTO"
+          },
+          {
+            "name" : "Optional",
+            "value" : "true"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              },
+              {
+                "bulkRename" : "false",
+                "include" : "false",
+                "names" : [
+                  {
+                    "inputName" : "ClaimantNumber"
+                  },
+                  {
+                    "inputName" : "SuitDt"
+                  },
+                  {
+                    "inputName" : "SuitClosedDt"
+                  },
+                  {
+                    "inputName" : "SuitFiledInd"
+                  },
+                  {
+                    "inputName" : "SuitSettlementCd"
+                  },
+                  {
+                    "inputName" : "SuitStatusCd"
+                  },
+                  {
+                    "inputName" : "AssociateNumber"
+                  },
+                  {
+                    "inputName" : "ParentId"
+                  },
+                  {
+                    "inputName" : "Id"
+                  },
+                  {
+                    "inputName" : "CommercialName"
+                  },
+                  {
+                    "inputName" : "AssociateTypeCd"
+                  },
+                  {
+                    "inputName" : "SettlementAmt"
+                  },
+                  {
+                    "inputName" : "Row_Ins_dt"
+                  },
+                  {
+                    "inputName" : "ClaimCounselAssigned"
+                  },
+                  {
+                    "inputName" : "SubrogationCounselAssigned"
+                  },
+                  {
+                    "inputName" : "o_DefenseCounsel"
+                  },
+                  {
+                    "inputName" : "o_PlaintiffCounsel"
+                  },
+                  {
+                    "inputName" : "o_SuitOriginType"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "multipleMatchPolicy" : "Use Any Value",
+        "unconnected" : "false",
+        "useLabels" : "false",
+        "fields" : [
+          {
+            "adapterField" : {
+              "name" : "policykey"
+            },
+            "name" : "policykey",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 360,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "claimnumber"
+            },
+            "name" : "claimnumber",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 360,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "claimsystemid"
+            },
+            "name" : "claimsystemid",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          }
+        ],
+        "inputPortNames" : [
+          "SystemId"
+        ],
+        "lookupConditions" : [
+          {
+            "leftOperand" : "claimsystemid",
+            "operator" : "=",
+            "rightOperand" : "SystemId"
+          }
+        ],
+        "dataAdapter" : {
+          "connectionId$" : {
+            "name" : "DBConnection_TGT"
+          },
+          "excludeDynamicFileNameField" : "false",
+          "objectType" : "QUERY",
+          "typeSystem" : "TOOLKIT",
+          "useDynamicFileName" : "false",
+          "object" : {
+            "customQuery" : "SELECT claimdetail.PolicyKey as PolicyKey, claimdetail.ClaimNumber as ClaimNumber, claimdetail.ClaimSystemId as ClaimSystemId FROM dbo.claimdetail\nwhere RowEffEndDt = '9999-12-31'--",
+            "retainMetadata" : "false",
+            "fields" : [
+              {
+                "name" : "policykey",
+                "fieldType" : "CONNECTOR",
+                "label" : "policykey",
+                "nativeName" : "policykey",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 360,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "claimnumber",
+                "fieldType" : "CONNECTOR",
+                "label" : "claimnumber",
+                "nativeName" : "claimnumber",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 360,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "claimsystemid",
+                "fieldType" : "CONNECTOR",
+                "label" : "claimsystemid",
+                "nativeName" : "claimsystemid",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              }
+            ]
+          },
+          "readOptions" : {
+            "commandType" : 0,
+            "descending" : "false",
+            "queryAll" : "false",
+            "rowLimit" : 0,
+            "selectDistinct" : "false"
+          },
+          "runtimeAttributes" : {
+            "attributes" : [
+              {
+                "name" : "Read Mode",
+                "value" : "Direct"
+              },
+              {
+                "name" : "Fetch Size",
+                "value" : "10000"
+              },
+              {
+                "name" : "Enable Compression",
+                "value" : "YES"
+              },
+              {
+                "name" : "Temporary Credential Duration",
+                "value" : "7200"
+              },
+              {
+                "name" : "Treat NULL Value as NULL",
+                "value" : "NO"
+              },
+              {
+                "name" : "Encryption Type",
+                "value" : "None"
+              },
+              {
+                "name" : "Download S3 Files In Multiple Parts",
+                "value" : "NO"
+              },
+              {
+                "name" : "Multipart Download Threshold Size",
+                "value" : "5242880"
+              },
+              {
+                "name" : "Select Distinct",
+                "value" : "NO"
+              }
+            ]
+          },
+          "writeOptions" : {
+            "batchSize" : 0,
+            "bulkApi" : "false",
+            "handleDecimalRoundOff" : "false",
+            "handleSpecialChars" : "false",
+            "operations" : [
+              "Insert"
+            ],
+            "setFieldsToNull" : "false",
+            "truncate" : "false",
+            "useErrorFile" : "false",
+            "useExactSrcNames" : "false",
+            "useSuccessFile" : "false"
+          }
+        }
+      },
+      {
+        "name" : "EXPTRANS1",
+        "advancedProperties" : [
+          {
+            "name" : "Tracing Level",
+            "value" : "Normal"
+          },
+          {
+            "name" : "Optional",
+            "value" : "true"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "conflictResolutions" : [
+              {
+                "precedingGroupName" : "DefaultGroup",
+                "precedingTxName" : "EXPTRANS",
+                "rule" : {
+                  "bulkRename" : "true",
+                  "include" : "true",
+                  "bulkRenameOption" : {
+                    "literal" : "EXPR_",
+                    "suffix" : "false"
+                  }
+                }
+              },
+              {
+                "precedingGroupName" : "DefaultGroup",
+                "precedingTxName" : "LKP_Claim",
+                "rule" : {
+                  "bulkRename" : "true",
+                  "include" : "true",
+                  "bulkRenameOption" : {
+                    "literal" : "LKP_Claim_",
+                    "suffix" : "false"
+                  }
+                }
+              },
+              {
+                "precedingGroupName" : "DefaultGroup",
+                "precedingTxName" : "LKP_LitigationDetail",
+                "rule" : {
+                  "bulkRename" : "true",
+                  "include" : "true",
+                  "bulkRenameOption" : {
+                    "literal" : "LKP_LD_",
+                    "suffix" : "false"
+                  }
+                }
+              }
+            ],
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true",
+                "names" : [
+                  {
+                    "inputName" : "EXPR_AssociateNumber",
+                    "outputName" : "AssociateNumber"
+                  },
+                  {
+                    "inputName" : "EXPR_AssociateTypeCd",
+                    "outputName" : "associatetypecode"
+                  },
+                  {
+                    "inputName" : "EXPR_ClaimantNumber",
+                    "outputName" : "ClaimantNumber"
+                  },
+                  {
+                    "inputName" : "EXPR_ClaimCounselAssigned",
+                    "outputName" : "ClaimCounselAssigned"
+                  },
+                  {
+                    "inputName" : "EXPR_o_DefenseCounsel",
+                    "outputName" : "DefenseCounsel"
+                  },
+                  {
+                    "inputName" : "EXPR_o_PlaintiffCounsel",
+                    "outputName" : "PlaintiffCounsel"
+                  },
+                  {
+                    "inputName" : "EXPR_o_SuitOriginType",
+                    "outputName" : "o_SuitOriginType"
+                  },
+                  {
+                    "inputName" : "EXPR_Row_Ins_dt",
+                    "outputName" : "Row_Ins_dt"
+                  },
+                  {
+                    "inputName" : "EXPR_SettlementAmt",
+                    "outputName" : "SettlementAmt"
+                  },
+                  {
+                    "inputName" : "EXPR_SubrogationCounselAssigned",
+                    "outputName" : "SubrogationCounselAssigned"
+                  },
+                  {
+                    "inputName" : "EXPR_SuitClosedDt",
+                    "outputName" : "SuitClosedDt"
+                  },
+                  {
+                    "inputName" : "EXPR_SuitDt",
+                    "outputName" : "SuitDt"
+                  },
+                  {
+                    "inputName" : "EXPR_SuitFiledInd",
+                    "outputName" : "SuitFiledInd"
+                  },
+                  {
+                    "inputName" : "EXPR_SuitSettlementCd",
+                    "outputName" : "SuitSettlementCd"
+                  },
+                  {
+                    "inputName" : "EXPR_SuitStatusCd",
+                    "outputName" : "SuitStatusCd"
+                  },
+                  {
+                    "inputName" : "LKP_Claim_claimnumber",
+                    "outputName" : "ClaimNumber"
+                  },
+                  {
+                    "inputName" : "LKP_Claim_policykey",
+                    "outputName" : "PolicyKey"
+                  },
+                  {
+                    "inputName" : "LKP_LD_litigationkey",
+                    "outputName" : "LitigationKey"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "windowConfigurationEnabled" : "false",
+        "fields" : [
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "O_LitigationKey",
+            "platformType" : {
+              "name" : "bigint"
+            },
+            "precision" : 19,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "LitigationKey"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_Flag",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 19,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "IIF(ISNULL(LitigationKey),'I','U')"
+          }
+        ]
+      },
+      {
+        "description" : "DEFAULT1 : Path for the data when none of the group conditions are satisfied.\n",
+        "name" : "RTRTRANS",
+        "advancedProperties" : [
+          {
+            "name" : "Tracing Level",
+            "value" : "Normal"
+          },
+          {
+            "name" : "Optional",
+            "value" : "true"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "false",
+            "name" : "DEFAULT1",
+            "output" : "true"
+          },
+          {
+            "input" : "true",
+            "name" : "INPUT",
+            "output" : "false",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              },
+              {
+                "bulkRename" : "false",
+                "include" : "true",
+                "names" : [
+                  {
+                    "inputName" : "O_LitigationKey",
+                    "outputName" : "LitigationKey"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "input" : "false",
+            "name" : "Insert",
+            "output" : "true"
+          },
+          {
+            "input" : "false",
+            "name" : "Update",
+            "output" : "true"
+          }
+        ],
+        "groupFilterConditions" : [
+          {
+            "advancedFilterCondition" : "o_Flag='I'",
+            "name" : "Insert"
+          },
+          {
+            "advancedFilterCondition" : "o_Flag='U'",
+            "name" : "Update"
+          }
+        ]
+      },
+      {
+        "name" : "EXPTRANS2",
+        "advancedProperties" : [
+          {
+            "name" : "Tracing Level",
+            "value" : "Normal"
+          },
+          {
+            "name" : "Optional",
+            "value" : "true"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              },
+              {
+                "bulkRename" : "false",
+                "include" : "false",
+                "names" : [
+                  {
+                    "inputName" : "o_Flag"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "windowConfigurationEnabled" : "false",
+        "fields" : [
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "InsertIndicator",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 10,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "'Y'"
+          }
+        ]
+      },
+      {
+        "name" : "EXPTRANS3",
+        "advancedProperties" : [
+          {
+            "name" : "Tracing Level",
+            "value" : "Normal"
+          },
+          {
+            "name" : "Optional",
+            "value" : "true"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              },
+              {
+                "bulkRename" : "false",
+                "include" : "false",
+                "names" : [
+                  {
+                    "inputName" : "o_Flag"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "windowConfigurationEnabled" : "false",
+        "fields" : [
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "InsertIndicator",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 10,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "'Y'"
+          }
+        ]
+      },
+      {
+        "description" : "Expression Tx is added in place of Update Strategy Transformation. Transformation attributes propagated to target.",
+        "name" : "UPD_Insert",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "windowConfigurationEnabled" : "false",
+        "fields" : [
+          {
+            "name" : "Update_Strategy_Expression_67764",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 100,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "DD_INSERT"
+          }
+        ]
+      },
+      {
+        "description" : "Expression Tx is added in place of Update Strategy Transformation. Transformation attributes propagated to target.",
+        "name" : "UPD_Update",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              },
+              {
+                "bulkRename" : "false",
+                "include" : "false",
+                "names" : [
+                  {
+                    "inputName" : "LitigationKey3_EXPTRANS3"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "windowConfigurationEnabled" : "false",
+        "fields" : [
+          {
+            "name" : "Update_Strategy_Expression_96565",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 100,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "DD_UPDATE"
+          }
+        ]
+      },
+      {
+        "name" : "lkp_allcontacts",
+        "advancedProperties" : [
+          {
+            "name" : "Tracing Level",
+            "value" : "Normal"
+          },
+          {
+            "name" : "Lookup caching enabled",
+            "value" : "true"
+          },
+          {
+            "name" : "Lookup cache directory name",
+            "value" : "$PMCacheDir"
+          },
+          {
+            "name" : "Lookup cache persistent",
+            "value" : "false"
+          },
+          {
+            "name" : "Re-cache from lookup source",
+            "value" : "false"
+          },
+          {
+            "name" : "Lookup Data Cache Size",
+            "value" : "AUTO"
+          },
+          {
+            "name" : "Lookup Index Cache Size",
+            "value" : "AUTO"
+          },
+          {
+            "name" : "Dynamic Lookup Cache",
+            "value" : "false"
+          },
+          {
+            "name" : "Output Old Value On Update",
+            "value" : "false"
+          },
+          {
+            "name" : "Synchronize dynamic cache",
+            "value" : "false"
+          },
+          {
+            "name" : "Insert Else Update",
+            "value" : "false"
+          },
+          {
+            "name" : "Lookup source is static",
+            "value" : "false"
+          },
+          {
+            "name" : "Pre-build lookup cache",
+            "value" : "AUTO"
+          },
+          {
+            "name" : "Subsecond Precision",
+            "value" : "6"
+          },
+          {
+            "name" : "Optional",
+            "value" : "true"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "conflictResolutions" : [
+              {
+                "precedingGroupName" : "DefaultGroup",
+                "precedingTxName" : "LKP_litigationAssociate",
+                "rule" : {
+                  "bulkRename" : "true",
+                  "include" : "true",
+                  "bulkRenameOption" : {
+                    "pattern" : "^(SystemId1)$/$0_LKP_litigationAssociate",
+                    "suffix" : "false"
+                  }
+                }
+              }
+            ],
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              },
+              {
+                "bulkRename" : "false",
+                "include" : "false",
+                "names" : [
+                  {
+                    "inputName" : "AssociateNumber"
+                  },
+                  {
+                    "inputName" : "AssociateProviderRef"
+                  },
+                  {
+                    "inputName" : "Comment"
+                  },
+                  {
+                    "inputName" : "Id"
+                  },
+                  {
+                    "inputName" : "id1"
+                  },
+                  {
+                    "inputName" : "Id1"
+                  },
+                  {
+                    "inputName" : "ParentId"
+                  },
+                  {
+                    "inputName" : "PreferredDeliveryMethod"
+                  },
+                  {
+                    "inputName" : "RowId"
+                  },
+                  {
+                    "inputName" : "StatusCd"
+                  },
+                  {
+                    "inputName" : "SystemId1_LKP_litigationAssociate"
+                  },
+                  {
+                    "inputName" : "systemid1"
+                  }
+                ]
+              },
+              {
+                "bulkRename" : "false",
+                "include" : "true",
+                "names" : [
+                  {
+                    "inputName" : "AssociateTypeCd"
+                  },
+                  {
+                    "inputName" : "CMMContainer",
+                    "outputName" : "CMMContainer2"
+                  },
+                  {
+                    "inputName" : "SystemId",
+                    "outputName" : "SystemId2"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "multipleMatchPolicy" : "Use Any Value",
+        "unconnected" : "false",
+        "useLabels" : "false",
+        "fields" : [
+          {
+            "adapterField" : {
+              "name" : "CommercialName"
+            },
+            "name" : "CommercialName",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 255,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "SystemId"
+            },
+            "name" : "SystemId",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "CMMContainer"
+            },
+            "name" : "CMMContainer",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 255,
+            "scale" : 0
+          }
+        ],
+        "inputPortNames" : [
+          "SystemId1",
+          "CMMContainer1",
+          "AssociateTypeCd"
+        ],
+        "lookupConditions" : [
+          {
+            "leftOperand" : "SystemId",
+            "operator" : "=",
+            "rightOperand" : "SystemId2"
+          },
+          {
+            "leftOperand" : "CMMContainer",
+            "operator" : "=",
+            "rightOperand" : "CMMContainer2"
+          }
+        ],
+        "dataAdapter" : {
+          "connectionId$" : {
+            "name" : "DBConnection_SRCM"
+          },
+          "excludeDynamicFileNameField" : "false",
+          "objectType" : "QUERY",
+          "typeSystem" : "MySQL",
+          "useDynamicFileName" : "false",
+          "object" : {
+            "customQuery" : "SELECT allcontacts.CommercialName as CommercialName, allcontacts.SystemId as SystemId, allcontacts.CMMContainer as CMMContainer FROM allcontacts\nwhere ContactTypeCd = 'LitigationAssociate'",
+            "retainMetadata" : "false",
+            "fields" : [
+              {
+                "name" : "CommercialName",
+                "fieldType" : "CONNECTOR",
+                "label" : "CommercialName",
+                "nativeName" : "CommercialName",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 255,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "allcontacts"
+                  }
+                ]
+              },
+              {
+                "name" : "SystemId",
+                "fieldType" : "CONNECTOR",
+                "label" : "SystemId",
+                "nativeName" : "SystemId",
+                "nativeType" : "integer",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "allcontacts"
+                  }
+                ]
+              },
+              {
+                "name" : "CMMContainer",
+                "fieldType" : "CONNECTOR",
+                "label" : "CMMContainer",
+                "nativeName" : "CMMContainer",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 255,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "allcontacts"
+                  }
+                ]
+              }
+            ]
+          },
+          "readOptions" : {
+            "commandType" : 0,
+            "descending" : "false",
+            "queryAll" : "false",
+            "rowLimit" : 0,
+            "selectDistinct" : "false"
+          },
+          "writeOptions" : {
+            "batchSize" : 0,
+            "bulkApi" : "false",
+            "handleDecimalRoundOff" : "false",
+            "handleSpecialChars" : "false",
+            "operations" : [
+              "Insert"
+            ],
+            "setFieldsToNull" : "false",
+            "truncate" : "false",
+            "useErrorFile" : "false",
+            "useExactSrcNames" : "false",
+            "useSuccessFile" : "false"
+          }
+        }
+      },
+      {
+        "name" : "LKP_LitigationDetail",
+        "advancedProperties" : [
+          {
+            "name" : "Tracing Level",
+            "value" : "Normal"
+          },
+          {
+            "name" : "Lookup caching enabled",
+            "value" : "true"
+          },
+          {
+            "name" : "Lookup cache directory name",
+            "value" : "$PMCacheDir"
+          },
+          {
+            "name" : "Lookup cache persistent",
+            "value" : "false"
+          },
+          {
+            "name" : "Re-cache from lookup source",
+            "value" : "false"
+          },
+          {
+            "name" : "Lookup Data Cache Size",
+            "value" : "AUTO"
+          },
+          {
+            "name" : "Lookup Index Cache Size",
+            "value" : "AUTO"
+          },
+          {
+            "name" : "Dynamic Lookup Cache",
+            "value" : "false"
+          },
+          {
+            "name" : "Output Old Value On Update",
+            "value" : "false"
+          },
+          {
+            "name" : "Insert Else Update",
+            "value" : "false"
+          },
+          {
+            "name" : "Case Sensitive String Comparison",
+            "value" : "false"
+          },
+          {
+            "name" : "Sorted Input",
+            "value" : "false"
+          },
+          {
+            "name" : "Lookup source is static",
+            "value" : "false"
+          },
+          {
+            "name" : "Pre-build lookup cache",
+            "value" : "AUTO"
+          },
+          {
+            "name" : "Optional",
+            "value" : "true"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "conflictResolutions" : [
+              {
+                "precedingGroupName" : "DefaultGroup",
+                "precedingTxName" : "EXPTRANS",
+                "rule" : {
+                  "bulkRename" : "true",
+                  "include" : "true",
+                  "bulkRenameOption" : {
+                    "pattern" : "^(SystemId|Id|SuitClosedDt|SuitFiledInd|SuitSettlementCd|SuitStatusCd|AssociateNumber)$/$0_EXPTRANS",
+                    "suffix" : "false"
+                  }
+                }
+              },
+              {
+                "precedingGroupName" : "DefaultGroup",
+                "precedingTxName" : "LKP_Claim",
+                "rule" : {
+                  "bulkRename" : "true",
+                  "include" : "true",
+                  "bulkRenameOption" : {
+                    "pattern" : "^(SystemId)$/$0_LKP_Claim",
+                    "suffix" : "false"
+                  }
+                }
+              }
+            ],
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              },
+              {
+                "bulkRename" : "false",
+                "include" : "false",
+                "names" : [
+                  {
+                    "inputName" : "AssociateNumber_EXPTRANS"
+                  },
+                  {
+                    "inputName" : "AssociateTypeCd"
+                  },
+                  {
+                    "inputName" : "ClaimCounselAssigned"
+                  },
+                  {
+                    "inputName" : "ClaimSystemId"
+                  },
+                  {
+                    "inputName" : "CommercialName"
+                  },
+                  {
+                    "inputName" : "Id_EXPTRANS"
+                  },
+                  {
+                    "inputName" : "o_DefenseCounsel"
+                  },
+                  {
+                    "inputName" : "o_PlaintiffCounsel"
+                  },
+                  {
+                    "inputName" : "o_SuitOriginType"
+                  },
+                  {
+                    "inputName" : "ParentId"
+                  },
+                  {
+                    "inputName" : "Row_Ins_dt"
+                  },
+                  {
+                    "inputName" : "SettlementAmt"
+                  },
+                  {
+                    "inputName" : "SubrogationCounselAssigned"
+                  },
+                  {
+                    "inputName" : "SuitClosedDt_EXPTRANS"
+                  },
+                  {
+                    "inputName" : "SuitDt"
+                  },
+                  {
+                    "inputName" : "SuitFiledInd_EXPTRANS"
+                  },
+                  {
+                    "inputName" : "SuitSettlementCd_EXPTRANS"
+                  },
+                  {
+                    "inputName" : "SuitStatusCd_EXPTRANS"
+                  },
+                  {
+                    "inputName" : "SystemId_EXPTRANS"
+                  },
+                  {
+                    "inputName" : "SystemId_LKP_Claim"
+                  },
+                  {
+                    "inputName" : "claimsystemid"
+                  }
+                ]
+              },
+              {
+                "bulkRename" : "false",
+                "include" : "true",
+                "names" : [
+                  {
+                    "inputName" : "ClaimantNumber",
+                    "outputName" : "ClaimantNumber1"
+                  },
+                  {
+                    "inputName" : "claimnumber",
+                    "outputName" : "ClaimNumber1"
+                  },
+                  {
+                    "inputName" : "policykey",
+                    "outputName" : "PolicyKey1"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "multipleMatchPolicy" : "Use Any Value",
+        "unconnected" : "false",
+        "useLabels" : "false",
+        "fields" : [
+          {
+            "adapterField" : {
+              "name" : "litigationkey"
+            },
+            "name" : "litigationkey",
+            "platformType" : {
+              "name" : "bigint"
+            },
+            "precision" : 19,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "claimnumber"
+            },
+            "name" : "claimnumber",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 768,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "policykey"
+            },
+            "name" : "policykey",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 768,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "claimantnumber"
+            },
+            "name" : "claimantnumber",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          }
+        ],
+        "inputPortNames" : [
+          "PolicyKey1",
+          "ClaimNumber1",
+          "ClaimantNumber1"
+        ],
+        "lookupConditions" : [
+          {
+            "leftOperand" : "policykey",
+            "operator" : "=",
+            "rightOperand" : "PolicyKey1"
+          },
+          {
+            "leftOperand" : "claimnumber",
+            "operator" : "=",
+            "rightOperand" : "ClaimNumber1"
+          },
+          {
+            "leftOperand" : "claimantnumber",
+            "operator" : "=",
+            "rightOperand" : "ClaimantNumber1"
+          }
+        ],
+        "dataAdapter" : {
+          "connectionId$" : {
+            "name" : "DBConnection_TGT"
+          },
+          "excludeDynamicFileNameField" : "false",
+          "objectType" : "SINGLE",
+          "typeSystem" : "TOOLKIT",
+          "useDynamicFileName" : "false",
+          "object" : {
+            "name" : "dbo/litigationdetail",
+            "label" : "litigationdetail",
+            "objectName" : "litigationdetail",
+            "objectType" : "amazonredshift",
+            "path" : "dbo/litigationdetail",
+            "retainMetadata" : "false",
+            "fields" : [
+              {
+                "name" : "litigationkey",
+                "fieldType" : "CONNECTOR",
+                "label" : "litigationkey",
+                "nativeName" : "litigationkey",
+                "nativeType" : "int8",
+                "original" : "false",
+                "precision" : 19,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "litigationdetail"
+                  }
+                ]
+              },
+              {
+                "name" : "claimnumber",
+                "fieldType" : "CONNECTOR",
+                "label" : "claimnumber",
+                "nativeName" : "claimnumber",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 768,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "litigationdetail"
+                  }
+                ]
+              },
+              {
+                "name" : "policykey",
+                "fieldType" : "CONNECTOR",
+                "label" : "policykey",
+                "nativeName" : "policykey",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 768,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "litigationdetail"
+                  }
+                ]
+              },
+              {
+                "name" : "claimantnumber",
+                "fieldType" : "CONNECTOR",
+                "label" : "claimantnumber",
+                "nativeName" : "claimantnumber",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "litigationdetail"
+                  }
+                ]
+              }
+            ],
+            "objectAttributes" : [
+              {
+                "name" : "recordType",
+                "value" : "TABLE"
+              }
+            ]
+          },
+          "readOptions" : {
+            "commandType" : 0,
+            "descending" : "false",
+            "queryAll" : "false",
+            "rowLimit" : 0,
+            "selectDistinct" : "false"
+          },
+          "runtimeAttributes" : {
+            "attributes" : [
+              {
+                "name" : "Read Mode",
+                "value" : "Direct"
+              },
+              {
+                "name" : "Fetch Size",
+                "value" : "10000"
+              },
+              {
+                "name" : "Enable Compression",
+                "value" : "YES"
+              },
+              {
+                "name" : "Temporary Credential Duration",
+                "value" : "7200"
+              },
+              {
+                "name" : "Treat NULL Value as NULL",
+                "value" : "NO"
+              },
+              {
+                "name" : "Encryption Type",
+                "value" : "None"
+              },
+              {
+                "name" : "Download S3 Files In Multiple Parts",
+                "value" : "NO"
+              },
+              {
+                "name" : "Multipart Download Threshold Size",
+                "value" : "5242880"
+              },
+              {
+                "name" : "Select Distinct",
+                "value" : "NO"
+              }
+            ]
+          },
+          "writeOptions" : {
+            "batchSize" : 0,
+            "bulkApi" : "false",
+            "handleDecimalRoundOff" : "false",
+            "handleSpecialChars" : "false",
+            "operations" : [
+              "Insert"
+            ],
+            "setFieldsToNull" : "false",
+            "truncate" : "false",
+            "useErrorFile" : "false",
+            "useExactSrcNames" : "false",
+            "useSuccessFile" : "false"
+          }
+        }
+      },
+      {
+        "description" : "This transformation is used to fetch the columns - Outside Counsel, Expert, Remediation Contractor and CAuseOrigin from the Litigation Associate, PArty Info and Name info tables\n",
+        "name" : "lkp_Derive_Additional_Fields",
+        "advancedProperties" : [
+          {
+            "name" : "Tracing Level",
+            "value" : "Normal"
+          },
+          {
+            "name" : "Lookup caching enabled",
+            "value" : "true"
+          },
+          {
+            "name" : "Lookup cache directory name",
+            "value" : "$PMCacheDir"
+          },
+          {
+            "name" : "Lookup cache persistent",
+            "value" : "false"
+          },
+          {
+            "name" : "Re-cache from lookup source",
+            "value" : "false"
+          },
+          {
+            "name" : "Lookup Data Cache Size",
+            "value" : "AUTO"
+          },
+          {
+            "name" : "Lookup Index Cache Size",
+            "value" : "AUTO"
+          },
+          {
+            "name" : "Dynamic Lookup Cache",
+            "value" : "false"
+          },
+          {
+            "name" : "Output Old Value On Update",
+            "value" : "false"
+          },
+          {
+            "name" : "Insert Else Update",
+            "value" : "false"
+          },
+          {
+            "name" : "Case Sensitive String Comparison",
+            "value" : "false"
+          },
+          {
+            "name" : "Sorted Input",
+            "value" : "false"
+          },
+          {
+            "name" : "Lookup source is static",
+            "value" : "false"
+          },
+          {
+            "name" : "Pre-build lookup cache",
+            "value" : "AUTO"
+          },
+          {
+            "name" : "Optional",
+            "value" : "true"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "false",
+            "name" : "DefaultGroup",
+            "output" : "false"
+          }
+        ],
+        "multipleMatchPolicy" : "Use Any Value",
+        "returnPortName" : "commercialname",
+        "unconnected" : "true",
+        "useLabels" : "false",
+        "fields" : [
+          {
+            "adapterField" : {
+              "name" : "commercialname"
+            },
+            "name" : "commercialname",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 360,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "systemid"
+            },
+            "name" : "systemid",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "associatetypecd"
+            },
+            "name" : "associatetypecd",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 360,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "parentid"
+            },
+            "name" : "parentid",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 360,
+            "scale" : 0
+          }
+        ],
+        "inputPortNames" : [
+          "in_SystemId",
+          "in_AssociateTypeCd",
+          "in_Id"
+        ],
+        "lookupConditions" : [
+          {
+            "leftOperand" : "systemid",
+            "operator" : "=",
+            "rightOperand" : "in_SystemId"
+          },
+          {
+            "leftOperand" : "associatetypecd",
+            "operator" : "=",
+            "rightOperand" : "in_AssociateTypeCd"
+          },
+          {
+            "leftOperand" : "parentid",
+            "operator" : "=",
+            "rightOperand" : "in_Id"
+          }
+        ],
+        "dataAdapter" : {
+          "connectionId$" : {
+            "name" : "DBConnection_TGT"
+          },
+          "excludeDynamicFileNameField" : "false",
+          "objectType" : "QUERY",
+          "typeSystem" : "TOOLKIT",
+          "useDynamicFileName" : "false",
+          "object" : {
+            "customQuery" : "SELECT nf.commercialname as CommercialName, clm.systemid as SystemId, la.associateTypecd as AssociateTypeCd\n,la.Parentid as ParentId\n FROM\ndbo.claim_stg clm inner join dbo.litigationassociate_stg la\non clm.systemid=la.systemid\njoin dbo.partyinfo_stg pf\non la.id=pf.parentid\nand clm.systemid=pf.systemid\njoin dbo.nameinfo_stg nf\non pf.id=nf.parentid\nand clm.systemid=nf.systemid --",
+            "retainMetadata" : "false",
+            "fields" : [
+              {
+                "name" : "commercialname",
+                "fieldType" : "CONNECTOR",
+                "label" : "commercialname",
+                "nativeName" : "commercialname",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 360,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "systemid",
+                "fieldType" : "CONNECTOR",
+                "label" : "systemid",
+                "nativeName" : "systemid",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "associatetypecd",
+                "fieldType" : "CONNECTOR",
+                "label" : "associatetypecd",
+                "nativeName" : "associatetypecd",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 360,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "parentid",
+                "fieldType" : "CONNECTOR",
+                "label" : "parentid",
+                "nativeName" : "parentid",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 360,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              }
+            ]
+          },
+          "readOptions" : {
+            "commandType" : 0,
+            "descending" : "false",
+            "queryAll" : "false",
+            "rowLimit" : 0,
+            "selectDistinct" : "false"
+          },
+          "runtimeAttributes" : {
+            "attributes" : [
+              {
+                "name" : "Read Mode",
+                "value" : "Direct"
+              },
+              {
+                "name" : "Fetch Size",
+                "value" : "10000"
+              },
+              {
+                "name" : "Enable Compression",
+                "value" : "YES"
+              },
+              {
+                "name" : "Temporary Credential Duration",
+                "value" : "7200"
+              },
+              {
+                "name" : "Treat NULL Value as NULL",
+                "value" : "NO"
+              },
+              {
+                "name" : "Encryption Type",
+                "value" : "None"
+              },
+              {
+                "name" : "Download S3 Files In Multiple Parts",
+                "value" : "NO"
+              },
+              {
+                "name" : "Multipart Download Threshold Size",
+                "value" : "5242880"
+              },
+              {
+                "name" : "Select Distinct",
+                "value" : "NO"
+              }
+            ]
+          },
+          "writeOptions" : {
+            "batchSize" : 0,
+            "bulkApi" : "false",
+            "handleDecimalRoundOff" : "false",
+            "handleSpecialChars" : "false",
+            "operations" : [
+              "Insert"
+            ],
+            "setFieldsToNull" : "false",
+            "truncate" : "false",
+            "useErrorFile" : "false",
+            "useExactSrcNames" : "false",
+            "useSuccessFile" : "false"
+          }
+        }
+      },
+      {
+        "name" : "lkp_Derive_Assigned_Other",
+        "advancedProperties" : [
+          {
+            "name" : "Tracing Level",
+            "value" : "Normal"
+          },
+          {
+            "name" : "Lookup caching enabled",
+            "value" : "true"
+          },
+          {
+            "name" : "Lookup cache directory name",
+            "value" : "$PMCacheDir"
+          },
+          {
+            "name" : "Lookup cache persistent",
+            "value" : "false"
+          },
+          {
+            "name" : "Re-cache from lookup source",
+            "value" : "false"
+          },
+          {
+            "name" : "Lookup Data Cache Size",
+            "value" : "AUTO"
+          },
+          {
+            "name" : "Lookup Index Cache Size",
+            "value" : "AUTO"
+          },
+          {
+            "name" : "Dynamic Lookup Cache",
+            "value" : "false"
+          },
+          {
+            "name" : "Output Old Value On Update",
+            "value" : "false"
+          },
+          {
+            "name" : "Insert Else Update",
+            "value" : "false"
+          },
+          {
+            "name" : "Case Sensitive String Comparison",
+            "value" : "false"
+          },
+          {
+            "name" : "Sorted Input",
+            "value" : "false"
+          },
+          {
+            "name" : "Lookup source is static",
+            "value" : "false"
+          },
+          {
+            "name" : "Pre-build lookup cache",
+            "value" : "AUTO"
+          },
+          {
+            "name" : "Optional",
+            "value" : "true"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "false",
+            "name" : "DefaultGroup",
+            "output" : "false"
+          }
+        ],
+        "multipleMatchPolicy" : "Use Any Value",
+        "returnPortName" : "commercialname",
+        "unconnected" : "true",
+        "useLabels" : "false",
+        "fields" : [
+          {
+            "adapterField" : {
+              "name" : "commercialname"
+            },
+            "name" : "commercialname",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 360,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "indexname"
+            },
+            "name" : "indexname",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 360,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "systemid"
+            },
+            "name" : "systemid",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "providertypecd"
+            },
+            "name" : "providertypecd",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 360,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "id"
+            },
+            "name" : "id",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 360,
+            "scale" : 0
+          }
+        ],
+        "inputPortNames" : [
+          "in_SystemId",
+          "in_ProviderTypeCd",
+          "in_ParentId"
+        ],
+        "lookupConditions" : [
+          {
+            "leftOperand" : "systemid",
+            "operator" : "=",
+            "rightOperand" : "in_SystemId"
+          },
+          {
+            "leftOperand" : "providertypecd",
+            "operator" : "=",
+            "rightOperand" : "in_ProviderTypeCd"
+          },
+          {
+            "leftOperand" : "id",
+            "operator" : "=",
+            "rightOperand" : "in_ParentId"
+          }
+        ],
+        "dataAdapter" : {
+          "connectionId$" : {
+            "name" : "DBConnection_TGT"
+          },
+          "excludeDynamicFileNameField" : "false",
+          "objectType" : "QUERY",
+          "typeSystem" : "TOOLKIT",
+          "useDynamicFileName" : "false",
+          "object" : {
+            "customQuery" : "SELECT nm.CommercialName as CommercialName, nm.IndexName as IndexName, clm.SystemId as SystemId, p.ProviderTypeCd as ProviderTypeCd \n,clm.Id as Id\nFROM dbo.claimant_stg clm\njoin dbo.assignedprovider_stg ap\non ap.systemid=clm.systemid\nand clm.id=ap.parentid\njoin dbo.provider_stg p\non p.systemid=ap.providerref\njoin dbo.nameinfo_stg nm\non nm.systemid=p.systemid\nand nm.cmmcontainer='Provider'\nwhere assignedprovidertypecd like 'AssignedOther%'\nand nametypecd='ProviderName'",
+            "retainMetadata" : "false",
+            "fields" : [
+              {
+                "name" : "commercialname",
+                "fieldType" : "CONNECTOR",
+                "label" : "commercialname",
+                "nativeName" : "commercialname",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 360,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "indexname",
+                "fieldType" : "CONNECTOR",
+                "label" : "indexname",
+                "nativeName" : "indexname",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 360,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "systemid",
+                "fieldType" : "CONNECTOR",
+                "label" : "systemid",
+                "nativeName" : "systemid",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "providertypecd",
+                "fieldType" : "CONNECTOR",
+                "label" : "providertypecd",
+                "nativeName" : "providertypecd",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 360,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "id",
+                "fieldType" : "CONNECTOR",
+                "label" : "id",
+                "nativeName" : "id",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 360,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              }
+            ]
+          },
+          "readOptions" : {
+            "commandType" : 0,
+            "descending" : "false",
+            "queryAll" : "false",
+            "rowLimit" : 0,
+            "selectDistinct" : "false"
+          },
+          "runtimeAttributes" : {
+            "attributes" : [
+              {
+                "name" : "Read Mode",
+                "value" : "Direct"
+              },
+              {
+                "name" : "Fetch Size",
+                "value" : "10000"
+              },
+              {
+                "name" : "Enable Compression",
+                "value" : "YES"
+              },
+              {
+                "name" : "Temporary Credential Duration",
+                "value" : "7200"
+              },
+              {
+                "name" : "Treat NULL Value as NULL",
+                "value" : "NO"
+              },
+              {
+                "name" : "Encryption Type",
+                "value" : "None"
+              },
+              {
+                "name" : "Download S3 Files In Multiple Parts",
+                "value" : "NO"
+              },
+              {
+                "name" : "Multipart Download Threshold Size",
+                "value" : "5242880"
+              },
+              {
+                "name" : "Select Distinct",
+                "value" : "NO"
+              }
+            ]
+          },
+          "writeOptions" : {
+            "batchSize" : 0,
+            "bulkApi" : "false",
+            "handleDecimalRoundOff" : "false",
+            "handleSpecialChars" : "false",
+            "operations" : [
+              "Insert"
+            ],
+            "setFieldsToNull" : "false",
+            "truncate" : "false",
+            "useErrorFile" : "false",
+            "useExactSrcNames" : "false",
+            "useSuccessFile" : "false"
+          }
+        }
+      },
+      {
+        "name" : "FIL_Transactions",
+        "advancedProperties" : [
+          {
+            "name" : "Tracing Level",
+            "value" : "Normal"
+          },
+          {
+            "name" : "Optional",
+            "value" : "true"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              },
+              {
+                "bulkRename" : "false",
+                "include" : "false",
+                "names" : [
+                  {
+                    "inputName" : "LitigationKey"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "advancedFilterCondition" : "SUBSTR(ClaimNumber, 0, 2) <> 'TX'"
+      },
+      {
+        "createTime" : "2023-11-08T11:03:04.113Z",
+        "name" : "Expression",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true",
+                "names" : [
+                  {
+                    "inputName" : "id",
+                    "outputName" : "Id"
+                  },
+                  {
+                    "inputName" : "parentid",
+                    "outputName" : "ParentId"
+                  },
+                  {
+                    "inputName" : "settlementamt",
+                    "outputName" : "SettlementAmt"
+                  },
+                  {
+                    "inputName" : "suitcloseddt",
+                    "outputName" : "SuitClosedDt"
+                  },
+                  {
+                    "inputName" : "suitdt",
+                    "outputName" : "SuitDt"
+                  },
+                  {
+                    "inputName" : "suitfiledind",
+                    "outputName" : "SuitFiledInd"
+                  },
+                  {
+                    "inputName" : "suitsettlementcd",
+                    "outputName" : "SuitSettlementCd"
+                  },
+                  {
+                    "inputName" : "suitstatuscd",
+                    "outputName" : "SuitStatusCd"
+                  },
+                  {
+                    "inputName" : "systemid",
+                    "outputName" : "SystemId"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "windowConfigurationEnabled" : "false",
+        "windowSpec" : {
+          "allRowsFollowing" : "false",
+          "allRowsPreceding" : "false",
+          "endOffset" : 0,
+          "startOffset" : 0,
+          "partitionKeys" : null
+        }
+      }
+    ]
+  },
+  "vcsExportTime" : "2026-01-31 06:36:49 PST"
+}
