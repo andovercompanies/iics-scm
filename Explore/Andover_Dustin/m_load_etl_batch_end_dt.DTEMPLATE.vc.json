@@ -1,0 +1,696 @@
+{
+  "content" : {
+    "allowMaxFieldLength" : "false",
+    "name" : "m_load_etl_batch_end_dt",
+    "specialCharacterSupport" : "false",
+    "links" : [
+      {
+        "link" : "UPD_Dt -> EXPTRANS1"
+      },
+      {
+        "link" : "EXPTRANS -> UPD_Dt"
+      },
+      {
+        "link" : "SQ_LoadBatchETLDt -> EXPTRANS"
+      },
+      {
+        "link" : "EXPTRANS1 -> LoadBatchETLDt1"
+      }
+    ],
+    "parameters" : [
+      {
+        "input" : "true",
+        "output" : "false",
+        "precision" : 0,
+        "scale" : 0,
+        "allowRuntimeOverride" : "true",
+        "expressionVariable" : "false",
+        "name" : "DBConnection_SRC",
+        "anonymousType" : {
+          "subType" : "TOOLKIT_CCI",
+          "typeSystem" : "TOOLKIT",
+          "connectionType" : "Amazon Redshift v2"
+        }
+      },
+      {
+        "input" : "true",
+        "output" : "false",
+        "precision" : 0,
+        "scale" : 0,
+        "allowRuntimeOverride" : "true",
+        "expressionVariable" : "false",
+        "name" : "DBConnection_TGT",
+        "anonymousType" : {
+          "subType" : "TOOLKIT_CCI",
+          "typeSystem" : "TOOLKIT",
+          "connectionType" : "Amazon Redshift v2"
+        }
+      },
+      {
+        "input" : "true",
+        "output" : "false",
+        "precision" : 0,
+        "scale" : 0,
+        "allowRuntimeOverride" : "false",
+        "expressionVariable" : "false",
+        "name" : "S3_Staging_Bucket"
+      }
+    ],
+    "transformations" : [
+      {
+        "name" : "LoadBatchETLDt1",
+        "advancedProperties" : [
+          {
+            "name" : "Forward Rejected Rows",
+            "value" : "true"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "false",
+            "conflictResolutions" : [
+              {
+                "precedingGroupName" : "DefaultGroup",
+                "precedingTxName" : "EXPTRANS1",
+                "rule" : {
+                  "bulkRename" : "true",
+                  "include" : "true",
+                  "bulkRenameOption" : {
+                    "pattern" : "^(ETLBatchStartSt|ETLBatchEndDt)$/$0_EXPTRANS1",
+                    "suffix" : "false"
+                  }
+                }
+              }
+            ],
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true",
+                "names" : [
+                  {
+                    "inputName" : "o_EndDt"
+                  },
+                  {
+                    "inputName" : "o_StartDt"
+                  },
+                  {
+                    "inputName" : "loadetltype"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "sessionProperties" : [
+          {
+            "name" : "Reject file directory",
+            "value" : "$PMBadFileDir\\"
+          },
+          {
+            "name" : "Reject filename",
+            "value" : "loadbatchetldt11.bad"
+          }
+        ],
+        "createTarget" : "false",
+        "fieldMappingMode" : "MANUAL",
+        "inputSorted" : "false",
+        "schemaProviderType" : "SELECTED_OBJECT",
+        "targetFieldsOrdered" : "false",
+        "updateColumns" : [
+          "loadetltype"
+        ],
+        "useLabels" : "false",
+        "useSequenceFields" : "false",
+        "fields" : [
+          {
+            "adapterField" : {
+              "name" : "loadetltype"
+            },
+            "name" : "loadetltype",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 360,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "etlbatchstartst"
+            },
+            "name" : "etlbatchstartst",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "etlbatchenddt"
+            },
+            "name" : "etlbatchenddt",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          }
+        ],
+        "dataAdapter" : {
+          "connectionId" : "saas:@aYZ4ekzHgIPeKpiaoqDLKP",
+          "connectionName" : "redshift_nonprod_andover_dw_dev",
+          "excludeDynamicFileNameField" : "false",
+          "objectType" : "SINGLE",
+          "typeSystem" : "TOOLKIT",
+          "useDynamicFileName" : "false",
+          "object" : {
+            "name" : "dbo/loadbatchetldt",
+            "label" : "loadbatchetldt",
+            "objectName" : "loadbatchetldt",
+            "objectType" : "amazonredshift",
+            "path" : "dbo/loadbatchetldt",
+            "retainMetadata" : "false",
+            "fields" : [
+              {
+                "name" : "loadetltype",
+                "fieldType" : "CONNECTOR",
+                "label" : "loadetltype",
+                "nativeName" : "loadetltype",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 360,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "loadbatchetldt"
+                  }
+                ]
+              },
+              {
+                "name" : "etlbatchstartst",
+                "fieldType" : "CONNECTOR",
+                "label" : "etlbatchstartst",
+                "nativeName" : "etlbatchstartst",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "loadbatchetldt"
+                  }
+                ]
+              },
+              {
+                "name" : "etlbatchenddt",
+                "fieldType" : "CONNECTOR",
+                "label" : "etlbatchenddt",
+                "nativeName" : "etlbatchenddt",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "loadbatchetldt"
+                  }
+                ]
+              }
+            ],
+            "objectAttributes" : [
+              {
+                "name" : "recordType",
+                "value" : "TABLE"
+              }
+            ]
+          },
+          "runtimeAttributes" : {
+            "attributes" : [
+              {
+                "name" : "S3 Bucket Name",
+                "value" : "$$S3_Staging_Bucket"
+              },
+              {
+                "name" : "Enable Compression",
+                "value" : "YES"
+              },
+              {
+                "name" : "Batch Size",
+                "value" : "2000000"
+              },
+              {
+                "name" : "Max Errors Per Batch Upload Insert",
+                "value" : "1"
+              },
+              {
+                "name" : "Truncate Target Table Before Data Upload",
+                "value" : "NO"
+              },
+              {
+                "name" : "WaitTime In Seconds For S3 File Consistency",
+                "value" : "0"
+              },
+              {
+                "name" : "Temporary Credential Duration",
+                "value" : "900"
+              },
+              {
+                "name" : "S3 Server Side Encryption",
+                "value" : "NO"
+              },
+              {
+                "name" : "S3 Client Side Encryption",
+                "value" : "NO"
+              },
+              {
+                "name" : "Analyze Target Table",
+                "value" : "NO"
+              },
+              {
+                "name" : "Vacuum Target Table",
+                "value" : "None"
+              },
+              {
+                "name" : "Treat Source Rows As",
+                "value" : "UPDATE"
+              },
+              {
+                "name" : "Transfer Manager Thread Pool Size",
+                "value" : "10"
+              },
+              {
+                "name" : "Minimum Upload Part Size",
+                "value" : "5242880"
+              },
+              {
+                "name" : "Preserve record order on write",
+                "value" : "NO"
+              },
+              {
+                "name" : "Number of files per batch",
+                "value" : "0"
+              }
+            ]
+          },
+          "writeOptions" : {
+            "batchSize" : 0,
+            "bulkApi" : "false",
+            "handleDecimalRoundOff" : "false",
+            "handleSpecialChars" : "false",
+            "operations" : [
+              "Rowbased"
+            ],
+            "setFieldsToNull" : "false",
+            "truncate" : "false",
+            "updateStrategyExpression" : "DD_UPDATE",
+            "useErrorFile" : "false",
+            "useExactSrcNames" : "false",
+            "useSuccessFile" : "false"
+          }
+        },
+        "manualMappings" : {
+          "mappingList" : [
+            {
+              "fromFieldName" : "o_StartDt",
+              "toField" : {
+                "name" : "etlbatchstartst"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "o_EndDt",
+              "toField" : {
+                "name" : "etlbatchenddt"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "loadetltype",
+              "toField" : {
+                "name" : "loadetltype"
+              },
+              "fromFieldNames" : null
+            }
+          ]
+        }
+      },
+      {
+        "name" : "SQ_LoadBatchETLDt",
+        "advancedProperties" : [
+          {
+            "name" : "Number Of Sorted Ports",
+            "value" : "0"
+          },
+          {
+            "name" : "Tracing Level",
+            "value" : "Normal"
+          },
+          {
+            "name" : "Is Partitionable",
+            "value" : "false"
+          },
+          {
+            "name" : "Output is deterministic",
+            "value" : "false"
+          },
+          {
+            "name" : "Output is repeatable",
+            "value" : "Never"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "false",
+            "name" : "DefaultGroup",
+            "output" : "true"
+          }
+        ],
+        "generateFilenamePort" : "false",
+        "useLabels" : "false",
+        "useSequenceFields" : "false",
+        "fields" : [
+          {
+            "adapterField" : {
+              "name" : "loadetltype"
+            },
+            "name" : "loadetltype",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 360,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "etlbatchstartst"
+            },
+            "name" : "etlbatchstartst",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "etlbatchenddt"
+            },
+            "name" : "etlbatchenddt",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          }
+        ],
+        "dataAdapter" : {
+          "connectionId" : "saas:@aYZ4ekzHgIPeKpiaoqDLKP",
+          "connectionName" : "redshift_nonprod_andover_dw_dev",
+          "excludeDynamicFileNameField" : "false",
+          "objectType" : "QUERY",
+          "typeSystem" : "TOOLKIT",
+          "useDynamicFileName" : "false",
+          "object" : {
+            "customQuery" : "select * from dbo.loadbatchetldt\nWHERE loadbatchetldt.loadetltype = 'wf_Load_Guidewire_import_tables'",
+            "retainMetadata" : "false",
+            "fields" : [
+              {
+                "name" : "loadetltype",
+                "fieldType" : "CONNECTOR",
+                "label" : "loadetltype",
+                "nativeName" : "loadetltype",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 360,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "etlbatchstartst",
+                "fieldType" : "CONNECTOR",
+                "label" : "etlbatchstartst",
+                "nativeName" : "etlbatchstartst",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "etlbatchenddt",
+                "fieldType" : "CONNECTOR",
+                "label" : "etlbatchenddt",
+                "nativeName" : "etlbatchenddt",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              }
+            ]
+          },
+          "readOptions" : {
+            "commandType" : 0,
+            "descending" : "false",
+            "queryAll" : "false",
+            "rowLimit" : 0,
+            "selectDistinct" : "false"
+          },
+          "runtimeAttributes" : {
+            "attributes" : [
+              {
+                "name" : "Read Mode",
+                "value" : "Direct"
+              },
+              {
+                "name" : "Fetch Size",
+                "value" : "10000"
+              },
+              {
+                "name" : "Enable Compression",
+                "value" : "YES"
+              },
+              {
+                "name" : "Temporary Credential Duration",
+                "value" : "900"
+              },
+              {
+                "name" : "Treat NULL Value as NULL",
+                "value" : "NO"
+              },
+              {
+                "name" : "Encryption Type",
+                "value" : "None"
+              },
+              {
+                "name" : "Download S3 Files In Multiple Parts",
+                "value" : "NO"
+              },
+              {
+                "name" : "Multipart Download Threshold Size",
+                "value" : "5242880"
+              },
+              {
+                "name" : "Select Distinct",
+                "value" : "NO"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "name" : "EXPTRANS1",
+        "advancedProperties" : [
+          {
+            "name" : "Tracing Level",
+            "value" : "Normal"
+          },
+          {
+            "name" : "Optional",
+            "value" : "true"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "windowConfigurationEnabled" : "false",
+        "fields" : [
+          {
+            "name" : "v_StartDt",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 100,
+            "scale" : 0,
+            "expFieldType" : "VARIABLE",
+            "expression" : "To_char(trunc(o_StartDt),'YYYY-MM-DD HH24:MI:SS.MS')"
+          },
+          {
+            "name" : "v_EndDt",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 100,
+            "scale" : 0,
+            "expFieldType" : "VARIABLE",
+            "expression" : "To_char(trunc(o_EndDt),'YYYY-MM-DD HH24:MI:SS.MS')"
+          },
+          {
+            "name" : "StrtDt",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 100,
+            "scale" : 0,
+            "expFieldType" : "VARIABLE",
+            "expression" : "SetVariable($$M_StartDt,v_StartDt)"
+          },
+          {
+            "name" : "EndDt",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 100,
+            "scale" : 0,
+            "expFieldType" : "VARIABLE",
+            "expression" : "SetVariable($$M_EndDt,v_EndDt)"
+          }
+        ]
+      },
+      {
+        "description" : "Expression Tx is added in place of MidStream Update Strategy Transformation. Transformation attributes propagated to target.",
+        "name" : "UPD_Dt",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "windowConfigurationEnabled" : "false",
+        "fields" : [
+          {
+            "name" : "Update_Strategy_Expression_65916",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 100,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "DD_Update"
+          }
+        ]
+      },
+      {
+        "name" : "EXPTRANS",
+        "advancedProperties" : [
+          {
+            "name" : "Tracing Level",
+            "value" : "Normal"
+          },
+          {
+            "name" : "Optional",
+            "value" : "true"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "windowConfigurationEnabled" : "false",
+        "fields" : [
+          {
+            "name" : "o_StartDt",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9,
+            "expFieldType" : "OUTPUT",
+            "expression" : "IIF(ISNULL(etlbatchenddt),TO_DATE('20180101 00:00:00','YYYYMMDD HH24:MI:SS'),ADD_TO_DATE(etlbatchenddt,'DD',-1)\n\n)"
+          },
+          {
+            "name" : "o_EndDt",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9,
+            "expFieldType" : "OUTPUT",
+            "expression" : "ADD_TO_DATE(sysdate,'DD',1)"
+          }
+        ]
+      }
+    ],
+    "variables" : [
+      {
+        "aggregationType" : "MAX",
+        "expressionVariable" : "false",
+        "name" : "M_StartDt",
+        "platformType" : {
+          "name" : "string"
+        },
+        "precision" : 120,
+        "retentionPolicy" : "NEVER",
+        "scale" : 0
+      },
+      {
+        "aggregationType" : "MAX",
+        "expressionVariable" : "false",
+        "name" : "M_EndDt",
+        "platformType" : {
+          "name" : "string"
+        },
+        "precision" : 120,
+        "retentionPolicy" : "NEVER",
+        "scale" : 0
+      }
+    ]
+  },
+  "vcsExportTime" : "2026-01-31 06:41:33 PST"
+}
