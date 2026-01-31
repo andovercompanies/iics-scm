@@ -1,0 +1,1288 @@
+{
+  "content" : {
+    "description" : "This mapping is used to load the data from GW partyinfo table to SQL server staging table.",
+    "allowMaxFieldLength" : "false",
+    "name" : "m_Load_Partyinfo_to_Partyinfo_Stg",
+    "specialCharacterSupport" : "false",
+    "links" : [
+      {
+        "link" : "SQ_partyinfo -> exp_Audit"
+      },
+      {
+        "link" : "SQ_partyinfo -> partyinfo_Stg"
+      },
+      {
+        "link" : "exp_Audit -> partyinfo_Stg"
+      }
+    ],
+    "parameters" : [
+      {
+        "input" : "true",
+        "output" : "false",
+        "precision" : 0,
+        "scale" : 0,
+        "allowRuntimeOverride" : "true",
+        "expressionVariable" : "false",
+        "name" : "DBConnection_SRCM",
+        "anonymousType" : {
+          "typeSystem" : "MySQL",
+          "connectionType" : "MySQL"
+        }
+      },
+      {
+        "input" : "true",
+        "output" : "false",
+        "precision" : 0,
+        "scale" : 0,
+        "allowRuntimeOverride" : "true",
+        "expressionVariable" : "false",
+        "name" : "DBConnection_TGT",
+        "anonymousType" : {
+          "subType" : "TOOLKIT_CCI",
+          "typeSystem" : "TOOLKIT",
+          "connectionType" : "Amazon Redshift v2"
+        }
+      },
+      {
+        "input" : "true",
+        "output" : "false",
+        "precision" : 0,
+        "scale" : 0,
+        "allowRuntimeOverride" : "false",
+        "expressionVariable" : "false",
+        "name" : "S3_Staging_Bucket"
+      }
+    ],
+    "transformations" : [
+      {
+        "name" : "partyinfo_Stg",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "false",
+            "conflictResolutions" : [
+              {
+                "precedingGroupName" : "DefaultGroup",
+                "precedingTxName" : "SQ_partyinfo",
+                "rule" : {
+                  "bulkRename" : "true",
+                  "include" : "true",
+                  "bulkRenameOption" : {
+                    "pattern" : "^(Id|SystemId)$/$0_SQ_partyinfo",
+                    "suffix" : "false"
+                  }
+                }
+              },
+              {
+                "precedingGroupName" : "DefaultGroup",
+                "precedingTxName" : "exp_Audit",
+                "rule" : {
+                  "bulkRename" : "true",
+                  "include" : "true",
+                  "bulkRenameOption" : {
+                    "pattern" : "^(SystemId)$/$0_exp_Audit",
+                    "suffix" : "false"
+                  }
+                }
+              }
+            ],
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              },
+              {
+                "bulkRename" : "false",
+                "include" : "false",
+                "names" : [
+                  {
+                    "inputName" : "out_Record_Created_By"
+                  },
+                  {
+                    "inputName" : "SystemId_exp_Audit"
+                  }
+                ]
+              },
+              {
+                "bulkRename" : "false",
+                "include" : "true",
+                "names" : [
+                  {
+                    "inputName" : "Desc",
+                    "outputName" : "PartyinfoDesc"
+                  },
+                  {
+                    "inputName" : "Status",
+                    "outputName" : "PartyinfoStatus"
+                  },
+                  {
+                    "inputName" : "Id_SQ_partyinfo",
+                    "outputName" : "Id"
+                  },
+                  {
+                    "inputName" : "SystemId_SQ_partyinfo",
+                    "outputName" : "SystemId"
+                  },
+                  {
+                    "inputName" : "out_RecrordCretedDttm",
+                    "outputName" : "RecordInsertedDttm"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "sessionProperties" : [
+          {
+            "name" : "Reject file directory",
+            "value" : "$PMBadFileDir\\"
+          },
+          {
+            "name" : "Reject filename",
+            "value" : "partyinfo_stg1.bad"
+          }
+        ],
+        "createTarget" : "false",
+        "fieldMappingMode" : "BY_NAME",
+        "inputSorted" : "false",
+        "schemaProviderType" : "SELECTED_OBJECT",
+        "targetFieldsOrdered" : "false",
+        "updateColumns" : null,
+        "useLabels" : "false",
+        "useSequenceFields" : "false",
+        "fields" : [
+          {
+            "adapterField" : {
+              "name" : "systemid"
+            },
+            "name" : "systemid",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "parentid"
+            },
+            "name" : "parentid",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 360,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "cmmcontainer"
+            },
+            "name" : "cmmcontainer",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 360,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "id"
+            },
+            "name" : "id",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 360,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "partytypecd"
+            },
+            "name" : "partytypecd",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 360,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "contactname"
+            },
+            "name" : "contactname",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 360,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "partyinfodesc"
+            },
+            "name" : "partyinfodesc",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 360,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "partyinfostatus"
+            },
+            "name" : "partyinfostatus",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 360,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "code"
+            },
+            "name" : "code",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 360,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "futurestatuscd"
+            },
+            "name" : "futurestatuscd",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 360,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "yearsofservice"
+            },
+            "name" : "yearsofservice",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "locationidref"
+            },
+            "name" : "locationidref",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 360,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "underlyingpolicyidref"
+            },
+            "name" : "underlyingpolicyidref",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 360,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "underlyingpartyinfoidref"
+            },
+            "name" : "underlyingpartyinfoidref",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 360,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "rowid"
+            },
+            "name" : "rowid",
+            "platformType" : {
+              "name" : "bigint"
+            },
+            "precision" : 19,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "recordinserteddttm"
+            },
+            "name" : "recordinserteddttm",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          }
+        ],
+        "dataAdapter" : {
+          "connectionId$" : {
+            "name" : "DBConnection_TGT"
+          },
+          "excludeDynamicFileNameField" : "false",
+          "objectType" : "SINGLE",
+          "typeSystem" : "TOOLKIT",
+          "useDynamicFileName" : "false",
+          "object" : {
+            "name" : "dbo/partyinfo_stg",
+            "label" : "partyinfo_stg",
+            "objectName" : "partyinfo_stg",
+            "objectType" : "amazonredshift",
+            "path" : "dbo/partyinfo_stg",
+            "retainMetadata" : "false",
+            "fields" : [
+              {
+                "name" : "systemid",
+                "fieldType" : "CONNECTOR",
+                "label" : "systemid",
+                "nativeName" : "systemid",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "partyinfo_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "parentid",
+                "fieldType" : "CONNECTOR",
+                "label" : "parentid",
+                "nativeName" : "parentid",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 360,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "partyinfo_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "cmmcontainer",
+                "fieldType" : "CONNECTOR",
+                "label" : "cmmcontainer",
+                "nativeName" : "cmmcontainer",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 360,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "partyinfo_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "id",
+                "fieldType" : "CONNECTOR",
+                "label" : "id",
+                "nativeName" : "id",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 360,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "partyinfo_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "partytypecd",
+                "fieldType" : "CONNECTOR",
+                "label" : "partytypecd",
+                "nativeName" : "partytypecd",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 360,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "partyinfo_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "contactname",
+                "fieldType" : "CONNECTOR",
+                "label" : "contactname",
+                "nativeName" : "contactname",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 360,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "partyinfo_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "partyinfodesc",
+                "fieldType" : "CONNECTOR",
+                "label" : "partyinfodesc",
+                "nativeName" : "partyinfodesc",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 360,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "partyinfo_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "partyinfostatus",
+                "fieldType" : "CONNECTOR",
+                "label" : "partyinfostatus",
+                "nativeName" : "partyinfostatus",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 360,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "partyinfo_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "code",
+                "fieldType" : "CONNECTOR",
+                "label" : "code",
+                "nativeName" : "code",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 360,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "partyinfo_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "futurestatuscd",
+                "fieldType" : "CONNECTOR",
+                "label" : "futurestatuscd",
+                "nativeName" : "futurestatuscd",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 360,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "partyinfo_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "yearsofservice",
+                "fieldType" : "CONNECTOR",
+                "label" : "yearsofservice",
+                "nativeName" : "yearsofservice",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "partyinfo_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "locationidref",
+                "fieldType" : "CONNECTOR",
+                "label" : "locationidref",
+                "nativeName" : "locationidref",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 360,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "partyinfo_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "underlyingpolicyidref",
+                "fieldType" : "CONNECTOR",
+                "label" : "underlyingpolicyidref",
+                "nativeName" : "underlyingpolicyidref",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 360,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "partyinfo_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "underlyingpartyinfoidref",
+                "fieldType" : "CONNECTOR",
+                "label" : "underlyingpartyinfoidref",
+                "nativeName" : "underlyingpartyinfoidref",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 360,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "partyinfo_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "rowid",
+                "fieldType" : "CONNECTOR",
+                "label" : "rowid",
+                "nativeName" : "rowid",
+                "nativeType" : "int8",
+                "original" : "false",
+                "precision" : 19,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "partyinfo_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "recordinserteddttm",
+                "fieldType" : "CONNECTOR",
+                "label" : "recordinserteddttm",
+                "nativeName" : "recordinserteddttm",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "partyinfo_stg"
+                  }
+                ]
+              }
+            ],
+            "objectAttributes" : [
+              {
+                "name" : "recordType",
+                "value" : "TABLE"
+              }
+            ]
+          },
+          "runtimeAttributes" : {
+            "attributes" : [
+              {
+                "name" : "S3 Bucket Name",
+                "value" : "$$S3_Staging_Bucket"
+              },
+              {
+                "name" : "Enable Compression",
+                "value" : "YES"
+              },
+              {
+                "name" : "Batch Size",
+                "value" : "2000000"
+              },
+              {
+                "name" : "Max Errors Per Batch Upload Insert",
+                "value" : "1"
+              },
+              {
+                "name" : "Truncate Target Table Before Data Upload",
+                "value" : "YES"
+              },
+              {
+                "name" : "WaitTime In Seconds For S3 File Consistency",
+                "value" : "0"
+              },
+              {
+                "name" : "Temporary Credential Duration",
+                "value" : "900"
+              },
+              {
+                "name" : "S3 Server Side Encryption",
+                "value" : "NO"
+              },
+              {
+                "name" : "S3 Client Side Encryption",
+                "value" : "NO"
+              },
+              {
+                "name" : "Analyze Target Table",
+                "value" : "NO"
+              },
+              {
+                "name" : "Vacuum Target Table",
+                "value" : "None"
+              },
+              {
+                "name" : "Treat Source Rows As",
+                "value" : "INSERT"
+              },
+              {
+                "name" : "Transfer Manager Thread Pool Size",
+                "value" : "10"
+              },
+              {
+                "name" : "Minimum Upload Part Size",
+                "value" : "5242880"
+              },
+              {
+                "name" : "Preserve record order on write",
+                "value" : "NO"
+              },
+              {
+                "name" : "Number of files per batch",
+                "value" : "0"
+              }
+            ]
+          },
+          "writeOptions" : {
+            "batchSize" : 0,
+            "bulkApi" : "false",
+            "handleDecimalRoundOff" : "false",
+            "handleSpecialChars" : "false",
+            "operations" : [
+              "Insert",
+              "Insert"
+            ],
+            "setFieldsToNull" : "false",
+            "truncate" : "false",
+            "useErrorFile" : "false",
+            "useExactSrcNames" : "false",
+            "useSuccessFile" : "false"
+          }
+        }
+      },
+      {
+        "description" : "This transformation is used to populate the audit fields\n",
+        "name" : "exp_Audit",
+        "advancedProperties" : [
+          {
+            "name" : "Tracing Level",
+            "value" : "Normal"
+          },
+          {
+            "name" : "Optional",
+            "value" : "true"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              },
+              {
+                "bulkRename" : "false",
+                "include" : "false",
+                "names" : [
+                  {
+                    "inputName" : "ParentId"
+                  },
+                  {
+                    "inputName" : "CMMContainer"
+                  },
+                  {
+                    "inputName" : "Id"
+                  },
+                  {
+                    "inputName" : "PartyTypeCd"
+                  },
+                  {
+                    "inputName" : "ContactName"
+                  },
+                  {
+                    "inputName" : "Desc"
+                  },
+                  {
+                    "inputName" : "Status"
+                  },
+                  {
+                    "inputName" : "Code"
+                  },
+                  {
+                    "inputName" : "FutureStatusCd"
+                  },
+                  {
+                    "inputName" : "YearsOfService"
+                  },
+                  {
+                    "inputName" : "LocationIdRef"
+                  },
+                  {
+                    "inputName" : "UnderLyingPolicyIdRef"
+                  },
+                  {
+                    "inputName" : "UnderLyingPartyInfoIdRef"
+                  },
+                  {
+                    "inputName" : "RowId"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "windowConfigurationEnabled" : "false",
+        "fields" : [
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "out_Record_Created_By",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 200,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "'$CurrentMappingName'"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "out_RecrordCretedDttm",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9,
+            "expFieldType" : "OUTPUT",
+            "expression" : "SESSSTARTTIME"
+          }
+        ]
+      },
+      {
+        "name" : "SQ_partyinfo",
+        "advancedProperties" : [
+          {
+            "name" : "Number Of Sorted Ports",
+            "value" : "0"
+          },
+          {
+            "name" : "Tracing Level",
+            "value" : "Normal"
+          },
+          {
+            "name" : "Is Partitionable",
+            "value" : "false"
+          },
+          {
+            "name" : "Output is deterministic",
+            "value" : "false"
+          },
+          {
+            "name" : "Output is repeatable",
+            "value" : "Never"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "false",
+            "name" : "DefaultGroup",
+            "output" : "true"
+          }
+        ],
+        "generateFilenamePort" : "false",
+        "useLabels" : "false",
+        "useSequenceFields" : "false",
+        "fields" : [
+          {
+            "adapterField" : {
+              "name" : "SystemId"
+            },
+            "name" : "SystemId",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "ParentId"
+            },
+            "name" : "ParentId",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 120,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "CMMContainer"
+            },
+            "name" : "CMMContainer",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 120,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "Id"
+            },
+            "name" : "Id",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 120,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "PartyTypeCd"
+            },
+            "name" : "PartyTypeCd",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 120,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "ContactName"
+            },
+            "name" : "ContactName",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 120,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "Desc"
+            },
+            "name" : "Desc",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 120,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "Status"
+            },
+            "name" : "Status",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 120,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "Code"
+            },
+            "name" : "Code",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 120,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "FutureStatusCd"
+            },
+            "name" : "FutureStatusCd",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 120,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "YearsOfService"
+            },
+            "name" : "YearsOfService",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "LocationIdRef"
+            },
+            "name" : "LocationIdRef",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 120,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "UnderLyingPolicyIdRef"
+            },
+            "name" : "UnderLyingPolicyIdRef",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 120,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "UnderLyingPartyInfoIdRef"
+            },
+            "name" : "UnderLyingPartyInfoIdRef",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 120,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "RowId"
+            },
+            "name" : "RowId",
+            "platformType" : {
+              "name" : "bigint"
+            },
+            "precision" : 19,
+            "scale" : 0
+          }
+        ],
+        "dataAdapter" : {
+          "connectionId$" : {
+            "name" : "DBConnection_SRCM"
+          },
+          "excludeDynamicFileNameField" : "false",
+          "objectType" : "QUERY",
+          "typeSystem" : "MySQL",
+          "useDynamicFileName" : "false",
+          "object" : {
+            "customQuery" : "SELECT distinct partyinfo.SystemId, partyinfo.ParentId, partyinfo.CMMContainer, partyinfo.Id, partyinfo.PartyTypeCd, partyinfo.ContactName, partyinfo.Desc, partyinfo.Status, partyinfo.Code, partyinfo.FutureStatusCd, partyinfo.YearsOfService, partyinfo.LocationIdRef, partyinfo.UnderLyingPolicyIdRef, partyinfo.UnderLyingPartyInfoIdRef, partyinfo.RowId \nFROM\n partyinfo\nwhere systemid in (select SystemId from advrxxchangedbeans where concat(adddt,addtm)>='$$m_StartDt' and concat(adddt,addtm) <='$$m_EndDt' and\n cmmcontainer='Claim')  and CMMContainer='Claim'",
+            "retainMetadata" : "false",
+            "fields" : [
+              {
+                "name" : "SystemId",
+                "fieldType" : "CONNECTOR",
+                "label" : "SystemId",
+                "nativeName" : "SystemId",
+                "nativeType" : "integer",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "partyinfo"
+                  }
+                ]
+              },
+              {
+                "name" : "ParentId",
+                "fieldType" : "CONNECTOR",
+                "label" : "ParentId",
+                "nativeName" : "ParentId",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 120,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "partyinfo"
+                  }
+                ]
+              },
+              {
+                "name" : "CMMContainer",
+                "fieldType" : "CONNECTOR",
+                "label" : "CMMContainer",
+                "nativeName" : "CMMContainer",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 120,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "partyinfo"
+                  }
+                ]
+              },
+              {
+                "name" : "Id",
+                "fieldType" : "CONNECTOR",
+                "label" : "Id",
+                "nativeName" : "Id",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 120,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "partyinfo"
+                  }
+                ]
+              },
+              {
+                "name" : "PartyTypeCd",
+                "fieldType" : "CONNECTOR",
+                "label" : "PartyTypeCd",
+                "nativeName" : "PartyTypeCd",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 120,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "partyinfo"
+                  }
+                ]
+              },
+              {
+                "name" : "ContactName",
+                "fieldType" : "CONNECTOR",
+                "label" : "ContactName",
+                "nativeName" : "ContactName",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 120,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "partyinfo"
+                  }
+                ]
+              },
+              {
+                "name" : "Desc",
+                "fieldType" : "CONNECTOR",
+                "label" : "Desc",
+                "nativeName" : "Desc",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 120,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "partyinfo"
+                  }
+                ]
+              },
+              {
+                "name" : "Status",
+                "fieldType" : "CONNECTOR",
+                "label" : "Status",
+                "nativeName" : "Status",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 120,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "partyinfo"
+                  }
+                ]
+              },
+              {
+                "name" : "Code",
+                "fieldType" : "CONNECTOR",
+                "label" : "Code",
+                "nativeName" : "Code",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 120,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "partyinfo"
+                  }
+                ]
+              },
+              {
+                "name" : "FutureStatusCd",
+                "fieldType" : "CONNECTOR",
+                "label" : "FutureStatusCd",
+                "nativeName" : "FutureStatusCd",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 120,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "partyinfo"
+                  }
+                ]
+              },
+              {
+                "name" : "YearsOfService",
+                "fieldType" : "CONNECTOR",
+                "label" : "YearsOfService",
+                "nativeName" : "YearsOfService",
+                "nativeType" : "integer",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "partyinfo"
+                  }
+                ]
+              },
+              {
+                "name" : "LocationIdRef",
+                "fieldType" : "CONNECTOR",
+                "label" : "LocationIdRef",
+                "nativeName" : "LocationIdRef",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 120,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "partyinfo"
+                  }
+                ]
+              },
+              {
+                "name" : "UnderLyingPolicyIdRef",
+                "fieldType" : "CONNECTOR",
+                "label" : "UnderLyingPolicyIdRef",
+                "nativeName" : "UnderLyingPolicyIdRef",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 120,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "partyinfo"
+                  }
+                ]
+              },
+              {
+                "name" : "UnderLyingPartyInfoIdRef",
+                "fieldType" : "CONNECTOR",
+                "label" : "UnderLyingPartyInfoIdRef",
+                "nativeName" : "UnderLyingPartyInfoIdRef",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 120,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "partyinfo"
+                  }
+                ]
+              },
+              {
+                "name" : "RowId",
+                "fieldType" : "CONNECTOR",
+                "label" : "RowId",
+                "nativeName" : "RowId",
+                "nativeType" : "bigint",
+                "original" : "false",
+                "precision" : 19,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "partyinfo"
+                  }
+                ]
+              }
+            ]
+          },
+          "readOptions" : {
+            "commandType" : 0,
+            "descending" : "false",
+            "queryAll" : "false",
+            "rowLimit" : 0,
+            "selectDistinct" : "false"
+          }
+        }
+      }
+    ],
+    "variables" : [
+      {
+        "aggregationType" : "MAX",
+        "expressionVariable" : "false",
+        "name" : "m_StartDt",
+        "platformType" : {
+          "name" : "string"
+        },
+        "precision" : 120,
+        "retentionPolicy" : "NEVER",
+        "scale" : 0
+      },
+      {
+        "aggregationType" : "MAX",
+        "expressionVariable" : "false",
+        "name" : "m_EndDt",
+        "platformType" : {
+          "name" : "string"
+        },
+        "precision" : 120,
+        "retentionPolicy" : "NEVER",
+        "scale" : 0
+      }
+    ]
+  },
+  "vcsExportTime" : "2026-01-31 07:40:31 PST"
+}

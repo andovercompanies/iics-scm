@@ -1,0 +1,1276 @@
+{
+  "content" : {
+    "allowMaxFieldLength" : "false",
+    "bigIntConvertType" : "ONLY_BIGINT",
+    "documentType" : "MAPPING",
+    "name" : "m_Insert_Batch_Table",
+    "specialCharacterSupport" : "false",
+    "links" : [
+      {
+        "link" : "Src_BatchLoadSummary -> Exp_Fields"
+      },
+      {
+        "link" : "Router_BatchStatus -> Tgt_ImportFile_S3_BatchLoadSummary",
+        "groupLink" : "DEFAULT1 -> DefaultGroup"
+      },
+      {
+        "link" : "Router_BatchStatus -> Tgt_BatchLoadSummary",
+        "groupLink" : "BatchStatus -> DefaultGroup"
+      },
+      {
+        "link" : "Exp_Fields -> Router_BatchStatus",
+        "groupLink" : "DefaultGroup -> INPUT"
+      }
+    ],
+    "parameters" : [
+      {
+        "input" : "true",
+        "output" : "false",
+        "precision" : 0,
+        "scale" : 0,
+        "allowRuntimeOverride" : "true",
+        "expressionVariable" : "false",
+        "name" : "DBConnection_SRC",
+        "anonymousType" : {
+          "subType" : "TOOLKIT_CCI",
+          "typeSystem" : "TOOLKIT",
+          "connectionType" : "Amazon Redshift v2"
+        }
+      },
+      {
+        "input" : "true",
+        "output" : "false",
+        "precision" : 0,
+        "scale" : 0,
+        "allowRuntimeOverride" : "true",
+        "expressionVariable" : "false",
+        "name" : "DBConnection_TGT",
+        "anonymousType" : {
+          "subType" : "TOOLKIT_CCI",
+          "typeSystem" : "TOOLKIT",
+          "connectionType" : "Amazon Redshift v2"
+        }
+      },
+      {
+        "input" : "true",
+        "output" : "false",
+        "precision" : 0,
+        "scale" : 0,
+        "allowRuntimeOverride" : "true",
+        "expressionVariable" : "false",
+        "name" : "FF_Conn_Agent",
+        "anonymousType" : {
+          "subType" : "TOOLKIT_CCI",
+          "typeSystem" : "TOOLKIT",
+          "connectionType" : "Amazon S3 v2"
+        }
+      },
+      {
+        "input" : "true",
+        "output" : "false",
+        "precision" : 0,
+        "scale" : 0,
+        "allowRuntimeOverride" : "false",
+        "expressionVariable" : "false",
+        "name" : "S3_Staging_Bucket"
+      }
+    ],
+    "transformations" : [
+      {
+        "createTime" : "2023-10-06T13:37:30.100Z",
+        "name" : "Src_BatchLoadSummary",
+        "advancedProperties" : [
+          {
+            "name" : "Tracing Level",
+            "value" : "Normal"
+          },
+          {
+            "name" : "Output is deterministic",
+            "value" : "false"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "false",
+            "name" : "DefaultGroup",
+            "output" : "true"
+          }
+        ],
+        "generateFilenamePort" : "false",
+        "useLabels" : "false",
+        "useSequenceFields" : "false",
+        "fields" : [
+          {
+            "adapterField" : {
+              "name" : "batchstatus"
+            },
+            "name" : "batchstatus",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 30,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "max_batchid"
+            },
+            "name" : "max_batchid",
+            "platformType" : {
+              "name" : "bigint"
+            },
+            "precision" : 19,
+            "scale" : 0
+          }
+        ],
+        "dataAdapter" : {
+          "connectionId$" : {
+            "name" : "DBConnection_SRC"
+          },
+          "excludeDynamicFileNameField" : "false",
+          "objectType" : "QUERY",
+          "typeSystem" : "TOOLKIT",
+          "useDynamicFileName" : "false",
+          "object" : {
+            "customQuery" : "select batchstatus, batchid as max_batchid \nfrom dbo.batchloadsummary \nwhere batchstartdt  =(select max(batchstartdt) \nfrom dbo.batchloadsummary where flowname='GW')",
+            "retainMetadata" : "false",
+            "fields" : [
+              {
+                "name" : "batchstatus",
+                "fieldType" : "CONNECTOR",
+                "label" : "batchstatus",
+                "nativeName" : "batchstatus",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 30,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              },
+              {
+                "name" : "max_batchid",
+                "fieldType" : "CONNECTOR",
+                "label" : "max_batchid",
+                "nativeName" : "max_batchid",
+                "nativeType" : "int8",
+                "original" : "false",
+                "precision" : 19,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "INFARS_CUSTOM_SCHEMA"
+                  }
+                ]
+              }
+            ]
+          },
+          "readOptions" : {
+            "commandType" : 0,
+            "descending" : "false",
+            "queryAll" : "false",
+            "rowLimit" : 0,
+            "selectDistinct" : "false"
+          },
+          "runtimeAttributes" : {
+            "attributes" : [
+              {
+                "name" : "Read Mode",
+                "value" : "Direct"
+              },
+              {
+                "name" : "Fetch Size",
+                "value" : "10000"
+              },
+              {
+                "name" : "Enable Compression",
+                "value" : "YES"
+              },
+              {
+                "name" : "Temporary Credential Duration",
+                "value" : "900"
+              },
+              {
+                "name" : "Treat NULL Value as NULL",
+                "value" : "NO"
+              },
+              {
+                "name" : "Encryption Type",
+                "value" : "None"
+              },
+              {
+                "name" : "Download S3 Files In Multiple Parts",
+                "value" : "NO"
+              },
+              {
+                "name" : "Multipart Download Threshold Size",
+                "value" : "5242880"
+              },
+              {
+                "name" : "Select Distinct",
+                "value" : "NO"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "createTime" : "2023-10-06T13:37:30.102Z",
+        "name" : "Tgt_ImportFile_S3_BatchLoadSummary",
+        "advancedProperties" : [
+          {
+            "name" : "Forward Rejected Rows",
+            "value" : "true"
+          },
+          {
+            "name" : "Thousand Separator",
+            "value" : "None"
+          },
+          {
+            "name" : "Decimal Separator",
+            "value" : "."
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "false",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              },
+              {
+                "bulkRename" : "false",
+                "include" : "false",
+                "names" : [
+                  {
+                    "inputName" : "batchenddt"
+                  },
+                  {
+                    "inputName" : "batchfaileddt"
+                  },
+                  {
+                    "inputName" : "batchstartdt"
+                  },
+                  {
+                    "inputName" : "batchstartsessname"
+                  },
+                  {
+                    "inputName" : "batchstartwfname"
+                  },
+                  {
+                    "inputName" : "failedsessname"
+                  },
+                  {
+                    "inputName" : "failedwfname"
+                  },
+                  {
+                    "inputName" : "flowname"
+                  },
+                  {
+                    "inputName" : "tableaurefreshflag"
+                  },
+                  {
+                    "inputName" : "tgt_batchstatus"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "sessionProperties" : [
+          {
+            "name" : "Append if Exists",
+            "value" : "NO"
+          },
+          {
+            "name" : "Create Target Directory",
+            "value" : "NO"
+          },
+          {
+            "name" : "Header Options",
+            "value" : "Output Field Names"
+          },
+          {
+            "name" : "Output Type",
+            "value" : "File"
+          }
+        ],
+        "createTarget" : "true",
+        "fieldMappingMode" : "BY_NAME",
+        "inputSorted" : "false",
+        "schemaProviderType" : "SELECTED_OBJECT",
+        "targetFieldsOrdered" : "false",
+        "updateColumns" : null,
+        "useLabels" : "false",
+        "useSequenceFields" : "false",
+        "fields" : [
+          {
+            "adapterField" : {
+              "name" : "BatchRunMessage"
+            },
+            "name" : "BatchRunMessage",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 100,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "batchstatus"
+            },
+            "name" : "batchstatus",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 30,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "max_batchid"
+            },
+            "name" : "max_batchid",
+            "platformType" : {
+              "name" : "bigint"
+            },
+            "precision" : 19,
+            "scale" : 0
+          }
+        ],
+        "dataAdapter" : {
+          "connectionId$" : {
+            "name" : "FF_Conn_Agent"
+          },
+          "excludeDynamicFileNameField" : "false",
+          "objectType" : "SINGLE",
+          "typeSystem" : "TOOLKIT",
+          "useDynamicFileName" : "false",
+          "bulkOptions" : {
+            "hardDelete" : "false",
+            "maxRowsPerRequest" : 0,
+            "monitorBulk" : "false",
+            "monitorBulkV2" : "false",
+            "pkChunkingEnabled" : "false",
+            "pkChunkingSize" : 0,
+            "serialMode" : "false",
+            "useBulkApi" : "false",
+            "useBulkApiV2" : "false"
+          },
+          "dataFormat" : {
+            "formatId" : "Flat",
+            "validateHSchema" : "false",
+            "attributes" : [
+              {
+                "name" : "delimiter",
+                "value" : ","
+              },
+              {
+                "name" : "escapeChar",
+                "value" : "\\"
+              },
+              {
+                "name" : "qualifier",
+                "value" : "\""
+              },
+              {
+                "name" : "qualifierMode",
+                "value" : "MINIMAL"
+              },
+              {
+                "name" : "disableEscapeChar",
+                "value" : "true"
+              },
+              {
+                "name" : "codePage",
+                "value" : "UTF-8"
+              },
+              {
+                "name" : "headerLineNumber",
+                "value" : "1"
+              },
+              {
+                "name" : "firstDataRow",
+                "value" : "2"
+              },
+              {
+                "name" : "targetHeader",
+                "value" : "With Header"
+              },
+              {
+                "name" : "importColumnFromFirstLine",
+                "value" : "true"
+              },
+              {
+                "name" : "generateHeader",
+                "value" : "true"
+              },
+              {
+                "name" : "fixedWidthMode",
+                "value" : "false"
+              },
+              {
+                "name" : "maxRowsToPreview",
+                "value" : "0"
+              }
+            ]
+          },
+          "object" : {
+            "name" : "/temp/BatchIns.txt",
+            "label" : "/temp/BatchIns.txt",
+            "path" : "/temp/BatchIns.txt",
+            "retainMetadata" : "false",
+            "fields" : [
+              {
+                "name" : "BatchRunMessage",
+                "fieldType" : "PARSER",
+                "label" : "BatchRunMessage",
+                "nativeName" : "BatchRunMessage",
+                "nativeType" : "flat_string",
+                "original" : "false",
+                "precision" : 100,
+                "scale" : 0,
+                "metaExtensions" : [
+                  {
+                    "name" : "partitionOrder",
+                    "value" : "0"
+                  }
+                ],
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "BatchIns.txt"
+                  }
+                ]
+              },
+              {
+                "name" : "batchstatus",
+                "fieldType" : "PARSER",
+                "label" : "batchstatus",
+                "nativeName" : "batchstatus",
+                "nativeType" : "flat_string",
+                "original" : "false",
+                "precision" : 30,
+                "scale" : 0,
+                "metaExtensions" : [
+                  {
+                    "name" : "partitionOrder",
+                    "value" : "0"
+                  }
+                ],
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "BatchIns.txt"
+                  }
+                ]
+              },
+              {
+                "name" : "max_batchid",
+                "fieldType" : "PARSER",
+                "label" : "max_batchid",
+                "nativeName" : "max_batchid",
+                "nativeType" : "flat_bigint",
+                "original" : "false",
+                "precision" : 19,
+                "scale" : 0,
+                "metaExtensions" : [
+                  {
+                    "name" : "partitionOrder",
+                    "value" : "0"
+                  }
+                ],
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "BatchIns.txt"
+                  }
+                ]
+              }
+            ],
+            "objectAttributes" : [
+              {
+                "name" : "parent",
+                "value" : "/temp"
+              }
+            ]
+          },
+          "runtimeAttributes" : {
+            "attributes" : [
+              {
+                "name" : "Overwrite File If Exists",
+                "value" : "YES"
+              },
+              {
+                "name" : "Encryption Type",
+                "value" : "None"
+              },
+              {
+                "name" : "File Merge",
+                "value" : "NO"
+              },
+              {
+                "name" : "Compression Format",
+                "value" : "None"
+              },
+              {
+                "name" : "TransferManager Thread Pool Size",
+                "value" : "10"
+              },
+              {
+                "name" : "Part Size",
+                "value" : "5242880"
+              },
+              {
+                "name" : "Merge Partition Files",
+                "value" : "NO"
+              },
+              {
+                "name" : "Temporary Credential Duration",
+                "value" : "900"
+              }
+            ]
+          },
+          "writeOptions" : {
+            "batchSize" : 0,
+            "bulkApi" : "false",
+            "handleDecimalRoundOff" : "false",
+            "handleSpecialChars" : "false",
+            "operations" : [
+              "Insert"
+            ],
+            "setFieldsToNull" : "false",
+            "truncate" : "false",
+            "useErrorFile" : "false",
+            "useExactSrcNames" : "false",
+            "useSuccessFile" : "false",
+            "tgtObjectAttributes" : [
+              {
+                "name" : "parent",
+                "value" : "/temp"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "createTime" : "2023-10-06T13:37:36.181Z",
+        "name" : "Exp_Fields",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "windowConfigurationEnabled" : "false",
+        "fields" : [
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "batchstartdt",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9,
+            "expFieldType" : "OUTPUT",
+            "expression" : "sysdate"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "BatchRunMessage",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 100,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "'No New Batch created'"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "flowname",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 255,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "'GW'"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "batchstartwfname",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 255,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "'A'"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "batchstartsessname",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 255,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "'B'"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "failedwfname",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 255,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "''"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "failedsessname",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 255,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "''"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "tgt_batchstatus",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 255,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "'I'"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "tableaurefreshflag",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 255,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "'N'"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "batchfaileddt",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9,
+            "expFieldType" : "OUTPUT",
+            "expression" : "NULL"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "batchenddt",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9,
+            "expFieldType" : "OUTPUT",
+            "expression" : "NULL"
+          }
+        ],
+        "windowSpec" : {
+          "allRowsFollowing" : "false",
+          "allRowsPreceding" : "false",
+          "endOffset" : 0,
+          "startOffset" : 0,
+          "partitionKeys" : null
+        }
+      },
+      {
+        "createTime" : "2023-10-06T13:37:42.463Z",
+        "name" : "Router_BatchStatus",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "INPUT",
+            "output" : "false",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          },
+          {
+            "input" : "false",
+            "name" : "DEFAULT1",
+            "output" : "true"
+          },
+          {
+            "input" : "false",
+            "name" : "BatchStatus",
+            "output" : "true"
+          }
+        ],
+        "groupFilterConditions" : [
+          {
+            "name" : "BatchStatus",
+            "simpleFilterConditions" : [
+              {
+                "fieldName" : "batchstatus",
+                "filterValue" : "F",
+                "operator" : "="
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "createTime" : "2023-10-06T13:37:30.102Z",
+        "name" : "Tgt_BatchLoadSummary",
+        "advancedProperties" : [
+          {
+            "name" : "Forward Rejected Rows",
+            "value" : "true"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "false",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              },
+              {
+                "bulkRename" : "false",
+                "include" : "false",
+                "names" : [
+                  {
+                    "inputName" : "batchstatus"
+                  },
+                  {
+                    "inputName" : "BatchRunMessage"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "createTarget" : "false",
+        "fieldMappingMode" : "MANUAL",
+        "inputSorted" : "false",
+        "schemaProviderType" : "SELECTED_OBJECT",
+        "targetFieldsOrdered" : "false",
+        "updateColumns" : null,
+        "useLabels" : "false",
+        "useSequenceFields" : "false",
+        "fields" : [
+          {
+            "adapterField" : {
+              "name" : "batchid"
+            },
+            "name" : "batchid",
+            "platformType" : {
+              "name" : "bigint"
+            },
+            "precision" : 19,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "flowname"
+            },
+            "name" : "flowname",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 65535,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "batchstartwfname"
+            },
+            "name" : "batchstartwfname",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 65535,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "batchstartsessname"
+            },
+            "name" : "batchstartsessname",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 65535,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "failedwfname"
+            },
+            "name" : "failedwfname",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 65535,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "failedsessname"
+            },
+            "name" : "failedsessname",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 65535,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "batchstatus"
+            },
+            "name" : "batchstatus",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 30,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "tableaurefreshflag"
+            },
+            "name" : "tableaurefreshflag",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 30,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "batchstartdt"
+            },
+            "name" : "batchstartdt",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "batchfaileddt"
+            },
+            "name" : "batchfaileddt",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "batchenddt"
+            },
+            "name" : "batchenddt",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          }
+        ],
+        "dataAdapter" : {
+          "connectionId$" : {
+            "name" : "DBConnection_TGT"
+          },
+          "excludeDynamicFileNameField" : "false",
+          "objectType" : "SINGLE",
+          "typeSystem" : "TOOLKIT",
+          "useDynamicFileName" : "false",
+          "object" : {
+            "name" : "dbo/batchloadsummary",
+            "label" : "batchloadsummary",
+            "objectName" : "batchloadsummary",
+            "objectType" : "amazonredshift",
+            "path" : "dbo/batchloadsummary",
+            "retainMetadata" : "false",
+            "fields" : [
+              {
+                "name" : "batchid",
+                "fieldType" : "CONNECTOR",
+                "label" : "batchid",
+                "nativeName" : "batchid",
+                "nativeType" : "int8",
+                "original" : "false",
+                "precision" : 19,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "batchloadsummary"
+                  }
+                ]
+              },
+              {
+                "name" : "flowname",
+                "fieldType" : "CONNECTOR",
+                "label" : "flowname",
+                "nativeName" : "flowname",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 65535,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "batchloadsummary"
+                  }
+                ]
+              },
+              {
+                "name" : "batchstartwfname",
+                "fieldType" : "CONNECTOR",
+                "label" : "batchstartwfname",
+                "nativeName" : "batchstartwfname",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 65535,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "batchloadsummary"
+                  }
+                ]
+              },
+              {
+                "name" : "batchstartsessname",
+                "fieldType" : "CONNECTOR",
+                "label" : "batchstartsessname",
+                "nativeName" : "batchstartsessname",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 65535,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "batchloadsummary"
+                  }
+                ]
+              },
+              {
+                "name" : "failedwfname",
+                "fieldType" : "CONNECTOR",
+                "label" : "failedwfname",
+                "nativeName" : "failedwfname",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 65535,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "batchloadsummary"
+                  }
+                ]
+              },
+              {
+                "name" : "failedsessname",
+                "fieldType" : "CONNECTOR",
+                "label" : "failedsessname",
+                "nativeName" : "failedsessname",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 65535,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "batchloadsummary"
+                  }
+                ]
+              },
+              {
+                "name" : "batchstatus",
+                "fieldType" : "CONNECTOR",
+                "label" : "batchstatus",
+                "nativeName" : "batchstatus",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 30,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "batchloadsummary"
+                  }
+                ]
+              },
+              {
+                "name" : "tableaurefreshflag",
+                "fieldType" : "CONNECTOR",
+                "label" : "tableaurefreshflag",
+                "nativeName" : "tableaurefreshflag",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 30,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "batchloadsummary"
+                  }
+                ]
+              },
+              {
+                "name" : "batchstartdt",
+                "fieldType" : "CONNECTOR",
+                "label" : "batchstartdt",
+                "nativeName" : "batchstartdt",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "batchloadsummary"
+                  }
+                ]
+              },
+              {
+                "name" : "batchfaileddt",
+                "fieldType" : "CONNECTOR",
+                "label" : "batchfaileddt",
+                "nativeName" : "batchfaileddt",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "batchloadsummary"
+                  }
+                ]
+              },
+              {
+                "name" : "batchenddt",
+                "fieldType" : "CONNECTOR",
+                "label" : "batchenddt",
+                "nativeName" : "batchenddt",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "batchloadsummary"
+                  }
+                ]
+              }
+            ],
+            "objectAttributes" : [
+              {
+                "name" : "recordType",
+                "value" : "TABLE"
+              }
+            ]
+          },
+          "runtimeAttributes" : {
+            "attributes" : [
+              {
+                "name" : "S3 Bucket Name",
+                "value" : "$$S3_Staging_Bucket"
+              },
+              {
+                "name" : "Enable Compression",
+                "value" : "YES"
+              },
+              {
+                "name" : "Batch Size",
+                "value" : "2000000"
+              },
+              {
+                "name" : "Max Errors Per Batch Upload Insert",
+                "value" : "1"
+              },
+              {
+                "name" : "Truncate Target Table Before Data Upload",
+                "value" : "NO"
+              },
+              {
+                "name" : "WaitTime In Seconds For S3 File Consistency",
+                "value" : "0"
+              },
+              {
+                "name" : "Temporary Credential Duration",
+                "value" : "900"
+              },
+              {
+                "name" : "S3 Server Side Encryption",
+                "value" : "NO"
+              },
+              {
+                "name" : "S3 Client Side Encryption",
+                "value" : "NO"
+              },
+              {
+                "name" : "Analyze Target Table",
+                "value" : "NO"
+              },
+              {
+                "name" : "Vacuum Target Table",
+                "value" : "None"
+              },
+              {
+                "name" : "Treat Source Rows As",
+                "value" : "INSERT"
+              },
+              {
+                "name" : "Transfer Manager Thread Pool Size",
+                "value" : "10"
+              },
+              {
+                "name" : "Minimum Upload Part Size",
+                "value" : "5242880"
+              },
+              {
+                "name" : "Preserve record order on write",
+                "value" : "NO"
+              },
+              {
+                "name" : "Number of files per batch",
+                "value" : "0"
+              }
+            ]
+          },
+          "writeOptions" : {
+            "batchSize" : 0,
+            "bulkApi" : "false",
+            "handleDecimalRoundOff" : "false",
+            "handleSpecialChars" : "false",
+            "operations" : [
+              "Insert"
+            ],
+            "setFieldsToNull" : "false",
+            "truncate" : "false",
+            "useErrorFile" : "false",
+            "useExactSrcNames" : "false",
+            "useSuccessFile" : "false"
+          }
+        },
+        "manualMappings" : {
+          "mappingList" : [
+            {
+              "fromFieldName" : "batchstartdt",
+              "toField" : {
+                "name" : "batchstartdt"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "flowname",
+              "toField" : {
+                "name" : "flowname"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "batchstartwfname",
+              "toField" : {
+                "name" : "batchstartwfname"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "batchstartsessname",
+              "toField" : {
+                "name" : "batchstartsessname"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "failedwfname",
+              "toField" : {
+                "name" : "failedwfname"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "failedsessname",
+              "toField" : {
+                "name" : "failedsessname"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "tableaurefreshflag",
+              "toField" : {
+                "name" : "tableaurefreshflag"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "batchfaileddt",
+              "toField" : {
+                "name" : "batchfaileddt"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "batchenddt",
+              "toField" : {
+                "name" : "batchenddt"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "tgt_batchstatus",
+              "toField" : {
+                "name" : "batchstatus"
+              },
+              "fromFieldNames" : null
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "vcsExportTime" : "2026-01-31 07:40:34 PST"
+}

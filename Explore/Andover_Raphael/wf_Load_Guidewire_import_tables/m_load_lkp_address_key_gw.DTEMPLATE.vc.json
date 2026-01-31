@@ -1,0 +1,1008 @@
+{
+  "content" : {
+    "allowMaxFieldLength" : "false",
+    "name" : "m_load_lkp_address_key_gw",
+    "specialCharacterSupport" : "false",
+    "links" : [
+      {
+        "link" : "exp_staging -> fil_new"
+      },
+      {
+        "link" : "lkp_target -> fil_new"
+      },
+      {
+        "link" : "exp_staging -> lkp_target"
+      },
+      {
+        "link" : "SQ_addr -> exp_staging"
+      },
+      {
+        "link" : "fil_new -> TGT_lkp_address_key"
+      }
+    ],
+    "parameters" : [
+      {
+        "input" : "true",
+        "output" : "false",
+        "precision" : 0,
+        "scale" : 0,
+        "allowRuntimeOverride" : "true",
+        "expressionVariable" : "false",
+        "name" : "DBConnection_TGT",
+        "anonymousType" : {
+          "subType" : "TOOLKIT_CCI",
+          "typeSystem" : "TOOLKIT",
+          "connectionType" : "Amazon Redshift v2"
+        }
+      },
+      {
+        "input" : "true",
+        "output" : "false",
+        "precision" : 0,
+        "scale" : 0,
+        "allowRuntimeOverride" : "true",
+        "expressionVariable" : "false",
+        "name" : "DBConnection_SRCM",
+        "anonymousType" : {
+          "typeSystem" : "MySQL",
+          "connectionType" : "MySQL"
+        }
+      },
+      {
+        "input" : "true",
+        "output" : "false",
+        "precision" : 0,
+        "scale" : 0,
+        "allowRuntimeOverride" : "false",
+        "expressionVariable" : "false",
+        "name" : "S3_Staging_Bucket"
+      }
+    ],
+    "transformations" : [
+      {
+        "name" : "TGT_lkp_address_key",
+        "advancedProperties" : [
+          {
+            "name" : "Forward Rejected Rows",
+            "value" : "true"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "false",
+            "conflictResolutions" : [
+              {
+                "precedingGroupName" : "DefaultGroup",
+                "precedingTxName" : "fil_new",
+                "rule" : {
+                  "bulkRename" : "true",
+                  "include" : "true",
+                  "bulkRenameOption" : {
+                    "pattern" : "^(Address_Key)$/$0_fil_new",
+                    "suffix" : "false"
+                  }
+                }
+              }
+            ],
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "createTarget" : "false",
+        "fieldMappingMode" : "MANUAL",
+        "inputSorted" : "false",
+        "schemaProviderType" : "SELECTED_OBJECT",
+        "targetFieldsOrdered" : "false",
+        "updateColumns" : null,
+        "useLabels" : "false",
+        "useSequenceFields" : "false",
+        "fields" : [
+          {
+            "adapterField" : {
+              "name" : "address_key"
+            },
+            "name" : "address_key",
+            "platformType" : {
+              "name" : "bigint"
+            },
+            "precision" : 19,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "address_line"
+            },
+            "name" : "address_line",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 250,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "insert_dt"
+            },
+            "name" : "insert_dt",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          }
+        ],
+        "dataAdapter" : {
+          "connectionId$" : {
+            "name" : "DBConnection_TGT"
+          },
+          "excludeDynamicFileNameField" : "false",
+          "objectType" : "SINGLE",
+          "typeSystem" : "TOOLKIT",
+          "useDynamicFileName" : "false",
+          "object" : {
+            "name" : "dbo/lkp_address_key",
+            "label" : "lkp_address_key",
+            "objectName" : "lkp_address_key",
+            "objectType" : "amazonredshift",
+            "path" : "dbo/lkp_address_key",
+            "retainMetadata" : "false",
+            "fields" : [
+              {
+                "name" : "address_key",
+                "fieldType" : "CONNECTOR",
+                "label" : "address_key",
+                "nativeName" : "address_key",
+                "nativeType" : "int8",
+                "original" : "false",
+                "precision" : 19,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "lkp_address_key"
+                  }
+                ]
+              },
+              {
+                "name" : "address_line",
+                "fieldType" : "CONNECTOR",
+                "label" : "address_line",
+                "nativeName" : "address_line",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 250,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "lkp_address_key"
+                  }
+                ]
+              },
+              {
+                "name" : "insert_dt",
+                "fieldType" : "CONNECTOR",
+                "label" : "insert_dt",
+                "nativeName" : "insert_dt",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "lkp_address_key"
+                  }
+                ]
+              }
+            ],
+            "objectAttributes" : [
+              {
+                "name" : "recordType",
+                "value" : "TABLE"
+              }
+            ]
+          },
+          "runtimeAttributes" : {
+            "attributes" : [
+              {
+                "name" : "S3 Bucket Name",
+                "value" : "$$S3_Staging_Bucket"
+              },
+              {
+                "name" : "Enable Compression",
+                "value" : "YES"
+              },
+              {
+                "name" : "Batch Size",
+                "value" : "2000000"
+              },
+              {
+                "name" : "Max Errors Per Batch Upload Insert",
+                "value" : "1"
+              },
+              {
+                "name" : "Truncate Target Table Before Data Upload",
+                "value" : "NO"
+              },
+              {
+                "name" : "WaitTime In Seconds For S3 File Consistency",
+                "value" : "0"
+              },
+              {
+                "name" : "Temporary Credential Duration",
+                "value" : "900"
+              },
+              {
+                "name" : "S3 Server Side Encryption",
+                "value" : "NO"
+              },
+              {
+                "name" : "S3 Client Side Encryption",
+                "value" : "NO"
+              },
+              {
+                "name" : "Analyze Target Table",
+                "value" : "NO"
+              },
+              {
+                "name" : "Vacuum Target Table",
+                "value" : "None"
+              },
+              {
+                "name" : "Treat Source Rows As",
+                "value" : "INSERT"
+              },
+              {
+                "name" : "Transfer Manager Thread Pool Size",
+                "value" : "10"
+              },
+              {
+                "name" : "Minimum Upload Part Size",
+                "value" : "5242880"
+              },
+              {
+                "name" : "Preserve record order on write",
+                "value" : "NO"
+              },
+              {
+                "name" : "Number of files per batch",
+                "value" : "0"
+              }
+            ]
+          },
+          "writeOptions" : {
+            "batchSize" : 0,
+            "bulkApi" : "false",
+            "handleDecimalRoundOff" : "false",
+            "handleSpecialChars" : "false",
+            "operations" : [
+              "Insert",
+              "Insert"
+            ],
+            "setFieldsToNull" : "false",
+            "truncate" : "false",
+            "useErrorFile" : "false",
+            "useExactSrcNames" : "false",
+            "useSuccessFile" : "false"
+          }
+        },
+        "manualMappings" : {
+          "mappingList" : [
+            {
+              "fromFieldName" : "AddressLine",
+              "toField" : {
+                "name" : "address_line"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "InsertDt",
+              "toField" : {
+                "name" : "insert_dt"
+              },
+              "fromFieldNames" : null
+            }
+          ]
+        }
+      },
+      {
+        "name" : "fil_new",
+        "advancedProperties" : [
+          {
+            "name" : "Tracing Level",
+            "value" : "Normal"
+          },
+          {
+            "name" : "Optional",
+            "value" : "true"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "conflictResolutions" : [
+              {
+                "precedingGroupName" : "DefaultGroup",
+                "precedingTxName" : "exp_staging",
+                "rule" : {
+                  "bulkRename" : "true",
+                  "include" : "true",
+                  "bulkRenameOption" : {
+                    "pattern" : "^(AddressLine)$/$0_exp_staging",
+                    "suffix" : "false"
+                  }
+                }
+              },
+              {
+                "precedingGroupName" : "DefaultGroup",
+                "precedingTxName" : "lkp_target",
+                "rule" : {
+                  "bulkRename" : "true",
+                  "include" : "true",
+                  "bulkRenameOption" : {
+                    "pattern" : "^(AddressLine)$/$0_lkp_target",
+                    "suffix" : "false"
+                  }
+                }
+              }
+            ],
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              },
+              {
+                "bulkRename" : "false",
+                "include" : "false",
+                "names" : [
+                  {
+                    "inputName" : "Addr1"
+                  },
+                  {
+                    "inputName" : "Addr2"
+                  },
+                  {
+                    "inputName" : "Addr3"
+                  },
+                  {
+                    "inputName" : "Addr4"
+                  },
+                  {
+                    "inputName" : "address_line"
+                  },
+                  {
+                    "inputName" : "AddressLine_lkp_target"
+                  },
+                  {
+                    "inputName" : "City"
+                  },
+                  {
+                    "inputName" : "insert_dt"
+                  },
+                  {
+                    "inputName" : "PostalCode"
+                  },
+                  {
+                    "inputName" : "StateProvCd"
+                  }
+                ]
+              },
+              {
+                "bulkRename" : "false",
+                "include" : "true",
+                "names" : [
+                  {
+                    "inputName" : "AddressLine_exp_staging",
+                    "outputName" : "AddressLine"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "advancedFilterCondition" : "ISNULL(Address_Key)"
+      },
+      {
+        "name" : "lkp_target",
+        "advancedProperties" : [
+          {
+            "name" : "Tracing Level",
+            "value" : "Normal"
+          },
+          {
+            "name" : "Optional",
+            "value" : "true"
+          },
+          {
+            "name" : "Lookup source is static",
+            "value" : "false"
+          },
+          {
+            "name" : "Decimal Separator",
+            "value" : "."
+          },
+          {
+            "name" : "Thousand Separator",
+            "value" : "None"
+          },
+          {
+            "name" : "Subsecond Precision",
+            "value" : "6"
+          },
+          {
+            "name" : "Null ordering",
+            "value" : "Null Is Highest Value"
+          },
+          {
+            "name" : "Lookup cache persistent",
+            "value" : "false"
+          },
+          {
+            "name" : "Lookup caching enabled",
+            "value" : "true"
+          },
+          {
+            "name" : "Re-cache from lookup source",
+            "value" : "false"
+          },
+          {
+            "name" : "Output Old Value On Update",
+            "value" : "false"
+          },
+          {
+            "name" : "Lookup cache directory name",
+            "value" : "$PMCacheDir"
+          },
+          {
+            "name" : "Synchronize dynamic cache",
+            "value" : "false"
+          },
+          {
+            "name" : "Pre-build lookup cache",
+            "value" : "AUTO"
+          },
+          {
+            "name" : "Case Sensitive String Comparison",
+            "value" : "false"
+          },
+          {
+            "name" : "Insert Else Update",
+            "value" : "false"
+          },
+          {
+            "name" : "Lookup Data Cache Size",
+            "value" : "AUTO"
+          },
+          {
+            "name" : "Lookup Index Cache Size",
+            "value" : "AUTO"
+          },
+          {
+            "name" : "Dynamic Lookup Cache",
+            "value" : "false"
+          },
+          {
+            "name" : "Sorted Input",
+            "value" : "false"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              },
+              {
+                "bulkRename" : "false",
+                "include" : "false",
+                "names" : [
+                  {
+                    "inputName" : "Addr1"
+                  },
+                  {
+                    "inputName" : "Addr2"
+                  },
+                  {
+                    "inputName" : "Addr3"
+                  },
+                  {
+                    "inputName" : "Addr4"
+                  },
+                  {
+                    "inputName" : "City"
+                  },
+                  {
+                    "inputName" : "StateProvCd"
+                  },
+                  {
+                    "inputName" : "PostalCode"
+                  },
+                  {
+                    "inputName" : "InsertDt"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "multipleMatchPolicy" : "Use Any Value",
+        "unconnected" : "false",
+        "useLabels" : "false",
+        "fields" : [
+          {
+            "adapterField" : {
+              "name" : "address_key"
+            },
+            "name" : "address_key",
+            "platformType" : {
+              "name" : "bigint"
+            },
+            "precision" : 19,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "address_line"
+            },
+            "name" : "address_line",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 250,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "insert_dt"
+            },
+            "name" : "insert_dt",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          }
+        ],
+        "inputPortNames" : [
+          "AddressLine"
+        ],
+        "lookupConditions" : [
+          {
+            "leftOperand" : "address_line",
+            "operator" : "=",
+            "rightOperand" : "AddressLine"
+          }
+        ],
+        "dataAdapter" : {
+          "connectionId$" : {
+            "name" : "DBConnection_TGT"
+          },
+          "excludeDynamicFileNameField" : "false",
+          "objectType" : "SINGLE",
+          "typeSystem" : "TOOLKIT",
+          "useDynamicFileName" : "false",
+          "object" : {
+            "name" : "dbo/lkp_address_key",
+            "label" : "lkp_address_key",
+            "objectName" : "lkp_address_key",
+            "objectType" : "amazonredshift",
+            "path" : "dbo/lkp_address_key",
+            "retainMetadata" : "false",
+            "fields" : [
+              {
+                "name" : "address_key",
+                "fieldType" : "CONNECTOR",
+                "label" : "address_key",
+                "nativeName" : "address_key",
+                "nativeType" : "int8",
+                "original" : "false",
+                "precision" : 19,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "lkp_address_key"
+                  }
+                ]
+              },
+              {
+                "name" : "address_line",
+                "fieldType" : "CONNECTOR",
+                "label" : "address_line",
+                "nativeName" : "address_line",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 250,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "lkp_address_key"
+                  }
+                ]
+              },
+              {
+                "name" : "insert_dt",
+                "fieldType" : "CONNECTOR",
+                "label" : "insert_dt",
+                "nativeName" : "insert_dt",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "lkp_address_key"
+                  }
+                ]
+              }
+            ],
+            "objectAttributes" : [
+              {
+                "name" : "recordType",
+                "value" : "TABLE"
+              }
+            ]
+          },
+          "readOptions" : {
+            "commandType" : 0,
+            "descending" : "false",
+            "queryAll" : "false",
+            "rowLimit" : 0,
+            "selectDistinct" : "false"
+          },
+          "runtimeAttributes" : {
+            "attributes" : [
+              {
+                "name" : "Read Mode",
+                "value" : "Direct"
+              },
+              {
+                "name" : "Fetch Size",
+                "value" : "10000"
+              },
+              {
+                "name" : "Enable Compression",
+                "value" : "YES"
+              },
+              {
+                "name" : "Temporary Credential Duration",
+                "value" : "900"
+              },
+              {
+                "name" : "Treat NULL Value as NULL",
+                "value" : "NO"
+              },
+              {
+                "name" : "Encryption Type",
+                "value" : "None"
+              },
+              {
+                "name" : "Download S3 Files In Multiple Parts",
+                "value" : "NO"
+              },
+              {
+                "name" : "Multipart Download Threshold Size",
+                "value" : "5242880"
+              },
+              {
+                "name" : "Select Distinct",
+                "value" : "NO"
+              }
+            ]
+          },
+          "writeOptions" : {
+            "batchSize" : 0,
+            "bulkApi" : "false",
+            "handleDecimalRoundOff" : "false",
+            "handleSpecialChars" : "false",
+            "operations" : [
+              "Insert"
+            ],
+            "setFieldsToNull" : "false",
+            "truncate" : "false",
+            "useErrorFile" : "false",
+            "useExactSrcNames" : "false",
+            "useSuccessFile" : "false"
+          }
+        }
+      },
+      {
+        "name" : "SQ_addr",
+        "advancedProperties" : [
+          {
+            "name" : "Tracing Level",
+            "value" : "Normal"
+          },
+          {
+            "name" : "Output is deterministic",
+            "value" : "false"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "false",
+            "name" : "DefaultGroup",
+            "output" : "true"
+          }
+        ],
+        "generateFilenamePort" : "false",
+        "useLabels" : "false",
+        "useSequenceFields" : "false",
+        "fields" : [
+          {
+            "adapterField" : {
+              "name" : "Addr1"
+            },
+            "name" : "Addr1",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 120,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "Addr2"
+            },
+            "name" : "Addr2",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 120,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "Addr3"
+            },
+            "name" : "Addr3",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 120,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "Addr4"
+            },
+            "name" : "Addr4",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 120,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "City"
+            },
+            "name" : "City",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 120,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "StateProvCd"
+            },
+            "name" : "StateProvCd",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 120,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "PostalCode"
+            },
+            "name" : "PostalCode",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 5,
+            "scale" : 0
+          }
+        ],
+        "dataAdapter" : {
+          "connectionId$" : {
+            "name" : "DBConnection_SRCM"
+          },
+          "excludeDynamicFileNameField" : "false",
+          "objectType" : "QUERY",
+          "typeSystem" : "MySQL",
+          "useDynamicFileName" : "false",
+          "object" : {
+            "customQuery" : "select distinct Addr1, Addr2, Addr3, Addr4, City, StateProvCd, substring(ltrim(rtrim(PostalCode)), 1, 5) as PostalCode from addr\njoin advrxxchangedbeans advr\non addr.cmmcontainer = advr.cmmcontainer\nand addr.systemid = advr.systemid\nwhere addr.cmmcontainer = 'Policy'\nand (AddrTypeCd like '%Risk%'\nor AddrTypeCd like '%Mailing%'\nor AddrTypeCd like '%Insured%'\nor AddrTypeCd like '%Location%')\nand Addr1 is not null",
+            "retainMetadata" : "false",
+            "fields" : [
+              {
+                "name" : "Addr1",
+                "fieldType" : "CONNECTOR",
+                "label" : "Addr1",
+                "nativeName" : "Addr1",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 120,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "addr"
+                  }
+                ]
+              },
+              {
+                "name" : "Addr2",
+                "fieldType" : "CONNECTOR",
+                "label" : "Addr2",
+                "nativeName" : "Addr2",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 120,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "addr"
+                  }
+                ]
+              },
+              {
+                "name" : "Addr3",
+                "fieldType" : "CONNECTOR",
+                "label" : "Addr3",
+                "nativeName" : "Addr3",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 120,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "addr"
+                  }
+                ]
+              },
+              {
+                "name" : "Addr4",
+                "fieldType" : "CONNECTOR",
+                "label" : "Addr4",
+                "nativeName" : "Addr4",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 120,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "addr"
+                  }
+                ]
+              },
+              {
+                "name" : "City",
+                "fieldType" : "CONNECTOR",
+                "label" : "City",
+                "nativeName" : "City",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 120,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "addr"
+                  }
+                ]
+              },
+              {
+                "name" : "StateProvCd",
+                "fieldType" : "CONNECTOR",
+                "label" : "StateProvCd",
+                "nativeName" : "StateProvCd",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 120,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "addr"
+                  }
+                ]
+              },
+              {
+                "name" : "PostalCode",
+                "fieldType" : "CONNECTOR",
+                "label" : "PostalCode",
+                "nativeName" : "PostalCode",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 5,
+                "scale" : 0
+              }
+            ]
+          },
+          "readOptions" : {
+            "commandType" : 0,
+            "descending" : "false",
+            "queryAll" : "false",
+            "rowLimit" : 0,
+            "selectDistinct" : "false"
+          }
+        }
+      },
+      {
+        "name" : "exp_staging",
+        "advancedProperties" : [
+          {
+            "name" : "Tracing Level",
+            "value" : "Normal"
+          },
+          {
+            "name" : "Optional",
+            "value" : "true"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "windowConfigurationEnabled" : "false",
+        "fields" : [
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "AddressLine",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 250,
+            "scale" : 0,
+            "expFieldType" : "OUTPUT",
+            "expression" : "UPPER(ltrim(rtrim(Addr1)) || ',' || ltrim(rtrim(Addr2)) || ',' || ltrim(rtrim(Addr3)) || ',' || ltrim(rtrim(Addr4)) || ',' || ltrim(rtrim(City)) || ',' || ltrim(rtrim(StateProvCd)) || ',' || SUBSTR(ltrim(rtrim(PostalCode)), 0 , 5))"
+          },
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "InsertDt",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9,
+            "expFieldType" : "OUTPUT",
+            "expression" : "sysdate"
+          }
+        ]
+      }
+    ]
+  },
+  "vcsExportTime" : "2026-01-31 07:40:31 PST"
+}

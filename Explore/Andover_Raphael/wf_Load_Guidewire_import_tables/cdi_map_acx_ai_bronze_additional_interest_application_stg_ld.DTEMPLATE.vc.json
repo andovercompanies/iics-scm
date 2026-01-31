@@ -1,0 +1,1733 @@
+{
+  "content" : {
+    "description" : "Straight passthrough of application data from Guidewire’s ai table to stage load. This table will be a truncate and load of incremental data.\n\nWe will want to join to advrxxchangedbeans on systemid and cmmcontainer in the source query to limit the data to incremental records. As  part of this, we’ll need to add $$m_strtdt and $$m_enddt to the mapping as parameters and add as a join condition against adddt and addtm as well.",
+    "allowMaxFieldLength" : "false",
+    "name" : "cdi_map_acx_ai_bronze_additional_interest_application_stg_ld",
+    "specialCharacterSupport" : "false",
+    "links" : [
+      {
+        "link" : "Exp_Passthrough -> tgt_additional_interest_application_stg"
+      },
+      {
+        "link" : "src_guidewire_ai -> Exp_Passthrough"
+      }
+    ],
+    "parameters" : [
+      {
+        "input" : "true",
+        "output" : "false",
+        "precision" : 0,
+        "scale" : 0,
+        "allowRuntimeOverride" : "true",
+        "expressionVariable" : "false",
+        "name" : "DBConnection_SRCM",
+        "anonymousType" : {
+          "typeSystem" : "MySQL",
+          "connectionType" : "MySQL"
+        }
+      },
+      {
+        "input" : "true",
+        "output" : "false",
+        "precision" : 0,
+        "scale" : 0,
+        "allowRuntimeOverride" : "true",
+        "expressionVariable" : "false",
+        "name" : "DBConnection_TGT",
+        "anonymousType" : {
+          "subType" : "TOOLKIT_CCI",
+          "typeSystem" : "TOOLKIT",
+          "connectionType" : "Amazon Redshift v2"
+        }
+      },
+      {
+        "input" : "true",
+        "output" : "false",
+        "precision" : 0,
+        "scale" : 0,
+        "allowRuntimeOverride" : "false",
+        "expressionVariable" : "false",
+        "name" : "S3_Staging_Bucket"
+      }
+    ],
+    "transformations" : [
+      {
+        "description" : "Load data into staging  redshift dbo.additional_interest_application_stg",
+        "name" : "tgt_additional_interest_application_stg",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "false",
+            "conflictResolutions" : [
+              {
+                "precedingGroupName" : "DefaultGroup",
+                "precedingTxName" : "Exp_TRANS",
+                "rule" : {
+                  "bulkRename" : "true",
+                  "include" : "true",
+                  "bulkRenameOption" : {
+                    "pattern" : "^(RiskAddDt|RiskCancelDt|ULCertificationExpirationDt)$/$0_EXPTRANS",
+                    "suffix" : "false"
+                  }
+                }
+              }
+            ],
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "sessionProperties" : [
+          {
+            "name" : "Reject file directory",
+            "value" : "$PMBadFileDir\\"
+          },
+          {
+            "name" : "Reject filename",
+            "value" : "risk_stg.bad"
+          }
+        ],
+        "createTarget" : "false",
+        "fieldMappingMode" : "MANUAL",
+        "inputSorted" : "false",
+        "schemaProviderType" : "SELECTED_OBJECT",
+        "targetFieldsOrdered" : "false",
+        "updateColumns" : null,
+        "useLabels" : "false",
+        "useSequenceFields" : "false",
+        "fields" : [
+          {
+            "adapterField" : {
+              "name" : "additional_interest_system_id"
+            },
+            "name" : "additional_interest_system_id",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "additional_interest_parent_id"
+            },
+            "name" : "additional_interest_parent_id",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 360,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "additional_interest_cmm_container"
+            },
+            "name" : "additional_interest_cmm_container",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 360,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "additional_interest_id"
+            },
+            "name" : "additional_interest_id",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 360,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "additional_interest_sequence_number"
+            },
+            "name" : "additional_interest_sequence_number",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "additional_interest_code"
+            },
+            "name" : "additional_interest_code",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 360,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "additional_interest_type_code"
+            },
+            "name" : "additional_interest_type_code",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 360,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "additional_interest_account_number"
+            },
+            "name" : "additional_interest_account_number",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 360,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "additional_interest_form_code"
+            },
+            "name" : "additional_interest_form_code",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 360,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "additional_interest_name"
+            },
+            "name" : "additional_interest_name",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 360,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "additional_interest_comments"
+            },
+            "name" : "additional_interest_comments",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "additional_interest_additional_comments"
+            },
+            "name" : "additional_interest_additional_comments",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 360,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "additional_interest_status"
+            },
+            "name" : "additional_interest_status",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 360,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "additional_interest_preferred_delivery_method"
+            },
+            "name" : "additional_interest_preferred_delivery_method",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 360,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "additional_interest_escrow_indicator"
+            },
+            "name" : "additional_interest_escrow_indicator",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 360,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "additional_interest_future_status_code"
+            },
+            "name" : "additional_interest_future_status_code",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 360,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "additional_interest_equipment_description"
+            },
+            "name" : "additional_interest_equipment_description",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 360,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "additional_interest_underlying_policy_id_reference"
+            },
+            "name" : "additional_interest_underlying_policy_id_reference",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 360,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "underlying_additional_interest_id_reference"
+            },
+            "name" : "underlying_additional_interest_id_reference",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 360,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "additional_interest_description"
+            },
+            "name" : "additional_interest_description",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 360,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "additional_interest_automatic_indicator"
+            },
+            "name" : "additional_interest_automatic_indicator",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 360,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "additional_interest_row_id"
+            },
+            "name" : "additional_interest_row_id",
+            "platformType" : {
+              "name" : "bigint"
+            },
+            "precision" : 19,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "additional_interest_bill_mortgage_renewal_indicator"
+            },
+            "name" : "additional_interest_bill_mortgage_renewal_indicator",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 360,
+            "scale" : 0
+          }
+        ],
+        "dataAdapter" : {
+          "connectionId$" : {
+            "name" : "DBConnection_TGT"
+          },
+          "excludeDynamicFileNameField" : "false",
+          "objectType" : "SINGLE",
+          "typeSystem" : "TOOLKIT",
+          "useDynamicFileName" : "false",
+          "object" : {
+            "name" : "dbo/additional_interest_application_stg",
+            "label" : "dbo/additional_interest_application_stg",
+            "objectName" : "additional_interest_application_stg",
+            "objectType" : "amazonredshift",
+            "path" : "dbo/additional_interest_application_stg",
+            "retainMetadata" : "false",
+            "fields" : [
+              {
+                "name" : "additional_interest_system_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "additional_interest_system_id",
+                "nativeName" : "additional_interest_system_id",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "additional_interest_application_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "additional_interest_parent_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "additional_interest_parent_id",
+                "nativeName" : "additional_interest_parent_id",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 360,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "additional_interest_application_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "additional_interest_cmm_container",
+                "fieldType" : "CONNECTOR",
+                "label" : "additional_interest_cmm_container",
+                "nativeName" : "additional_interest_cmm_container",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 360,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "additional_interest_application_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "additional_interest_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "additional_interest_id",
+                "nativeName" : "additional_interest_id",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 360,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "additional_interest_application_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "additional_interest_sequence_number",
+                "fieldType" : "CONNECTOR",
+                "label" : "additional_interest_sequence_number",
+                "nativeName" : "additional_interest_sequence_number",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "additional_interest_application_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "additional_interest_code",
+                "fieldType" : "CONNECTOR",
+                "label" : "additional_interest_code",
+                "nativeName" : "additional_interest_code",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 360,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "additional_interest_application_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "additional_interest_type_code",
+                "fieldType" : "CONNECTOR",
+                "label" : "additional_interest_type_code",
+                "nativeName" : "additional_interest_type_code",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 360,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "additional_interest_application_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "additional_interest_account_number",
+                "fieldType" : "CONNECTOR",
+                "label" : "additional_interest_account_number",
+                "nativeName" : "additional_interest_account_number",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 360,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "additional_interest_application_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "additional_interest_form_code",
+                "fieldType" : "CONNECTOR",
+                "label" : "additional_interest_form_code",
+                "nativeName" : "additional_interest_form_code",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 360,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "additional_interest_application_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "additional_interest_name",
+                "fieldType" : "CONNECTOR",
+                "label" : "additional_interest_name",
+                "nativeName" : "additional_interest_name",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 360,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "additional_interest_application_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "additional_interest_comments",
+                "fieldType" : "CONNECTOR",
+                "label" : "additional_interest_comments",
+                "nativeName" : "additional_interest_comments",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "additional_interest_application_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "additional_interest_additional_comments",
+                "fieldType" : "CONNECTOR",
+                "label" : "additional_interest_additional_comments",
+                "nativeName" : "additional_interest_additional_comments",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 360,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "additional_interest_application_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "additional_interest_status",
+                "fieldType" : "CONNECTOR",
+                "label" : "additional_interest_status",
+                "nativeName" : "additional_interest_status",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 360,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "additional_interest_application_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "additional_interest_preferred_delivery_method",
+                "fieldType" : "CONNECTOR",
+                "label" : "additional_interest_preferred_delivery_method",
+                "nativeName" : "additional_interest_preferred_delivery_method",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 360,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "additional_interest_application_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "additional_interest_escrow_indicator",
+                "fieldType" : "CONNECTOR",
+                "label" : "additional_interest_escrow_indicator",
+                "nativeName" : "additional_interest_escrow_indicator",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 360,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "additional_interest_application_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "additional_interest_future_status_code",
+                "fieldType" : "CONNECTOR",
+                "label" : "additional_interest_future_status_code",
+                "nativeName" : "additional_interest_future_status_code",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 360,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "additional_interest_application_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "additional_interest_equipment_description",
+                "fieldType" : "CONNECTOR",
+                "label" : "additional_interest_equipment_description",
+                "nativeName" : "additional_interest_equipment_description",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 360,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "additional_interest_application_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "additional_interest_underlying_policy_id_reference",
+                "fieldType" : "CONNECTOR",
+                "label" : "additional_interest_underlying_policy_id_reference",
+                "nativeName" : "additional_interest_underlying_policy_id_reference",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 360,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "additional_interest_application_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "underlying_additional_interest_id_reference",
+                "fieldType" : "CONNECTOR",
+                "label" : "underlying_additional_interest_id_reference",
+                "nativeName" : "underlying_additional_interest_id_reference",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 360,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "additional_interest_application_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "additional_interest_description",
+                "fieldType" : "CONNECTOR",
+                "label" : "additional_interest_description",
+                "nativeName" : "additional_interest_description",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 360,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "additional_interest_application_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "additional_interest_automatic_indicator",
+                "fieldType" : "CONNECTOR",
+                "label" : "additional_interest_automatic_indicator",
+                "nativeName" : "additional_interest_automatic_indicator",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 360,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "additional_interest_application_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "additional_interest_row_id",
+                "fieldType" : "CONNECTOR",
+                "label" : "additional_interest_row_id",
+                "nativeName" : "additional_interest_row_id",
+                "nativeType" : "int8",
+                "original" : "false",
+                "precision" : 19,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "additional_interest_application_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "additional_interest_bill_mortgage_renewal_indicator",
+                "fieldType" : "CONNECTOR",
+                "label" : "additional_interest_bill_mortgage_renewal_indicator",
+                "nativeName" : "additional_interest_bill_mortgage_renewal_indicator",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 360,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "additional_interest_application_stg"
+                  }
+                ]
+              }
+            ],
+            "objectAttributes" : [
+              {
+                "name" : "recordType",
+                "value" : "TABLE"
+              }
+            ]
+          },
+          "runtimeAttributes" : {
+            "attributes" : [
+              {
+                "name" : "S3 Bucket Name",
+                "value" : "$$S3_Staging_Bucket"
+              },
+              {
+                "name" : "Enable Compression",
+                "value" : "YES"
+              },
+              {
+                "name" : "Batch Size",
+                "value" : "2000000"
+              },
+              {
+                "name" : "Max Errors Per Batch Upload Insert",
+                "value" : "1"
+              },
+              {
+                "name" : "Truncate Target Table Before Data Upload",
+                "value" : "YES"
+              },
+              {
+                "name" : "WaitTime In Seconds For S3 File Consistency",
+                "value" : "0"
+              },
+              {
+                "name" : "Temporary Credential Duration",
+                "value" : "43200"
+              },
+              {
+                "name" : "S3 Server Side Encryption",
+                "value" : "NO"
+              },
+              {
+                "name" : "S3 Client Side Encryption",
+                "value" : "NO"
+              },
+              {
+                "name" : "Analyze Target Table",
+                "value" : "NO"
+              },
+              {
+                "name" : "Vacuum Target Table",
+                "value" : "None"
+              },
+              {
+                "name" : "Treat Source Rows As",
+                "value" : "INSERT"
+              },
+              {
+                "name" : "Transfer Manager Thread Pool Size",
+                "value" : "10"
+              },
+              {
+                "name" : "Minimum Upload Part Size",
+                "value" : "5242880"
+              },
+              {
+                "name" : "Preserve record order on write",
+                "value" : "NO"
+              },
+              {
+                "name" : "Number of files per batch",
+                "value" : "0"
+              }
+            ]
+          },
+          "writeOptions" : {
+            "batchSize" : 0,
+            "bulkApi" : "false",
+            "handleDecimalRoundOff" : "false",
+            "handleSpecialChars" : "false",
+            "operations" : [
+              "Insert",
+              "Insert"
+            ],
+            "setFieldsToNull" : "false",
+            "truncate" : "false",
+            "useErrorFile" : "false",
+            "useExactSrcNames" : "false",
+            "useSuccessFile" : "false"
+          }
+        },
+        "manualMappings" : {
+          "mappingList" : [
+            {
+              "fromFieldName" : "interestname",
+              "toField" : {
+                "name" : "additional_interest_name"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "status",
+              "toField" : {
+                "name" : "additional_interest_status"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "preferreddeliverymethod",
+              "toField" : {
+                "name" : "additional_interest_preferred_delivery_method"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "id",
+              "toField" : {
+                "name" : "additional_interest_id"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "sequencenumber",
+              "toField" : {
+                "name" : "additional_interest_sequence_number"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "interestcd",
+              "toField" : {
+                "name" : "additional_interest_code"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "interesttypecd",
+              "toField" : {
+                "name" : "additional_interest_type_code"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "AccountNumber",
+              "toField" : {
+                "name" : "additional_interest_account_number"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "interestformcd",
+              "toField" : {
+                "name" : "additional_interest_form_code"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "comments",
+              "toField" : {
+                "name" : "additional_interest_comments"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "additionalcomments",
+              "toField" : {
+                "name" : "additional_interest_additional_comments"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "escrowind",
+              "toField" : {
+                "name" : "additional_interest_escrow_indicator"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "futurestatuscd",
+              "toField" : {
+                "name" : "additional_interest_future_status_code"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "equipmentdescription",
+              "toField" : {
+                "name" : "additional_interest_equipment_description"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "underlyingpolicyidref",
+              "toField" : {
+                "name" : "additional_interest_underlying_policy_id_reference"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "underlyingaiidref",
+              "toField" : {
+                "name" : "underlying_additional_interest_id_reference"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "interestdesc",
+              "toField" : {
+                "name" : "additional_interest_description"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "automaticind",
+              "toField" : {
+                "name" : "additional_interest_automatic_indicator"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "rowid",
+              "toField" : {
+                "name" : "additional_interest_row_id"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "billmortgrnwlind",
+              "toField" : {
+                "name" : "additional_interest_bill_mortgage_renewal_indicator"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "systemid",
+              "toField" : {
+                "name" : "additional_interest_system_id"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "parentid",
+              "toField" : {
+                "name" : "additional_interest_parent_id"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "cmmcontainer",
+              "toField" : {
+                "name" : "additional_interest_cmm_container"
+              },
+              "fromFieldNames" : null
+            }
+          ]
+        }
+      },
+      {
+        "description" : "read data from guidewire source table ai",
+        "name" : "src_guidewire_ai",
+        "advancedProperties" : [
+          {
+            "name" : "Number Of Sorted Ports",
+            "value" : "0"
+          },
+          {
+            "name" : "Tracing Level",
+            "value" : "Normal"
+          },
+          {
+            "name" : "Is Partitionable",
+            "value" : "false"
+          },
+          {
+            "name" : "Output is deterministic",
+            "value" : "false"
+          },
+          {
+            "name" : "Output is repeatable",
+            "value" : "Never"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "false",
+            "name" : "DefaultGroup",
+            "output" : "true"
+          }
+        ],
+        "generateFilenamePort" : "false",
+        "useLabels" : "false",
+        "useSequenceFields" : "false",
+        "fields" : [
+          {
+            "adapterField" : {
+              "name" : "systemid"
+            },
+            "name" : "systemid",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "parentid"
+            },
+            "name" : "parentid",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 120,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "cmmcontainer"
+            },
+            "name" : "cmmcontainer",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 120,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "id"
+            },
+            "name" : "id",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 120,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "sequencenumber"
+            },
+            "name" : "sequencenumber",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "interestcd"
+            },
+            "name" : "interestcd",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 120,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "interesttypecd"
+            },
+            "name" : "interesttypecd",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 120,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "AccountNumber"
+            },
+            "name" : "AccountNumber",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 120,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "interestformcd"
+            },
+            "name" : "interestformcd",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 120,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "interestname"
+            },
+            "name" : "interestname",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 120,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "comments"
+            },
+            "name" : "comments",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 120,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "additionalcomments"
+            },
+            "name" : "additionalcomments",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 120,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "status"
+            },
+            "name" : "status",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 120,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "preferreddeliverymethod"
+            },
+            "name" : "preferreddeliverymethod",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 120,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "escrowind"
+            },
+            "name" : "escrowind",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 120,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "futurestatuscd"
+            },
+            "name" : "futurestatuscd",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 120,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "equipmentdescription"
+            },
+            "name" : "equipmentdescription",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 120,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "underlyingpolicyidref"
+            },
+            "name" : "underlyingpolicyidref",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 120,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "underlyingaiidref"
+            },
+            "name" : "underlyingaiidref",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 120,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "interestdesc"
+            },
+            "name" : "interestdesc",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 120,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "automaticind"
+            },
+            "name" : "automaticind",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 120,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "rowid"
+            },
+            "name" : "rowid",
+            "platformType" : {
+              "name" : "bigint"
+            },
+            "precision" : 19,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "billmortgrnwlind"
+            },
+            "name" : "billmortgrnwlind",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 100,
+            "scale" : 0
+          }
+        ],
+        "dataAdapter" : {
+          "connectionId$" : {
+            "name" : "DBConnection_SRCM"
+          },
+          "excludeDynamicFileNameField" : "false",
+          "objectType" : "QUERY",
+          "typeSystem" : "MySQL",
+          "useDynamicFileName" : "false",
+          "object" : {
+            "customQuery" : "SELECT ai.systemid,\n       ai.parentid,\n       ai.cmmcontainer,\n       ai.id,\n       ai.sequencenumber,\n       ai.interestcd,\n       ai.interesttypecd,\n       ai.AccountNumber ,\n       ai.interestformcd,\n       ai.interestname,\n       ai.comments,\n       ai.additionalcomments,\n       ai.status,\n       ai.preferreddeliverymethod,\n       ai.escrowind,\n       ai.futurestatuscd,\n       ai.equipmentdescription,\n       ai.underlyingpolicyidref,\n       ai.underlyingaiidref,\n       ai.interestdesc,\n       ai.automaticind,\n       ai.rowid,\n       ai.billmortgrnwlind\nFROM   ai\n       JOIN advrxxchangedbeans\n         ON ai.cmmcontainer = advrxxchangedbeans.cmmcontainer\n            AND ai.systemid = advrxxchangedbeans.systemid\nWHERE  ai.CMMContainer = 'Application'\n       AND\nConcat(advrxxchangedbeans.adddt, advrxxchangedbeans.addtm) >= '$$m_strtdt'\n       AND Concat(advrxxchangedbeans.adddt, advrxxchangedbeans.addtm) <=\n           '$$m_Enddt' ;",
+            "retainMetadata" : "false",
+            "fields" : [
+              {
+                "name" : "systemid",
+                "fieldType" : "CONNECTOR",
+                "label" : "systemid",
+                "nativeName" : "systemid",
+                "nativeType" : "integer",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "ai"
+                  }
+                ]
+              },
+              {
+                "name" : "parentid",
+                "fieldType" : "CONNECTOR",
+                "label" : "parentid",
+                "nativeName" : "parentid",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 120,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "ai"
+                  }
+                ]
+              },
+              {
+                "name" : "cmmcontainer",
+                "fieldType" : "CONNECTOR",
+                "label" : "cmmcontainer",
+                "nativeName" : "cmmcontainer",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 120,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "ai"
+                  }
+                ]
+              },
+              {
+                "name" : "id",
+                "fieldType" : "CONNECTOR",
+                "label" : "id",
+                "nativeName" : "id",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 120,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "ai"
+                  }
+                ]
+              },
+              {
+                "name" : "sequencenumber",
+                "fieldType" : "CONNECTOR",
+                "label" : "sequencenumber",
+                "nativeName" : "sequencenumber",
+                "nativeType" : "integer",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "ai"
+                  }
+                ]
+              },
+              {
+                "name" : "interestcd",
+                "fieldType" : "CONNECTOR",
+                "label" : "interestcd",
+                "nativeName" : "interestcd",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 120,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "ai"
+                  }
+                ]
+              },
+              {
+                "name" : "interesttypecd",
+                "fieldType" : "CONNECTOR",
+                "label" : "interesttypecd",
+                "nativeName" : "interesttypecd",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 120,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "ai"
+                  }
+                ]
+              },
+              {
+                "name" : "AccountNumber",
+                "fieldType" : "CONNECTOR",
+                "label" : "AccountNumber",
+                "nativeName" : "AccountNumber",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 120,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "ai"
+                  }
+                ]
+              },
+              {
+                "name" : "interestformcd",
+                "fieldType" : "CONNECTOR",
+                "label" : "interestformcd",
+                "nativeName" : "interestformcd",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 120,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "ai"
+                  }
+                ]
+              },
+              {
+                "name" : "interestname",
+                "fieldType" : "CONNECTOR",
+                "label" : "interestname",
+                "nativeName" : "interestname",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 120,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "ai"
+                  }
+                ]
+              },
+              {
+                "name" : "comments",
+                "fieldType" : "CONNECTOR",
+                "label" : "comments",
+                "nativeName" : "comments",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 120,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "ai"
+                  }
+                ]
+              },
+              {
+                "name" : "additionalcomments",
+                "fieldType" : "CONNECTOR",
+                "label" : "additionalcomments",
+                "nativeName" : "additionalcomments",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 120,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "ai"
+                  }
+                ]
+              },
+              {
+                "name" : "status",
+                "fieldType" : "CONNECTOR",
+                "label" : "status",
+                "nativeName" : "status",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 120,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "ai"
+                  }
+                ]
+              },
+              {
+                "name" : "preferreddeliverymethod",
+                "fieldType" : "CONNECTOR",
+                "label" : "preferreddeliverymethod",
+                "nativeName" : "preferreddeliverymethod",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 120,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "ai"
+                  }
+                ]
+              },
+              {
+                "name" : "escrowind",
+                "fieldType" : "CONNECTOR",
+                "label" : "escrowind",
+                "nativeName" : "escrowind",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 120,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "ai"
+                  }
+                ]
+              },
+              {
+                "name" : "futurestatuscd",
+                "fieldType" : "CONNECTOR",
+                "label" : "futurestatuscd",
+                "nativeName" : "futurestatuscd",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 120,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "ai"
+                  }
+                ]
+              },
+              {
+                "name" : "equipmentdescription",
+                "fieldType" : "CONNECTOR",
+                "label" : "equipmentdescription",
+                "nativeName" : "equipmentdescription",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 120,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "ai"
+                  }
+                ]
+              },
+              {
+                "name" : "underlyingpolicyidref",
+                "fieldType" : "CONNECTOR",
+                "label" : "underlyingpolicyidref",
+                "nativeName" : "underlyingpolicyidref",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 120,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "ai"
+                  }
+                ]
+              },
+              {
+                "name" : "underlyingaiidref",
+                "fieldType" : "CONNECTOR",
+                "label" : "underlyingaiidref",
+                "nativeName" : "underlyingaiidref",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 120,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "ai"
+                  }
+                ]
+              },
+              {
+                "name" : "interestdesc",
+                "fieldType" : "CONNECTOR",
+                "label" : "interestdesc",
+                "nativeName" : "interestdesc",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 120,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "ai"
+                  }
+                ]
+              },
+              {
+                "name" : "automaticind",
+                "fieldType" : "CONNECTOR",
+                "label" : "automaticind",
+                "nativeName" : "automaticind",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 120,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "ai"
+                  }
+                ]
+              },
+              {
+                "name" : "rowid",
+                "fieldType" : "CONNECTOR",
+                "label" : "rowid",
+                "nativeName" : "rowid",
+                "nativeType" : "bigint",
+                "original" : "false",
+                "precision" : 19,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "ai"
+                  }
+                ]
+              },
+              {
+                "name" : "billmortgrnwlind",
+                "fieldType" : "CONNECTOR",
+                "label" : "billmortgrnwlind",
+                "nativeName" : "billmortgrnwlind",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 100,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "ai"
+                  }
+                ]
+              }
+            ]
+          },
+          "readOptions" : {
+            "commandType" : 0,
+            "descending" : "false",
+            "queryAll" : "false",
+            "rowLimit" : 0,
+            "selectDistinct" : "false"
+          }
+        }
+      },
+      {
+        "description" : "straight pass through without any transformations",
+        "createTime" : "2025-02-25T18:17:40.841Z",
+        "name" : "Exp_Passthrough",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              }
+            ]
+          }
+        ],
+        "windowConfigurationEnabled" : "false",
+        "windowSpec" : {
+          "allRowsFollowing" : "false",
+          "allRowsPreceding" : "false",
+          "endOffset" : 0,
+          "startOffset" : 0,
+          "partitionKeys" : null
+        }
+      }
+    ],
+    "variables" : [
+      {
+        "aggregationType" : "MAX",
+        "expressionVariable" : "false",
+        "name" : "m_strtdt",
+        "platformType" : {
+          "name" : "string"
+        },
+        "precision" : 120,
+        "retentionPolicy" : "NEVER",
+        "scale" : 0
+      },
+      {
+        "aggregationType" : "MAX",
+        "expressionVariable" : "false",
+        "name" : "m_Enddt",
+        "platformType" : {
+          "name" : "string"
+        },
+        "precision" : 120,
+        "retentionPolicy" : "NEVER",
+        "scale" : 0
+      }
+    ]
+  },
+  "vcsExportTime" : "2026-01-31 07:40:38 PST"
+}

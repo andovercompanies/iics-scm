@@ -1,0 +1,3877 @@
+{
+  "content" : {
+    "allowMaxFieldLength" : "false",
+    "name" : "m_Load_Transaction_History_Stg_From_TransactionHistory",
+    "specialCharacterSupport" : "false",
+    "links" : [
+      {
+        "link" : "Src_transactionhistory -> Exp_Audit"
+      },
+      {
+        "link" : "Src_transactionhistory -> Tgt_transactionhistory_stg"
+      },
+      {
+        "link" : "Exp_Audit -> Tgt_transactionhistory_stg"
+      }
+    ],
+    "parameters" : [
+      {
+        "input" : "true",
+        "output" : "false",
+        "precision" : 0,
+        "scale" : 0,
+        "allowRuntimeOverride" : "true",
+        "expressionVariable" : "false",
+        "name" : "DBConnection_SRCM",
+        "anonymousType" : {
+          "typeSystem" : "MySQL",
+          "connectionType" : "MySQL"
+        }
+      },
+      {
+        "input" : "true",
+        "output" : "false",
+        "precision" : 0,
+        "scale" : 0,
+        "allowRuntimeOverride" : "true",
+        "expressionVariable" : "false",
+        "name" : "DBConnection_TGT",
+        "anonymousType" : {
+          "subType" : "TOOLKIT_CCI",
+          "typeSystem" : "TOOLKIT",
+          "connectionType" : "Amazon Redshift v2"
+        }
+      },
+      {
+        "input" : "true",
+        "output" : "false",
+        "precision" : 0,
+        "scale" : 0,
+        "allowRuntimeOverride" : "false",
+        "expressionVariable" : "false",
+        "name" : "S3_Staging_Bucket"
+      }
+    ],
+    "transformations" : [
+      {
+        "name" : "Tgt_transactionhistory_stg",
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "false",
+            "conflictResolutions" : [
+              {
+                "precedingGroupName" : "DefaultGroup",
+                "precedingTxName" : "Src_transactionhistory",
+                "rule" : {
+                  "bulkRename" : "true",
+                  "include" : "true",
+                  "bulkRenameOption" : {
+                    "pattern" : "^(Id|SystemId)$/$0_SQ_transactionhistory",
+                    "suffix" : "false"
+                  }
+                }
+              },
+              {
+                "precedingGroupName" : "DefaultGroup",
+                "precedingTxName" : "Exp_Audit",
+                "rule" : {
+                  "bulkRename" : "true",
+                  "include" : "true",
+                  "bulkRenameOption" : {
+                    "pattern" : "^(SystemId)$/$0_exp_Audit",
+                    "suffix" : "false"
+                  }
+                }
+              }
+            ],
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              },
+              {
+                "bulkRename" : "false",
+                "include" : "false",
+                "names" : [
+                  {
+                    "inputName" : "SystemId_exp_Audit"
+                  }
+                ]
+              },
+              {
+                "bulkRename" : "false",
+                "include" : "true",
+                "names" : [
+                  {
+                    "inputName" : "Id_SQ_transactionhistory",
+                    "outputName" : "Id"
+                  },
+                  {
+                    "inputName" : "SystemId_SQ_transactionhistory",
+                    "outputName" : "SystemId"
+                  },
+                  {
+                    "inputName" : "o_RecordCreatedDttm",
+                    "outputName" : "RecordInsertedDttm"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "sessionProperties" : [
+          {
+            "name" : "Reject file directory",
+            "value" : "$PMBadFileDir\\"
+          },
+          {
+            "name" : "Reject filename",
+            "value" : "transactionhistory_stg1.bad"
+          }
+        ],
+        "createTarget" : "false",
+        "fieldMappingMode" : "MANUAL",
+        "inputSorted" : "false",
+        "schemaProviderType" : "SELECTED_OBJECT",
+        "targetFieldsOrdered" : "false",
+        "updateColumns" : null,
+        "useLabels" : "false",
+        "useSequenceFields" : "false",
+        "fields" : [
+          {
+            "adapterField" : {
+              "name" : "systemid"
+            },
+            "name" : "systemid",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "parentid"
+            },
+            "name" : "parentid",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 360,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "cmmcontainer"
+            },
+            "name" : "cmmcontainer",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 360,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "id"
+            },
+            "name" : "id",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 360,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "transactioncd"
+            },
+            "name" : "transactioncd",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 360,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "transactioneffectivedt"
+            },
+            "name" : "transactioneffectivedt",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "transactioneffectivetm"
+            },
+            "name" : "transactioneffectivetm",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 360,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "transactionuser"
+            },
+            "name" : "transactionuser",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 360,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "transactiondt"
+            },
+            "name" : "transactiondt",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "transactiontm"
+            },
+            "name" : "transactiontm",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 360,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "transactionlongdescription"
+            },
+            "name" : "transactionlongdescription",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 360,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "transactionshortdescription"
+            },
+            "name" : "transactionshortdescription",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 360,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "transactionnumber"
+            },
+            "name" : "transactionnumber",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "submissionnumber"
+            },
+            "name" : "submissionnumber",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "inforcepremiumamt"
+            },
+            "name" : "inforcepremiumamt",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 28,
+            "scale" : 6
+          },
+          {
+            "adapterField" : {
+              "name" : "inforcechangepremiumamt"
+            },
+            "name" : "inforcechangepremiumamt",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 28,
+            "scale" : 6
+          },
+          {
+            "adapterField" : {
+              "name" : "writtenpremiumamt"
+            },
+            "name" : "writtenpremiumamt",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 28,
+            "scale" : 6
+          },
+          {
+            "adapterField" : {
+              "name" : "writtenchangepremiumamt"
+            },
+            "name" : "writtenchangepremiumamt",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 28,
+            "scale" : 6
+          },
+          {
+            "adapterField" : {
+              "name" : "canceltypecd"
+            },
+            "name" : "canceltypecd",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 360,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "cancelrequestedbycd"
+            },
+            "name" : "cancelrequestedbycd",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 360,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "rewritetoproductversion"
+            },
+            "name" : "rewritetoproductversion",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 360,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "premiumcalculationdt"
+            },
+            "name" : "premiumcalculationdt",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "newpolicyeffectivedt"
+            },
+            "name" : "newpolicyeffectivedt",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "newpolicyexpirationdt"
+            },
+            "name" : "newpolicyexpirationdt",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "releaseholdreason"
+            },
+            "name" : "releaseholdreason",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 360,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "changeinforef"
+            },
+            "name" : "changeinforef",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 360,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "bookdt"
+            },
+            "name" : "bookdt",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "mastertransactionnumber"
+            },
+            "name" : "mastertransactionnumber",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "replacedbytransactionnumber"
+            },
+            "name" : "replacedbytransactionnumber",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "replacementoftransactionnumber"
+            },
+            "name" : "replacementoftransactionnumber",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "unappliedbytransactionnumber"
+            },
+            "name" : "unappliedbytransactionnumber",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "unapplyoftransactionnumber"
+            },
+            "name" : "unapplyoftransactionnumber",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "statprocessedind"
+            },
+            "name" : "statprocessedind",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 360,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "outputtypecd"
+            },
+            "name" : "outputtypecd",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 360,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "applicationref"
+            },
+            "name" : "applicationref",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "holdtype"
+            },
+            "name" : "holdtype",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 360,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "sourcecd"
+            },
+            "name" : "sourcecd",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 360,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "delayinvoiceind"
+            },
+            "name" : "delayinvoiceind",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 360,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "paymenttypecd"
+            },
+            "name" : "paymenttypecd",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 360,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "checknumber"
+            },
+            "name" : "checknumber",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 360,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "paymentamt"
+            },
+            "name" : "paymentamt",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 360,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "conversiongroup"
+            },
+            "name" : "conversiongroup",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 360,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "conversiontemplateidref"
+            },
+            "name" : "conversiontemplateidref",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 360,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "conversionjobref"
+            },
+            "name" : "conversionjobref",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 360,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "renewalproviderref"
+            },
+            "name" : "renewalproviderref",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "renewalsubproducercd"
+            },
+            "name" : "renewalsubproducercd",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 360,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "writtenfeeamt"
+            },
+            "name" : "writtenfeeamt",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 28,
+            "scale" : 6
+          },
+          {
+            "adapterField" : {
+              "name" : "writtencommissionfeeamt"
+            },
+            "name" : "writtencommissionfeeamt",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 28,
+            "scale" : 6
+          },
+          {
+            "adapterField" : {
+              "name" : "transactioncommissionamt"
+            },
+            "name" : "transactioncommissionamt",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 28,
+            "scale" : 6
+          },
+          {
+            "adapterField" : {
+              "name" : "futuretermautotransactionind"
+            },
+            "name" : "futuretermautotransactionind",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 360,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "unapplysource"
+            },
+            "name" : "unapplysource",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 360,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "chargereinstatementfeeind"
+            },
+            "name" : "chargereinstatementfeeind",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 360,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "referencenumber"
+            },
+            "name" : "referencenumber",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 360,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "rowid"
+            },
+            "name" : "rowid",
+            "platformType" : {
+              "name" : "bigint"
+            },
+            "precision" : 19,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "recordinserteddttm"
+            },
+            "name" : "recordinserteddttm",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          }
+        ],
+        "dataAdapter" : {
+          "connectionId$" : {
+            "name" : "DBConnection_TGT"
+          },
+          "excludeDynamicFileNameField" : "false",
+          "objectType" : "SINGLE",
+          "typeSystem" : "TOOLKIT",
+          "useDynamicFileName" : "false",
+          "object" : {
+            "name" : "dbo/transactionhistory_stg",
+            "label" : "transactionhistory_stg",
+            "objectName" : "transactionhistory_stg",
+            "objectType" : "amazonredshift",
+            "path" : "dbo/transactionhistory_stg",
+            "retainMetadata" : "false",
+            "fields" : [
+              {
+                "name" : "systemid",
+                "fieldType" : "CONNECTOR",
+                "label" : "systemid",
+                "nativeName" : "systemid",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "parentid",
+                "fieldType" : "CONNECTOR",
+                "label" : "parentid",
+                "nativeName" : "parentid",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 360,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "cmmcontainer",
+                "fieldType" : "CONNECTOR",
+                "label" : "cmmcontainer",
+                "nativeName" : "cmmcontainer",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 360,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "id",
+                "fieldType" : "CONNECTOR",
+                "label" : "id",
+                "nativeName" : "id",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 360,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "transactioncd",
+                "fieldType" : "CONNECTOR",
+                "label" : "transactioncd",
+                "nativeName" : "transactioncd",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 360,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "transactioneffectivedt",
+                "fieldType" : "CONNECTOR",
+                "label" : "transactioneffectivedt",
+                "nativeName" : "transactioneffectivedt",
+                "nativeType" : "date",
+                "original" : "false",
+                "precision" : 13,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "transactioneffectivetm",
+                "fieldType" : "CONNECTOR",
+                "label" : "transactioneffectivetm",
+                "nativeName" : "transactioneffectivetm",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 360,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "transactionuser",
+                "fieldType" : "CONNECTOR",
+                "label" : "transactionuser",
+                "nativeName" : "transactionuser",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 360,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "transactiondt",
+                "fieldType" : "CONNECTOR",
+                "label" : "transactiondt",
+                "nativeName" : "transactiondt",
+                "nativeType" : "date",
+                "original" : "false",
+                "precision" : 13,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "transactiontm",
+                "fieldType" : "CONNECTOR",
+                "label" : "transactiontm",
+                "nativeName" : "transactiontm",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 360,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "transactionlongdescription",
+                "fieldType" : "CONNECTOR",
+                "label" : "transactionlongdescription",
+                "nativeName" : "transactionlongdescription",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 360,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "transactionshortdescription",
+                "fieldType" : "CONNECTOR",
+                "label" : "transactionshortdescription",
+                "nativeName" : "transactionshortdescription",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 360,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "transactionnumber",
+                "fieldType" : "CONNECTOR",
+                "label" : "transactionnumber",
+                "nativeName" : "transactionnumber",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "submissionnumber",
+                "fieldType" : "CONNECTOR",
+                "label" : "submissionnumber",
+                "nativeName" : "submissionnumber",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "inforcepremiumamt",
+                "fieldType" : "CONNECTOR",
+                "label" : "inforcepremiumamt",
+                "nativeName" : "inforcepremiumamt",
+                "nativeType" : "numeric",
+                "original" : "false",
+                "precision" : 28,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "inforcechangepremiumamt",
+                "fieldType" : "CONNECTOR",
+                "label" : "inforcechangepremiumamt",
+                "nativeName" : "inforcechangepremiumamt",
+                "nativeType" : "numeric",
+                "original" : "false",
+                "precision" : 28,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "writtenpremiumamt",
+                "fieldType" : "CONNECTOR",
+                "label" : "writtenpremiumamt",
+                "nativeName" : "writtenpremiumamt",
+                "nativeType" : "numeric",
+                "original" : "false",
+                "precision" : 28,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "writtenchangepremiumamt",
+                "fieldType" : "CONNECTOR",
+                "label" : "writtenchangepremiumamt",
+                "nativeName" : "writtenchangepremiumamt",
+                "nativeType" : "numeric",
+                "original" : "false",
+                "precision" : 28,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "canceltypecd",
+                "fieldType" : "CONNECTOR",
+                "label" : "canceltypecd",
+                "nativeName" : "canceltypecd",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 360,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "cancelrequestedbycd",
+                "fieldType" : "CONNECTOR",
+                "label" : "cancelrequestedbycd",
+                "nativeName" : "cancelrequestedbycd",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 360,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "rewritetoproductversion",
+                "fieldType" : "CONNECTOR",
+                "label" : "rewritetoproductversion",
+                "nativeName" : "rewritetoproductversion",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 360,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "premiumcalculationdt",
+                "fieldType" : "CONNECTOR",
+                "label" : "premiumcalculationdt",
+                "nativeName" : "premiumcalculationdt",
+                "nativeType" : "date",
+                "original" : "false",
+                "precision" : 13,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "newpolicyeffectivedt",
+                "fieldType" : "CONNECTOR",
+                "label" : "newpolicyeffectivedt",
+                "nativeName" : "newpolicyeffectivedt",
+                "nativeType" : "date",
+                "original" : "false",
+                "precision" : 13,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "newpolicyexpirationdt",
+                "fieldType" : "CONNECTOR",
+                "label" : "newpolicyexpirationdt",
+                "nativeName" : "newpolicyexpirationdt",
+                "nativeType" : "date",
+                "original" : "false",
+                "precision" : 13,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "releaseholdreason",
+                "fieldType" : "CONNECTOR",
+                "label" : "releaseholdreason",
+                "nativeName" : "releaseholdreason",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 360,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "changeinforef",
+                "fieldType" : "CONNECTOR",
+                "label" : "changeinforef",
+                "nativeName" : "changeinforef",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 360,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "bookdt",
+                "fieldType" : "CONNECTOR",
+                "label" : "bookdt",
+                "nativeName" : "bookdt",
+                "nativeType" : "date",
+                "original" : "false",
+                "precision" : 13,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "mastertransactionnumber",
+                "fieldType" : "CONNECTOR",
+                "label" : "mastertransactionnumber",
+                "nativeName" : "mastertransactionnumber",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "replacedbytransactionnumber",
+                "fieldType" : "CONNECTOR",
+                "label" : "replacedbytransactionnumber",
+                "nativeName" : "replacedbytransactionnumber",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "replacementoftransactionnumber",
+                "fieldType" : "CONNECTOR",
+                "label" : "replacementoftransactionnumber",
+                "nativeName" : "replacementoftransactionnumber",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "unappliedbytransactionnumber",
+                "fieldType" : "CONNECTOR",
+                "label" : "unappliedbytransactionnumber",
+                "nativeName" : "unappliedbytransactionnumber",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "unapplyoftransactionnumber",
+                "fieldType" : "CONNECTOR",
+                "label" : "unapplyoftransactionnumber",
+                "nativeName" : "unapplyoftransactionnumber",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "statprocessedind",
+                "fieldType" : "CONNECTOR",
+                "label" : "statprocessedind",
+                "nativeName" : "statprocessedind",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 360,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "outputtypecd",
+                "fieldType" : "CONNECTOR",
+                "label" : "outputtypecd",
+                "nativeName" : "outputtypecd",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 360,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "applicationref",
+                "fieldType" : "CONNECTOR",
+                "label" : "applicationref",
+                "nativeName" : "applicationref",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "holdtype",
+                "fieldType" : "CONNECTOR",
+                "label" : "holdtype",
+                "nativeName" : "holdtype",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 360,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "sourcecd",
+                "fieldType" : "CONNECTOR",
+                "label" : "sourcecd",
+                "nativeName" : "sourcecd",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 360,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "delayinvoiceind",
+                "fieldType" : "CONNECTOR",
+                "label" : "delayinvoiceind",
+                "nativeName" : "delayinvoiceind",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 360,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "paymenttypecd",
+                "fieldType" : "CONNECTOR",
+                "label" : "paymenttypecd",
+                "nativeName" : "paymenttypecd",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 360,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "checknumber",
+                "fieldType" : "CONNECTOR",
+                "label" : "checknumber",
+                "nativeName" : "checknumber",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 360,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "paymentamt",
+                "fieldType" : "CONNECTOR",
+                "label" : "paymentamt",
+                "nativeName" : "paymentamt",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 360,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "conversiongroup",
+                "fieldType" : "CONNECTOR",
+                "label" : "conversiongroup",
+                "nativeName" : "conversiongroup",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 360,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "conversiontemplateidref",
+                "fieldType" : "CONNECTOR",
+                "label" : "conversiontemplateidref",
+                "nativeName" : "conversiontemplateidref",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 360,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "conversionjobref",
+                "fieldType" : "CONNECTOR",
+                "label" : "conversionjobref",
+                "nativeName" : "conversionjobref",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 360,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "renewalproviderref",
+                "fieldType" : "CONNECTOR",
+                "label" : "renewalproviderref",
+                "nativeName" : "renewalproviderref",
+                "nativeType" : "int4",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "renewalsubproducercd",
+                "fieldType" : "CONNECTOR",
+                "label" : "renewalsubproducercd",
+                "nativeName" : "renewalsubproducercd",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 360,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "writtenfeeamt",
+                "fieldType" : "CONNECTOR",
+                "label" : "writtenfeeamt",
+                "nativeName" : "writtenfeeamt",
+                "nativeType" : "numeric",
+                "original" : "false",
+                "precision" : 28,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "writtencommissionfeeamt",
+                "fieldType" : "CONNECTOR",
+                "label" : "writtencommissionfeeamt",
+                "nativeName" : "writtencommissionfeeamt",
+                "nativeType" : "numeric",
+                "original" : "false",
+                "precision" : 28,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "transactioncommissionamt",
+                "fieldType" : "CONNECTOR",
+                "label" : "transactioncommissionamt",
+                "nativeName" : "transactioncommissionamt",
+                "nativeType" : "numeric",
+                "original" : "false",
+                "precision" : 28,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "futuretermautotransactionind",
+                "fieldType" : "CONNECTOR",
+                "label" : "futuretermautotransactionind",
+                "nativeName" : "futuretermautotransactionind",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 360,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "unapplysource",
+                "fieldType" : "CONNECTOR",
+                "label" : "unapplysource",
+                "nativeName" : "unapplysource",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 360,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "chargereinstatementfeeind",
+                "fieldType" : "CONNECTOR",
+                "label" : "chargereinstatementfeeind",
+                "nativeName" : "chargereinstatementfeeind",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 360,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "referencenumber",
+                "fieldType" : "CONNECTOR",
+                "label" : "referencenumber",
+                "nativeName" : "referencenumber",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 360,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "rowid",
+                "fieldType" : "CONNECTOR",
+                "label" : "rowid",
+                "nativeName" : "rowid",
+                "nativeType" : "int8",
+                "original" : "false",
+                "precision" : 19,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory_stg"
+                  }
+                ]
+              },
+              {
+                "name" : "recordinserteddttm",
+                "fieldType" : "CONNECTOR",
+                "label" : "recordinserteddttm",
+                "nativeName" : "recordinserteddttm",
+                "nativeType" : "timestamp",
+                "original" : "false",
+                "precision" : 29,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory_stg"
+                  }
+                ]
+              }
+            ],
+            "objectAttributes" : [
+              {
+                "name" : "recordType",
+                "value" : "TABLE"
+              }
+            ]
+          },
+          "runtimeAttributes" : {
+            "attributes" : [
+              {
+                "name" : "S3 Bucket Name",
+                "value" : "$$S3_Staging_Bucket"
+              },
+              {
+                "name" : "Enable Compression",
+                "value" : "YES"
+              },
+              {
+                "name" : "Batch Size",
+                "value" : "2000000"
+              },
+              {
+                "name" : "Max Errors Per Batch Upload Insert",
+                "value" : "1"
+              },
+              {
+                "name" : "Truncate Target Table Before Data Upload",
+                "value" : "YES"
+              },
+              {
+                "name" : "WaitTime In Seconds For S3 File Consistency",
+                "value" : "0"
+              },
+              {
+                "name" : "Temporary Credential Duration",
+                "value" : "900"
+              },
+              {
+                "name" : "S3 Server Side Encryption",
+                "value" : "NO"
+              },
+              {
+                "name" : "S3 Client Side Encryption",
+                "value" : "NO"
+              },
+              {
+                "name" : "Analyze Target Table",
+                "value" : "NO"
+              },
+              {
+                "name" : "Vacuum Target Table",
+                "value" : "None"
+              },
+              {
+                "name" : "Treat Source Rows As",
+                "value" : "INSERT"
+              },
+              {
+                "name" : "Transfer Manager Thread Pool Size",
+                "value" : "10"
+              },
+              {
+                "name" : "Minimum Upload Part Size",
+                "value" : "5242880"
+              },
+              {
+                "name" : "Preserve record order on write",
+                "value" : "NO"
+              },
+              {
+                "name" : "Number of files per batch",
+                "value" : "0"
+              }
+            ]
+          },
+          "writeOptions" : {
+            "batchSize" : 0,
+            "bulkApi" : "false",
+            "handleDecimalRoundOff" : "false",
+            "handleSpecialChars" : "false",
+            "operations" : [
+              "Insert",
+              "Insert"
+            ],
+            "setFieldsToNull" : "false",
+            "truncate" : "false",
+            "useErrorFile" : "false",
+            "useExactSrcNames" : "false",
+            "useSuccessFile" : "false"
+          }
+        },
+        "manualMappings" : {
+          "mappingList" : [
+            {
+              "fromFieldName" : "SystemId",
+              "toField" : {
+                "name" : "systemid"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "ParentId",
+              "toField" : {
+                "name" : "parentid"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "CMMContainer",
+              "toField" : {
+                "name" : "cmmcontainer"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "Id",
+              "toField" : {
+                "name" : "id"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "TransactionCd",
+              "toField" : {
+                "name" : "transactioncd"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "TransactionEffectiveDt",
+              "toField" : {
+                "name" : "transactioneffectivedt"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "TransactionEffectiveTm",
+              "toField" : {
+                "name" : "transactioneffectivetm"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "TransactionUser",
+              "toField" : {
+                "name" : "transactionuser"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "TransactionDt",
+              "toField" : {
+                "name" : "transactiondt"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "TransactionTm",
+              "toField" : {
+                "name" : "transactiontm"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "TransactionLongDescription",
+              "toField" : {
+                "name" : "transactionlongdescription"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "TransactionShortDescription",
+              "toField" : {
+                "name" : "transactionshortdescription"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "TransactionNumber",
+              "toField" : {
+                "name" : "transactionnumber"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "SubmissionNumber",
+              "toField" : {
+                "name" : "submissionnumber"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "InforcePremiumAmt",
+              "toField" : {
+                "name" : "inforcepremiumamt"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "InforceChangePremiumAmt",
+              "toField" : {
+                "name" : "inforcechangepremiumamt"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "WrittenPremiumAmt",
+              "toField" : {
+                "name" : "writtenpremiumamt"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "WrittenChangePremiumAmt",
+              "toField" : {
+                "name" : "writtenchangepremiumamt"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "CancelTypeCd",
+              "toField" : {
+                "name" : "canceltypecd"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "CancelRequestedByCd",
+              "toField" : {
+                "name" : "cancelrequestedbycd"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "RewriteToProductVersion",
+              "toField" : {
+                "name" : "rewritetoproductversion"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "PremiumCalculationDt",
+              "toField" : {
+                "name" : "premiumcalculationdt"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "NewPolicyEffectiveDt",
+              "toField" : {
+                "name" : "newpolicyeffectivedt"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "NewPolicyExpirationDt",
+              "toField" : {
+                "name" : "newpolicyexpirationdt"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "ReleaseHoldReason",
+              "toField" : {
+                "name" : "releaseholdreason"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "ChangeInfoRef",
+              "toField" : {
+                "name" : "changeinforef"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "BookDt",
+              "toField" : {
+                "name" : "bookdt"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "MasterTransactionNumber",
+              "toField" : {
+                "name" : "mastertransactionnumber"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "ReplacedByTransactionNumber",
+              "toField" : {
+                "name" : "replacedbytransactionnumber"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "ReplacementOfTransactionNumber",
+              "toField" : {
+                "name" : "replacementoftransactionnumber"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "UnAppliedByTransactionNumber",
+              "toField" : {
+                "name" : "unappliedbytransactionnumber"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "UnApplyOfTransactionNumber",
+              "toField" : {
+                "name" : "unapplyoftransactionnumber"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "StatProcessedInd",
+              "toField" : {
+                "name" : "statprocessedind"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "OutputTypeCd",
+              "toField" : {
+                "name" : "outputtypecd"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "ApplicationRef",
+              "toField" : {
+                "name" : "applicationref"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "HoldType",
+              "toField" : {
+                "name" : "holdtype"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "SourceCd",
+              "toField" : {
+                "name" : "sourcecd"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "DelayInvoiceInd",
+              "toField" : {
+                "name" : "delayinvoiceind"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "PaymentTypeCd",
+              "toField" : {
+                "name" : "paymenttypecd"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "CheckNumber",
+              "toField" : {
+                "name" : "checknumber"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "PaymentAmt",
+              "toField" : {
+                "name" : "paymentamt"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "ConversionGroup",
+              "toField" : {
+                "name" : "conversiongroup"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "ConversionTemplateIdRef",
+              "toField" : {
+                "name" : "conversiontemplateidref"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "ConversionJobRef",
+              "toField" : {
+                "name" : "conversionjobref"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "RenewalProviderRef",
+              "toField" : {
+                "name" : "renewalproviderref"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "RenewalSubProducerCd",
+              "toField" : {
+                "name" : "renewalsubproducercd"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "WrittenFeeAmt",
+              "toField" : {
+                "name" : "writtenfeeamt"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "WrittenCommissionFeeAmt",
+              "toField" : {
+                "name" : "writtencommissionfeeamt"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "TransactionCommissionAmt",
+              "toField" : {
+                "name" : "transactioncommissionamt"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "FutureTermAutoTransactionInd",
+              "toField" : {
+                "name" : "futuretermautotransactionind"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "UnapplySource",
+              "toField" : {
+                "name" : "unapplysource"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "ChargeReinstatementFeeInd",
+              "toField" : {
+                "name" : "chargereinstatementfeeind"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "ReferenceNumber",
+              "toField" : {
+                "name" : "referencenumber"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "RowId",
+              "toField" : {
+                "name" : "rowid"
+              },
+              "fromFieldNames" : null
+            },
+            {
+              "fromFieldName" : "RecordInsertedDttm",
+              "toField" : {
+                "name" : "recordinserteddttm"
+              },
+              "fromFieldNames" : null
+            }
+          ]
+        }
+      },
+      {
+        "description" : "Thsi transformation is used to populate the Audit fields field like record inserted date and time\n",
+        "name" : "Exp_Audit",
+        "advancedProperties" : [
+          {
+            "name" : "Tracing Level",
+            "value" : "Normal"
+          },
+          {
+            "name" : "Optional",
+            "value" : "true"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "true",
+            "name" : "DefaultGroup",
+            "output" : "true",
+            "rules" : [
+              {
+                "bulkRename" : "false",
+                "include" : "true"
+              },
+              {
+                "bulkRename" : "false",
+                "include" : "false",
+                "names" : [
+                  {
+                    "inputName" : "ParentId"
+                  },
+                  {
+                    "inputName" : "CMMContainer"
+                  },
+                  {
+                    "inputName" : "Id"
+                  },
+                  {
+                    "inputName" : "TransactionCd"
+                  },
+                  {
+                    "inputName" : "TransactionEffectiveDt"
+                  },
+                  {
+                    "inputName" : "TransactionEffectiveTm"
+                  },
+                  {
+                    "inputName" : "TransactionUser"
+                  },
+                  {
+                    "inputName" : "TransactionDt"
+                  },
+                  {
+                    "inputName" : "TransactionTm"
+                  },
+                  {
+                    "inputName" : "TransactionLongDescription"
+                  },
+                  {
+                    "inputName" : "TransactionShortDescription"
+                  },
+                  {
+                    "inputName" : "TransactionNumber"
+                  },
+                  {
+                    "inputName" : "SubmissionNumber"
+                  },
+                  {
+                    "inputName" : "InforcePremiumAmt"
+                  },
+                  {
+                    "inputName" : "InforceChangePremiumAmt"
+                  },
+                  {
+                    "inputName" : "WrittenPremiumAmt"
+                  },
+                  {
+                    "inputName" : "WrittenChangePremiumAmt"
+                  },
+                  {
+                    "inputName" : "CancelTypeCd"
+                  },
+                  {
+                    "inputName" : "CancelRequestedByCd"
+                  },
+                  {
+                    "inputName" : "RewriteToProductVersion"
+                  },
+                  {
+                    "inputName" : "PremiumCalculationDt"
+                  },
+                  {
+                    "inputName" : "NewPolicyEffectiveDt"
+                  },
+                  {
+                    "inputName" : "NewPolicyExpirationDt"
+                  },
+                  {
+                    "inputName" : "ReleaseHoldReason"
+                  },
+                  {
+                    "inputName" : "ChangeInfoRef"
+                  },
+                  {
+                    "inputName" : "BookDt"
+                  },
+                  {
+                    "inputName" : "MasterTransactionNumber"
+                  },
+                  {
+                    "inputName" : "ReplacedByTransactionNumber"
+                  },
+                  {
+                    "inputName" : "ReplacementOfTransactionNumber"
+                  },
+                  {
+                    "inputName" : "UnAppliedByTransactionNumber"
+                  },
+                  {
+                    "inputName" : "UnApplyOfTransactionNumber"
+                  },
+                  {
+                    "inputName" : "StatProcessedInd"
+                  },
+                  {
+                    "inputName" : "OutputTypeCd"
+                  },
+                  {
+                    "inputName" : "ApplicationRef"
+                  },
+                  {
+                    "inputName" : "HoldType"
+                  },
+                  {
+                    "inputName" : "SourceCd"
+                  },
+                  {
+                    "inputName" : "DelayInvoiceInd"
+                  },
+                  {
+                    "inputName" : "PaymentTypeCd"
+                  },
+                  {
+                    "inputName" : "CheckNumber"
+                  },
+                  {
+                    "inputName" : "PaymentAmt"
+                  },
+                  {
+                    "inputName" : "ConversionGroup"
+                  },
+                  {
+                    "inputName" : "ConversionTemplateIdRef"
+                  },
+                  {
+                    "inputName" : "ConversionJobRef"
+                  },
+                  {
+                    "inputName" : "RenewalProviderRef"
+                  },
+                  {
+                    "inputName" : "RenewalSubProducerCd"
+                  },
+                  {
+                    "inputName" : "WrittenFeeAmt"
+                  },
+                  {
+                    "inputName" : "WrittenCommissionFeeAmt"
+                  },
+                  {
+                    "inputName" : "TransactionCommissionAmt"
+                  },
+                  {
+                    "inputName" : "FutureTermAutoTransactionInd"
+                  },
+                  {
+                    "inputName" : "UnapplySource"
+                  },
+                  {
+                    "inputName" : "ChargeReinstatementFeeInd"
+                  },
+                  {
+                    "inputName" : "ReferenceNumber"
+                  },
+                  {
+                    "inputName" : "RowId"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "windowConfigurationEnabled" : "false",
+        "fields" : [
+          {
+            "defaultValue" : "ERROR('transformation error')",
+            "name" : "o_RecordCreatedDttm",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9,
+            "expFieldType" : "OUTPUT",
+            "expression" : "SESSSTARTTIME"
+          }
+        ]
+      },
+      {
+        "name" : "Src_transactionhistory",
+        "advancedProperties" : [
+          {
+            "name" : "Number Of Sorted Ports",
+            "value" : "0"
+          },
+          {
+            "name" : "Tracing Level",
+            "value" : "Normal"
+          },
+          {
+            "name" : "Is Partitionable",
+            "value" : "false"
+          },
+          {
+            "name" : "Output is deterministic",
+            "value" : "false"
+          },
+          {
+            "name" : "Output is repeatable",
+            "value" : "Never"
+          }
+        ],
+        "groups" : [
+          {
+            "input" : "false",
+            "name" : "DefaultGroup",
+            "output" : "true"
+          }
+        ],
+        "generateFilenamePort" : "false",
+        "useLabels" : "false",
+        "useSequenceFields" : "false",
+        "fields" : [
+          {
+            "adapterField" : {
+              "name" : "SystemId"
+            },
+            "name" : "SystemId",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "ParentId"
+            },
+            "name" : "ParentId",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 120,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "CMMContainer"
+            },
+            "name" : "CMMContainer",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 120,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "Id"
+            },
+            "name" : "Id",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 120,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "TransactionCd"
+            },
+            "name" : "TransactionCd",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 120,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "TransactionEffectiveDt"
+            },
+            "name" : "TransactionEffectiveDt",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "TransactionEffectiveTm"
+            },
+            "name" : "TransactionEffectiveTm",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 120,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "TransactionUser"
+            },
+            "name" : "TransactionUser",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 120,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "TransactionDt"
+            },
+            "name" : "TransactionDt",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "TransactionTm"
+            },
+            "name" : "TransactionTm",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 120,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "TransactionLongDescription"
+            },
+            "name" : "TransactionLongDescription",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 120,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "TransactionShortDescription"
+            },
+            "name" : "TransactionShortDescription",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 120,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "TransactionNumber"
+            },
+            "name" : "TransactionNumber",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "SubmissionNumber"
+            },
+            "name" : "SubmissionNumber",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "InforcePremiumAmt"
+            },
+            "name" : "InforcePremiumAmt",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 30,
+            "scale" : 6
+          },
+          {
+            "adapterField" : {
+              "name" : "InforceChangePremiumAmt"
+            },
+            "name" : "InforceChangePremiumAmt",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 30,
+            "scale" : 6
+          },
+          {
+            "adapterField" : {
+              "name" : "WrittenPremiumAmt"
+            },
+            "name" : "WrittenPremiumAmt",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 30,
+            "scale" : 6
+          },
+          {
+            "adapterField" : {
+              "name" : "WrittenChangePremiumAmt"
+            },
+            "name" : "WrittenChangePremiumAmt",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 30,
+            "scale" : 6
+          },
+          {
+            "adapterField" : {
+              "name" : "CancelTypeCd"
+            },
+            "name" : "CancelTypeCd",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 120,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "CancelRequestedByCd"
+            },
+            "name" : "CancelRequestedByCd",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 120,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "RewriteToProductVersion"
+            },
+            "name" : "RewriteToProductVersion",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 120,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "PremiumCalculationDt"
+            },
+            "name" : "PremiumCalculationDt",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "NewPolicyEffectiveDt"
+            },
+            "name" : "NewPolicyEffectiveDt",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "NewPolicyExpirationDt"
+            },
+            "name" : "NewPolicyExpirationDt",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "ReleaseHoldReason"
+            },
+            "name" : "ReleaseHoldReason",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 120,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "ChangeInfoRef"
+            },
+            "name" : "ChangeInfoRef",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 120,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "BookDt"
+            },
+            "name" : "BookDt",
+            "platformType" : {
+              "name" : "date/time"
+            },
+            "precision" : 29,
+            "scale" : 9
+          },
+          {
+            "adapterField" : {
+              "name" : "MasterTransactionNumber"
+            },
+            "name" : "MasterTransactionNumber",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "ReplacedByTransactionNumber"
+            },
+            "name" : "ReplacedByTransactionNumber",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "ReplacementOfTransactionNumber"
+            },
+            "name" : "ReplacementOfTransactionNumber",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "UnAppliedByTransactionNumber"
+            },
+            "name" : "UnAppliedByTransactionNumber",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "UnApplyOfTransactionNumber"
+            },
+            "name" : "UnApplyOfTransactionNumber",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "StatProcessedInd"
+            },
+            "name" : "StatProcessedInd",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 120,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "OutputTypeCd"
+            },
+            "name" : "OutputTypeCd",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 120,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "ApplicationRef"
+            },
+            "name" : "ApplicationRef",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "HoldType"
+            },
+            "name" : "HoldType",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 120,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "SourceCd"
+            },
+            "name" : "SourceCd",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 120,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "DelayInvoiceInd"
+            },
+            "name" : "DelayInvoiceInd",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 120,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "PaymentTypeCd"
+            },
+            "name" : "PaymentTypeCd",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 120,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "CheckNumber"
+            },
+            "name" : "CheckNumber",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 120,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "PaymentAmt"
+            },
+            "name" : "PaymentAmt",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 120,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "ConversionGroup"
+            },
+            "name" : "ConversionGroup",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 120,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "ConversionTemplateIdRef"
+            },
+            "name" : "ConversionTemplateIdRef",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 120,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "ConversionJobRef"
+            },
+            "name" : "ConversionJobRef",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 120,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "RenewalProviderRef"
+            },
+            "name" : "RenewalProviderRef",
+            "platformType" : {
+              "name" : "integer"
+            },
+            "precision" : 10,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "RenewalSubProducerCd"
+            },
+            "name" : "RenewalSubProducerCd",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 120,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "WrittenFeeAmt"
+            },
+            "name" : "WrittenFeeAmt",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 30,
+            "scale" : 6
+          },
+          {
+            "adapterField" : {
+              "name" : "WrittenCommissionFeeAmt"
+            },
+            "name" : "WrittenCommissionFeeAmt",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 30,
+            "scale" : 6
+          },
+          {
+            "adapterField" : {
+              "name" : "TransactionCommissionAmt"
+            },
+            "name" : "TransactionCommissionAmt",
+            "platformType" : {
+              "name" : "decimal"
+            },
+            "precision" : 30,
+            "scale" : 6
+          },
+          {
+            "adapterField" : {
+              "name" : "FutureTermAutoTransactionInd"
+            },
+            "name" : "FutureTermAutoTransactionInd",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 120,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "UnapplySource"
+            },
+            "name" : "UnapplySource",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 120,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "ChargeReinstatementFeeInd"
+            },
+            "name" : "ChargeReinstatementFeeInd",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 120,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "ReferenceNumber"
+            },
+            "name" : "ReferenceNumber",
+            "platformType" : {
+              "name" : "string"
+            },
+            "precision" : 120,
+            "scale" : 0
+          },
+          {
+            "adapterField" : {
+              "name" : "RowId"
+            },
+            "name" : "RowId",
+            "platformType" : {
+              "name" : "bigint"
+            },
+            "precision" : 19,
+            "scale" : 0
+          }
+        ],
+        "dataAdapter" : {
+          "connectionId$" : {
+            "name" : "DBConnection_SRCM"
+          },
+          "excludeDynamicFileNameField" : "false",
+          "objectType" : "QUERY",
+          "typeSystem" : "MySQL",
+          "useDynamicFileName" : "false",
+          "object" : {
+            "customQuery" : "SELECT distinct transactionhistory.SystemId, transactionhistory.ParentId, transactionhistory.CMMContainer, transactionhistory.Id, transactionhistory.TransactionCd, transactionhistory.TransactionEffectiveDt, transactionhistory.TransactionEffectiveTm, transactionhistory.TransactionUser, transactionhistory.TransactionDt, transactionhistory.TransactionTm, transactionhistory.TransactionLongDescription, transactionhistory.TransactionShortDescription, transactionhistory.TransactionNumber, transactionhistory.SubmissionNumber, transactionhistory.InforcePremiumAmt, transactionhistory.InforceChangePremiumAmt, transactionhistory.WrittenPremiumAmt, transactionhistory.WrittenChangePremiumAmt, transactionhistory.CancelTypeCd, transactionhistory.CancelRequestedByCd, transactionhistory.RewriteToProductVersion, transactionhistory.PremiumCalculationDt, transactionhistory.NewPolicyEffectiveDt, transactionhistory.NewPolicyExpirationDt, transactionhistory.ReleaseHoldReason, transactionhistory.ChangeInfoRef, transactionhistory.BookDt, transactionhistory.MasterTransactionNumber, transactionhistory.ReplacedByTransactionNumber, transactionhistory.ReplacementOfTransactionNumber, transactionhistory.UnAppliedByTransactionNumber, transactionhistory.UnApplyOfTransactionNumber, transactionhistory.StatProcessedInd, transactionhistory.OutputTypeCd, transactionhistory.ApplicationRef, transactionhistory.HoldType, transactionhistory.SourceCd, transactionhistory.DelayInvoiceInd, transactionhistory.PaymentTypeCd, transactionhistory.CheckNumber, transactionhistory.PaymentAmt, transactionhistory.ConversionGroup, transactionhistory.ConversionTemplateIdRef, transactionhistory.ConversionJobRef, transactionhistory.RenewalProviderRef, transactionhistory.RenewalSubProducerCd, transactionhistory.WrittenFeeAmt, transactionhistory.WrittenCommissionFeeAmt, transactionhistory.TransactionCommissionAmt, transactionhistory.FutureTermAutoTransactionInd, transactionhistory.UnapplySource, transactionhistory.ChargeReinstatementFeeInd, transactionhistory.ReferenceNumber, transactionhistory.RowId \nFROM\n transactionhistory  transactionhistory inner join advrxxchangedbeans advrxxchangedbeans\non transactionhistory.Systemid=advrxxchangedbeans.Systemid\nand transactionhistory.cmmcontainer=advrxxchangedbeans.cmmcontainer\nwhere concat(adddt,addtm)>='$$M_StartDt' and concat(adddt,addtm) <='$$M_EndDt'",
+            "retainMetadata" : "false",
+            "fields" : [
+              {
+                "name" : "SystemId",
+                "fieldType" : "CONNECTOR",
+                "label" : "SystemId",
+                "nativeName" : "SystemId",
+                "nativeType" : "integer",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory"
+                  }
+                ]
+              },
+              {
+                "name" : "ParentId",
+                "fieldType" : "CONNECTOR",
+                "label" : "ParentId",
+                "nativeName" : "ParentId",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 120,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory"
+                  }
+                ]
+              },
+              {
+                "name" : "CMMContainer",
+                "fieldType" : "CONNECTOR",
+                "label" : "CMMContainer",
+                "nativeName" : "CMMContainer",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 120,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory"
+                  }
+                ]
+              },
+              {
+                "name" : "Id",
+                "fieldType" : "CONNECTOR",
+                "label" : "Id",
+                "nativeName" : "Id",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 120,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory"
+                  }
+                ]
+              },
+              {
+                "name" : "TransactionCd",
+                "fieldType" : "CONNECTOR",
+                "label" : "TransactionCd",
+                "nativeName" : "TransactionCd",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 120,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory"
+                  }
+                ]
+              },
+              {
+                "name" : "TransactionEffectiveDt",
+                "fieldType" : "CONNECTOR",
+                "label" : "TransactionEffectiveDt",
+                "nativeName" : "TransactionEffectiveDt",
+                "nativeType" : "date",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory"
+                  }
+                ]
+              },
+              {
+                "name" : "TransactionEffectiveTm",
+                "fieldType" : "CONNECTOR",
+                "label" : "TransactionEffectiveTm",
+                "nativeName" : "TransactionEffectiveTm",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 120,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory"
+                  }
+                ]
+              },
+              {
+                "name" : "TransactionUser",
+                "fieldType" : "CONNECTOR",
+                "label" : "TransactionUser",
+                "nativeName" : "TransactionUser",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 120,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory"
+                  }
+                ]
+              },
+              {
+                "name" : "TransactionDt",
+                "fieldType" : "CONNECTOR",
+                "label" : "TransactionDt",
+                "nativeName" : "TransactionDt",
+                "nativeType" : "date",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory"
+                  }
+                ]
+              },
+              {
+                "name" : "TransactionTm",
+                "fieldType" : "CONNECTOR",
+                "label" : "TransactionTm",
+                "nativeName" : "TransactionTm",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 120,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory"
+                  }
+                ]
+              },
+              {
+                "name" : "TransactionLongDescription",
+                "fieldType" : "CONNECTOR",
+                "label" : "TransactionLongDescription",
+                "nativeName" : "TransactionLongDescription",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 120,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory"
+                  }
+                ]
+              },
+              {
+                "name" : "TransactionShortDescription",
+                "fieldType" : "CONNECTOR",
+                "label" : "TransactionShortDescription",
+                "nativeName" : "TransactionShortDescription",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 120,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory"
+                  }
+                ]
+              },
+              {
+                "name" : "TransactionNumber",
+                "fieldType" : "CONNECTOR",
+                "label" : "TransactionNumber",
+                "nativeName" : "TransactionNumber",
+                "nativeType" : "integer",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory"
+                  }
+                ]
+              },
+              {
+                "name" : "SubmissionNumber",
+                "fieldType" : "CONNECTOR",
+                "label" : "SubmissionNumber",
+                "nativeName" : "SubmissionNumber",
+                "nativeType" : "integer",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory"
+                  }
+                ]
+              },
+              {
+                "name" : "InforcePremiumAmt",
+                "fieldType" : "CONNECTOR",
+                "label" : "InforcePremiumAmt",
+                "nativeName" : "InforcePremiumAmt",
+                "nativeType" : "decimal",
+                "original" : "false",
+                "precision" : 30,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory"
+                  }
+                ]
+              },
+              {
+                "name" : "InforceChangePremiumAmt",
+                "fieldType" : "CONNECTOR",
+                "label" : "InforceChangePremiumAmt",
+                "nativeName" : "InforceChangePremiumAmt",
+                "nativeType" : "decimal",
+                "original" : "false",
+                "precision" : 30,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory"
+                  }
+                ]
+              },
+              {
+                "name" : "WrittenPremiumAmt",
+                "fieldType" : "CONNECTOR",
+                "label" : "WrittenPremiumAmt",
+                "nativeName" : "WrittenPremiumAmt",
+                "nativeType" : "decimal",
+                "original" : "false",
+                "precision" : 30,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory"
+                  }
+                ]
+              },
+              {
+                "name" : "WrittenChangePremiumAmt",
+                "fieldType" : "CONNECTOR",
+                "label" : "WrittenChangePremiumAmt",
+                "nativeName" : "WrittenChangePremiumAmt",
+                "nativeType" : "decimal",
+                "original" : "false",
+                "precision" : 30,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory"
+                  }
+                ]
+              },
+              {
+                "name" : "CancelTypeCd",
+                "fieldType" : "CONNECTOR",
+                "label" : "CancelTypeCd",
+                "nativeName" : "CancelTypeCd",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 120,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory"
+                  }
+                ]
+              },
+              {
+                "name" : "CancelRequestedByCd",
+                "fieldType" : "CONNECTOR",
+                "label" : "CancelRequestedByCd",
+                "nativeName" : "CancelRequestedByCd",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 120,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory"
+                  }
+                ]
+              },
+              {
+                "name" : "RewriteToProductVersion",
+                "fieldType" : "CONNECTOR",
+                "label" : "RewriteToProductVersion",
+                "nativeName" : "RewriteToProductVersion",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 120,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory"
+                  }
+                ]
+              },
+              {
+                "name" : "PremiumCalculationDt",
+                "fieldType" : "CONNECTOR",
+                "label" : "PremiumCalculationDt",
+                "nativeName" : "PremiumCalculationDt",
+                "nativeType" : "date",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory"
+                  }
+                ]
+              },
+              {
+                "name" : "NewPolicyEffectiveDt",
+                "fieldType" : "CONNECTOR",
+                "label" : "NewPolicyEffectiveDt",
+                "nativeName" : "NewPolicyEffectiveDt",
+                "nativeType" : "date",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory"
+                  }
+                ]
+              },
+              {
+                "name" : "NewPolicyExpirationDt",
+                "fieldType" : "CONNECTOR",
+                "label" : "NewPolicyExpirationDt",
+                "nativeName" : "NewPolicyExpirationDt",
+                "nativeType" : "date",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory"
+                  }
+                ]
+              },
+              {
+                "name" : "ReleaseHoldReason",
+                "fieldType" : "CONNECTOR",
+                "label" : "ReleaseHoldReason",
+                "nativeName" : "ReleaseHoldReason",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 120,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory"
+                  }
+                ]
+              },
+              {
+                "name" : "ChangeInfoRef",
+                "fieldType" : "CONNECTOR",
+                "label" : "ChangeInfoRef",
+                "nativeName" : "ChangeInfoRef",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 120,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory"
+                  }
+                ]
+              },
+              {
+                "name" : "BookDt",
+                "fieldType" : "CONNECTOR",
+                "label" : "BookDt",
+                "nativeName" : "BookDt",
+                "nativeType" : "date",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory"
+                  }
+                ]
+              },
+              {
+                "name" : "MasterTransactionNumber",
+                "fieldType" : "CONNECTOR",
+                "label" : "MasterTransactionNumber",
+                "nativeName" : "MasterTransactionNumber",
+                "nativeType" : "integer",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory"
+                  }
+                ]
+              },
+              {
+                "name" : "ReplacedByTransactionNumber",
+                "fieldType" : "CONNECTOR",
+                "label" : "ReplacedByTransactionNumber",
+                "nativeName" : "ReplacedByTransactionNumber",
+                "nativeType" : "integer",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory"
+                  }
+                ]
+              },
+              {
+                "name" : "ReplacementOfTransactionNumber",
+                "fieldType" : "CONNECTOR",
+                "label" : "ReplacementOfTransactionNumber",
+                "nativeName" : "ReplacementOfTransactionNumber",
+                "nativeType" : "integer",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory"
+                  }
+                ]
+              },
+              {
+                "name" : "UnAppliedByTransactionNumber",
+                "fieldType" : "CONNECTOR",
+                "label" : "UnAppliedByTransactionNumber",
+                "nativeName" : "UnAppliedByTransactionNumber",
+                "nativeType" : "integer",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory"
+                  }
+                ]
+              },
+              {
+                "name" : "UnApplyOfTransactionNumber",
+                "fieldType" : "CONNECTOR",
+                "label" : "UnApplyOfTransactionNumber",
+                "nativeName" : "UnApplyOfTransactionNumber",
+                "nativeType" : "integer",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory"
+                  }
+                ]
+              },
+              {
+                "name" : "StatProcessedInd",
+                "fieldType" : "CONNECTOR",
+                "label" : "StatProcessedInd",
+                "nativeName" : "StatProcessedInd",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 120,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory"
+                  }
+                ]
+              },
+              {
+                "name" : "OutputTypeCd",
+                "fieldType" : "CONNECTOR",
+                "label" : "OutputTypeCd",
+                "nativeName" : "OutputTypeCd",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 120,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory"
+                  }
+                ]
+              },
+              {
+                "name" : "ApplicationRef",
+                "fieldType" : "CONNECTOR",
+                "label" : "ApplicationRef",
+                "nativeName" : "ApplicationRef",
+                "nativeType" : "integer",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory"
+                  }
+                ]
+              },
+              {
+                "name" : "HoldType",
+                "fieldType" : "CONNECTOR",
+                "label" : "HoldType",
+                "nativeName" : "HoldType",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 120,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory"
+                  }
+                ]
+              },
+              {
+                "name" : "SourceCd",
+                "fieldType" : "CONNECTOR",
+                "label" : "SourceCd",
+                "nativeName" : "SourceCd",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 120,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory"
+                  }
+                ]
+              },
+              {
+                "name" : "DelayInvoiceInd",
+                "fieldType" : "CONNECTOR",
+                "label" : "DelayInvoiceInd",
+                "nativeName" : "DelayInvoiceInd",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 120,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory"
+                  }
+                ]
+              },
+              {
+                "name" : "PaymentTypeCd",
+                "fieldType" : "CONNECTOR",
+                "label" : "PaymentTypeCd",
+                "nativeName" : "PaymentTypeCd",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 120,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory"
+                  }
+                ]
+              },
+              {
+                "name" : "CheckNumber",
+                "fieldType" : "CONNECTOR",
+                "label" : "CheckNumber",
+                "nativeName" : "CheckNumber",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 120,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory"
+                  }
+                ]
+              },
+              {
+                "name" : "PaymentAmt",
+                "fieldType" : "CONNECTOR",
+                "label" : "PaymentAmt",
+                "nativeName" : "PaymentAmt",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 120,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory"
+                  }
+                ]
+              },
+              {
+                "name" : "ConversionGroup",
+                "fieldType" : "CONNECTOR",
+                "label" : "ConversionGroup",
+                "nativeName" : "ConversionGroup",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 120,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory"
+                  }
+                ]
+              },
+              {
+                "name" : "ConversionTemplateIdRef",
+                "fieldType" : "CONNECTOR",
+                "label" : "ConversionTemplateIdRef",
+                "nativeName" : "ConversionTemplateIdRef",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 120,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory"
+                  }
+                ]
+              },
+              {
+                "name" : "ConversionJobRef",
+                "fieldType" : "CONNECTOR",
+                "label" : "ConversionJobRef",
+                "nativeName" : "ConversionJobRef",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 120,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory"
+                  }
+                ]
+              },
+              {
+                "name" : "RenewalProviderRef",
+                "fieldType" : "CONNECTOR",
+                "label" : "RenewalProviderRef",
+                "nativeName" : "RenewalProviderRef",
+                "nativeType" : "integer",
+                "original" : "false",
+                "precision" : 10,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory"
+                  }
+                ]
+              },
+              {
+                "name" : "RenewalSubProducerCd",
+                "fieldType" : "CONNECTOR",
+                "label" : "RenewalSubProducerCd",
+                "nativeName" : "RenewalSubProducerCd",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 120,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory"
+                  }
+                ]
+              },
+              {
+                "name" : "WrittenFeeAmt",
+                "fieldType" : "CONNECTOR",
+                "label" : "WrittenFeeAmt",
+                "nativeName" : "WrittenFeeAmt",
+                "nativeType" : "decimal",
+                "original" : "false",
+                "precision" : 30,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory"
+                  }
+                ]
+              },
+              {
+                "name" : "WrittenCommissionFeeAmt",
+                "fieldType" : "CONNECTOR",
+                "label" : "WrittenCommissionFeeAmt",
+                "nativeName" : "WrittenCommissionFeeAmt",
+                "nativeType" : "decimal",
+                "original" : "false",
+                "precision" : 30,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory"
+                  }
+                ]
+              },
+              {
+                "name" : "TransactionCommissionAmt",
+                "fieldType" : "CONNECTOR",
+                "label" : "TransactionCommissionAmt",
+                "nativeName" : "TransactionCommissionAmt",
+                "nativeType" : "decimal",
+                "original" : "false",
+                "precision" : 30,
+                "scale" : 6,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory"
+                  }
+                ]
+              },
+              {
+                "name" : "FutureTermAutoTransactionInd",
+                "fieldType" : "CONNECTOR",
+                "label" : "FutureTermAutoTransactionInd",
+                "nativeName" : "FutureTermAutoTransactionInd",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 120,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory"
+                  }
+                ]
+              },
+              {
+                "name" : "UnapplySource",
+                "fieldType" : "CONNECTOR",
+                "label" : "UnapplySource",
+                "nativeName" : "UnapplySource",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 120,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory"
+                  }
+                ]
+              },
+              {
+                "name" : "ChargeReinstatementFeeInd",
+                "fieldType" : "CONNECTOR",
+                "label" : "ChargeReinstatementFeeInd",
+                "nativeName" : "ChargeReinstatementFeeInd",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 120,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory"
+                  }
+                ]
+              },
+              {
+                "name" : "ReferenceNumber",
+                "fieldType" : "CONNECTOR",
+                "label" : "ReferenceNumber",
+                "nativeName" : "ReferenceNumber",
+                "nativeType" : "varchar",
+                "original" : "false",
+                "precision" : 120,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory"
+                  }
+                ]
+              },
+              {
+                "name" : "RowId",
+                "fieldType" : "CONNECTOR",
+                "label" : "RowId",
+                "nativeName" : "RowId",
+                "nativeType" : "bigint",
+                "original" : "false",
+                "precision" : 19,
+                "scale" : 0,
+                "properties" : [
+                  {
+                    "name" : "parentObject",
+                    "value" : "transactionhistory"
+                  }
+                ]
+              }
+            ]
+          },
+          "readOptions" : {
+            "commandType" : 0,
+            "descending" : "false",
+            "queryAll" : "false",
+            "rowLimit" : 0,
+            "selectDistinct" : "false"
+          }
+        }
+      }
+    ],
+    "variables" : [
+      {
+        "aggregationType" : "MAX",
+        "expressionVariable" : "false",
+        "name" : "M_StartDt",
+        "platformType" : {
+          "name" : "string"
+        },
+        "precision" : 120,
+        "retentionPolicy" : "NEVER",
+        "scale" : 0
+      },
+      {
+        "aggregationType" : "MAX",
+        "expressionVariable" : "false",
+        "name" : "M_EndDt",
+        "platformType" : {
+          "name" : "string"
+        },
+        "precision" : 120,
+        "retentionPolicy" : "NEVER",
+        "scale" : 0
+      }
+    ]
+  },
+  "vcsExportTime" : "2026-01-31 07:40:36 PST"
+}
